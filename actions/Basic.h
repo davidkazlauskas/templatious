@@ -31,35 +31,35 @@ struct Divide;
 struct Mod;
 
 template <class T,class U,class V>
-struct Action<T,U,V,Type2Type<Multiply>> {
+struct ActionTwoToOne<T,U,V,Type2Type<Multiply>> {
 	V operator()(T& a,T& b) {
 		return a * b;
 	}
 };
 
 template <class T,class U,class V>
-struct Action<T,U,V,Type2Type<Subtract>> {
+struct ActionTwoToOne<T,U,V,Type2Type<Subtract>> {
 	V operator()(int& a,int& b) {
 		return a - b;
 	}
 };
 
 template <class T, class U, class V>
-struct Action<T, U, V, Type2Type<Add>> {
+struct ActionTwoToOne<T, U, V, Type2Type<Add>> {
         V operator()(int& a,int& b) {
 		return a + b;
 	}
 };
 
 template <class T, class U, class V>
-struct Action<T, U, V, Type2Type<Divide>> {
+struct ActionTwoToOne<T, U, V, Type2Type<Divide>> {
         V operator()(int& a,int& b) {
 		return a / b;
 	}
 };
 
 template <class T, class U, class V>
-struct Action<T, U, V, Type2Type<Mod>> {
+struct ActionTwoToOne<T, U, V, Type2Type<Mod>> {
         V operator()(int& a,int& b) {
 		return a % b;
 	}
