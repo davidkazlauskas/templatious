@@ -30,39 +30,44 @@ struct Add;
 struct Divide;
 struct Mod;
 
-template <class V, class T, class U>
-struct ActionTwoToOne<V, T, U, Type2Type<Multiply>> {
-        V operator()(const T& a,const T& b) {
-		return a * b;
-	}
+template <class T, class U>
+struct ActionTwoToOne<T, U, Type2Type<Multiply>> {
+    template <class V>
+    V operator()(const T& a, const T& b) {
+        return a * b;
+    }
 };
 
-template <class V, class T, class U>
-struct ActionTwoToOne<V, T, U, Type2Type<Subtract>> {
-        V operator()(const T& a,const U& b) {
-		return a - b;
-	}
+template <class T, class U>
+struct ActionTwoToOne<T, U, Type2Type<Subtract>> {
+    template <class V>
+    V operator()(const T& a, const U& b) {
+        return a - b;
+    }
 };
 
-template <class V, class T, class U>
-struct ActionTwoToOne<V, T, U, Type2Type<Add>> {
-        V operator()(const T& a,const U& b) {
-		return a + b;
-	}
+template <class T, class U>
+struct ActionTwoToOne<T, U, Type2Type<Add>> {
+    template <class V>
+    V operator()(const T& a, const U& b) {
+        return a + b;
+    }
 };
 
-template <class V, class T, class U>
-struct ActionTwoToOne<V, T, U, Type2Type<Divide>> {
-        V operator()(const T& a,const U& b) {
-		return a / b;
-	}
+template <class T, class U>
+struct ActionTwoToOne<T, U, Type2Type<Divide>> {
+    template <class V>
+    V operator()(const T& a, const U& b) {
+        return a / b;
+    }
 };
 
-template <class V, class T, class U>
-struct ActionTwoToOne<V, T, U, Type2Type<Mod>> {
-        V operator()(const T& a,const U& b) {
-		return a % b;
-	}
+template <class T, class U>
+struct ActionTwoToOne<T, U, Type2Type<Mod>> {
+    template <class V>
+    V operator()(const T& a, const U& b) {
+        return a % b;
+    }
 };
 
 }

@@ -68,11 +68,13 @@ struct StaticManipulator {
 		auto rIt = rgt.begin(r);
 
         typedef typename ad::CollectionAdapter<T> RetType;
+        typedef typename RetType::value_type RetValType;
         RetType ret;
 		auto res = ret.instantiate(size);
 		
 		while (lIt != lef.end(l)) {
-			ret.add(res,action(*lIt,*rIt));
+            RetValType r = action.template operator()<RetValType>(*lIt,*rIt);
+			ret.add(res, r);
 			++lIt; ++rIt;
 		}
 
