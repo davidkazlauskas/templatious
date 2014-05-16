@@ -30,7 +30,8 @@ struct CollectionAdapter< std::vector<T> > {
 
 	typedef typename std::vector<T> ThisCol;
 	typedef typename ThisCol::iterator iterator;
-	typedef typename ThisCol::value_type value_type;
+	//typedef typename ValueTypeExtractor< std::vector<T> >::value value_type;
+	typedef T value_type;
 
 	bool add(ThisCol& c,const value_type& i) {
 		c.push_back(i);

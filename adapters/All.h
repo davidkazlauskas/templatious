@@ -17,3 +17,4 @@
  */
 
 #include <templatious/adapters/StdVector.h>
+#include <templatious/adapters/StdList.h>
