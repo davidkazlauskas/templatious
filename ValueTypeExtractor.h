@@ -19,10 +19,13 @@
 #ifndef VALUETYPEEXTRACTOR_B6P7AZYF
 #define VALUETYPEEXTRACTOR_B6P7AZYF
 
+namespace templatious {
+
 template <class T>
 struct ValueTypeExtractor {
     typedef void result;
 };
 
+}
 
 #endif /* end of include guard: VALUETYPEEXTRACTOR_B6P7AZYF */

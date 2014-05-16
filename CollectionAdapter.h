@@ -4,6 +4,9 @@
 
 #include <vector>
 
+namespace templatious {
+    namespace adapters {
+
 template <class T>
 struct CollectionAdapter {
 
@@ -24,40 +27,7 @@ struct CollectionAdapter {
 
 };
 
-template <class T>
-struct CollectionAdapter<std::vector<T>> {
-
-	typedef typename std::vector<T> ThisCol;
-	typedef typename ThisCol::iterator iterator;
-	typedef typename ThisCol::value_type value_type;
-
-	bool add(ThisCol& c,const value_type& i) {
-		c.push_back(i);
-		return true;
-	}
-
-	ThisCol instantiate() {
-		return ThisCol();
-	}
-
-	ThisCol instantiate(int size) {
-		ThisCol r;
-		r.reserve(size);
-		return r;
-	}
-
-	iterator begin(ThisCol& c) {
-		return c.begin();
-	}
-
-	iterator end(ThisCol& c) {
-		return c.end();
-	}
-
-	int getSize(const ThisCol& c) {
-		return c.size();
-	}
-
-};
+}
+}
 
 #endif
