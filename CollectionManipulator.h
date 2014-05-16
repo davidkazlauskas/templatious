@@ -4,12 +4,7 @@
 #include <assert.h>
 
 #include <templatious/Action.h>
-
-
-//typedef Action<int,int,int,Type2Type<Multiply>> Multiplication;
-//typedef Action<double,double,double,Type2Type<Multiply>> Multiplication;
-//typedef Action<int,int,int,Type2Type<Subtract>> Subtraction;
-//typedef Action<int,int,int,Type2Type<Add>> Addition;
+#include <templatious/adapters/All.h>
 
 namespace templatious {
 namespace manip {
@@ -51,6 +46,37 @@ struct CollectionManipulator {
 		}
 
 		return retCol;
+	}
+
+};
+
+struct StaticManipulator {
+
+	template <class T,class U, class V, class X>
+	static T twoToOne(const U& l,const V& r,X& action) {
+
+        namespace ad = templatious::adapters;
+
+        ad::CollectionAdapter<U> lef;
+        ad::CollectionAdapter<V> rgt;
+
+		assert(lef.getSize(l) == rgt.getSize(r));
+
+		int size = lef.getSize(l);
+
+		auto lIt = lef.begin(l);
+		auto rIt = rgt.begin(r);
+
+        typedef typename ad::CollectionAdapter<T> RetType;
+        RetType ret;
+		auto res = ret.instantiate(size);
+		
+		while (lIt != lef.end(l)) {
+			ret.add(res,action(*lIt,*rIt));
+			++lIt; ++rIt;
+		}
+
+		return res;
 	}
 
 };

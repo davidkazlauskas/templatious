@@ -52,6 +52,17 @@ struct StaticAdapter {
         return a.remove(c,i);
     }
 
+    template <class T>
+    static T instantiate() {
+        CollectionAdapter<T> a;
+        return a.instantiate();
+    }
+
+    template <class T>
+    static T instantiate(int size) {
+        CollectionAdapter<T> a;
+        return a.instantiate(size);
+    }
 };
 
 }

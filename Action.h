@@ -25,9 +25,9 @@ namespace templatious {
 namespace action {
 
 // T - left side, U - right side, V - return type, Type2Type - additional anchor to differentiate
-template < class T,class U,class V,class X = Type2Type<Default> >
+template < class V, class T,class U,class X = Type2Type<Default> >
 struct ActionTwoToOne {
-	V operator()(T& a,U& b);
+	V operator()(const T& a,const U& b);
 };
 
 }

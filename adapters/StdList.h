@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  StdVector.h
+ *       Filename:  StdList.h
  *
- *    Description:  std::vector adapter
+ *    Description:  std::list adapter
  *
  *        Version:  1.0
- *        Created:  05/16/2014 10:07:30 AM
+ *        Created:  05/16/2014 12:08:10 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -16,22 +16,23 @@
  * =====================================================================================
  */
 
-#ifndef STDVECTOR_H6YPGTPK
-#define STDVECTOR_H6YPGTPK
+#ifndef STDLIST_8E2DYM7Y
+#define STDLIST_8E2DYM7Y
 
-#include <vector>
+#include <list>
+
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {
 namespace adapters {
 
 template <class T>
-struct CollectionAdapter< std::vector<T> > {
+struct CollectionAdapter< std::list<T> > {
 
-	typedef typename std::vector<T> ThisCol;
+	typedef typename std::list<T> ThisCol;
 	typedef typename ThisCol::iterator iterator;
 	typedef typename ThisCol::const_iterator const_iterator;
-	//typedef typename ValueTypeExtractor< std::vector<T> >::value value_type;
+	//typedef typename ValueTypeExtractor< std::list<T> >::value value_type;
 	typedef T value_type;
 
 	bool add(ThisCol& c,const value_type& i) {
@@ -45,7 +46,6 @@ struct CollectionAdapter< std::vector<T> > {
 
 	ThisCol instantiate(int size) {
 		ThisCol r;
-		r.reserve(size);
 		return r;
 	}
 
@@ -57,11 +57,11 @@ struct CollectionAdapter< std::vector<T> > {
 		return c.end();
 	}
 
-	const_iterator begin(const ThisCol& c) {
+	const iterator begin(const ThisCol& c) {
 		return c.begin();
 	}
 
-	const_iterator end(const ThisCol& c) {
+	const iterator end(const ThisCol& c) {
 		return c.end();
 	}
 
@@ -74,4 +74,4 @@ struct CollectionAdapter< std::vector<T> > {
 }
 }
 
-#endif /* end of include guard: STDVECTOR_H6YPGTPK */
+#endif /* end of include guard: STDLIST_8E2DYM7Y */
