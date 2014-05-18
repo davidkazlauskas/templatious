@@ -10,6 +10,7 @@ struct CollectionAdapter {
 
 	typedef T ThisCol;
 	typedef void* iterator;
+	typedef const void* const_iterator;
     typedef typename T::value_type value_type;
 	//typedef void value_type;
 
@@ -19,11 +20,16 @@ struct CollectionAdapter {
 	bool remove(ThisCol& c,const value_type& i);
 	value_type& getByIndex(ThisCol& c,int i);
 	int getSize(const ThisCol& c);
+
+    bool erase(ThisCol& c,iterator beg);
+    bool erase(ThisCol& c,iterator beg,iterator end);
+
 	ThisCol instantiate();
 	ThisCol instantiate(int size);
 
-    static iterator begin(ThisCol& c);
-    static iterator end(ThisCol& c);
+    iterator begin(ThisCol& c);
+    iterator end(ThisCol& c);
+    iterator iter_at(ThisCol& c,int i);
 };
 
 struct StaticAdapter {
@@ -86,6 +92,24 @@ struct StaticAdapter {
     static auto getByIndex(T& c, int i) -> typename CollectionAdapter<T>::value_type {
         CollectionAdapter<T> a;
         return a.getByIndex(c, i);
+    }
+
+    template <class T>
+    static bool erase(T& c,typename CollectionAdapter<T>::iterator beg,typename CollectionAdapter<T>::iterator end) {
+        CollectionAdapter<T> a;
+        return a.erase(cbeg,end);
+    }
+
+    template <class T>
+    static bool erase(T& c,typename CollectionAdapter<T>::iterator beg) {
+        CollectionAdapter<T> a;
+        return a.erase(c,beg);
+    }
+
+    template <class T>
+    static auto iter_at(T& c, int i) -> typename CollectionAdapter<T>::iterator {
+        CollectionAdapter<T> a;
+        return a.iter_at(c, i);
     }
 };
 

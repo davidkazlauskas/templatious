@@ -72,7 +72,6 @@ struct CollectionAdapter< std::list<T> > {
 	value_type& getByIndex(ThisCol& c,int i) {
         assert(getSize(c) > i);
 
-        int size = getSize(c);
         int count = 0;
         auto iter = begin(c);
         while (count < i) {
@@ -81,6 +80,29 @@ struct CollectionAdapter< std::list<T> > {
         }
 
         return *iter;
+    }
+
+    bool erase(ThisCol& c,iterator beg) {
+        c.erase(beg);
+        return true;
+    }
+
+    bool erase(ThisCol& c,iterator beg,iterator end) {
+        c.erase(beg,end);
+        return true;
+    }
+
+    iterator iter_at(ThisCol& c,int i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
     }
 };
 
