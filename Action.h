@@ -19,18 +19,16 @@
 #ifndef ACTION_BW2H9814
 #define ACTION_BW2H9814
 
-#include <templatious/TypeTraits.h>
-
 namespace templatious {
 namespace action {
 
+struct Default;
+
 // T - left side, U - right side, V - return type, Type2Type - additional anchor to differentiate
-template < class T,class U,class X = Type2Type<Default> >
+template < class T, class U, class X = Default >
 struct ActionTwoToOne {
-
     template <class V>
-    V operator()(const T& a,const U& b);
-
+    V operator()(const T& a, const U& b);
 };
 
 }
