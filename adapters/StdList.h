@@ -69,6 +69,19 @@ struct CollectionAdapter< std::list<T> > {
 		return c.size();
 	}
 
+	value_type& getByIndex(ThisCol& c,int i) {
+        assert(getSize(c) > i);
+
+        int size = getSize(c);
+        int count = 0;
+        auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return *iter;
+    }
 };
 
 }

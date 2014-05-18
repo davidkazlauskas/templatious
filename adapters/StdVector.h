@@ -68,6 +68,10 @@ struct CollectionAdapter< std::vector<T> > {
 		return c.size();
 	}
 
+    value_type& getByIndex(ThisCol& c, int i) {
+        return c[i];
+    }
+
 };
 
 }

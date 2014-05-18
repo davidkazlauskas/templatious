@@ -17,7 +17,7 @@ struct CollectionAdapter {
 
 	bool add(ThisCol& c,const value_type& i);
 	bool remove(ThisCol& c,const value_type& i);
-	value_type& getByIndex(int i);
+	value_type& getByIndex(ThisCol& c,int i);
 	int getSize(const ThisCol& c);
 	ThisCol instantiate();
 	ThisCol instantiate(int size);
@@ -74,6 +74,18 @@ struct StaticAdapter {
     static T instantiate(int size) {
         CollectionAdapter<T> a;
         return a.instantiate(size);
+    }
+
+    template <class T>
+    static int getSize(const T& c) {
+        CollectionAdapter<T> a;
+        return a.getSize(c);
+    }
+
+    template <class T>
+    static auto getByIndex(T& c, int i) -> typename CollectionAdapter<T>::value_type {
+        CollectionAdapter<T> a;
+        return a.getByIndex(c, i);
     }
 };
 
