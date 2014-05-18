@@ -53,7 +53,7 @@ struct CollectionManipulator {
 struct StaticManipulator {
 
 	template <class T,class U, class V, class X>
-	static T twoToOne(const U& l,const V& r,X& action) {
+	static T twoToOne(const U& l,const V& r,X action) {
 
         namespace ad = templatious::adapters;
 
@@ -80,6 +80,12 @@ struct StaticManipulator {
 
 		return res;
 	}
+
+	//static T twoToOne(const U& l,const V& r,X action) {
+        //X cpy = action;
+        //return twoToOne<typename CollectionAdapter<T>::value_type>(l,r,cpy);
+    //}
+
 
 };
 

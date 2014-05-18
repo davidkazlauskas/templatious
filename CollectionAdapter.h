@@ -41,6 +41,18 @@ struct StaticAdapter {
     }
 
     template <class T>
+	static auto begin(const T& c) -> typename CollectionAdapter<T>::const_iterator {
+        CollectionAdapter<T> a;
+        return a.begin(c);
+    }
+
+    template <class T>
+	static auto end(const T& c) -> typename CollectionAdapter<T>::const_iterator {
+        CollectionAdapter<T> a;
+        return a.end(c);
+    }
+
+    template <class T>
 	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
         CollectionAdapter<T> a;
         return a.add(c,i);
