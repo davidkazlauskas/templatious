@@ -71,9 +71,7 @@ struct RecursiveIterator<A, Tail...> {
     Iterator _a;
     RecursiveIterator<Tail...> _t;
 
-    RecursiveIterator(A& a, Tail & ... args) : _a(SA::begin(a)), _t(args...) {
-        //std::cout << "rec iter - " << a << std::endl;
-    }
+    RecursiveIterator(A& a, Tail & ... args) : _a(SA::begin(a)), _t(args...) { }
 
     void print() {
         std::cout << *_a << std::endl;
