@@ -5,6 +5,8 @@
 
 #include <templatious/Action.h>
 #include <templatious/adapters/All.h>
+#include <templatious/Utilities.h>
+#include <templatious/IterMaker.h>
 
 namespace templatious {
 namespace manip {
@@ -81,10 +83,31 @@ struct StaticManipulator {
 		return res;
 	}
 
-	//static T twoToOne(const U& l,const V& r,X action) {
-        //X cpy = action;
-        //return twoToOne<typename CollectionAdapter<T>::value_type>(l,r,cpy);
-    //}
+    template <class T,class U,class ...Args> // T - return col, U - functor, Args - collections
+    static T moldToOne(U& fn,Args & ... args) {
+        typedef typename templatious::recursive::IteratorMaker ItMk;
+        typedef typename templatious::adapters::StaticAdapter SA;
+
+        namespace tup = templatious::tuple;
+        namespace ut = templatious::util;
+
+        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
+
+        auto it = ItMk::makeIter(args...);
+
+        auto tpl = ut::TupleExtractor<Args...>(args...).getTuple();
+        std::function<U> func = fn;
+
+        int size = SA::getSize(ut::getFirst(args...));
+        auto result = SA::instantiate<T>(size);
+        for (int i = 0; i < size; ++i) {
+            it.setTuple(tpl);
+            SA::add(result,tup::CallTuple(func,tpl));
+            it.inc();
+        }
+
+        return result;
+    }
 
 
 };

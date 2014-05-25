@@ -27,7 +27,7 @@ namespace recursive {
 
 struct IteratorMaker {
     template <class... Args>
-    static auto makeIter(Args & ... args)
+    static auto makeIter(Args & ... args) -> RecursiveIterator<Args...>
     {
         return RecursiveIterator<Args...>(args...);
     }

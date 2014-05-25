@@ -85,7 +85,7 @@ struct RecursiveIterator<A, Tail...> {
 
     template <unsigned int i = 0, class T>
     void setTuple(T& c) const {
-        std::get<i>(c) = _a;
+        std::get<i>(c) = *_a;
         _t.setTuple<i + 1>(c);
     }
 

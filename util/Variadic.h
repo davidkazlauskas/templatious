@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Functions.h
+ *       Filename:  Variadic.h
  *
- *    Description:  Function utilites
+ *    Description:  Variadic utilities
  *
  *        Version:  1.0
- *        Created:  05/25/2014 01:45:42 PM
+ *        Created:  05/25/2014 03:11:34 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -16,19 +16,18 @@
  * =====================================================================================
  */
 
-#ifndef FUNCTIONS_48QL99VC
-#define FUNCTIONS_48QL99VC
-
-#include <functional>
+#ifndef VARIADIC_HXND7XSS
+#define VARIADIC_HXND7XSS
 
 namespace templatious {
 namespace util {
 
 template <class T, class... Args>
-auto MakeFunction(T (*t)(Args...)) -> decltype(std::function<T(Args...)>(t)) {
-    return std::function<T(Args...)>(t);
+T& getFirst(T& t, Args&... args) {
+    return t;
 }
+
 }
 }
 
-#endif /* end of include guard: FUNCTIONS_48QL99VC */
+#endif /* end of include guard: VARIADIC_HXND7XSS */

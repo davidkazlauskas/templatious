@@ -25,9 +25,9 @@ namespace templatious {
 namespace tuple {
 
 template <class RetType,class ...Args>
-RetType call_tuple(std::tuple<Args...>& t,std::function<RetType(Args...)>& f) {
+RetType CallTuple(std::function<RetType(Args...)> f,std::tuple<Args...>& t) {
 	tuple_caller<sizeof...(Args),RetType,Args...> tc;
-	return tc.call(t,f);
+	return tc.call(f,t);
 }
 
 }
