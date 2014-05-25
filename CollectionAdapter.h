@@ -97,7 +97,7 @@ struct StaticAdapter {
     template <class T>
     static bool erase(T& c,typename CollectionAdapter<T>::iterator beg,typename CollectionAdapter<T>::iterator end) {
         CollectionAdapter<T> a;
-        return a.erase(cbeg,end);
+        return a.erase(c,beg,end);
     }
 
     template <class T>
