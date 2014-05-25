@@ -108,6 +108,16 @@ struct StaticManipulator {
         return result;
     }
 
+    template <class T,class U>
+    static void edit(U& fn,T& col) {
+        typedef typename templatious::adapters::StaticAdapter SA;
+
+        auto end = SA::end(col);
+        for (auto it = SA::begin(col); it != end; ++it) {
+            *it = fn(*it);
+        }
+    }
+
 
 };
 
