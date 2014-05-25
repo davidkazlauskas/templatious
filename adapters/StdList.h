@@ -106,6 +106,87 @@ struct CollectionAdapter< std::list<T> > {
     }
 };
 
+template <class T>
+struct CollectionAdapter< std::list<T>* > {
+
+	typedef typename std::list<T>* ThisCol;
+	typedef typename std::list<T> const* ConstCol;
+	typedef typename std::list<T> ColType;
+	typedef typename ColType::iterator iterator;
+	typedef typename ColType::const_iterator const_iterator;
+	//typedef typename ValueTypeExtractor< std::list<T> >::value value_type;
+	typedef T value_type;
+
+	bool add(ThisCol c,const value_type& i) {
+		c->push_back(i);
+		return true;
+	}
+
+	ThisCol instantiate() {
+		return new ColType();
+	}
+
+	ThisCol instantiate(int size) {
+		return new ColType();
+	}
+
+	iterator begin(ThisCol c) {
+		return c->begin();
+	}
+
+	iterator end(ThisCol c) {
+		return c->end();
+	}
+
+	const iterator begin(ConstCol c) {
+		return c->cbegin();
+	}
+
+	const iterator end(ConstCol c) {
+		return c->cend();
+	}
+
+	int getSize(const ThisCol c) {
+		return c->size();
+	}
+
+	value_type& getByIndex(ThisCol c,int i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return *iter;
+    }
+
+    bool erase(ThisCol c,iterator beg) {
+        c.erase(beg);
+        return true;
+    }
+
+    bool erase(ThisCol c,iterator beg,iterator end) {
+        c.erase(beg,end);
+        return true;
+    }
+
+    iterator iter_at(ThisCol c,int i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+};
+
 }
 }
 

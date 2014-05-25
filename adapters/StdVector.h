@@ -74,6 +74,56 @@ struct CollectionAdapter< std::vector<T> > {
 
 };
 
+template <class T>
+struct CollectionAdapter< std::vector<T>* > {
+
+	typedef typename std::vector<T>* ThisCol;
+    typedef typename std::vector<T> const* ConstCol;
+    typedef typename std::vector<T> ColType;
+	typedef typename ColType::iterator iterator;
+	typedef typename ColType::const_iterator const_iterator;
+	typedef T value_type;
+
+	bool add(ThisCol c,const value_type& i) {
+		c->push_back(i);
+		return true;
+	}
+
+	ThisCol instantiate() {
+		return new ColType();
+	}
+
+	ThisCol instantiate(int size) {
+        ThisCol r = new ColType();
+		r->reserve(size);
+		return r;
+	}
+
+	iterator begin(ThisCol c) {
+		return c->begin();
+	}
+
+	iterator end(ThisCol c) {
+		return c->end();
+	}
+
+	const_iterator begin(ConstCol c) {
+		return c->cbegin();
+	}
+
+	const_iterator end(ConstCol c) {
+		return c->cend();
+	}
+
+	int getSize(ConstCol c) {
+		return c->size();
+	}
+
+    value_type& getByIndex(ConstCol c, int i) {
+        return (*c)[i];
+    }
+
+};
 }
 }
 

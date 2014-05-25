@@ -19,6 +19,7 @@
 #ifndef TUPLEMACROS_31JFL6E7
 #define TUPLEMACROS_31JFL6E7
 
+#include <functional>
 #include <tuple>
 
 namespace templatious {
