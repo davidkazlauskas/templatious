@@ -24,10 +24,12 @@
 namespace templatious {
 namespace tuple {
 
-template <class RetType,class ...Args>
-RetType CallTuple(std::function<RetType(Args...)> f,std::tuple<Args...>& t) {
-	tuple_caller<sizeof...(Args),RetType,Args...> tc;
-	return tc.call(f,t);
+template <class T, class... Args>
+auto CallTuple(T& f, std::tuple<Args...>& t)
+    -> decltype(tuple_caller<sizeof...(Args), T, Args...>().call(f, t)) 
+{
+    tuple_caller<sizeof...(Args), T, Args...> tc;
+    return tc.call(f, t);
 }
 
 }

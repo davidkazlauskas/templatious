@@ -81,173 +81,173 @@ namespace tuple {
       std::get<12>(t), std::get<13>(t), std::get<14>(t, std::get<15>(t)))
 
 
-template <unsigned int count,class RetType,class ...Args>
+template <unsigned int count,class T,class ...Args>
 struct tuple_caller;
 
-template <class RetType,class ...Args>
-struct tuple_caller<0,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<0,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_0(f,t))
 	{
 		return CALLTUPLE_0(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<1,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<1,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_1(f,t))
 	{
 		return CALLTUPLE_1(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<2,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<2,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_2(f,t))
 	{
 		return CALLTUPLE_2(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<3,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<3,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_3(f,t))
 	{
 		return CALLTUPLE_3(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<4,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<4,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_4(f,t))
 	{
 		return CALLTUPLE_4(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<5,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<5,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_5(f,t))
 	{
 		return CALLTUPLE_5(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<6,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<6,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_6(f,t))
 	{
 		return CALLTUPLE_6(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<7,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<7,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_7(f,t))
 	{
 		return CALLTUPLE_7(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<8,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<8,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_8(f,t))
 	{
 		return CALLTUPLE_8(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<9,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<9,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_9(f,t))
 	{
 		return CALLTUPLE_9(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<10,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<10,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_10(f,t))
 	{
 		return CALLTUPLE_10(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<11,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<11,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_11(f,t))
 	{
 		return CALLTUPLE_11(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<12,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<12,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_12(f,t))
 	{
 		return CALLTUPLE_12(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<13,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<13,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_13(f,t))
 	{
 		return CALLTUPLE_13(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<14,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<14,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_14(f,t))
 	{
 		return CALLTUPLE_14(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<15,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<15,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_15(f,t))
 	{
 		return CALLTUPLE_15(f,t);
 	}
 
 };
 
-template <class RetType,class ...Args>
-struct tuple_caller<16,RetType,Args...> {
+template <class T,class ...Args>
+struct tuple_caller<16,T,Args...> {
 	
-	RetType call(std::function<RetType(Args...)>& f,std::tuple<Args...>& t)
+	auto call(T& f,std::tuple<Args...>& t) -> decltype(CALLTUPLE_16(f,t))
 	{
 		return CALLTUPLE_16(f,t);
 	}

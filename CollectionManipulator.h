@@ -96,13 +96,12 @@ struct StaticManipulator {
         auto it = ItMk::makeIter(args...);
 
         auto tpl = ut::TupleExtractor<Args...>(args...).getTuple();
-        std::function<U> func = fn;
 
         int size = SA::getSize(ut::getFirst(args...));
         auto result = SA::instantiate<T>(size);
         for (int i = 0; i < size; ++i) {
             it.setTuple(tpl);
-            SA::add(result,tup::CallTuple(func,tpl));
+            SA::add(result,tup::CallTuple(fn,tpl));
             it.inc();
         }
 
