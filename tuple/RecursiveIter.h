@@ -53,7 +53,7 @@ struct RecursiveIterator<A> {
 
     void inc() { ++_a; }
 
-    template <unsigned int i = 0, class T>
+    template <int i = 0, class T>
     void setTuple(T& c) const {
         std::get<i>(c) = *_a;
     }
@@ -83,13 +83,13 @@ struct RecursiveIterator<A, Tail...> {
         _t.print_enum();
     }
 
-    template <unsigned int i = 0, class T>
+    template <int i = 0, class T>
     void setTuple(T& c) const {
         std::get<i>(c) = *_a;
         _t.setTuple<i + 1>(c);
     }
 
-    template <unsigned int i = 0, class T>
+    template <int i = 0, class T>
     void print_tuple(T& c) const {
         std::cout << std::get<i>(c) << std::endl;
         _t.print_tuple<i + 1>(c);

@@ -58,6 +58,31 @@ struct TupleExtractor<A> {
 
 };
 
+template <bool additional = false,class ...Args>
+struct ExtractionSelector;
+
+template <class A,class ...Args>
+struct ExtractionSelector<false,A,Args...> {
+    typedef TupleExtractor<Args...> ThisExtractor;
+
+    auto getTuple(Args&... args)
+        -> decltype(ThisExtractor(args...).getTuple()) 
+    {
+        return ThisExtractor(args...).getTuple();
+    }
+};
+
+template <class A,class ...Args>
+struct ExtractionSelector<true,A,Args...> {
+    typedef TupleExtractor<Args...> ThisExtractor;
+
+    auto getTuple(Args&... args)
+        -> decltype(std::tuple_cat(std::tuple<A>(),ThisExtractor(args...).getTuple()))
+    {
+        return std::tuple_cat(std::tuple<A>(),ThisExtractor(args...).getTuple());
+    }
+};
+
 }
 }
 

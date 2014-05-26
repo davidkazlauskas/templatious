@@ -83,7 +83,7 @@ struct StaticManipulator {
 		return res;
 	}
 
-    template <class T,class U,class ...Args> // T - return col, U - functor, Args - collections
+    template <class T = void,bool passIndex = false,class U,class ...Args> // T - return col, U - functor, Args - collections
     static T moldToOne(U& fn,Args & ... args) {
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::adapters::StaticAdapter SA;
@@ -95,12 +95,14 @@ struct StaticManipulator {
 
         auto it = ItMk::makeIter(args...);
 
-        auto tpl = ut::TupleExtractor<Args...>(args...).getTuple();
+        auto tpl = ut::ExtractionSelector<passIndex,int,Args...>().getTuple(args...);
+        util::DoIf<passIndex> doIf;
 
         int size = SA::getSize(ut::getFirst(args...));
         auto result = SA::instantiate<T>(size);
         for (int i = 0; i < size; ++i) {
-            it.setTuple(tpl);
+            it.template setTuple< util::IntSelector<passIndex,1,0>::val >(tpl);
+            doIf.doIt( [&]() { std::get<0>(tpl) = i; } );
             SA::add(result,tup::CallTuple(fn,tpl));
             it.inc();
         }
