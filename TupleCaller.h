@@ -25,7 +25,7 @@ namespace templatious {
 namespace tuple {
 
 template <class T, class... Args>
-auto CallTuple(T& f, std::tuple<Args...>& t)
+auto callTuple(T& f, std::tuple<Args...>& t)
     -> decltype(tuple_caller<sizeof...(Args), T, Args...>().call(f, t)) 
 {
     tuple_caller<sizeof...(Args), T, Args...> tc;

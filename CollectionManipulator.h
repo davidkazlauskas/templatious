@@ -83,31 +83,55 @@ struct StaticManipulator {
 		return res;
 	}
 
-    template <class T = void,bool passIndex = false,class U,class ...Args> // T - return col, U - functor, Args - collections
+    template <class T,bool passIndex = false,class U,class ...Args> // T - return col, U - functor, Args - collections
     static T moldToOne(U& fn,Args & ... args) {
+        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
+
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::adapters::StaticAdapter SA;
-
         namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 
-        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
-
+        templatious::adapters::CollectionAdapter<T> ca;
         auto it = ItMk::makeIter(args...);
-
         auto tpl = ut::ExtractionSelector<passIndex,int,Args...>().getTuple(args...);
-        util::DoIf<passIndex> doIf;
+
+        util::DoIf< passIndex > setIndex;
 
         int size = SA::getSize(ut::getFirst(args...));
-        auto result = SA::instantiate<T>(size);
+        auto result = ca.instantiate(size);
         for (int i = 0; i < size; ++i) {
             it.template setTuple< util::IntSelector<passIndex,1,0>::val >(tpl);
-            doIf.doIt( [&]() { std::get<0>(tpl) = i; } );
-            SA::add(result,tup::CallTuple(fn,tpl));
+            setIndex.doIt( [&]() { std::get<0>(tpl) = i; } );
+            ca.add(result,tup::callTuple(fn,tpl));
             it.inc();
         }
 
         return result;
+    }
+
+    template <bool passIndex = false, class U, class... Args>
+    static void interact(U& fn, Args&... args) {
+        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
+
+        typedef typename templatious::recursive::IteratorMaker ItMk;
+        typedef typename templatious::adapters::StaticAdapter SA;
+        namespace tup = templatious::tuple;
+        namespace ut = templatious::util;
+
+        auto it = ItMk::makeIter(args...);
+        auto tpl =
+            ut::ExtractionSelector<passIndex, int, Args...>().getTuple(args...);
+
+        util::DoIf<passIndex> setIndex;
+
+        int size = SA::getSize(ut::getFirst(args...));
+        for (int i = 0; i < size; ++i) {
+            it.template setTuple<util::IntSelector<passIndex, 1, 0>::val>(tpl);
+            setIndex.doIt([&]() { std::get<0>(tpl) = i; });
+            tup::callTuple(fn,tpl);
+            it.inc();
+        }
     }
 
     template <class T,class U>

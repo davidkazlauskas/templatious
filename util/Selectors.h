@@ -47,12 +47,27 @@ namespace templatious { namespace util {
     // IS VOID
     template <class T>
     struct IsVoid {
-        static bool val = false;
+        static const bool val = false;
+
+        T retVal(T& t) {
+            return t;
+        }
     };
 
     template <>
     struct IsVoid<void> {
-        static bool val = true;
+        static const bool val = true;
+
+        template <class U>
+        void retVal(U u) { }
+    };
+
+    template <>
+    struct IsVoid<void*> {
+        static const bool val = true;
+
+        template <class U>
+        void retVal(U u) { }
     };
 
 }
