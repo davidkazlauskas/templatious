@@ -53,6 +53,25 @@ struct CollectionManipulator {
 };
 
 struct StaticManipulator {
+    private:
+     template <class F, class ITER,bool callWithIndex = false,typename Index = int>
+     struct IteratorCaller;
+
+     template <class F,class ITER,typename Index>
+     struct IteratorCaller<F, ITER, false, Index> {
+         auto call(F& f, Index idx, ITER& i) -> decltype(i.callFunction(f)) {
+             return i.callFunction(f);
+         }
+     };
+
+     template <class F,class ITER,typename Index>
+     struct IteratorCaller<F, ITER, true, Index> {
+         auto call(F& f, Index idx, ITER& i) -> decltype(i.callFunction(f,idx)) {
+             return i.callFunction(f,idx);
+         }
+     };
+
+    public:
 
 	template <class T,class U, class V, class X>
 	static T twoToOne(const U& l,const V& r,X action) {
@@ -83,7 +102,8 @@ struct StaticManipulator {
 		return res;
 	}
 
-    template <class T,bool passIndex = false,class U,class ...Args> // T - return col, U - functor, Args - collections
+    // T - return col, U - functor, Args - collections
+    template <class T,bool passIndex = false,class U,class ...Args> 
     static T moldToOne(U& fn,Args & ... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
@@ -94,16 +114,12 @@ struct StaticManipulator {
 
         templatious::adapters::CollectionAdapter<T> ca;
         auto it = ItMk::makeIter(args...);
-        auto tpl = ut::ExtractionSelector<passIndex,int,Args...>().getTuple(args...);
-
-        util::DoIf< passIndex > setIndex;
+        IteratorCaller<U,decltype(it),passIndex,int> iCall;
 
         int size = SA::getSize(ut::getFirst(args...));
         auto result = ca.instantiate(size);
         for (int i = 0; i < size; ++i) {
-            it.template setTuple< util::IntSelector<passIndex,1,0>::val >(tpl);
-            setIndex.doIt( [&]() { std::get<0>(tpl) = i; } );
-            ca.add(result,tup::callTuple(fn,tpl));
+            ca.add(result,iCall.call(fn,i,it));
             it.inc();
         }
 

@@ -58,6 +58,15 @@ struct RecursiveIterator<A> {
         std::get<i>(c) = *_a;
     }
 
+    template <class F>
+    auto callFunction(F& f) -> decltype(f(*_a)) {
+        return f(*_a);
+    }
+
+    template <class F, class... Args>
+    auto callFunction(F& f, Args&... args) -> decltype(f(args..., *_a)) {
+        return f(args..., *_a);
+    }
 };
 
 template <class A, class... Tail>
@@ -100,8 +109,20 @@ struct RecursiveIterator<A, Tail...> {
         _t.inc();
     }
 
+    template <class F>
+    auto callFunction(F& f) -> decltype(_t.callFunction(f, *_a)) {
+        return _t.callFunction(f, *_a);
+    }
+
+    template <class F, class... Args>
+    auto callFunction(F& f, Args&... args)
+        -> decltype(_t.callFunction(f, args..., *_a)) 
+    {
+        return _t.callFunction(f, args..., *_a);
+    }
 };
+
 }
-};
+}
 
 #endif /* end of include guard: RECURSIVEITER_4VX65VTM */
