@@ -127,7 +127,7 @@ struct StaticManipulator {
     }
 
     template <bool passIndex = false, class U, class... Args>
-    static void interact(U& fn, Args&... args) {
+    static void traverse(U& fn, Args&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
@@ -136,30 +136,14 @@ struct StaticManipulator {
         namespace ut = templatious::util;
 
         auto it = ItMk::makeIter(args...);
-        auto tpl =
-            ut::ExtractionSelector<passIndex, int, Args...>().getTuple(args...);
-
-        util::DoIf<passIndex> setIndex;
+        IteratorCaller<U,decltype(it),passIndex,int> iCall;
 
         int size = SA::getSize(ut::getFirst(args...));
         for (int i = 0; i < size; ++i) {
-            it.template setTuple<util::IntSelector<passIndex, 1, 0>::val>(tpl);
-            setIndex.doIt([&]() { std::get<0>(tpl) = i; });
-            tup::callTuple(fn,tpl);
+            iCall.call(fn,i,it);
             it.inc();
         }
     }
-
-    template <class T,class U>
-    static void edit(U& fn,T& col) {
-        typedef typename templatious::adapters::StaticAdapter SA;
-
-        auto end = SA::end(col);
-        for (auto it = SA::begin(col); it != end; ++it) {
-            *it = fn(*it);
-        }
-    }
-
 
 };
 
