@@ -42,26 +42,28 @@ struct StaticAdapter {
 	static auto begin(T& c) -> typename CollectionAdapter<T>::iterator {
         typedef CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid,"Adapter not supported.");
-        Ad a;
-        return a.begin(c);
+        return Ad::begin(c);
     }
 
     template <class T>
 	static auto end(T& c) -> typename CollectionAdapter<T>::iterator {
-        CollectionAdapter<T> a;
-        return a.end(c);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::end(c);
     }
 
     template <class T>
 	static auto begin(const T& c) -> typename CollectionAdapter<T>::const_iterator {
-        CollectionAdapter<T> a;
-        return a.begin(c);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::begin(c);
     }
 
     template <class T>
 	static auto end(const T& c) -> typename CollectionAdapter<T>::const_iterator {
-        CollectionAdapter<T> a;
-        return a.end(c);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::end(c);
     }
 
     //template <class T,class U>
@@ -73,15 +75,16 @@ struct StaticAdapter {
 
     template <class T>
 	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
-        CollectionAdapter<T> a;
-        return a.add(c,i);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::add(c,i);
     }
 
     template <class T,int count>
     static bool add(T& c,const std::array<typename CollectionAdapter<T>::value_type,count>& arr) {
-        CollectionAdapter<T> a;
+        typedef CollectionAdapter<T> Ad;
         for (auto& s: arr) {
-            if (!a.add(c,s)) {
+            if (!Ad::add(c,s)) {
                 return false;
             }
         }
@@ -91,50 +94,58 @@ struct StaticAdapter {
 
     template <class T>
 	static bool remove(T& c,const typename CollectionAdapter<T>::value_type& i) {
-        CollectionAdapter<T> a;
-        return a.remove(c,i);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::remove(c,i);
     }
 
     template <class T>
     static T instantiate() {
-        CollectionAdapter<T> a;
-        return a.instantiate();
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::instantiate();
     }
 
     template <class T>
     static T instantiate(int size) {
-        CollectionAdapter<T> a;
-        return a.instantiate(size);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::instantiate(size);
     }
 
     template <class T>
     static int getSize(const T& c) {
-        CollectionAdapter<T> a;
-        return a.getSize(c);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::getSize(c);
     }
 
     template <class T>
     static auto getByIndex(T& c, int i) -> typename CollectionAdapter<T>::value_type {
-        CollectionAdapter<T> a;
-        return a.getByIndex(c, i);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::getByIndex(c, i);
     }
 
     template <class T>
     static bool erase(T& c,typename CollectionAdapter<T>::iterator beg,typename CollectionAdapter<T>::iterator end) {
-        CollectionAdapter<T> a;
-        return a.erase(c,beg,end);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::erase(c,beg,end);
     }
 
     template <class T>
     static bool erase(T& c,typename CollectionAdapter<T>::iterator beg) {
-        CollectionAdapter<T> a;
-        return a.erase(c,beg);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::erase(c,beg);
     }
 
     template <class T>
     static auto iter_at(T& c, int i) -> typename CollectionAdapter<T>::iterator {
-        CollectionAdapter<T> a;
-        return a.iter_at(c, i);
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::iter_at(c, i);
     }
 };
 
