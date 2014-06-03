@@ -15,7 +15,7 @@ struct CollectionAdapter {
 
     static const bool is_valid = false;
 
-	typedef T ThisCol;
+	typedef void* ThisCol;
 	typedef void* iterator;
 	typedef const void* const_iterator;
     typedef void* value_type;
@@ -38,16 +38,21 @@ struct CollectionAdapter {
     static iterator iter_at(ThisCol& c,int i);
 };
 
-//template <class T,class U>
-//struct AdditionSelector {
-    //namespace ut = templatious::util;
-    //static const bool areAdaptable = CollectionAdapter<T>::is_valid && CollectionAdapter<T>::is_valid;
-    //enum {
-        //val = ut::IntSelector<areAdaptable,1,
-            //2
-        //>::val 
-    //};
-//};
+template <class T,class U>
+struct AdditionSelector {
+    
+    static const bool areAdaptable = CollectionAdapter<T>::is_valid && CollectionAdapter<U>::is_valid;
+    enum {
+        val = templatious::util::IntSelector<areAdaptable,
+            1,
+            //templatious::util::IntSelector< std::is_convertible<U,typename CollectionAdapter<T>::value_type >::value,
+            templatious::util::IntSelector< std::is_array<U>::value,
+                2,
+                0
+            >::val
+        >::val 
+    };
+};
 
 template <int var>
 struct add_custom;
@@ -87,8 +92,8 @@ struct add_custom<1> {
 template <> // add static arrays
 struct add_custom<2> {
 
-    template <class T,class Arr,int count>
-    static bool add(T& c,const std::array<Arr,count>& arr) {
+    template <class T,class Arr,unsigned long count>
+    static bool add(T& c,const Arr (& arr) [count]) {
         typedef CollectionAdapter<T> Ad;
         for (int i = 0; i < count; ++i) {
             if (!Ad::add(c,arr[i])) {
@@ -146,13 +151,19 @@ struct StaticAdapter {
     //}
 
 
-    template <class T>
-	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
+    //template <class T>
+	//static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
+        //typedef CollectionAdapter<T> Ad;
+        //static_assert(Ad::is_valid,"Adapter not supported.");
+        //return add_custom<0>::add(c,i);
+    //}
+
+    template <class T,class U>
+	static bool add(T& c,const U& o) {
         typedef CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid,"Adapter not supported.");
-        return add_custom<0>::add(c,i);
+        return add_custom< AdditionSelector<T,U>::val >::add(c,o);
     }
-
 
     template <class T,int count>
     static bool add(T& c,const std::array<typename CollectionAdapter<T>::value_type,count>& arr) {
