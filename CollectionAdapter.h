@@ -2,6 +2,7 @@
 #ifndef COL_ADAPTER_SADWA
 #define COL_ADAPTER_SADWA
 
+#include <type_traits>
 #include <array>
 
 namespace templatious {
@@ -10,12 +11,14 @@ namespace adapters {
 template <class T>
 struct CollectionAdapter {
 
+    static const bool is_valid = false;
+
 	typedef T ThisCol;
 	typedef void* iterator;
 	typedef const void* const_iterator;
-    typedef typename T::value_type value_type;
+    typedef void* value_type;
 
-	CollectionAdapter();
+	CollectionAdapter() {}
 
 	bool add(ThisCol& c,const value_type& i);
 	bool remove(ThisCol& c,const value_type& i);
@@ -37,7 +40,9 @@ struct StaticAdapter {
 
     template <class T>
 	static auto begin(T& c) -> typename CollectionAdapter<T>::iterator {
-        CollectionAdapter<T> a;
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        Ad a;
         return a.begin(c);
     }
 
@@ -58,6 +63,13 @@ struct StaticAdapter {
         CollectionAdapter<T> a;
         return a.end(c);
     }
+
+    //template <class T,class U>
+    //static bool add_experimental(T& c,const U& u) {
+        //CollectionAdapter<T> a;
+        //static_assert(CanAdd<decltype(a),U>::value, "Can't add for jack!");
+        //return true;
+    //}
 
     template <class T>
 	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {

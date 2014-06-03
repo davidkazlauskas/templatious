@@ -29,6 +29,8 @@ namespace adapters {
 template <class T>
 struct CollectionAdapter< std::list<T> > {
 
+    static const bool is_valid = true;
+
 	typedef typename std::list<T> ThisCol;
 	typedef typename ThisCol::iterator iterator;
 	typedef typename ThisCol::const_iterator const_iterator;
