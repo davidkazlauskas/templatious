@@ -2,6 +2,8 @@
 #ifndef COL_ADAPTER_SADWA
 #define COL_ADAPTER_SADWA
 
+#include <array>
+
 namespace templatious {
 namespace adapters {
 
@@ -12,7 +14,6 @@ struct CollectionAdapter {
 	typedef void* iterator;
 	typedef const void* const_iterator;
     typedef typename T::value_type value_type;
-	//typedef void value_type;
 
 	CollectionAdapter();
 
@@ -62,6 +63,18 @@ struct StaticAdapter {
 	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
         CollectionAdapter<T> a;
         return a.add(c,i);
+    }
+
+    template <class T,int count>
+    static bool add(T& c,const std::array<typename CollectionAdapter<T>::value_type,count>& arr) {
+        CollectionAdapter<T> a;
+        for (auto& s: arr) {
+            if (!a.add(c,s)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     template <class T>
