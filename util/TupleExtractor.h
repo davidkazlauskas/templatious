@@ -28,11 +28,10 @@ namespace util {
 template <class ...Args>
 struct TupleExtractor;
 
-namespace ad = templatious::adapters;
-
 template <class A,class ...Args>
 struct TupleExtractor<A,Args...> {
-    typedef typename ad::CollectionAdapter<A>::value_type ValueType;
+    typedef typename templatious::adapters::CollectionAdapter<A>::value_type
+        ValueType;
     typedef std::tuple<ValueType> ThisTuple;
 
     TupleExtractor<Args...> _next;
@@ -47,7 +46,8 @@ struct TupleExtractor<A,Args...> {
 
 template <class A>
 struct TupleExtractor<A> {
-    typedef typename ad::CollectionAdapter<A>::value_type ValueType;
+    typedef typename templatious::adapters::CollectionAdapter<A>::value_type
+        ValueType;
     typedef std::tuple<ValueType> ThisTuple;
 
     ThisTuple getTuple() {

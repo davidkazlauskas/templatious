@@ -19,18 +19,17 @@
 #ifndef SIZEVERIFIER_S81TOGPX
 #define SIZEVERIFIER_S81TOGPX
 
-namespace templatious {
-namespace util {
-
 #include <templatious/CollectionAdapter.h>
 
-typedef templatious::adapters::StaticAdapter SA;
+namespace templatious {
+namespace util {
 
 template <class ...Args>
 struct SizeVerifier;
 
 template <class A,class ...Args>
 struct SizeVerifier<A,Args...> {
+    typedef templatious::adapters::StaticAdapter SA;
     int _size;
     SizeVerifier<Args...> _next;
 
@@ -47,6 +46,8 @@ struct SizeVerifier<A,Args...> {
 
 template <class A>
 struct SizeVerifier<A> {
+    typedef templatious::adapters::StaticAdapter SA;
+
     int _size;
 
     SizeVerifier(A& a) : _size(SA::getSize(a)) {}

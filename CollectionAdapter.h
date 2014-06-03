@@ -1,9 +1,11 @@
 
-#ifndef COL_ADAPTER_SADWA
-#define COL_ADAPTER_SADWA
+#ifndef COLLECTIONADAPTER_728YVC81
+#define COLLECTIONADAPTER_728YVC81
 
 #include <type_traits>
 #include <array>
+
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace adapters {
@@ -34,6 +36,69 @@ struct CollectionAdapter {
     static iterator begin(ThisCol& c);
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c,int i);
+};
+
+//template <class T,class U>
+//struct AdditionSelector {
+    //namespace ut = templatious::util;
+    //static const bool areAdaptable = CollectionAdapter<T>::is_valid && CollectionAdapter<T>::is_valid;
+    //enum {
+        //val = ut::IntSelector<areAdaptable,1,
+            //2
+        //>::val 
+    //};
+//};
+
+template <int var>
+struct add_custom;
+
+template <> // add data one by one
+struct add_custom<0> {
+
+    template <class T>
+    static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
+        typedef CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid,"Adapter not supported.");
+        return Ad::add(c,i);
+    }
+
+};
+
+template <> // add collections
+struct add_custom<1> {
+
+    template <class T,class U>
+    static bool add(T& t,const U& u) {
+        typedef CollectionAdapter<T> AdT;
+        typedef CollectionAdapter<U> AdU;
+        static_assert(AdT::is_valid,"Adapter not supported.");
+        static_assert(AdU::is_valid,"Adapter not supported.");
+        for (auto i = AdU::begin(u); AdU::end(u); ++i) {
+            if (!AdT::add(t,*i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+};
+
+template <> // add static arrays
+struct add_custom<2> {
+
+    template <class T,class Arr,int count>
+    static bool add(T& c,const std::array<Arr,count>& arr) {
+        typedef CollectionAdapter<T> Ad;
+        for (int i = 0; i < count; ++i) {
+            if (!Ad::add(c,arr[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 };
 
 struct StaticAdapter {
@@ -73,12 +138,21 @@ struct StaticAdapter {
         //return true;
     //}
 
+    //template <class T>
+	//static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
+        //typedef CollectionAdapter<T> Ad;
+        //static_assert(Ad::is_valid,"Adapter not supported.");
+        //return Ad::add(c,i);
+    //}
+
+
     template <class T>
 	static bool add(T& c,const typename CollectionAdapter<T>::value_type& i) {
         typedef CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid,"Adapter not supported.");
-        return Ad::add(c,i);
+        return add_custom<0>::add(c,i);
     }
+
 
     template <class T,int count>
     static bool add(T& c,const std::array<typename CollectionAdapter<T>::value_type,count>& arr) {

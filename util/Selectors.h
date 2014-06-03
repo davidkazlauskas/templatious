@@ -19,7 +19,8 @@
 #ifndef SELECTORS_1ZD32CZT
 #define SELECTORS_1ZD32CZT
 
-namespace templatious { namespace util {
+namespace templatious {
+namespace util {
 
     template <
         bool isTrue,
