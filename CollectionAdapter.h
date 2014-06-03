@@ -20,20 +20,20 @@ struct CollectionAdapter {
 
 	CollectionAdapter() {}
 
-	bool add(ThisCol& c,const value_type& i);
-	bool remove(ThisCol& c,const value_type& i);
-	value_type& getByIndex(ThisCol& c,int i);
-	int getSize(const ThisCol& c);
+	static bool add(ThisCol& c,const value_type& i);
+	static bool remove(ThisCol& c,const value_type& i);
+	static value_type& getByIndex(ThisCol& c,int i);
+	static int getSize(const ThisCol& c);
 
-    bool erase(ThisCol& c,iterator beg);
-    bool erase(ThisCol& c,iterator beg,iterator end);
+    static bool erase(ThisCol& c,iterator beg);
+    static bool erase(ThisCol& c,iterator beg,iterator end);
 
-	ThisCol instantiate();
-	ThisCol instantiate(int size);
+	static ThisCol instantiate();
+	static ThisCol instantiate(int size);
 
-    iterator begin(ThisCol& c);
-    iterator end(ThisCol& c);
-    iterator iter_at(ThisCol& c,int i);
+    static iterator begin(ThisCol& c);
+    static iterator end(ThisCol& c);
+    static iterator iter_at(ThisCol& c,int i);
 };
 
 struct StaticAdapter {

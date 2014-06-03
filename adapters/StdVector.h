@@ -35,42 +35,42 @@ struct CollectionAdapter< std::vector<T> > {
 	typedef typename ThisCol::const_iterator const_iterator;
 	typedef T value_type;
 
-	bool add(ThisCol& c,const value_type& i) {
+	static bool add(ThisCol& c,const value_type& i) {
 		c.push_back(i);
 		return true;
 	}
 
-	ThisCol instantiate() {
+	static ThisCol instantiate() {
 		return ThisCol();
 	}
 
-	ThisCol instantiate(int size) {
+	static ThisCol instantiate(int size) {
 		ThisCol r;
 		r.reserve(size);
 		return r;
 	}
 
-	iterator begin(ThisCol& c) {
+	static iterator begin(ThisCol& c) {
 		return c.begin();
 	}
 
-	iterator end(ThisCol& c) {
+	static iterator end(ThisCol& c) {
 		return c.end();
 	}
 
-	const_iterator begin(const ThisCol& c) {
+	static const_iterator begin(const ThisCol& c) {
 		return c.begin();
 	}
 
-	const_iterator end(const ThisCol& c) {
+	static const_iterator end(const ThisCol& c) {
 		return c.end();
 	}
 
-	int getSize(const ThisCol& c) {
+	static int getSize(const ThisCol& c) {
 		return c.size();
 	}
 
-    value_type& getByIndex(ThisCol& c, int i) {
+    static value_type& getByIndex(ThisCol& c, int i) {
         return c[i];
     }
 
@@ -86,42 +86,42 @@ struct CollectionAdapter< std::vector<T>* > {
 	typedef typename ColType::const_iterator const_iterator;
 	typedef T value_type;
 
-	bool add(ThisCol c,const value_type& i) {
+	static bool add(ThisCol c,const value_type& i) {
 		c->push_back(i);
 		return true;
 	}
 
-	ThisCol instantiate() {
+	static ThisCol instantiate() {
 		return new ColType();
 	}
 
-	ThisCol instantiate(int size) {
+	static ThisCol instantiate(int size) {
         ThisCol r = new ColType();
 		r->reserve(size);
 		return r;
 	}
 
-	iterator begin(ThisCol c) {
+	static iterator begin(ThisCol c) {
 		return c->begin();
 	}
 
-	iterator end(ThisCol c) {
+	static iterator end(ThisCol c) {
 		return c->end();
 	}
 
-	const_iterator begin(ConstCol c) {
+	static const_iterator begin(ConstCol c) {
 		return c->cbegin();
 	}
 
-	const_iterator end(ConstCol c) {
+	static const_iterator end(ConstCol c) {
 		return c->cend();
 	}
 
-	int getSize(ConstCol c) {
+	static int getSize(ConstCol c) {
 		return c->size();
 	}
 
-    value_type& getByIndex(ConstCol c, int i) {
+    static value_type& getByIndex(ConstCol c, int i) {
         return (*c)[i];
     }
 

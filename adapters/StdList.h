@@ -37,41 +37,41 @@ struct CollectionAdapter< std::list<T> > {
 	//typedef typename ValueTypeExtractor< std::list<T> >::value value_type;
 	typedef T value_type;
 
-	bool add(ThisCol& c,const value_type& i) {
+	static bool add(ThisCol& c,const value_type& i) {
 		c.push_back(i);
 		return true;
 	}
 
-	ThisCol instantiate() {
+	static ThisCol instantiate() {
 		return ThisCol();
 	}
 
-	ThisCol instantiate(int size) {
+	static ThisCol instantiate(int size) {
 		ThisCol r;
 		return r;
 	}
 
-	iterator begin(ThisCol& c) {
+	static iterator begin(ThisCol& c) {
 		return c.begin();
 	}
 
-	iterator end(ThisCol& c) {
+	static iterator end(ThisCol& c) {
 		return c.end();
 	}
 
-	const iterator begin(const ThisCol& c) {
+	static const iterator begin(const ThisCol& c) {
 		return c.begin();
 	}
 
-	const iterator end(const ThisCol& c) {
+	static const iterator end(const ThisCol& c) {
 		return c.end();
 	}
 
-	int getSize(const ThisCol& c) {
+	static int getSize(const ThisCol& c) {
 		return c.size();
 	}
 
-	value_type& getByIndex(ThisCol& c,int i) {
+	static value_type& getByIndex(ThisCol& c,int i) {
         assert(getSize(c) > i);
 
         int count = 0;
@@ -84,17 +84,17 @@ struct CollectionAdapter< std::list<T> > {
         return *iter;
     }
 
-    bool erase(ThisCol& c,iterator beg) {
+    static bool erase(ThisCol& c,iterator beg) {
         c.erase(beg);
         return true;
     }
 
-    bool erase(ThisCol& c,iterator beg,iterator end) {
+    static bool erase(ThisCol& c,iterator beg,iterator end) {
         c.erase(beg,end);
         return true;
     }
 
-    iterator iter_at(ThisCol& c,int i) {
+    static iterator iter_at(ThisCol& c,int i) {
         assert(getSize(c) > i);
 
         int count = 0;
@@ -119,40 +119,40 @@ struct CollectionAdapter< std::list<T>* > {
 	//typedef typename ValueTypeExtractor< std::list<T> >::value value_type;
 	typedef T value_type;
 
-	bool add(ThisCol c,const value_type& i) {
+	static bool add(ThisCol c,const value_type& i) {
 		c->push_back(i);
 		return true;
 	}
 
-	ThisCol instantiate() {
+	static ThisCol instantiate() {
 		return new ColType();
 	}
 
-	ThisCol instantiate(int size) {
+	static ThisCol instantiate(int size) {
 		return new ColType();
 	}
 
-	iterator begin(ThisCol c) {
+	static iterator begin(ThisCol c) {
 		return c->begin();
 	}
 
-	iterator end(ThisCol c) {
+	static iterator end(ThisCol c) {
 		return c->end();
 	}
 
-	const iterator begin(ConstCol c) {
+	static const iterator begin(ConstCol c) {
 		return c->cbegin();
 	}
 
-	const iterator end(ConstCol c) {
+	static const iterator end(ConstCol c) {
 		return c->cend();
 	}
 
-	int getSize(const ThisCol c) {
+	static int getSize(const ThisCol c) {
 		return c->size();
 	}
 
-	value_type& getByIndex(ThisCol c,int i) {
+	static value_type& getByIndex(ThisCol c,int i) {
         assert(getSize(c) > i);
 
         int count = 0;
@@ -165,17 +165,17 @@ struct CollectionAdapter< std::list<T>* > {
         return *iter;
     }
 
-    bool erase(ThisCol c,iterator beg) {
+    static bool erase(ThisCol c,iterator beg) {
         c.erase(beg);
         return true;
     }
 
-    bool erase(ThisCol c,iterator beg,iterator end) {
+    static bool erase(ThisCol c,iterator beg,iterator end) {
         c.erase(beg,end);
         return true;
     }
 
-    iterator iter_at(ThisCol c,int i) {
+    static iterator iter_at(ThisCol c,int i) {
         assert(getSize(c) > i);
 
         int count = 0;
