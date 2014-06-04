@@ -59,12 +59,12 @@ struct CollectionAdapter< std::list<T> > {
 		return c.end();
 	}
 
-	static const iterator begin(const ThisCol& c) {
-		return c.begin();
+	static const_iterator begin(const ThisCol& c) {
+		return c.cbegin();
 	}
 
-	static const iterator end(const ThisCol& c) {
-		return c.end();
+	static const_iterator end(const ThisCol& c) {
+		return c.cend();
 	}
 
 	static int getSize(const ThisCol& c) {

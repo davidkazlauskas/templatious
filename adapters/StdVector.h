@@ -59,11 +59,11 @@ struct CollectionAdapter< std::vector<T> > {
 	}
 
 	static const_iterator begin(const ThisCol& c) {
-		return c.begin();
+		return c.cbegin();
 	}
 
 	static const_iterator end(const ThisCol& c) {
-		return c.end();
+		return c.cend();
 	}
 
 	static int getSize(const ThisCol& c) {

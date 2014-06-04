@@ -78,7 +78,7 @@ struct add_custom<1> {
         typedef CollectionAdapter<U> AdU;
         static_assert(AdT::is_valid,"Adapter not supported.");
         static_assert(AdU::is_valid,"Adapter not supported.");
-        for (auto i = AdU::begin(u); AdU::end(u); ++i) {
+        for (auto i = AdU::begin(u); i != AdU::end(u); ++i) {
             if (!AdT::add(t,*i)) {
                 return false;
             }
