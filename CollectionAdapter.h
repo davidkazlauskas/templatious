@@ -165,16 +165,13 @@ struct StaticAdapter {
         return add_custom< AdditionSelector<T,U>::val >::add(c,o);
     }
 
-    template <class T,int count>
-    static bool add(T& c,const std::array<typename CollectionAdapter<T>::value_type,count>& arr) {
-        typedef CollectionAdapter<T> Ad;
-        for (auto& s: arr) {
-            if (!Ad::add(c,s)) {
-                return false;
-            }
+    template <class T,class U,class... Args>
+	static bool add(T& c,const U& o,const Args & ... args) {
+        if (!add(c,o)) {
+            return false;
         }
 
-        return true;
+        return add(c,args...);
     }
 
     template <class T>
