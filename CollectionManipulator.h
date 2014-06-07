@@ -73,35 +73,6 @@ struct StaticManipulator {
 
     public:
 
-	template <class T,class U, class V, class X>
-	static T twoToOne(const U& l,const V& r,X action) {
-
-        namespace ad = templatious::adapters;
-
-        ad::CollectionAdapter<U> lef;
-        ad::CollectionAdapter<V> rgt;
-
-		assert(lef.getSize(l) == rgt.getSize(r));
-
-		int size = lef.getSize(l);
-
-		auto lIt = lef.begin(l);
-		auto rIt = rgt.begin(r);
-
-        typedef typename ad::CollectionAdapter<T> RetType;
-        typedef typename RetType::value_type RetValType;
-        RetType ret;
-		auto res = ret.instantiate(size);
-		
-		while (lIt != lef.end(l)) {
-            RetValType r = action.template operator()<RetValType>(*lIt,*rIt);
-			ret.add(res, r);
-			++lIt; ++rIt;
-		}
-
-		return res;
-	}
-
     // T - return col, U - functor, Args - collections
     template <class T,bool passIndex = false,class U,class ...Args> 
     static T moldToOne(U& fn,Args & ... args) {
