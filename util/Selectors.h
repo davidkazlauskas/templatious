@@ -56,8 +56,7 @@ namespace util {
     };
 
     template <>
-    struct IsVoid<void> {
-        static const bool val = true;
+    struct IsVoid<void> { static const bool val = true;
 
         template <class U>
         void retVal(U u) { }
@@ -69,6 +68,31 @@ namespace util {
 
         template <class U>
         void retVal(U u) { }
+    };
+
+
+    // T - class to evaluate. Has to be specialized
+    // ret - default return value
+    template <class T,bool ret = true>
+    struct RetValSelector;
+    
+    template <bool ret>
+    struct RetValSelector<bool,ret> {
+
+        template <class F,class... Args>
+        static bool callAndEval(F& f,Args & ... args) {
+            return f(args...);
+        }
+    };
+
+    template <bool ret>
+    struct RetValSelector<void,ret> {
+
+        template <class F,class... Args>
+        static bool callAndEval(F& f,Args & ... args) {
+            f(args...);
+            return ret;
+        }
     };
 
 }
