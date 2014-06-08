@@ -1,6 +1,7 @@
 #ifndef COL_MANIPULATOR_SDJKQE
 #define COL_MANIPULATOR_SDJKQE
 
+#include <utility>
 #include <assert.h>
 
 #include <templatious/Action.h>
@@ -30,6 +31,109 @@ struct StaticManipulator {
          }
      };
 
+    template 
+    <
+        bool stopAtFirst,
+        class T,
+        class Out = std::vector<
+            typename templatious::adapters::CollectionAdapter<T>::iterator
+        >
+    >
+    static Out findIterInternal(
+            T& col,
+            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            ) 
+    {
+        namespace ut = templatious::util;
+        namespace ad = templatious::adapters;
+        typedef typename ad::StaticAdapter SA;
+        typedef typename ad::CollectionAdapter<T> AD;
+        typedef typename AD::value_type ValType;
+        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+
+        auto res =
+            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
+        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+            if (Comp::eq(*i,v)) {
+                SA::add(res,i);
+                if (stopAtFirst) {
+                    break;
+                }
+            }
+        }
+        return res;
+    }
+
+    template 
+    <
+        bool stopAtFirst,
+        class T,
+        class Out = std::vector<int>
+    >
+    static Out findIdxInternal(
+            T& col,
+            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            ) 
+    {
+        namespace ut = templatious::util;
+        namespace ad = templatious::adapters;
+        typedef typename ad::StaticAdapter SA;
+        typedef typename ad::CollectionAdapter<T> AD;
+        typedef typename AD::value_type ValType;
+        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+
+        auto res =
+            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
+        int idx = 0;
+        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+            if (Comp::eq(*i,v)) {
+                SA::add(res,idx);
+                if (stopAtFirst) {
+                    break;
+                }
+            }
+            ++idx;
+        }
+        return res;
+    }
+
+    template 
+    <
+        bool stopAtFirst,
+        class T,
+        class Out = std::vector<
+            std::pair<
+                int,
+                typename templatious::adapters::CollectionAdapter<T>::iterator
+            >
+        >
+    >
+    static Out findIdxIterInternal(
+            T& col,
+            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            ) 
+    {
+        namespace ut = templatious::util;
+        namespace ad = templatious::adapters;
+        typedef typename ad::StaticAdapter SA;
+        typedef typename ad::CollectionAdapter<T> AD;
+        typedef typename AD::value_type ValType;
+        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+
+        auto res =
+            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
+        int idx = 0;
+        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+            if (Comp::eq(*i,v)) {
+                SA::add(res,std::make_pair(idx,i));
+                if (stopAtFirst) {
+                    break;
+                }
+            }
+            ++idx;
+        }
+        return res;
+    }
 
     public:
 
@@ -85,34 +189,49 @@ struct StaticManipulator {
         }
     }
 
-    template 
-    <
-        class T,
-        class Out = std::vector<
-            typename templatious::adapters::CollectionAdapter<T>::iterator
-        >
-    >
-    static Out findFirst(
-            T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
-            ) 
+    template <class T,class U>
+    static auto findFirstIter(T& col,const U& v) 
+        -> decltype(findIterInternal<true>(col,v))
     {
-        namespace ut = templatious::util;
-        namespace ad = templatious::adapters;
-        typedef typename ad::StaticAdapter SA;
-        typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::value_type ValType;
-        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
-
-        auto res = SA::instantiate<Out>(1);
-        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
-            if (Comp::eq(*i,v)) {
-                SA::add(res,i);
-                break;
-            }
-        }
-        return res;
+        return findIterInternal<true>(col,v);
     }
+
+    template <class T,class U>
+    static auto findIter(T& col,const U& v) 
+        -> decltype(findIterInternal<false>(col,v))
+    {
+        return findIterInternal<false>(col,v);
+    }
+
+    template <class T,class U>
+    static auto findFirstIdx(T& col,const U& v) 
+        -> decltype(findIdxInternal<true>(col,v))
+    {
+        return findIdxInternal<true>(col,v);
+    }
+
+    template <class T,class U>
+    static auto findIdx(T& col,const U& v) 
+        -> decltype(findIdxInternal<false>(col,v))
+    {
+        return findIdxInternal<false>(col,v);
+    }
+
+    template <class T,class U>
+    static auto findIdxIter(T& col,const U& v) 
+        -> decltype(findIdxIterInternal<false>(col,v))
+    {
+        return findIdxIterInternal<false>(col,v);
+    }
+
+    template <class T,class U>
+    static auto findFirstIdxIter(T& col,const U& v) 
+        -> decltype(findIdxIterInternal<true>(col,v))
+    {
+        return findIdxIterInternal<true>(col,v);
+    }
+
+
 
 };
 
