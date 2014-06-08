@@ -30,6 +30,7 @@ struct StaticManipulator {
          }
      };
 
+
     public:
 
     // T - return col, U - functor, Args - collections
@@ -56,8 +57,14 @@ struct StaticManipulator {
         return result;
     }
 
+
     template <bool passIndex = false, class U, class... Args>
-    static void traverse(U& fn, Args&... args) {
+    static void traverse(U fn, Args&... args) {
+        traverseRef<passIndex>(fn,args...);
+    }
+
+    template <bool passIndex = false, class U, class... Args>
+    static void traverseRef(U& fn, Args&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
@@ -76,6 +83,35 @@ struct StaticManipulator {
             }
             it.inc();
         }
+    }
+
+    template 
+    <
+        class T,
+        class Out = std::vector<
+            typename templatious::adapters::CollectionAdapter<T>::iterator
+        >
+    >
+    static Out findFirst(
+            T& col,
+            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            ) 
+    {
+        namespace ut = templatious::util;
+        namespace ad = templatious::adapters;
+        typedef typename ad::StaticAdapter SA;
+        typedef typename ad::CollectionAdapter<T> AD;
+        typedef typename AD::value_type ValType;
+        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+
+        auto res = SA::instantiate<Out>(1);
+        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+            if (Comp::eq(*i,v)) {
+                SA::add(res,i);
+                break;
+            }
+        }
+        return res;
     }
 
 };
