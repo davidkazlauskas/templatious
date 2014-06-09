@@ -30,6 +30,7 @@ template <class T>
 struct CollectionAdapter< std::list<T> > {
 
     static const bool is_valid = true;
+    static const bool hash_supported = false;
 
 	typedef typename std::list<T> ThisCol;
 	typedef typename ThisCol::iterator iterator;
@@ -110,6 +111,9 @@ struct CollectionAdapter< std::list<T> > {
 
 template <class T>
 struct CollectionAdapter< std::list<T>* > {
+
+    static const bool is_valid = true;
+    static const bool hash_supported = false;
 
 	typedef typename std::list<T>* ThisCol;
 	typedef typename std::list<T> const* ConstCol;

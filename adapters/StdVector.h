@@ -29,6 +29,7 @@ template <class T>
 struct CollectionAdapter< std::vector<T> > {
 
     static const bool is_valid = true;
+    static const bool hash_supported = true;
 
 	typedef typename std::vector<T> ThisCol;
 	typedef typename ThisCol::iterator iterator;
@@ -78,6 +79,9 @@ struct CollectionAdapter< std::vector<T> > {
 
 template <class T>
 struct CollectionAdapter< std::vector<T>* > {
+
+    static const bool is_valid = true;
+    static const bool hash_supported = true;
 
 	typedef typename std::vector<T>* ThisCol;
     typedef typename std::vector<T> const* ConstCol;
