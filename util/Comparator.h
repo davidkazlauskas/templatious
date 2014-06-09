@@ -26,17 +26,37 @@ template <class T,class U>
 struct ComparatorEq {
 
     // default equality test
-    static bool eq(const T& t,const U& u) {
+    bool operator()(const T& t,const U& u) {
         return t == u;
     }
 
 };
 
 template <class T,class U>
-struct ComparatorLm {
+struct ComparatorL {
 
-    // default comparator
-    static auto lm(const T& t,const U& u) -> decltype(t - u) {
+    // default comparator is Less
+    bool operator()(const T& t,const U& u) {
+        return t < u;
+    }
+
+};
+
+template <class T,class U>
+struct ComparatorM {
+
+    // default comparator is More
+    bool operator()(const T& t,const U& u) {
+        return t > u;
+    }
+
+};
+
+template <class T,class U>
+struct ComparatorDiff {
+
+    // default comparator is More
+    auto operator()(const T& t,const U& u) -> decltype(t - u) {
         return t - u;
     }
 

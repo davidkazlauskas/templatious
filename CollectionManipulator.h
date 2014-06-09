@@ -49,12 +49,12 @@ struct StaticManipulator {
         typedef typename ad::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
-        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+        ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
         for (auto i = SA::begin(col); i != SA::end(col); ++i) {
-            if (Comp::eq(*i,v)) {
+            if (comp(*i,v)) {
                 SA::add(res,i);
                 if (stopAtFirst) {
                     break;
@@ -80,13 +80,13 @@ struct StaticManipulator {
         typedef typename ad::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
-        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+        ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
         int idx = 0;
         for (auto i = SA::begin(col); i != SA::end(col); ++i) {
-            if (Comp::eq(*i,v)) {
+            if (comp(*i,v)) {
                 SA::add(res,idx);
                 if (stopAtFirst) {
                     break;
@@ -118,13 +118,13 @@ struct StaticManipulator {
         typedef typename ad::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
-        typedef typename ut::ComparatorEq<ValType,ValType> Comp;
+        ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
         int idx = 0;
         for (auto i = SA::begin(col); i != SA::end(col); ++i) {
-            if (Comp::eq(*i,v)) {
+            if (comp(*i,v)) {
                 SA::add(res,std::make_pair(idx,i));
                 if (stopAtFirst) {
                     break;

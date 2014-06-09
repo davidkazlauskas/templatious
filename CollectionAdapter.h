@@ -46,7 +46,6 @@ struct AdditionSelector {
     enum {
         val = templatious::util::IntSelector<areAdaptable,
             1,
-            //templatious::util::IntSelector< std::is_convertible<U,typename CollectionAdapter<T>::value_type >::value,
             templatious::util::IntSelector< std::is_array<U>::value,
                 2,
                 0

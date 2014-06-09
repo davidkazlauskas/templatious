@@ -19,6 +19,7 @@
 #ifndef DEFAULTCOMPARATORS_IVHHLPT2
 #define DEFAULTCOMPARATORS_IVHHLPT2
 
+#include <cstring>
 #include <string>
 
 namespace templatious {
@@ -28,8 +29,18 @@ template <>
 struct ComparatorDiff<std::string,std::string> {
 
     // default comparator is More
-    static int operator()(const std::string& t,const std::string& u) {
+    int operator()(const std::string& t,const std::string& u) {
         return t.compare(u);
+    }
+
+};
+
+template <>
+struct ComparatorDiff<char*,char*> {
+
+    // default comparator is More
+    int operator()(const char* t,const char* u) {
+        return strcmp(t,u);
     }
 
 };
