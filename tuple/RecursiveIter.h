@@ -27,7 +27,7 @@ namespace templatious {
 namespace recursive {
 
 namespace col = templatious::adapters;
-typedef col::StaticAdapter SA;
+typedef templatious::StaticAdapter SA;
 
 template <class... Args>
 struct RecursiveIterator;

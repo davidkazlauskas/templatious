@@ -4,7 +4,6 @@
 #include <utility>
 #include <assert.h>
 
-#include <templatious/Action.h>
 #include <templatious/adapters/All.h>
 #include <templatious/Utilities.h>
 #include <templatious/IterMaker.h>
@@ -46,7 +45,7 @@ struct StaticManipulator {
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
-        typedef typename ad::StaticAdapter SA;
+        typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
         ut::ComparatorEq<ValType,ValType> comp;
@@ -77,7 +76,7 @@ struct StaticManipulator {
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
-        typedef typename ad::StaticAdapter SA;
+        typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
         ut::ComparatorEq<ValType,ValType> comp;
@@ -115,7 +114,7 @@ struct StaticManipulator {
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
-        typedef typename ad::StaticAdapter SA;
+        typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
         typedef typename AD::value_type ValType;
         ut::ComparatorEq<ValType,ValType> comp;
@@ -143,7 +142,7 @@ struct StaticManipulator {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
-        typedef typename templatious::adapters::StaticAdapter SA;
+        typedef typename templatious::StaticAdapter SA;
         namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 
@@ -172,7 +171,7 @@ struct StaticManipulator {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
-        typedef typename templatious::adapters::StaticAdapter SA;
+        typedef typename templatious::StaticAdapter SA;
         namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 

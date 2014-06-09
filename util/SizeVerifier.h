@@ -29,7 +29,7 @@ struct SizeVerifier;
 
 template <class A,class ...Args>
 struct SizeVerifier<A,Args...> {
-    typedef templatious::adapters::StaticAdapter SA;
+    typedef templatious::StaticAdapter SA;
     int _size;
     SizeVerifier<Args...> _next;
 
@@ -46,7 +46,7 @@ struct SizeVerifier<A,Args...> {
 
 template <class A>
 struct SizeVerifier<A> {
-    typedef templatious::adapters::StaticAdapter SA;
+    typedef templatious::StaticAdapter SA;
 
     int _size;
 
