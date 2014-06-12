@@ -32,9 +32,11 @@ struct CollectionAdapter< std::vector<T> > {
     static const bool hash_supported = true;
 
 	typedef typename std::vector<T> ThisCol;
+	typedef typename std::vector<T> const ConstCol;
 	typedef typename ThisCol::iterator iterator;
 	typedef typename ThisCol::const_iterator const_iterator;
 	typedef T value_type;
+	typedef const T const_value_type;
 
 	static bool add(ThisCol& c,const value_type& i) {
 		c.push_back(i);
@@ -59,15 +61,15 @@ struct CollectionAdapter< std::vector<T> > {
 		return c.end();
 	}
 
-	static const_iterator begin(const ThisCol& c) {
+	static const_iterator begin(ConstCol& c) {
 		return c.cbegin();
 	}
 
-	static const_iterator end(const ThisCol& c) {
+	static const_iterator end(ConstCol& c) {
 		return c.cend();
 	}
 
-	static int getSize(const ThisCol& c) {
+	static int getSize(ConstCol& c) {
 		return c.size();
 	}
 
@@ -92,6 +94,22 @@ struct CollectionAdapter< std::vector<T> > {
         return true;
     }
 
+    static value_type& first(ThisCol& c) {
+        return c.front();
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.front();
+    }
+
+    static value_type& last(ThisCol& c) {
+        return c.back();
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.back();
+    }
+
 };
 
 template <class T>
@@ -106,6 +124,7 @@ struct CollectionAdapter< std::vector<T>* > {
 	typedef typename ColType::iterator iterator;
 	typedef typename ColType::const_iterator const_iterator;
 	typedef T value_type;
+	typedef const T const_value_type;
 
 	static bool add(ThisCol c,const value_type& i) {
 		c->push_back(i);
@@ -161,6 +180,22 @@ struct CollectionAdapter< std::vector<T>* > {
 
         c->insert(at,v);
         return true;
+    }
+
+    static value_type& first(ThisCol c) {
+        return c->front();
+    }
+
+    static const_value_type& first(ConstCol c) {
+        return c->front();
+    }
+
+    static value_type& last(ThisCol c) {
+        return c->back();
+    }
+
+    static const_value_type& last(ConstCol c) {
+        return c->back();
     }
 
 };

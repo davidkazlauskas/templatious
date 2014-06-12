@@ -6,6 +6,7 @@
 #include <array>
 
 #include <templatious/util/Selectors.h>
+#include <templatious/util/Comparator.h>
 
 namespace templatious {
 namespace adapters {
@@ -16,15 +17,19 @@ struct CollectionAdapter {
     static const bool hash_supported = false;
 
     typedef void* ThisCol;
+    typedef const void* ConstCol;
     typedef void* iterator;
     typedef const void* const_iterator;
     typedef void* value_type;
+    typedef const void* const_value_type;
 
     CollectionAdapter() {}
 
     static bool add(ThisCol& c, const value_type& i);
     static bool remove(ThisCol& c, const value_type& i);
     static value_type& getByIndex(ThisCol& c, int i);
+    static const_value_type& getByIndex(ConstCol& c, int i);
+
     static int getSize(const ThisCol& c);
 
     static bool erase(ThisCol& c, iterator beg);
@@ -36,6 +41,11 @@ struct CollectionAdapter {
     static iterator begin(ThisCol& c);
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c, int i);
+
+    static value_type& first(ThisCol& c);
+    static const value_type& first(ConstCol& c);
+    static value_type& last(ThisCol& c);
+    static const value_type& last(ConstCol& c);
 
     static bool insert_at(ThisCol& c, iterator at, const value_type& i);
 };
@@ -204,7 +214,7 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static auto iter_at(T& c, int i)
+    static auto iterAt(T& c, int i)
         -> typename adapters::CollectionAdapter<T>::iterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -220,6 +230,24 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::insert_at(c,at,val);
     }
+
+    //template <class T,class Comp = typename templatious::util::Default>
+    //static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
+        //typedef adapters::CollectionAdapter<T> Ad;
+        //static_assert(Ad::is_valid, "Adapter not supported.");
+        //typedef typename Ad::value_type ValType;
+
+        //typedef templatious::util::ComparatorDiff<ValType,ValType,Comp> Comparator;
+
+        //if (0 == Ad::getSize(c)) {
+            //return Ad::add(c,val);
+        //}
+
+        //if (0 > Comparator(*Ad::begin(c),val)) {
+            //return Ad::insert(c,Ad::begin(c),val);
+        //}
+
+    //}
 };
 }
 
