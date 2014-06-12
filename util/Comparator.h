@@ -22,7 +22,9 @@
 namespace templatious {
 namespace util {
 
-template <class T,class U>
+struct Default;
+
+template <class T,class U,class Var = Default>
 struct ComparatorEq {
 
     // default equality test
@@ -32,7 +34,7 @@ struct ComparatorEq {
 
 };
 
-template <class T,class U>
+template <class T,class U,class Var = Default>
 struct ComparatorL {
 
     // default comparator is Less
@@ -42,7 +44,7 @@ struct ComparatorL {
 
 };
 
-template <class T,class U>
+template <class T,class U,class Var = Default>
 struct ComparatorM {
 
     // default comparator is More
@@ -52,7 +54,7 @@ struct ComparatorM {
 
 };
 
-template <class T,class U>
+template <class T,class U,class Var = Default>
 struct ComparatorDiff {
 
     // default comparator is More
