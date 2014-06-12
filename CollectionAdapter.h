@@ -210,6 +210,16 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::iter_at(c, i);
     }
+
+    template <class T>
+    static bool insert(
+        T& c, typename adapters::CollectionAdapter<T>::iterator at,
+        const typename adapters::CollectionAdapter<T>::value_type& val) 
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::insert_at(c,at,val);
+    }
 };
 }
 
