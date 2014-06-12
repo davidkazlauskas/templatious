@@ -36,6 +36,8 @@ struct CollectionAdapter {
     static iterator begin(ThisCol& c);
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c, int i);
+
+    static bool insert_at(ThisCol& c, iterator at, const value_type& i);
 };
 
 template <class T, class U>

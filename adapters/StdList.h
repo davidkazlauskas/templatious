@@ -107,6 +107,11 @@ struct CollectionAdapter< std::list<T> > {
 
         return iter;
     }
+
+    static bool insert_at(ThisCol& c, iterator at, const value_type& v) {
+        c.insert(at,v);
+        return true;
+    }
 };
 
 template <class T>

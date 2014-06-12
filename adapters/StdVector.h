@@ -75,6 +75,13 @@ struct CollectionAdapter< std::vector<T> > {
         return c[i];
     }
 
+    static bool insert_at(ThisCol& c, iterator at, const value_type& v) {
+        assert(at >= begin(c) && at < end(c));
+
+        c.insert(at,v);
+        return true;
+    }
+
 };
 
 template <class T>
