@@ -75,6 +75,16 @@ struct CollectionAdapter< std::vector<T> > {
         return c[i];
     }
 
+    static bool erase(ThisCol& c,iterator beg) {
+        c.erase(beg);
+        return true;
+    }
+
+    static bool erase(ThisCol& c,iterator beg,iterator end) {
+        c.erase(beg,end);
+        return true;
+    }
+
     static bool insert_at(ThisCol& c, iterator at, const value_type& v) {
         assert(at >= begin(c) && at < end(c));
 
@@ -134,6 +144,23 @@ struct CollectionAdapter< std::vector<T>* > {
 
     static value_type& getByIndex(ConstCol c, int i) {
         return (*c)[i];
+    }
+
+    static bool erase(ThisCol c,iterator beg) {
+        c->erase(beg);
+        return true;
+    }
+
+    static bool erase(ThisCol c,iterator beg,iterator end) {
+        c->erase(beg,end);
+        return true;
+    }
+
+    static bool insert_at(ThisCol c, iterator at, const value_type& v) {
+        assert(at >= begin(c) && at < end(c));
+
+        c->insert(at,v);
+        return true;
     }
 
 };

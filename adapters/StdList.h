@@ -175,12 +175,12 @@ struct CollectionAdapter< std::list<T>* > {
     }
 
     static bool erase(ThisCol c,iterator beg) {
-        c.erase(beg);
+        c->erase(beg);
         return true;
     }
 
     static bool erase(ThisCol c,iterator beg,iterator end) {
-        c.erase(beg,end);
+        c->erase(beg,end);
         return true;
     }
 
@@ -195,6 +195,11 @@ struct CollectionAdapter< std::list<T>* > {
         }
 
         return iter;
+    }
+
+    static bool insert_at(ThisCol c, iterator at, const value_type& v) {
+        c->insert(at,v);
+        return true;
     }
 };
 
