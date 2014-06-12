@@ -64,6 +64,22 @@ struct ComparatorDiff {
 
 };
 
+template <class Comp>
+struct ReverseComparator {
+    Comp _c;
+
+    ReverseComparator(const Comp& c) : _c(c) {}
+
+    template <class T,class U>
+    auto operator()(const T& t,const U& u) -> decltype(_c(u,t)) {
+        return _c(u,t);
+    }
+};
+
+template <class Comp>
+ReverseComparator<Comp> rev(const Comp& c) {
+    return ReverseComparator<Comp>(c);
+}
 
 }
 }
