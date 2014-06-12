@@ -231,23 +231,35 @@ struct StaticAdapter {
         return Ad::insert_at(c,at,val);
     }
 
-    //template <class T,class Comp = typename templatious::util::Default>
-    //static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
-        //typedef adapters::CollectionAdapter<T> Ad;
-        //static_assert(Ad::is_valid, "Adapter not supported.");
-        //typedef typename Ad::value_type ValType;
+    template <class T,class Comp = typename templatious::util::Default>
+    static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef typename Ad::value_type ValType;
 
-        //typedef templatious::util::ComparatorDiff<ValType,ValType,Comp> Comparator;
+        templatious::util::ComparatorDiff<ValType,ValType,Comp> comp;
 
-        //if (0 == Ad::getSize(c)) {
-            //return Ad::add(c,val);
-        //}
+        if (0 == Ad::getSize(c)) {
+            return Ad::add(c,val);
+        }
 
-        //if (0 > Comparator(*Ad::begin(c),val)) {
-            //return Ad::insert(c,Ad::begin(c),val);
-        //}
+        if (0 >= comp(Ad::last(c),val)) {
+            return Ad::add(c,val);
+        }
 
-    //}
+        if (0 <= comp(Ad::first(c),val)) {
+            return Ad::insert_at(c,Ad::begin(c),val);
+        }
+
+        for (auto i = Ad::begin(c); i != Ad::end(c); ++i) {
+            if (0 <= comp(*i,val)) {
+                return Ad::insert_at(c,i,val);
+            }
+        }
+
+        assert(false);
+
+    }
 };
 }
 
