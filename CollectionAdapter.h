@@ -231,13 +231,14 @@ struct StaticAdapter {
         return Ad::insert_at(c,at,val);
     }
 
-    template <class T,class Comp = typename templatious::util::Default>
+    template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
     static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         typedef typename Ad::value_type ValType;
 
-        templatious::util::ComparatorDiff<ValType,ValType,Comp> comp;
+        typedef typename templatious::util::ComparatorDiff<ValType,ValType,Comp> Comparator;
+        auto comp = templatious::util::rev<reverse>(Comparator());
 
         if (0 == Ad::getSize(c)) {
             return Ad::add(c,val);
