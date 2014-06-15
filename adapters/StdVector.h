@@ -25,14 +25,14 @@
 namespace templatious {
 namespace adapters {
 
-template <class T>
-struct CollectionAdapter< std::vector<T> > {
+template <class T,template <class> class Alloc >
+struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 
     static const bool is_valid = true;
     static const bool hash_supported = true;
 
-	typedef typename std::vector<T> ThisCol;
-	typedef typename std::vector<T> const ConstCol;
+	typedef typename std::vector<T, Alloc<T> > ThisCol;
+	typedef typename std::vector<T, Alloc<T> > const ConstCol;
 	typedef typename ThisCol::iterator iterator;
 	typedef typename ThisCol::const_iterator const_iterator;
 	typedef T value_type;
@@ -112,15 +112,15 @@ struct CollectionAdapter< std::vector<T> > {
 
 };
 
-template <class T>
-struct CollectionAdapter< std::vector<T>* > {
+template <class T,template <class> class Alloc>
+struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 
     static const bool is_valid = true;
     static const bool hash_supported = true;
 
-	typedef typename std::vector<T>* ThisCol;
-    typedef typename std::vector<T> const* ConstCol;
-    typedef typename std::vector<T> ColType;
+	typedef typename std::vector<T, Alloc<T> >* ThisCol;
+    typedef typename std::vector<T, Alloc<T> > const* ConstCol;
+    typedef typename std::vector<T, Alloc<T> > ColType;
 	typedef typename ColType::iterator iterator;
 	typedef typename ColType::const_iterator const_iterator;
 	typedef T value_type;

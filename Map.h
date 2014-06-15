@@ -23,10 +23,7 @@ namespace templatious {
 namespace adapters {
 
 template <class T>
-struct MapAdapter {
-
-
-};
+struct Map;
 
 }
 }

@@ -4,6 +4,7 @@
 
 #include <type_traits>
 #include <array>
+#include <memory>
 
 #include <templatious/util/Selectors.h>
 #include <templatious/util/Comparator.h>
@@ -11,7 +12,7 @@
 namespace templatious {
 namespace adapters {
 
-template <class T>
+template <class T,template <class> class Alloc = std::allocator >
 struct CollectionAdapter {
     static const bool is_valid = false;
     static const bool hash_supported = false;
