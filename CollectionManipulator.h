@@ -188,6 +188,20 @@ struct StaticManipulator {
         }
     }
 
+    template <class T,class U,class Comp = templatious::util::ComparatorEq<U,U,templatious::util::Default> >
+    static bool valExists(const T& col,const U& v) {
+        typedef typename templatious::StaticAdapter SA;
+        Comp c;
+
+        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+            if (c(v,*i)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     template <class T,class U>
     static auto findFirstIter(T& col,const U& v) 
         -> decltype(findIterInternal<true>(col,v))

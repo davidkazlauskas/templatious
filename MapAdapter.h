@@ -27,7 +27,7 @@ struct MapAdapter {
 
     typedef void* KeyType;
     typedef void* ValueType;
-    typedef MapAdapter<T> ThisHash;
+    typedef T ThisMap;
 
     bool keyExists(const ThisMap& h,const KeyType& k);
     bool get(const ThisMap& h,const KeyType& k,ValueType& v);
