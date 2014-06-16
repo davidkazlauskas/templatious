@@ -23,7 +23,19 @@ namespace templatious {
 namespace adapters {
 
 template <class T>
-struct Map;
+struct MapAdapter {
+
+    typedef void* KeyType;
+    typedef void* ValueType;
+    typedef MapAdapter<T> ThisHash;
+
+    bool keyExists(const ThisMap& h,const KeyType& k);
+    bool get(const ThisMap& h,const KeyType& k,ValueType& v);
+    ValueType& get(const ThisMap& h,const KeyType& k);
+    bool put(ThisMap& h,const KeyType& k,const ValueType& v);
+    void clear(ThisMap& h);
+
+};
 
 }
 }
