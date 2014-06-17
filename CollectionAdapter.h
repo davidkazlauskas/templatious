@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <array>
 #include <memory>
+#include <initializer_list>
 
 #include <templatious/util/Selectors.h>
 #include <templatious/util/Comparator.h>
@@ -139,6 +140,18 @@ struct StaticAdapter {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::end(c);
+    }
+
+    template <class T, class U>
+    static bool add(T& c, const std::initializer_list<U>& o) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        for (auto i = o.begin(); i != o.end(); ++i) {
+            if (!Ad::add(c,*i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     template <class T, class U>
