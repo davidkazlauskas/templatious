@@ -50,6 +50,8 @@ struct CollectionAdapter {
     static const value_type& last(ConstCol& c);
 
     static bool insert_at(ThisCol& c, iterator at, const value_type& i);
+
+    static void clear(ThisCol& c);
 };
 
 template <class T, class U>
@@ -245,6 +247,13 @@ struct StaticAdapter {
         return Ad::insert_at(c,at,val);
     }
 
+    template <class T>
+    static void clear(T& c) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        Ad::clear(c);
+    }
+
     template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
     static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -275,6 +284,7 @@ struct StaticAdapter {
         assert(false);
 
     }
+
 };
 }
 

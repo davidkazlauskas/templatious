@@ -129,6 +129,10 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     static const_value_type& last(ConstCol& c) {
         return c.back();
     }
+
+    static void clear(ThisCol& c) {
+        c.clear();
+    }
 };
 
 template <class T,template <class> class Alloc >
@@ -234,6 +238,10 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 
     static const_value_type& last(ConstCol c) {
         return c->back();
+    }
+
+    static void clear(ThisCol c) {
+        c->clear();
     }
 };
 

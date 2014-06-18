@@ -110,6 +110,10 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
         return c.back();
     }
 
+    static void clear(ThisCol& c) {
+        c.clear();
+    }
+
 };
 
 template <class T,template <class> class Alloc>
@@ -198,6 +202,9 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
         return c->back();
     }
 
+    static void clear(ThisCol c) {
+        c->clear();
+    }
 };
 }
 }
