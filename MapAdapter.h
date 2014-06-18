@@ -22,18 +22,29 @@
 namespace templatious {
 namespace adapters {
 
+#include <templatious/util/Comparator.h>
+
 template <class T>
 struct MapAdapter {
+
+    static const bool is_valid = false;
 
     typedef void* KeyType;
     typedef void* ValueType;
     typedef T ThisMap;
+    typedef templatious::util::Default DefComp;
 
-    bool keyExists(const ThisMap& h,const KeyType& k);
-    bool get(const ThisMap& h,const KeyType& k,ValueType& v);
-    ValueType& get(const ThisMap& h,const KeyType& k);
-    bool put(ThisMap& h,const KeyType& k,const ValueType& v);
-    void clear(ThisMap& h);
+    template <class Comp = DefComp>
+    static bool keyExists(const ThisMap& h,const KeyType& k);
+
+    template <class Comp = DefComp>
+    static bool get(const ThisMap& h,const KeyType& k,ValueType& v);
+
+    template <class Comp = DefComp>
+    static ValueType& get(const ThisMap& h,const KeyType& k);
+
+    template <class Comp = DefComp>
+    static bool put(ThisMap& h,const KeyType& k,const ValueType& v);
 
 };
 

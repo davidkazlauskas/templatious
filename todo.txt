@@ -1,4 +1,4 @@
 
 1. findIter @ CollectionManipulator needs comparator support
-2. need for implicit conversion to value from initializer list
+2. need for implicit conversion to value from initializer list -- difficulties
 

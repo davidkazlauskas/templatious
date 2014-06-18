@@ -30,6 +30,8 @@ namespace adapters {
 template <template <class,class> class T,class Key,class Value,template <class> class Alloc>
 struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
 
+    static const bool is_valid = true;
+
     typedef Key KeyType;
     typedef Value ValueType;
     typedef T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > ThisMap;
@@ -38,9 +40,11 @@ struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
 
     static_assert( templatious::adapters::CollectionAdapter<ThisMap>::is_valid, "Map is invalid." );
 
+    template <class Comp = templatious::util::Default>
     bool keyExists(const ThisMap& h,const KeyType& k) {
+        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
         for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            if ((*i).first == k) {
+            if (c((*i).first,k)) {
                 return true;
             }
         }
@@ -48,8 +52,30 @@ struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
         return false;
     }
 
-    bool get(const ThisMap& h,const KeyType& k,ValueType& v);
-    ValueType& get(const ThisMap& h,const KeyType& k);
+    template <class Comp = templatious::util::Default>
+    bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
+        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            if (c((*i).first,k)) {
+                v = (*i).second;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template <class Comp = templatious::util::Default>
+    ValueType& get(ThisMap& h,const KeyType& k) {
+        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            if (c((*i).first,k)) {
+                return (*i).second;
+            }
+        }
+        
+        assert(false);
+    }
+
     bool put(ThisMap& h,const KeyType& k,const ValueType& v);
     void clear(ThisMap& h);
 
