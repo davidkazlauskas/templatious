@@ -76,8 +76,26 @@ struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
         assert(false);
     }
 
-    bool put(ThisMap& h,const KeyType& k,const ValueType& v);
-    void clear(ThisMap& h);
+    template <class Comp = templatious::util::Default>
+    bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
+        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            if (c((*i).first,k)) {
+                i->second = v;
+                return false;
+            }
+        }
+        
+        return SA::add(h,std::make_pair(k,v));
+    }
+
+    void clear(ThisMap& h) {
+        SA::clear(h);
+    }
+
+    static size_t getSize(const ThisMap& h) {
+        return SA::getSize(h);
+    }
 
 };
 

@@ -46,6 +46,8 @@ struct MapAdapter {
     template <class Comp = DefComp>
     static bool put(ThisMap& h,const KeyType& k,const ValueType& v);
 
+    static size_t getSize(const ThisMap& h);
+
 };
 
 }
