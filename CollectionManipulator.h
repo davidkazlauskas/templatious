@@ -60,7 +60,7 @@ struct StaticManipulator {
                 }
             }
         }
-        return res;
+        return std::move(res);
     }
 
     template 
@@ -93,7 +93,7 @@ struct StaticManipulator {
             }
             ++idx;
         }
-        return res;
+        return std::move(res);
     }
 
     template 
@@ -131,7 +131,7 @@ struct StaticManipulator {
             }
             ++idx;
         }
-        return res;
+        return std::move(res);
     }
 
     public:
@@ -157,7 +157,7 @@ struct StaticManipulator {
             it.inc();
         }
 
-        return result;
+        return std::move(result);
     }
 
 
