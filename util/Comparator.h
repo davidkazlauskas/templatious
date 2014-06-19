@@ -25,7 +25,17 @@ namespace util {
 struct Default;
 
 template <class T,class U,class Var = Default>
-struct ComparatorEq {
+struct ComparatorEq;
+template <class T,class U,class Var = Default>
+struct ComparatorL;
+template <class T,class U,class Var = Default>
+struct ComparatorM;
+template <class T,class U,class Var = Default>
+struct ComparatorDiff;
+
+
+template <class T,class U>
+struct ComparatorEq<T,U,Default> {
 
     // default equality test
     bool operator()(const T& t,const U& u) {
@@ -34,8 +44,8 @@ struct ComparatorEq {
 
 };
 
-template <class T,class U,class Var = Default>
-struct ComparatorL {
+template <class T,class U>
+struct ComparatorL<T,U,Default> {
 
     // default comparator is Less
     bool operator()(const T& t,const U& u) {
@@ -44,8 +54,8 @@ struct ComparatorL {
 
 };
 
-template <class T,class U,class Var = Default>
-struct ComparatorM {
+template <class T,class U>
+struct ComparatorM<T,U,Default> {
 
     // default comparator is More
     bool operator()(const T& t,const U& u) {
@@ -54,10 +64,10 @@ struct ComparatorM {
 
 };
 
-template <class T,class U,class Var = Default>
-struct ComparatorDiff {
+template <class T,class U>
+struct ComparatorDiff<T,U,Default> {
 
-    // default comparator is More
+    // default comparator by difference
     auto operator()(const T& t,const U& u) -> decltype(t - u) {
         return t - u;
     }

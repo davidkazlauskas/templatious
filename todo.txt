@@ -2,5 +2,5 @@
 1. findIter @ CollectionManipulator needs comparator support
 2. need for implicit conversion to value from initializer list -- difficulties
 3. const traverse and mold to one
-4. fix comparator specializations
+#4. fix comparator specializations
 
