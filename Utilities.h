@@ -22,6 +22,6 @@
 #include <templatious/util/TupleExtractor.h>
 #include <templatious/util/Selectors.h>
 #include <templatious/util/DoIf.h>
-#include <templatious/util/Comparator.h>
+#include <templatious/util/spec/DefaultComparators.h>
 
 
