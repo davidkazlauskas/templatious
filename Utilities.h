@@ -23,5 +23,5 @@
 #include <templatious/util/Selectors.h>
 #include <templatious/util/DoIf.h>
 #include <templatious/util/spec/DefaultComparators.h>
-
+#include <templatious/util/Hasher.h>
 
