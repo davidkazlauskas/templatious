@@ -88,7 +88,7 @@ struct HashKit {
 
     static_assert(T::is_hash_valid,"Hash function is not valid.");
 
-    HashComparator(const ValueType& h) : _h(h), _hl(h), _hm(h), _he(h) {}
+    HashKit(const T& h) : _h(h), _hl(h), _hm(h), _he(h) {}
 
     size_t hash(const ValueType& t) {
         return _h(t);

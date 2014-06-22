@@ -106,6 +106,36 @@ ReverseComparator<Comp,isReversed> rev(const Comp& c) {
     return ReverseComparator<Comp,isReversed>(c);
 }
 
+template <bool isReversed = false>
+struct StaticComparator {
+
+    template <class Var = Default,class T,class U>
+    static bool isEqual(const T& t,const U& u) {
+        auto c = rev<isReversed>(ComparatorEq<T,U,Var>());
+        return c(t,u);
+    }
+
+    template <class Var = Default,class T,class U>
+    static bool isLess(const T& t,const U& u) {
+        auto c = rev<isReversed>(ComparatorL<T,U,Var>());
+        return c(t,u);
+    }
+
+    template <class Var = Default,class T,class U>
+    static bool isMore(const T& t,const U& u) {
+        auto c = rev<isReversed>(ComparatorM<T,U,Var>());
+        return c(t,u);
+    }
+
+    template <class Var = Default, class T, class U>
+    static auto diff(const T& t, const U& u)
+        -> decltype((rev<isReversed>(ComparatorDiff<T, U, Var>()))(t, u)) 
+    {
+        auto c = rev<isReversed>(ComparatorDiff<T, U, Var>());
+        return c(t, u);
+    }
+};
+
 }
 }
 

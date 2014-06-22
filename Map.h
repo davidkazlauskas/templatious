@@ -20,7 +20,7 @@
 #define MAP_H3UVMK27
 
 #include <templatious/adapters/All.h>
-#include <templatious/MapAdapter.h>
+#include <templatious/util/spec/DefaultHashes.h>
 
 namespace templatious {
 
