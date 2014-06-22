@@ -22,33 +22,88 @@
 namespace templatious {
 namespace util {
 
-template <class T>
+struct Default;
+
+template <class T,class U = Default>
 struct Hasher {
 
-    static const bool is_valid = false;
+    static const bool is_hash_valid = false;
+
+    typedef T ValueType;
+    typedef U Variant;
 
     size_t operator()(const T& t);
 };
 
 template <class T>
-struct HashComparator {
+struct HashLess {
+
+    static_assert(T::is_hash_valid,"Hash function is not valid.");
+    typedef typename T::ValueType ValueType;
 
     T _h;
+    HashLess(const T& h) : _h(h) {}
 
-    static_assert(T::is_valid,"Hash function is not valid.");
-
-    HashComparator(const T& h) : _h(h) {}
-
-    bool isLess(const T& t1,const T& t2) {
+    bool operator()(const T& t1,const T& t2) {
         return _h(t1) < _h(t2);
     }
+};
 
-    bool isMore(const T& t1,const T& t2) {
+template <class T>
+struct HashMore {
+
+    static_assert(T::is_hash_valid,"Hash function is not valid.");
+    typedef typename T::ValueType ValueType;
+
+    T _h;
+    HashMore(const T& h) : _h(h) {}
+
+    bool operator()(const T& t1,const T& t2) {
         return _h(t1) > _h(t2);
     }
+};
 
-    bool isEqual(const T& t1,const T& t2) {
+template <class T>
+struct HashEqual {
+
+    static_assert(T::is_hash_valid,"Hash function is not valid.");
+    typedef typename T::ValueType ValueType;
+
+    T _h;
+    HashEqual(const T& h) : _h(h) {}
+
+    bool operator()(const T& t1,const T& t2) {
         return _h(t1) == _h(t2);
+    }
+};
+
+template <class T>
+struct HashKit {
+
+    T _h;
+    HashLess<T> _hl;
+    HashMore<T> _hm;
+    HashEqual<T> _he;
+    typedef typename T::ValueType ValueType;
+
+    static_assert(T::is_hash_valid,"Hash function is not valid.");
+
+    HashComparator(const ValueType& h) : _h(h), _hl(h), _hm(h), _he(h) {}
+
+    size_t hash(const ValueType& t) {
+        return _h(t);
+    }
+
+    bool isLess(const ValueType& t1,const ValueType& t2) {
+        return _hl(t1,t2);
+    }
+
+    bool isMore(const ValueType& t1,const ValueType& t2) {
+        return _hm(t1,t2);
+    }
+
+    bool isEqual(const ValueType& t1,const ValueType& t2) {
+        return _he(t1,t2);
     }
 
 };
