@@ -28,12 +28,16 @@ template <
     template <class...> class Map,
     class Key,
     class Value,
-    class Hash = Hasher<Key> >
+    class Hash = templatious::util::Hasher<Key> >
 struct MapMaker {
 
-    typedef void MapType;
-
     static const bool is_maker_valid = false;
+    typedef void MapType;
+    typedef typename templatious::util::HashKit<Hash> Kit;
+
+    Kit _k;
+
+    MapMaker(const Hash& h) : _k(h) {}
 
     static MapType make(size_t size);
 
