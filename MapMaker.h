@@ -16,4 +16,31 @@
  * =====================================================================================
  */
 
+#ifndef MAPMAKER_OQGTEX4F
+#define MAPMAKER_OQGTEX4F
 
+#include <templatious/util/Hasher.h>
+
+namespace templatious {
+namespace adapters {
+
+template <
+    template <class...> class Map,
+    class Key,
+    class Value,
+    class Hash = Hasher<Key> >
+struct MapMaker {
+
+    typedef void MapType;
+
+    static const bool is_maker_valid = false;
+
+    static MapType make(size_t size);
+
+};
+
+}
+}
+
+
+#endif /* end of include guard: MAPMAKER_OQGTEX4F */
