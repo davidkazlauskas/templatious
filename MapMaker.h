@@ -25,10 +25,11 @@ namespace templatious {
 namespace adapters {
 
 template <
-    template <class...> class Map,
     class Key,
     class Value,
+    template <class...> class Map,
     class Hash = templatious::util::Hasher<Key> >
+//struct MapMaker<Key,Value,Map,Hash> {
 struct MapMaker {
 
     static const bool is_maker_valid = false;
@@ -38,6 +39,7 @@ struct MapMaker {
     Kit _k;
 
     MapMaker(const Hash& h) : _k(h) {}
+    MapMaker() : _k(Hash()) {}
 
     static MapType make(size_t size);
 

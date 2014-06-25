@@ -29,13 +29,14 @@ namespace templatious {
 namespace adapters {
 
 template <class Key,class Value,class Comp>
-struct MapMaker< std::map, Key, Value, Comp > {
+struct MapMaker<Key,Value,std::map,Comp> {
 
     static const bool is_maker_valid = true;
     typedef typename templatious::util::HashKit<Comp> Kit;
     Kit _k;
 
     MapMaker(const Comp& c) : _k(c) {}
+    MapMaker() : _k(Comp()) {}
 
 };
 
