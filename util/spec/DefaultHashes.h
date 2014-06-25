@@ -86,7 +86,14 @@ struct Hasher<std::string> {
     typedef std::string ValueType;
     typedef Default Variant;
 
-    size_t operator()(const std::string& t) { return 777; }
+    size_t operator()(const std::string& t) {
+        // DUMMY, BAD FUNCTION
+        size_t res = 0;
+        for (int i = 0; i < t.size(); ++i) {
+            res += t[i];
+        }
+        return res;
+    }
 };
 
 template <>
@@ -97,7 +104,15 @@ struct Hasher<char*> {
     typedef char* ValueType;
     typedef Default Variant;
 
-    size_t operator()(const char* t) { return 777; }
+    size_t operator()(const char* t) {
+        // DUMMY, BAD FUNCTION
+        size_t res = 0;
+        const char* i = t;
+        while ('\0' != *i) {
+            res += *i;
+        }
+        return res;
+    }
 };
 
 // STRING COMPARISON -----------------------------

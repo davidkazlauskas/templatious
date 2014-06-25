@@ -43,6 +43,7 @@ struct HashLess {
 
     T _h;
     HashLess(const T& h) : _h(h) {}
+    HashLess() : _h(T()) {}
 
     bool operator()(const T& t1,const T& t2) {
         return _h(t1) < _h(t2);
@@ -57,6 +58,7 @@ struct HashMore {
 
     T _h;
     HashMore(const T& h) : _h(h) {}
+    HashMore() : _h(T()) {}
 
     bool operator()(const T& t1,const T& t2) {
         return _h(t1) > _h(t2);
@@ -71,6 +73,7 @@ struct HashEqual {
 
     T _h;
     HashEqual(const T& h) : _h(h) {}
+    HashEqual() : _h(T()) {}
 
     bool operator()(const T& t1,const T& t2) {
         return _h(t1) == _h(t2);
@@ -81,6 +84,10 @@ template <class T>
 struct HashKit {
 
     T _h;
+    typedef HashLess<T> HL;
+    typedef HashMore<T> HM;
+    typedef HashEqual<T> HE;
+
     HashLess<T> _hl;
     HashMore<T> _hm;
     HashEqual<T> _he;

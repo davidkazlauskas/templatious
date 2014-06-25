@@ -44,6 +44,7 @@ struct MapMaker {
     MapMaker() : _k(Hash()) {}
 
     static MapType make(size_t size);
+    static MapType make();
 
 };
 
@@ -55,7 +56,9 @@ struct StaticMapMaker {
         class Hash = templatious::util::Hasher<Key>,
         template <class> class Allocator = std::allocator
     >
-    auto makeMap(const Hash& h) {}
+    auto makeMap(const Hash& h) {
+    
+    }
 };
 
 }

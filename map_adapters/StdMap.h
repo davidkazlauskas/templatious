@@ -28,15 +28,28 @@
 namespace templatious {
 namespace adapters {
 
-template <class Key,class Value,class Comp>
-struct MapMaker<Key,Value,std::map,Comp> {
+template <class Key,class Value,class Comp,template <class> class Alloc>
+struct MapMaker<Key,Value,std::map,Comp,Alloc> {
 
     static const bool is_maker_valid = true;
     typedef typename templatious::util::HashKit<Comp> Kit;
+    typedef std::map <
+        Key, Value, typename Kit::HL,
+        Alloc<std::pair<const Key, Value> >
+    > MapType;
+
     Kit _k;
 
     MapMaker(const Comp& c) : _k(c) {}
     MapMaker() : _k(Comp()) {}
+
+    static MapType make(size_t size) {
+        return MapType();
+    }
+
+    static MapType make() {
+        return MapType();
+    }
 
 };
 

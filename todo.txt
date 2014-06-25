@@ -3,4 +3,5 @@
 2. need for implicit conversion to value from initializer list -- difficulties
 3. const traverse and mold to one
 #4. fix comparator specializations
+5. da empty initializer problem (std::map takes std::less function which uses empty constructor)
 
