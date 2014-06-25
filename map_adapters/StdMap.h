@@ -22,8 +22,8 @@
 #include <map>
 
 #include <templatious/util/Hasher.h>
-#include <templatious/MapAdapter.h>
-#include <templatious/MapMaker.h>
+#include <templatious/map/MapAdapter.h>
+#include <templatious/map/MapMaker.h>
 
 namespace templatious {
 namespace adapters {

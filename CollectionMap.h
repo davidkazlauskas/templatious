@@ -22,7 +22,7 @@
 #include <utility>
 
 #include <templatious/CollectionManipulator.h>
-#include <templatious/MapAdapter.h>
+#include <templatious/map/MapAdapter.h>
 
 namespace templatious {
 namespace adapters {
