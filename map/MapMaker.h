@@ -19,6 +19,8 @@
 #ifndef MAPMAKER_OQGTEX4F
 #define MAPMAKER_OQGTEX4F
 
+#include <memory>
+
 #include <templatious/util/Hasher.h>
 
 namespace templatious {
@@ -28,8 +30,8 @@ template <
     class Key,
     class Value,
     template <class...> class Map,
-    class Hash = templatious::util::Hasher<Key> >
-//struct MapMaker<Key,Value,Map,Hash> {
+    class Hash = templatious::util::Hasher<Key>,
+    template <class> class Allocator = std::allocator >
 struct MapMaker {
 
     static const bool is_maker_valid = false;
@@ -43,6 +45,17 @@ struct MapMaker {
 
     static MapType make(size_t size);
 
+};
+
+struct StaticMapMaker {
+    template <
+        class Key,
+        class Value,
+        template <class...> class Map,
+        class Hash = templatious::util::Hasher<Key>,
+        template <class> class Allocator = std::allocator
+    >
+    auto makeMap(const Hash& h) {}
 };
 
 }
