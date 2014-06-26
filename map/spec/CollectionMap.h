@@ -31,6 +31,7 @@ template <template <class,class> class T,class Key,class Value,template <class> 
 struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
 
     static const bool is_valid = true;
+    static const bool is_comparator_const = false;
 
     typedef Key KeyType;
     typedef Value ValueType;

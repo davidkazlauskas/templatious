@@ -28,24 +28,17 @@ template <class T>
 struct MapAdapter {
 
     static const bool is_valid = false;
+    static const bool is_comparator_const = true;
 
     typedef void* KeyType;
     typedef void* ValueType;
     typedef T ThisMap;
-    typedef templatious::util::Default DefComp;
+    typedef void* Comparator;
 
-    template <class Comp = DefComp>
     static bool keyExists(const ThisMap& h,const KeyType& k);
-
-    template <class Comp = DefComp>
     static bool get(const ThisMap& h,const KeyType& k,ValueType& v);
-
-    template <class Comp = DefComp>
     static ValueType& get(const ThisMap& h,const KeyType& k);
-
-    template <class Comp = DefComp>
     static bool put(ThisMap& h,const KeyType& k,const ValueType& v);
-
     static size_t getSize(const ThisMap& h);
 
 };

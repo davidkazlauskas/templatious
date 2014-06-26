@@ -53,6 +53,31 @@ struct MapMaker<Key,Value,std::map,Comp,Alloc> {
 
 };
 
+template <
+    class Key,
+    class Value,
+    class Comp,
+    template <class> class Alloc
+>
+struct MapAdapter<
+    std::map<
+        Key,Value,Comp,
+        Alloc< std::pair<const Key,Value> >
+    > 
+>
+{
+    static const bool is_valid = true;
+
+    typedef Key KeyType;
+    typedef Value ValueType;
+    typedef std::map<
+                Key,Value,Comp,
+                Alloc< std::pair<const Key,Value> >
+            > ThisMap;
+    
+};
+
+
 
 }
 }
