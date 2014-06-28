@@ -49,6 +49,7 @@ struct MapMaker {
 };
 
 struct StaticMapMaker {
+
     template <
         class Key,
         class Value,
@@ -56,9 +57,55 @@ struct StaticMapMaker {
         class Hash = templatious::util::Hasher<Key>,
         template <class> class Allocator = std::allocator
     >
-    auto makeMap(const Hash& h) {
-    
+    auto makeMap()
+    -> decltype(MapMaker<Key,Value,Map,Hash,Allocator>().make()) 
+    {
+        MapMaker<Key,Value,Map,Hash,Allocator> mk;
+        return mk.make();
     }
+
+    template <
+        class Key,
+        class Value,
+        template <class...> class Map,
+        class Hash = templatious::util::Hasher<Key>,
+        template <class> class Allocator = std::allocator
+    >
+    auto makeMap(const Hash& h) 
+    -> decltype(MapMaker<Key,Value,Map,Hash,Allocator>(h).make()) 
+    {
+        MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
+        return mk.make();
+    }
+
+    template <
+        class Key,
+        class Value,
+        template <class...> class Map,
+        class Hash = templatious::util::Hasher<Key>,
+        template <class> class Allocator = std::allocator
+    >
+    auto makeMap(size_t size) 
+    -> decltype(MapMaker<Key,Value,Map,Hash,Allocator>().make(size)) 
+    {
+        MapMaker<Key,Value,Map,Hash,Allocator> mk;
+        return mk.make(size);
+    }
+
+    template <
+        class Key,
+        class Value,
+        template <class...> class Map,
+        class Hash = templatious::util::Hasher<Key>,
+        template <class> class Allocator = std::allocator
+    >
+    auto makeMap(const Hash& h,size_t size) 
+    -> decltype(MapMaker<Key,Value,Map,Hash,Allocator>(h).make(size)) 
+    {
+        MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
+        return mk.make(size);
+    }
+
 };
 
 }

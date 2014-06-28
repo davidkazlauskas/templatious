@@ -32,7 +32,7 @@ struct Hasher {
     typedef T ValueType;
     typedef U Variant;
 
-    size_t operator()(const T& t);
+    size_t operator()(const T& t) const;
 };
 
 template <class T>
@@ -45,7 +45,7 @@ struct HashLess {
     HashLess(const T& h) : _h(h) {}
     HashLess() : _h(T()) {}
 
-    bool operator()(const T& t1,const T& t2) {
+    bool operator()(const ValueType& t1,const ValueType& t2) const {
         return _h(t1) < _h(t2);
     }
 };
@@ -60,7 +60,7 @@ struct HashMore {
     HashMore(const T& h) : _h(h) {}
     HashMore() : _h(T()) {}
 
-    bool operator()(const T& t1,const T& t2) {
+    bool operator()(const ValueType& t1,const ValueType& t2) const {
         return _h(t1) > _h(t2);
     }
 };
@@ -75,7 +75,7 @@ struct HashEqual {
     HashEqual(const T& h) : _h(h) {}
     HashEqual() : _h(T()) {}
 
-    bool operator()(const T& t1,const T& t2) {
+    bool operator()(const ValueType& t1,const ValueType& t2) const {
         return _h(t1) == _h(t2);
     }
 };
@@ -97,19 +97,19 @@ struct HashKit {
 
     HashKit(const T& h) : _h(h), _hl(h), _hm(h), _he(h) {}
 
-    size_t hash(const ValueType& t) {
+    size_t hash(const ValueType& t) const {
         return _h(t);
     }
 
-    bool isLess(const ValueType& t1,const ValueType& t2) {
+    bool isLess(const ValueType& t1,const ValueType& t2) const {
         return _hl(t1,t2);
     }
 
-    bool isMore(const ValueType& t1,const ValueType& t2) {
+    bool isMore(const ValueType& t1,const ValueType& t2) const {
         return _hm(t1,t2);
     }
 
-    bool isEqual(const ValueType& t1,const ValueType& t2) {
+    bool isEqual(const ValueType& t1,const ValueType& t2) const {
         return _he(t1,t2);
     }
 

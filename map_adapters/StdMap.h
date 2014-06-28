@@ -74,6 +74,36 @@ struct MapAdapter<
                 Key,Value,Comp,
                 Alloc< std::pair<const Key,Value> >
             > ThisMap;
+    typedef Comp Comparator;
+
+    static bool keyExists(const ThisMap& h,const KeyType& k) {
+        return h.end() != h.find(k);
+    }
+
+    static bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
+        auto it = h.find(k);
+        if (h.end() == it) {
+            return false;
+        }
+        v = it->second;
+        return true;
+    }
+
+    static ValueType& get(ThisMap& h,const KeyType& k) {
+        assert(keyExists(h,k));
+
+        return h[k];
+    }
+
+    static bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
+        h[k] = v;
+        return true;
+    }
+
+    static size_t getSize(const ThisMap& h) {
+        return h.size();
+    }
+
     
 };
 

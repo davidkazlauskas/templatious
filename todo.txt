@@ -5,4 +5,6 @@
 #4. fix comparator specializations
 5. da empty initializer problem (std::map takes std::less function which uses empty constructor)
 6. move collection map to default map object
+7. virtual collection wrapper
+8. fix std::move semantics on instantiate collection
 

@@ -32,7 +32,7 @@ namespace util {
         typedef x ValueType;\
         typedef Default Variant;\
         \
-        size_t operator()(const ValueType& t) {\
+        size_t operator()(const ValueType& t) const {\
             return size_t(cast<type>(t));\
         }\
     };
@@ -50,7 +50,7 @@ namespace util {
         Hasher<x> _h;\
         str(const Hasher<x>& h) : _h(h) {}\
         \
-        bool operator()(const ValueType& t1,const ValueType& t2) {\
+        bool operator()(const ValueType& t1,const ValueType& t2) const {\
             typedef templatious::util::StaticComparator<false> SC;\
             return SC::func(t1,t2);\
         }\
