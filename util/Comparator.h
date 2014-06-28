@@ -38,7 +38,7 @@ template <class T,class U>
 struct ComparatorEq<T,U,Default> {
 
     // default equality test
-    bool operator()(const T& t,const U& u) {
+    bool operator()(const T& t,const U& u) const {
         return t == u;
     }
 
@@ -48,7 +48,7 @@ template <class T,class U>
 struct ComparatorL<T,U,Default> {
 
     // default comparator is Less
-    bool operator()(const T& t,const U& u) {
+    bool operator()(const T& t,const U& u) const {
         return t < u;
     }
 
@@ -58,7 +58,7 @@ template <class T,class U>
 struct ComparatorM<T,U,Default> {
 
     // default comparator is More
-    bool operator()(const T& t,const U& u) {
+    bool operator()(const T& t,const U& u) const {
         return t > u;
     }
 
@@ -68,7 +68,7 @@ template <class T,class U>
 struct ComparatorDiff<T,U,Default> {
 
     // default comparator by difference
-    auto operator()(const T& t,const U& u) -> decltype(t - u) {
+    auto operator()(const T& t,const U& u) -> decltype(t - u) const {
         return t - u;
     }
 
@@ -84,7 +84,7 @@ struct ReverseComparator<Comp,true> {
     ReverseComparator(const Comp& c) : _c(c) {}
 
     template <class T,class U>
-    auto operator()(const T& t,const U& u) -> decltype(_c(u,t)) {
+    auto operator()(const T& t,const U& u) -> decltype(_c(u,t)) const {
         return _c(u,t);
     }
 };
@@ -96,7 +96,7 @@ struct ReverseComparator<Comp,false> {
     ReverseComparator(const Comp& c) : _c(c) {}
 
     template <class T,class U>
-    auto operator()(const T& t,const U& u) -> decltype(_c(t,u)) {
+    auto operator()(const T& t,const U& u) -> decltype(_c(t,u)) const {
         return _c(t,u);
     }
 };

@@ -30,7 +30,7 @@ namespace util {
 template <>
 struct ComparatorDiff<std::string,std::string> {
 
-    int operator()(const std::string& t,const std::string& u) {
+    int operator()(const std::string& t,const std::string& u) const {
         return t.compare(u);
     }
 
@@ -39,7 +39,7 @@ struct ComparatorDiff<std::string,std::string> {
 template <>
 struct ComparatorDiff<char*,char*> {
 
-    int operator()(const char* t,const char* u) {
+    int operator()(const char* t,const char* u) const {
         return strcmp(t,u);
     }
 
@@ -48,7 +48,7 @@ struct ComparatorDiff<char*,char*> {
 template <>
 struct ComparatorEq<char*,char*> {
 
-    bool operator()(const char* t,const char* u) {
+    bool operator()(const char* t,const char* u) const {
         return 0 == strcmp(t,u);
     }
 
@@ -57,7 +57,7 @@ struct ComparatorEq<char*,char*> {
 template <>
 struct ComparatorEq<std::string,std::string> {
 
-    bool operator()(const std::string& t,const std::string& u) {
+    bool operator()(const std::string& t,const std::string& u) const {
         return t == u;
     }
 
@@ -66,7 +66,7 @@ struct ComparatorEq<std::string,std::string> {
 template <>
 struct ComparatorM<char*,char*> {
 
-    bool operator()(const char* t,const char* u) {
+    bool operator()(const char* t,const char* u) const {
         return 0 < strcmp(t,u);
     }
 
@@ -75,7 +75,7 @@ struct ComparatorM<char*,char*> {
 template <>
 struct ComparatorM<std::string,std::string> {
 
-    bool operator()(const std::string& t,const std::string& u) {
+    bool operator()(const std::string& t,const std::string& u) const {
         return 0 < t.compare(u);
     }
 
@@ -84,7 +84,7 @@ struct ComparatorM<std::string,std::string> {
 template <>
 struct ComparatorL<char*,char*> {
 
-    bool operator()(const char* t,const char* u) {
+    bool operator()(const char* t,const char* u) const {
         return 0 > strcmp(t,u);
     }
 
@@ -93,7 +93,7 @@ struct ComparatorL<char*,char*> {
 template <>
 struct ComparatorL<std::string,std::string> {
 
-    bool operator()(const std::string& t,const std::string& u) {
+    bool operator()(const std::string& t,const std::string& u) const {
         return 0 > t.compare(u);
     }
 
