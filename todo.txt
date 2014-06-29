@@ -11,6 +11,7 @@ features:
 
 1. findIter @ CollectionManipulator needs comparator support
 7. virtual collection wrapper
+10. tune map object
 
 compatibility:
 

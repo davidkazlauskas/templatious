@@ -19,6 +19,7 @@
 #ifndef STDVECTOR_H6YPGTPK
 #define STDVECTOR_H6YPGTPK
 
+#include <utility>
 #include <vector>
 #include <templatious/CollectionAdapter.h>
 
@@ -44,13 +45,13 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	}
 
 	static ThisCol instantiate() {
-		return ThisCol();
+		return std::move(ThisCol());
 	}
 
 	static ThisCol instantiate(int size) {
 		ThisCol r;
 		r.reserve(size);
-		return r;
+		return std::move(r);
 	}
 
 	static iterator begin(ThisCol& c) {

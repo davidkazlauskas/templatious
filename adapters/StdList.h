@@ -19,6 +19,7 @@
 #ifndef STDLIST_8E2DYM7Y
 #define STDLIST_8E2DYM7Y
 
+#include <utility>
 #include <list>
 
 #include <templatious/CollectionAdapter.h>
@@ -45,12 +46,12 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 	}
 
 	static ThisCol instantiate() {
-		return ThisCol();
+		return std::move(ThisCol());
 	}
 
 	static ThisCol instantiate(int size) {
 		ThisCol r;
-		return r;
+		return std::move(r);
 	}
 
 	static iterator begin(ThisCol& c) {
