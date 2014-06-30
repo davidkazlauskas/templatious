@@ -35,7 +35,7 @@ template <
 struct MapMaker {
 
     static const bool is_maker_valid = false;
-    typedef void MapType;
+    typedef void ProductType;
     typedef typename templatious::util::HashKit<Hash> Kit;
 
     Kit _k;
@@ -43,8 +43,8 @@ struct MapMaker {
     MapMaker(const Hash& h) : _k(h) {}
     MapMaker() : _k(Hash()) {}
 
-    static MapType make(size_t size);
-    static MapType make();
+    static ProductType make(size_t size);
+    static ProductType make();
 
 };
 

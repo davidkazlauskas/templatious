@@ -20,92 +20,109 @@
 #define COLLECTIONMAP_SDEAKTEN
 
 #include <utility>
+#include <memory>
 
-#include <templatious/CollectionManipulator.h>
+#include <templatious/util/spec/DefaultComparators.h>
 #include <templatious/map/MapAdapter.h>
+#include <templatious/StaticFactory.h>
 
 namespace templatious {
+
+template <
+    class Key, class Value,
+    template <class...> class Coll,
+    class Comparator = templatious::util::ComparatorEq<Key,Key>,
+    template <class> class Alloc = std::allocator
+>
+struct CollectionMap {
+    typedef templatious::StaticFactory SF;
+
+    typedef decltype(SF::makeCollection< std::pair<Key,Value>, Coll, Alloc>()) CollectionType;
+
+};
+
 namespace adapters {
 
-template <template <class,class> class T,class Key,class Value,template <class> class Alloc>
-struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
+template <
+    class Key,class Value,
+    template <class...> class Coll,
+    class Comparator,
+    template <class> class Alloc 
+>
+struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> > {
 
     static const bool is_valid = true;
     static const bool is_comparator_const = false;
 
     typedef Key KeyType;
     typedef Value ValueType;
-    typedef T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > ThisMap;
-    typedef typename templatious::manip::StaticManipulator SM;
+    typedef templatious::StaticFactory SF;
+    typedef templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> ThisMap;
     typedef typename templatious::StaticAdapter SA;
 
-    static_assert( templatious::adapters::CollectionAdapter<ThisMap>::is_valid, "Map is invalid." );
+    static_assert( templatious::adapters::CollectionAdapter< 
+            typename ThisMap::CollectionType >::is_valid, "Map is invalid." );
 
-    template <class Comp = templatious::util::Default>
-    bool keyExists(const ThisMap& h,const KeyType& k) {
-        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            if (c((*i).first,k)) {
-                return true;
-            }
-        }
+    //template <class Comp = templatious::util::Default>
+    //bool keyExists(const ThisMap& h,const KeyType& k) {
+        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            //if (c((*i).first,k)) {
+                //return true;
+            //}
+        //}
 
-        return false;
-    }
+        //return false;
+    //}
 
-    template <class Comp = templatious::util::Default>
-    bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
-        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            if (c((*i).first,k)) {
-                v = (*i).second;
-                return true;
-            }
-        }
-        return false;
-    }
+    //template <class Comp = templatious::util::Default>
+    //bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
+        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            //if (c((*i).first,k)) {
+                //v = (*i).second;
+                //return true;
+            //}
+        //}
+        //return false;
+    //}
 
-    template <class Comp = templatious::util::Default>
-    ValueType& get(ThisMap& h,const KeyType& k) {
-        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            if (c((*i).first,k)) {
-                return (*i).second;
-            }
-        }
+    //template <class Comp = templatious::util::Default>
+    //ValueType& get(ThisMap& h,const KeyType& k) {
+        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            //if (c((*i).first,k)) {
+                //return (*i).second;
+            //}
+        //}
         
-        assert(false);
-    }
+        //assert(false);
+    //}
 
-    template <class Comp = templatious::util::Default>
-    bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
-        templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            if (c((*i).first,k)) {
-                i->second = v;
-                return false;
-            }
-        }
+    //template <class Comp = templatious::util::Default>
+    //bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
+        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
+        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
+            //if (c((*i).first,k)) {
+                //i->second = v;
+                //return false;
+            //}
+        //}
         
-        return SA::add(h,std::make_pair(k,v));
-    }
+        //return SA::add(h,std::make_pair(k,v));
+    //}
 
-    void clear(ThisMap& h) {
-        SA::clear(h);
-    }
+    //void clear(ThisMap& h) {
+        //SA::clear(h);
+    //}
 
-    static size_t getSize(const ThisMap& h) {
-        return SA::getSize(h);
-    }
+    //static size_t getSize(const ThisMap& h) {
+        //return SA::getSize(h);
+    //}
 
 };
 
 }
-
-//template <template <class...> Coll,template <class> Alloc >
-//struct CollectionMap {
-
-//};
 
 }
 

@@ -36,19 +36,19 @@ struct MapMaker<Key,Value,std::map,Comp,Alloc> {
     typedef std::map <
         Key, Value, typename Kit::HL,
         Alloc<std::pair<const Key, Value> >
-    > MapType;
+    > ProductType;
 
     Kit _k;
 
     MapMaker(const Comp& c) : _k(c) {}
     MapMaker() : _k(Comp()) {}
 
-    static MapType make(size_t size) {
-        return MapType();
+    static ProductType make(size_t size) {
+        return ProductType();
     }
 
-    static MapType make() {
-        return MapType();
+    static ProductType make() {
+        return ProductType();
     }
 
 };
