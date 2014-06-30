@@ -101,6 +101,12 @@ struct MapAdapter< T<std::pair<Key,Value>,Alloc< std::pair<Key,Value> > > > {
 };
 
 }
+
+//template <template <class...> Coll,template <class> Alloc >
+//struct CollectionMap {
+
+//};
+
 }
 
 
