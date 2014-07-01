@@ -44,6 +44,10 @@ struct CollectionAdapter {
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c, int i);
 
+    static const_iterator cbegin(ThisCol& c);
+    static const_iterator cend(ThisCol& c);
+    static const_iterator citer_at(ThisCol& c, int i);
+
     static value_type& first(ThisCol& c);
     static const value_type& first(ConstCol& c);
     static value_type& last(ThisCol& c);
@@ -144,6 +148,22 @@ struct StaticAdapter {
         return Ad::end(c);
     }
 
+    template <class T>
+    static auto cbegin(const T& c)
+        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::cbegin(c);
+    }
+
+    template <class T>
+    static auto cend(const T& c)
+        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::cend(c);
+    }
+
     template <class T, class U>
     static bool add(T& c, const std::initializer_list<U>& o) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -235,6 +255,14 @@ struct StaticAdapter {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::iter_at(c, i);
+    }
+
+    template <class T>
+    static auto citerAt(T& c, int i)
+        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::citer_at(c, i);
     }
 
     template <class T>

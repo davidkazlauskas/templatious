@@ -36,9 +36,73 @@ template <
 >
 struct CollectionMap {
     typedef templatious::StaticFactory SF;
+    typedef templatious::StaticAdapter SA;
 
-    typedef decltype(SF::makeCollection< std::pair<Key,Value>, Coll, Alloc>()) CollectionType;
+    typedef Key KeyType;
+    typedef Value ValueType;
+    typedef std::pair<KeyType,ValueType> NodeType;
+    typedef decltype(SF::makeCollection< NodeType, Coll, Alloc >()) CollectionType;
+    
+    Comparator _comp;
+    CollectionType _col;
 
+    CollectionMap(Comparator c) :
+        _comp(c),
+        _col(std::move(SF::makeCollection< NodeType,Coll,Alloc >())) 
+    { }
+
+    CollectionMap() :
+        _col(std::move(SF::makeCollection< NodeType,Coll,Alloc >())) 
+    { }
+
+    bool keyExists(const KeyType& k) const {
+        for (auto i = SA::cbegin(_col); i != SA::cend(_col); ++i) {
+            if (_comp((*i).first,k)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool get(const KeyType& k,ValueType& v) const {
+        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+            if (_comp((*i).first,k)) {
+                v = (*i).second;
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    ValueType& get(const KeyType& k) {
+        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+            if (_comp((*i).first,k)) {
+                return (*i).second;
+            }
+        }
+        
+        assert(false);
+    }
+
+    bool put(const KeyType& k,const ValueType& v) {
+        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+            if (_comp((*i).first,k)) {
+                i->second = v;
+                return false;
+            }
+        }
+        
+        return SA::add(_col,std::make_pair(k,v));
+    }
+
+    void clear() {
+        SA::clear(_col);
+    }
+
+    size_t getSize() const {
+        return SA::getSize(_col);
+    }
 };
 
 namespace adapters {
@@ -63,62 +127,29 @@ struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> >
     static_assert( templatious::adapters::CollectionAdapter< 
             typename ThisMap::CollectionType >::is_valid, "Map is invalid." );
 
-    //template <class Comp = templatious::util::Default>
-    //bool keyExists(const ThisMap& h,const KeyType& k) {
-        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            //if (c((*i).first,k)) {
-                //return true;
-            //}
-        //}
+    bool keyExists(const ThisMap& h,const KeyType& k) {
+        return h.keyExists(k);
+    }
 
-        //return false;
-    //}
+    bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
+        return h.get(k,v);
+    }
 
-    //template <class Comp = templatious::util::Default>
-    //bool get(const ThisMap& h,const KeyType& k,ValueType& v) {
-        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            //if (c((*i).first,k)) {
-                //v = (*i).second;
-                //return true;
-            //}
-        //}
-        //return false;
-    //}
+    ValueType& get(ThisMap& h,const KeyType& k) {
+        return h.get(k);
+    }
 
-    //template <class Comp = templatious::util::Default>
-    //ValueType& get(ThisMap& h,const KeyType& k) {
-        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            //if (c((*i).first,k)) {
-                //return (*i).second;
-            //}
-        //}
-        
-        //assert(false);
-    //}
+    bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
+        return h.put(k,v);
+    }
 
-    //template <class Comp = templatious::util::Default>
-    //bool put(ThisMap& h,const KeyType& k,const ValueType& v) {
-        //templatious::util::ComparatorEq<KeyType,KeyType,Comp> c;
-        //for (auto i = SA::begin(h); i != SA::end(h); ++i) {
-            //if (c((*i).first,k)) {
-                //i->second = v;
-                //return false;
-            //}
-        //}
-        
-        //return SA::add(h,std::make_pair(k,v));
-    //}
+    void clear(ThisMap& h) {
+        h.clear();
+    }
 
-    //void clear(ThisMap& h) {
-        //SA::clear(h);
-    //}
-
-    //static size_t getSize(const ThisMap& h) {
-        //return SA::getSize(h);
-    //}
+    static size_t getSize(const ThisMap& h) {
+        return h.getSize();
+    }
 
 };
 
