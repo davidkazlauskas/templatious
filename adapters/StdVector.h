@@ -170,6 +170,14 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 		return c->cend();
 	}
 
+	static const_iterator cbegin(ConstCol c) {
+		return c->cbegin();
+	}
+
+	static const_iterator cend(ConstCol c) {
+		return c->cend();
+	}
+
 	static int getSize(ConstCol c) {
 		return c->size();
 	}

@@ -13,7 +13,7 @@
 namespace templatious {
 namespace adapters {
 
-template <class T,template <class> class Alloc = std::allocator >
+template <class T>
 struct CollectionAdapter {
     static const bool is_valid = false;
     static const bool hash_supported = false;

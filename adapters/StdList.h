@@ -70,6 +70,14 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 		return c.cend();
 	}
 
+	static const_iterator cbegin(ConstCol& c) {
+		return c.cbegin();
+	}
+
+	static const_iterator cend(ConstCol& c) {
+		return c.cend();
+	}
+
 	static int getSize(ConstCol& c) {
 		return c.size();
 	}
@@ -147,7 +155,6 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 	typedef typename std::list<T, Alloc<T> > ColType;
 	typedef typename ColType::iterator iterator;
 	typedef typename ColType::const_iterator const_iterator;
-	//typedef typename ValueTypeExtractor< std::list<T> >::value value_type;
 	typedef T value_type;
 	typedef const T const_value_type;
 
@@ -177,6 +184,14 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 	}
 
 	static const iterator end(ConstCol c) {
+		return c->cend();
+	}
+
+	static const iterator cbegin(ConstCol c) {
+		return c->cbegin();
+	}
+
+	static const iterator cend(ConstCol c) {
 		return c->cend();
 	}
 
@@ -212,6 +227,19 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 
         int count = 0;
         auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+
+    static const_iterator citer_at(ConstCol c,int i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
         while (count < i) {
             ++iter;
             ++count;
