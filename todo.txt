@@ -5,13 +5,17 @@ BUG LOG:
 
 defects:
 
-8. fix std::move semantics on instantiate collection
+#8. fix std::move semantics on instantiate collection
 
 features:
 
 1. findIter @ CollectionManipulator needs comparator support
 7. virtual collection wrapper
 10. tune map object
+11. loops
+12. quadro function
+13. lambda cat
+14. static array container (like vector)
 
 compatibility:
 
