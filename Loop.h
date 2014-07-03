@@ -98,9 +98,11 @@ struct LoopL : public LoopBase<T> {
         assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
     }
 
-    LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
+    LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
+        _step(templatious::util::makePos(step))
+    {
         assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
-        assert(step > 0 && "Step must be positive (LoopL)");
+        assert(_step > 0 && "Step must be positive (LoopL)");
     }
 
     ThisIter begin() const {
@@ -133,9 +135,11 @@ struct LoopME : public LoopBase<T> {
         assert(end <= beg);
     }
 
-    LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
+    LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
+        _step(templatious::util::makeNeg(step))
+    {
         assert(end <= beg);
-        assert(step < 0);
+        assert(_step < 0 && "Step must be positive (LoopME)");
     }
 
     ThisIter begin() const {
