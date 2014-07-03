@@ -22,70 +22,133 @@
 #include <cstddef>
 #include <assert.h>
 #include <templatious/Utilities.h>
+#include <templatious/CollectionAdapter.h>
 
 namespace templatious {
 
-struct LoopL {
-    size_t _beg;
-    size_t _end;
-    size_t _step;
+// ----------------------------------- FORWARD
 
-    LoopL(size_t end) : _beg(0), _end(end), _step(1) {}
-    LoopL(size_t beg,size_t end) : _beg(beg), _end(end), _step(1) {
+template <class T>
+struct Iter;
+template <class T>
+struct LoopBase;
+
+template <class T>
+struct LoopL;
+template <class T>
+struct LoopME;
+
+typedef LoopL<size_t> Loop;
+
+// ----------------------------------- FORWARD
+
+template <class T>
+struct Iter {
+    typedef T Unit;
+    typedef Iter<Unit> ThisIter;
+    Unit _count;
+    Unit _step;
+
+    Iter(Unit count,Unit step) :
+        _count(count), _step(step) {}
+
+    Iter(Unit count) :
+        _count(count) {}
+
+    ThisIter& operator++() {
+        _count += _step;
+        return *this;
+    }
+
+    ThisIter& operator--() {
+        _count -= _step;
+        return *this;
+    }
+
+    bool operator==(const ThisIter& rhs) const {
+        return _count == rhs._count;
+    }
+
+    bool operator!=(const ThisIter& rhs) const {
+        return _count != rhs._count;
+    }
+
+    Unit operator*() const {
+        return _count;
+    }
+};
+
+template <class T>
+struct LoopBase {
+    Iter<T> begin();
+    Iter<T> end();
+};
+
+template <class T>
+struct LoopL : public LoopBase<T> {
+    typedef T Unit;
+    typedef Iter<T> ThisIter;
+
+    Unit _beg;
+    Unit _end;
+    Unit _step;
+
+    LoopL(Unit end) : _beg(0), _end(end), _step(1) {}
+    LoopL(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
         assert(beg <= end);
     }
 
-    LoopL(size_t beg,size_t end,size_t step) : _beg(beg), _end(end), _step(step) {
+    LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
         assert(beg <= end);
         assert(step > 0);
     }
 
-    struct Iter {
-        size_t _count;
-        size_t _step;
-
-        Iter(size_t count,size_t step) :
-            _count(count), _step(step) {}
-
-        Iter(size_t count) :
-            _count(count) {}
-
-        Iter& operator++() {
-            _count += _step;
-            return *this;
-        }
-
-        Iter& operator--() {
-            _count -= _step;
-            return *this;
-        }
-
-        bool operator==(const Iter& rhs) const {
-            return _count == rhs._count;
-        }
-
-        bool operator!=(const Iter& rhs) const {
-            return _count != rhs._count;
-        }
-
-        size_t operator*() const {
-            return _count;
-        }
-    };
-
-    Iter begin() const {
-        return Iter(_beg,_step);
+    ThisIter begin() const {
+        return ThisIter(_beg,_step);
     }
 
-    Iter end() const {
-        size_t res = _end - _beg;
+    ThisIter end() const {
+        Unit res = _end - _beg;
         res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
-        return Iter(_beg + res * _step);
+        return ThisIter(_beg + res * _step);
     }
 
 };
 
-typedef LoopL Loop;
+//template <class T>
+//struct LoopME : public LoopBase<T> {
+    //typedef T Unit;
+    //typedef Iter<T> ThisIter;
+
+    //Unit _beg;
+    //Unit _end;
+    //Unit _step;
+
+    //LoopME(Unit end) : _beg(0), _end(end), _step(1) {}
+    //LoopME(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
+        //assert(beg <= end);
+    //}
+
+    //LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
+        //assert(beg <= end);
+        //assert(step > 0);
+    //}
+
+    //ThisIter begin() const {
+        //return ThisIter(_beg,_step);
+    //}
+
+    //ThisIter end() const {
+        //Unit res = _end - _beg;
+        //res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
+        //return ThisIter(_beg + res * _step);
+    //}
+
+//};
+
+namespace adapters {
+
+}
 
 }
 
