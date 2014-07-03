@@ -19,7 +19,7 @@
 #ifndef LOOP_U82GY31R
 #define LOOP_U82GY31R
 
-#include <cstddef>
+#include <limits>
 #include <assert.h>
 #include <templatious/Utilities.h>
 #include <templatious/CollectionAdapter.h>
@@ -38,7 +38,7 @@ struct LoopL;
 template <class T>
 struct LoopME;
 
-typedef LoopL<size_t> Loop;
+typedef LoopL<int> Loop;
 
 // ----------------------------------- FORWARD
 
@@ -82,6 +82,9 @@ template <class T>
 struct LoopBase {
     Iter<T> begin();
     Iter<T> end();
+
+    static_assert(std::numeric_limits<T>::is_signed,"Loop type must be signed.");
+
 };
 
 template <class T>
@@ -132,13 +135,13 @@ struct LoopME : public LoopBase<T> {
 
     LoopME(Unit end) : _beg(end), _end(0), _step(-1) {}
     LoopME(Unit beg,Unit end) : _beg(beg), _end(end), _step(-1) {
-        assert(end <= beg);
+        assert(end <= beg && "End of loop is less than end. (LoopME)");
     }
 
     LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
         _step(templatious::util::makeNeg(step))
     {
-        assert(end <= beg);
+        assert(end <= beg && "End of loop is less than end. (LoopME)");
         assert(_step < 0 && "Step must be positive (LoopME)");
     }
 
