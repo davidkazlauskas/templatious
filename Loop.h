@@ -95,12 +95,12 @@ struct LoopL : public LoopBase<T> {
 
     LoopL(Unit end) : _beg(0), _end(end), _step(1) {}
     LoopL(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
-        assert(beg <= end);
+        assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
     }
 
     LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
-        assert(beg <= end);
-        assert(step > 0);
+        assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
+        assert(step > 0 && "Step must be positive (LoopL)");
     }
 
     ThisIter begin() const {
@@ -113,38 +113,46 @@ struct LoopL : public LoopBase<T> {
         return ThisIter(_beg + res * _step);
     }
 
+    LoopME<Unit> rev() {
+        return LoopME<Unit>(_end - 1,_beg,-_step);
+    }
+
 };
 
-//template <class T>
-//struct LoopME : public LoopBase<T> {
-    //typedef T Unit;
-    //typedef Iter<T> ThisIter;
+template <class T>
+struct LoopME : public LoopBase<T> {
+    typedef T Unit;
+    typedef Iter<T> ThisIter;
 
-    //Unit _beg;
-    //Unit _end;
-    //Unit _step;
+    Unit _beg;
+    Unit _end;
+    Unit _step;
 
-    //LoopME(Unit end) : _beg(0), _end(end), _step(1) {}
-    //LoopME(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
-        //assert(beg <= end);
-    //}
+    LoopME(Unit end) : _beg(end), _end(0), _step(-1) {}
+    LoopME(Unit beg,Unit end) : _beg(beg), _end(end), _step(-1) {
+        assert(end <= beg);
+    }
 
-    //LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
-        //assert(beg <= end);
-        //assert(step > 0);
-    //}
+    LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end), _step(step) {
+        assert(end <= beg);
+        assert(step < 0);
+    }
 
-    //ThisIter begin() const {
-        //return ThisIter(_beg,_step);
-    //}
+    ThisIter begin() const {
+        return ThisIter(_beg,_step);
+    }
 
-    //ThisIter end() const {
-        //Unit res = _end - _beg;
-        //res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
-        //return ThisIter(_beg + res * _step);
-    //}
+    ThisIter end() const {
+        Unit res = _beg - _end;
+        res = (res / (-_step)) + ( (res % (-_step)) == 0 ? 0 : 1 ) + 1;
+        return ThisIter(_beg + res * _step);
+    }
 
-//};
+    LoopL<Unit> rev() {
+        return LoopL<Unit>(_end,_beg + 1,-_step);
+    }
+
+};
 
 namespace adapters {
 
