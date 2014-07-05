@@ -88,7 +88,7 @@ struct LoopBase {
 
 };
 
-template <class T>
+template <class T = int>
 struct LoopL : public LoopBase<T> {
     typedef T Unit;
     typedef Iter<T> ThisIter;
@@ -121,6 +121,15 @@ struct LoopL : public LoopBase<T> {
 
     ThisLoop rev() {
         return ThisLoop(_end - getModulus(),_beg - getModulus(),-_step);
+    }
+
+    Unit size() {
+        Unit res = _end - _beg;
+        res = res / _step + (res % _step != 0 ? 1 : 0);
+        if (res < 0) {
+            res = -res;
+        }
+        return res;
     }
 
 private:
