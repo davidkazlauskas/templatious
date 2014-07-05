@@ -82,6 +82,7 @@ template <class T>
 struct LoopBase {
     Iter<T> begin();
     Iter<T> end();
+    T size();
 
     static_assert(std::numeric_limits<T>::is_signed,"Loop type must be signed.");
 
@@ -91,6 +92,7 @@ template <class T>
 struct LoopL : public LoopBase<T> {
     typedef T Unit;
     typedef Iter<T> ThisIter;
+    typedef LoopL<T> ThisLoop;
 
     Unit _beg;
     Unit _end;
@@ -98,65 +100,42 @@ struct LoopL : public LoopBase<T> {
 
     LoopL(Unit end) : _beg(0), _end(end), _step(1) {}
     LoopL(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
-        assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
+        loopAssert();
     }
 
     LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
-        _step(templatious::util::makePos(step))
+        _step(step)
     {
-        assert(beg <= end && "Beginning of loop is less than end. (LoopL)");
-        assert(_step > 0 && "Step must be positive (LoopL)");
+        loopAssert();
     }
 
     ThisIter begin() const {
         return ThisIter(_beg,_step);
     }
 
-    ThisIter end() const {
+    ThisIter end() {
         Unit res = _end - _beg;
         res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
         return ThisIter(_beg + res * _step);
     }
 
-    LoopME<Unit> rev() {
-        return LoopME<Unit>(_end - 1,_beg,-_step);
+    ThisLoop rev() {
+        return ThisLoop(_end - getModulus(),_beg - getModulus(),-_step);
     }
 
-};
-
-template <class T>
-struct LoopME : public LoopBase<T> {
-    typedef T Unit;
-    typedef Iter<T> ThisIter;
-
-    Unit _beg;
-    Unit _end;
-    Unit _step;
-
-    LoopME(Unit end) : _beg(end), _end(0), _step(-1) {}
-    LoopME(Unit beg,Unit end) : _beg(beg), _end(end), _step(-1) {
-        assert(end <= beg && "End of loop is less than end. (LoopME)");
+private:
+    Unit getModulus() {
+        Unit diff = (_end - _beg) % _step;
+        if (0 == diff) {
+            diff += _step;
+        }
+        return diff;
     }
 
-    LoopME(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
-        _step(templatious::util::makeNeg(step))
-    {
-        assert(end <= beg && "End of loop is less than end. (LoopME)");
-        assert(_step < 0 && "Step must be positive (LoopME)");
-    }
-
-    ThisIter begin() const {
-        return ThisIter(_beg,_step);
-    }
-
-    ThisIter end() const {
-        Unit res = _beg - _end;
-        res = (res / (-_step)) + ( (res % (-_step)) == 0 ? 0 : 1 ) + 1;
-        return ThisIter(_beg + res * _step);
-    }
-
-    LoopL<Unit> rev() {
-        return LoopL<Unit>(_end,_beg + 1,-_step);
+    void loopAssert() {
+        assert( _beg <= _end && _step > 0
+             || _beg >= _end && _step < 0
+             && "Loop is illogical.");
     }
 
 };

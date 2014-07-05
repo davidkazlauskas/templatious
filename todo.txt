@@ -16,6 +16,7 @@ features:
 12. quadro function
 13. lambda cat
 14. static array container (like vector)
+15. foreach
 
 compatibility:
 
