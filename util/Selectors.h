@@ -95,6 +95,14 @@ namespace util {
         }
     };
 
+    // a dummy class that's main use is
+    // mainly to suppress static asserts
+    // by taking template parameter
+    template <class T,bool expected>
+    struct DummyResolver {
+        static const bool val = expected;
+    };
+
 }
 }
 

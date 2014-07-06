@@ -31,7 +31,6 @@ template <class T,template <class> class Alloc >
 struct CollectionAdapter< std::list<T,Alloc<T> > > {
 
     static const bool is_valid = true;
-    static const bool hash_supported = false;
 
 	typedef typename std::list<T,Alloc<T> > ThisCol;
 	typedef typename std::list<T,Alloc<T> > const ConstCol;
@@ -148,7 +147,6 @@ template <class T,template <class> class Alloc >
 struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 
     static const bool is_valid = true;
-    static const bool hash_supported = false;
 
 	typedef typename std::list<T, Alloc<T> >* ThisCol;
 	typedef typename std::list<T, Alloc<T> > const* ConstCol;

@@ -30,7 +30,6 @@ template <class T,template <class> class Alloc >
 struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 
     static const bool is_valid = true;
-    static const bool hash_supported = true;
 
 	typedef typename std::vector<T, Alloc<T> > ThisCol;
 	typedef typename std::vector<T, Alloc<T> > const ConstCol;
@@ -129,7 +128,6 @@ template <class T,template <class> class Alloc>
 struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 
     static const bool is_valid = true;
-    static const bool hash_supported = true;
 
 	typedef typename std::vector<T, Alloc<T> >* ThisCol;
     typedef typename std::vector<T, Alloc<T> > const* ConstCol;
