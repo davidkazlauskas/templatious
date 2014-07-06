@@ -244,7 +244,11 @@ struct StaticManipulator {
         return findIdxIterInternal<true>(col,v);
     }
 
-
+#define TEMPLATIOUS_FOREACH(var,col) \
+    for (auto _tmp_i = templatious::StaticAdapter::begin(col);      \
+            _tmp_i != templatious::StaticAdapter::end(col);         \
+            ++_tmp_i)                                               \
+        for (var = *_tmp_i; ; ({break;}))
 
 };
 
