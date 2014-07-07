@@ -25,15 +25,17 @@
 
 namespace templatious {
 
-template <class T,unsigned long sz>
+template <class T,size_t sz>
 struct StaticVector {
 
-    typedef unsigned long ulong;
+    typedef size_t ulong;
+    typedef StaticVector<T,sz> ThisVector;
+
     static const ulong size = sz;
     static_assert(size > 0,"Static vector cannot be of negative size.");
 
-    StaticVector(T vct[size]) : _vct(vct), _cnt(0) { }
-    StaticVector(T vct[size],ulong currCnt) :
+    StaticVector(T (&vct)[size]) : _vct(vct), _cnt(0) { }
+    StaticVector(T (&vct)[size],ulong currCnt) :
         _vct(vct), _cnt(currCnt)
     {
         assert(currCnt <= size
@@ -59,8 +61,13 @@ struct StaticVector {
     }
 
     T pop() {
-        assert(_cnt > 0);
+        assert(_cnt > 0 && "Trying to pop an empty vector.");
         return std::move(_vct[--_cnt]);
+    }
+
+    T& at(ulong pos) {
+        assert(pos >= 0 && pos < size && "Requested position out of bounds.");
+        return _vct[pos];
     }
 
     bool isFull() {
@@ -71,12 +78,21 @@ struct StaticVector {
         return _cnt == 0;
     }
 
+    //struct Iterator {
+        //ulong _iter;
+    //};
+
 private:
     T* _vct;
     ulong _cnt;
 
 
 };
+
+template <class T,size_t sz>
+StaticVector<T,sz> makeStaticVector(T (&arr)[sz]) {
+    return StaticVector<T,sz>(arr);
+}
 
 }
 

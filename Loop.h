@@ -106,17 +106,17 @@ struct LoopL : public LoopBase<T> {
         return ThisIter(_beg,_step);
     }
 
-    ThisIter end() {
+    ThisIter end() const {
         Unit res = _end - _beg;
         res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
         return ThisIter(_beg + res * _step);
     }
 
-    ThisLoop rev() {
+    ThisLoop rev() const {
         return ThisLoop(_end - getModulus(),_beg - getModulus(),-_step);
     }
 
-    Unit size() {
+    Unit size() const {
         Unit res = _end - _beg;
         res = res / _step + (res % _step != 0 ? 1 : 0);
         if (res < 0) {
@@ -130,7 +130,7 @@ private:
     Unit _end;
     Unit _step;
 
-    Unit getModulus() {
+    Unit getModulus() const {
         Unit diff = (_end - _beg) % _step;
         if (0 == diff) {
             diff += _step;
@@ -138,7 +138,7 @@ private:
         return diff;
     }
 
-    void loopAssert() {
+    void loopAssert() const {
         assert( _beg <= _end && _step > 0
              || _beg >= _end && _step < 0
              && "Loop is illogical.");
@@ -166,7 +166,17 @@ struct CollectionAdapter< templatious::LoopL<T> > {
     }
 
     template <class U = int>
-    static iterator end(ThisCol& c) {
+    static iterator end(const ThisCol& c) {
+        return c.end();
+    }
+
+    template <class U = int>
+    static const_iterator begin(const ThisCol& c) {
+        return c.begin();
+    }
+
+    template <class U = int>
+    static const_iterator end(ThisCol& c) {
         return c.end();
     }
 
