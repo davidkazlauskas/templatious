@@ -53,6 +53,39 @@ struct StaticVector {
         return true;
     }
 
+    bool push(T&& e) {
+        if (isFull()) {
+            return false;
+        }
+
+        _vct[_cnt++] = e;
+        return true;
+    }
+
+    bool push_first(const T& e) {
+        if (isFull()) {
+            return false;
+        }
+
+        for (auto i = _cnt++; i > 0; --i) {
+            _vct[i] = std::move(_vct[i - 1]);
+        }
+        _vct[0] = e;
+        return true;
+    }
+
+    bool push_first(T&& e) {
+        if (isFull()) {
+            return false;
+        }
+
+        for (auto i = _cnt++; i > 0; --i) {
+            _vct[i] = std::move(_vct[i - 1]);
+        }
+        _vct[0] = e;
+        return true;
+    }
+
     bool pop(T& out) {
         if (isEmpty()) {
             return false;
@@ -67,14 +100,28 @@ struct StaticVector {
         return std::move(_vct[--_cnt]);
     }
 
-    //T&& pop_first() {
-        //assert(_cnt > 0 && "Trying to pop an empty vector.");
-        //T res = std::move(_vct[0]);
-        //TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<size_t>(--_cnt)) {
-            //_vct[i] = _vct[i + 1];
-        //}
-        //return std::move(res);
-    //}
+    T&& pop_first() {
+        assert(_cnt > 0 && "Trying to pop an empty vector.");
+        T res = std::move(_vct[0]);
+        --_cnt;
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(_cnt)) {
+            _vct[i] = std::move(_vct[i + 1]);
+        }
+        return std::move(res);
+    }
+
+    bool pop_first(T& out) {
+        if (isEmpty()) {
+            return false;
+        }
+
+        out = std::move(_vct[0]);
+        --_cnt;
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(_cnt)) {
+            _vct[i] = std::move(_vct[i + 1]);
+        }
+        return true;
+    }
 
     T& at(ulong pos) const {
         assert(pos >= 0 && pos < size && "Requested position out of bounds.");
