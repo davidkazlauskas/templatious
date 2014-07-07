@@ -22,6 +22,7 @@
 #include <assert.h>
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/Sugar.h>
 
 namespace templatious {
 
@@ -61,29 +62,46 @@ struct StaticVector {
         return true;
     }
 
-    T pop() {
+    T&& pop() {
         assert(_cnt > 0 && "Trying to pop an empty vector.");
         return std::move(_vct[--_cnt]);
     }
 
-    T& at(ulong pos) {
+    //T&& pop_first() {
+        //assert(_cnt > 0 && "Trying to pop an empty vector.");
+        //T res = std::move(_vct[0]);
+        //TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<size_t>(--_cnt)) {
+            //_vct[i] = _vct[i + 1];
+        //}
+        //return std::move(res);
+    //}
+
+    T& at(ulong pos) const {
         assert(pos >= 0 && pos < size && "Requested position out of bounds.");
         return _vct[pos];
     }
 
-    bool isFull() {
+    bool isFull() const {
         return _cnt >= size;
     }
 
-    bool isEmpty() {
+    bool isEmpty() const {
         return _cnt == 0;
     }
 
-    Iterator begin() {
+    Iterator begin() const {
         return Iterator(_vct,size);
     }
 
-    Iterator end() {
+    Iterator end() const {
+        return Iterator(_vct,size,size);
+    }
+
+    const Iterator cbegin() const {
+        return Iterator(_vct,size);
+    }
+
+    const Iterator cend() const {
         return Iterator(_vct,size,size);
     }
 
