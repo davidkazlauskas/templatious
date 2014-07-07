@@ -81,7 +81,7 @@ struct LoopBase {
     LoopIter<T> end();
     T size();
 
-    static_assert(std::numeric_limits<T>::is_signed,"Loop type must be signed.");
+    static const bool is_signed = std::numeric_limits<T>::is_signed;
 
 };
 
@@ -90,6 +90,7 @@ struct LoopL : public LoopBase<T> {
     typedef T Unit;
     typedef LoopIter<T> ThisIter;
     typedef LoopL<T> ThisLoop;
+    typedef LoopBase<T> Base;
 
     LoopL(Unit end) : _beg(0), _end(end), _step(1) {}
     LoopL(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
@@ -112,7 +113,10 @@ struct LoopL : public LoopBase<T> {
         return ThisIter(_beg + res * _step);
     }
 
+    template <class U = int>
     ThisLoop rev() const {
+        static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
+                      "Unsigned loop cannot be reversed.");
         return ThisLoop(_end - getModulus(),_beg - getModulus(),-_step);
     }
 
@@ -139,6 +143,11 @@ private:
     }
 
     void loopAssert() const {
+        if (!Base::is_signed) {
+            assert(_beg <= _end 
+                && "Unsigned loop can only move forward.");
+        }
+
         assert( _beg <= _end && _step > 0
              || _beg >= _end && _step < 0
              && "Loop is illogical.");
