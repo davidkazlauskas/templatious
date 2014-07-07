@@ -29,7 +29,7 @@ namespace templatious {
 // ----------------------------------- FORWARD
 
 template <class T>
-struct Iter;
+struct LoopIter;
 template <class T>
 struct LoopBase;
 
@@ -40,16 +40,16 @@ typedef LoopL<int> Loop;
 // ----------------------------------- FORWARD
 
 template <class T>
-struct Iter {
+struct LoopIter {
     typedef T Unit;
-    typedef Iter<Unit> ThisIter;
+    typedef LoopIter<Unit> ThisIter;
     Unit _count;
     Unit _step;
 
-    Iter(Unit count,Unit step) :
+    LoopIter(Unit count,Unit step) :
         _count(count), _step(step) {}
 
-    Iter(Unit count) :
+    LoopIter(Unit count) :
         _count(count) {}
 
     ThisIter& operator++() {
@@ -67,7 +67,7 @@ struct Iter {
     }
 
     bool operator!=(const ThisIter& rhs) const {
-        return _count != rhs._count;
+        return !(*this == rhs);
     }
 
     Unit operator*() const {
@@ -77,8 +77,8 @@ struct Iter {
 
 template <class T>
 struct LoopBase {
-    Iter<T> begin();
-    Iter<T> end();
+    LoopIter<T> begin();
+    LoopIter<T> end();
     T size();
 
     static_assert(std::numeric_limits<T>::is_signed,"Loop type must be signed.");
@@ -88,7 +88,7 @@ struct LoopBase {
 template <class T = int>
 struct LoopL : public LoopBase<T> {
     typedef T Unit;
-    typedef Iter<T> ThisIter;
+    typedef LoopIter<T> ThisIter;
     typedef LoopL<T> ThisLoop;
 
     LoopL(Unit end) : _beg(0), _end(end), _step(1) {}

@@ -30,6 +30,7 @@ struct StaticVector {
 
     typedef size_t ulong;
     typedef StaticVector<T,sz> ThisVector;
+    struct Iterator;
 
     static const ulong size = sz;
     static_assert(size > 0,"Static vector cannot be of negative size.");
@@ -78,9 +79,52 @@ struct StaticVector {
         return _cnt == 0;
     }
 
-    //struct Iterator {
-        //ulong _iter;
-    //};
+    Iterator begin() {
+        return Iterator(_vct,size);
+    }
+
+    Iterator end() {
+        return Iterator(_vct,size,size);
+    }
+
+    struct Iterator {
+        T* _vct;
+        ulong _size;
+        ulong _iter;
+
+        Iterator(T* vct,ulong size) :
+            _vct(vct), _size(size), _iter(0) {}
+
+        Iterator(T* vct,ulong size,ulong pos) :
+            _vct(vct), _size(size), _iter(pos)
+        {
+            assert(_iter <= _size && "Iterator position cannot be greater than size.");
+        }
+
+        Iterator& operator++() {
+            ++_iter;
+            return *this;
+        }
+
+        bool operator==(const Iterator& rhs) const {
+            return _iter == rhs._iter;
+        }
+
+        bool operator!=(const Iterator& rhs) const {
+            return !(*this == rhs);
+        }
+
+        T& operator*() const {
+            assert(_iter < _size && "Iterator out of bounds.");
+            return _vct[_iter];
+        }
+
+        T* operator->() const {
+            assert(_iter < _size && "Iterator out of bounds.");
+            return &_vct[_iter];
+        }
+
+    };
 
 private:
     T* _vct;
