@@ -42,7 +42,7 @@ typedef LoopL<int> Loop;
 template <class T,bool addOnIncrement>
 struct LoopIter {
     typedef T Unit;
-    typedef LoopIter<Unit> ThisIter;
+    typedef LoopIter<Unit,addOnIncrement> ThisIter;
     Unit _count;
     Unit _step;
 
@@ -96,7 +96,6 @@ struct LoopBase {
 template <class T,bool isReversed>
 struct LoopL : public LoopBase<T> {
     typedef T Unit;
-    typedef LoopIter<T> ThisIter;
     typedef LoopL<T> ThisLoop;
     typedef LoopBase<T> Base;
     typedef typename templatious::util::TypeSelector<
@@ -105,6 +104,12 @@ struct LoopL : public LoopBase<T> {
                     !isReversed,LoopL<T,true>,LoopL<T,false>
                 >::val
         >::val RevType;
+    typedef typename templatious::util::TypeSelector<
+        Base::is_signed,LoopIter<T>,
+                typename templatious::util::TypeSelector<
+                    !isReversed,LoopIter<T>,LoopIter<T,false>
+                >::val
+        >::val ThisIter;
 
     LoopL(Unit end) {
         _beg = 0;
@@ -156,8 +161,13 @@ struct LoopL : public LoopBase<T> {
 
     template <class U = int>
     RevType rev() const {
-        static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
-                      "Unsigned loop cannot be reversed.");
+        //static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
+                      //"Unsigned loop cannot be reversed.");
+        if (!Base::is_signed && !isReversed) {
+            return RevType(_end - _step,_beg - _step,_step);
+        } else if (!Base::is_signed && isReversed) {
+            return RevType(_end + _step,_beg + _step,_step);
+        }
         return RevType(_end - getModulus(),_beg - getModulus(),-_step);
     }
 
@@ -184,27 +194,27 @@ private:
     }
 
     void loopAssert() const {
-        if (!Base::is_signed) {
-            assert(_beg <= _end 
-                && "Unsigned loop can only move forward.");
-        }
+        //if (!Base::is_signed) {
+            //assert(_beg <= _end 
+                //&& "Unsigned loop can only move forward.");
+        //}
 
-        assert( _beg <= _end && _step > 0
-             || _beg >= _end && _step < 0
-             && "Loop is illogical.");
+        //assert( Base::is_signed && _beg <= _end && _step > 0
+             //|| Base::is_signed && _beg >= _end && _step < 0
+             //&& "Loop is illogical.");
     }
 
 };
 
 namespace adapters {
 
-template <class T>
-struct CollectionAdapter< templatious::LoopL<T> > {
+template <class T,bool isReversed>
+struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
     
     static const bool is_valid = true;
 
-    typedef templatious::LoopL<T> ThisCol;
-    typedef const templatious::LoopL<T> ConstCol;
+    typedef templatious::LoopL<T,isReversed> ThisCol;
+    typedef const ThisCol ConstCol;
     typedef decltype(ThisCol(0).begin()) iterator;
     typedef const decltype(ConstCol(0).begin()) const_iterator;
     typedef T value_type;
