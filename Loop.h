@@ -28,7 +28,7 @@ namespace templatious {
 
 // ----------------------------------- FORWARD
 
-template <class T>
+template <class T,bool addOnIncrement = true>
 struct LoopIter;
 template <class T>
 struct LoopBase;
@@ -39,7 +39,7 @@ struct LoopL;
 typedef LoopL<int> Loop;
 // ----------------------------------- FORWARD
 
-template <class T>
+template <class T,bool addOnIncrement>
 struct LoopIter {
     typedef T Unit;
     typedef LoopIter<Unit> ThisIter;
@@ -53,12 +53,20 @@ struct LoopIter {
         _count(count) {}
 
     ThisIter& operator++() {
-        _count += _step;
+        if (addOnIncrement) {
+            _count += _step;
+        } else {
+            _count -= _step;
+        }
         return *this;
     }
 
     ThisIter& operator--() {
-        _count -= _step;
+        if (addOnIncrement) {
+            _count -= _step;
+        } else {
+            _count += _step;
+        }
         return *this;
     }
 
@@ -92,15 +100,42 @@ struct LoopL : public LoopBase<T> {
     typedef LoopL<T> ThisLoop;
     typedef LoopBase<T> Base;
 
-    LoopL(Unit end) : _beg(0), _end(end), _step(1) {}
-    LoopL(Unit beg,Unit end) : _beg(beg), _end(end), _step(1) {
+    LoopL(Unit end) {
+        _beg = 0;
+        _step = 1;
+        _end = getPerfectEnd(end);
+
         loopAssert();
     }
 
-    LoopL(Unit beg,Unit end,Unit step) : _beg(beg), _end(end),
-        _step(step)
-    {
+    LoopL(Unit beg,Unit end) {
+        _beg = beg;
+        _step = 1;
+        _end = getPerfectEnd(end);
+
         loopAssert();
+    }
+
+    LoopL(Unit beg,Unit end,Unit step) {
+        _beg = beg;
+        _step = step;
+        _end = getPerfectEnd(end);
+
+        loopAssert();
+    }
+
+    T getPerfectEnd(const T& end) {
+        T diff = end - _beg;
+        T total = diff / _step;
+        if (diff % _step != 0) {
+            if (diff > 0) {
+                ++total;
+            } else {
+                --total;
+            }
+        }
+
+        return _beg + total * _step;
     }
 
     ThisIter begin() const {
