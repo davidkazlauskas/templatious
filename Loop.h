@@ -33,7 +33,7 @@ struct LoopIter;
 template <class T>
 struct LoopBase;
 
-template <class T>
+template <class T = int,bool isReversed = false>
 struct LoopL;
 
 typedef LoopL<int> Loop;
@@ -93,12 +93,18 @@ struct LoopBase {
 
 };
 
-template <class T = int>
+template <class T,bool isReversed>
 struct LoopL : public LoopBase<T> {
     typedef T Unit;
     typedef LoopIter<T> ThisIter;
     typedef LoopL<T> ThisLoop;
     typedef LoopBase<T> Base;
+    typedef typename templatious::util::TypeSelector<
+            Base::is_signed,ThisLoop,
+                typename templatious::util::TypeSelector<
+                    !isReversed,LoopL<T,true>,LoopL<T,false>
+                >::val
+        >::val RevType;
 
     LoopL(Unit end) {
         _beg = 0;
@@ -149,10 +155,10 @@ struct LoopL : public LoopBase<T> {
     }
 
     template <class U = int>
-    ThisLoop rev() const {
+    RevType rev() const {
         static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
                       "Unsigned loop cannot be reversed.");
-        return ThisLoop(_end - getModulus(),_beg - getModulus(),-_step);
+        return RevType(_end - getModulus(),_beg - getModulus(),-_step);
     }
 
     Unit size() const {
