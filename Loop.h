@@ -150,23 +150,27 @@ struct LoopL : public LoopBase<T> {
     }
 
     ThisIter begin() const {
+        if (!Base::is_signed && isReversed) {
+            return ThisIter(_end - _step,_step);
+        }
         return ThisIter(_beg,_step);
     }
 
     ThisIter end() const {
-        Unit res = _end - _beg;
-        res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
-        return ThisIter(_beg + res * _step);
+        if (!Base::is_signed && isReversed) {
+            return ThisIter(_beg - _step,_step);
+        }
+
+        return standardEnd();
     }
+
 
     template <class U = int>
     RevType rev() const {
         //static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
                       //"Unsigned loop cannot be reversed.");
-        if (!Base::is_signed && !isReversed) {
-            return RevType(_end - _step,_beg - _step,_step);
-        } else if (!Base::is_signed && isReversed) {
-            return RevType(_end + _step,_beg + _step,_step);
+        if (!Base::is_signed) {
+            return RevType(_beg,_end,_step);
         }
         return RevType(_end - getModulus(),_beg - getModulus(),-_step);
     }
@@ -184,6 +188,12 @@ private:
     Unit _beg;
     Unit _end;
     Unit _step;
+
+    ThisIter standardEnd() const {
+        Unit res = _end - _beg;
+        res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
+        return ThisIter(_beg + res * _step);
+    }
 
     Unit getModulus() const {
         Unit diff = (_end - _beg) % _step;
