@@ -135,20 +135,6 @@ struct LoopL : public LoopBase<T> {
         loopAssert();
     }
 
-    T getPerfectEnd(const T& end) {
-        T diff = end - _beg;
-        T total = diff / _step;
-        if (diff % _step != 0) {
-            if (diff > 0) {
-                ++total;
-            } else {
-                --total;
-            }
-        }
-
-        return _beg + total * _step;
-    }
-
     ThisIter begin() const {
         if (!Base::is_signed && isReversed) {
             return ThisIter(_end - _step,_step);
@@ -215,6 +201,21 @@ private:
         }
 
     }
+
+    T getPerfectEnd(const T& end) const {
+        T diff = end - _beg;
+        T total = diff / _step;
+        if (diff % _step != 0) {
+            if (diff > 0) {
+                ++total;
+            } else {
+                --total;
+            }
+        }
+
+        return _beg + total * _step;
+    }
+
 
 };
 
