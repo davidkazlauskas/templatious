@@ -204,14 +204,16 @@ private:
     }
 
     void loopAssert() const {
-        //if (!Base::is_signed) {
-            //assert(_beg <= _end 
-                //&& "Unsigned loop can only move forward.");
-        //}
+        if (!Base::is_signed) {
+            assert(_beg <= _end
+                && "Unsigned loop can only move forward."
+                " (if you want unsigned loop to go backwards reverse forward loop)");
+        } else {
+            assert( _beg <= _end && _step > 0
+                 || _beg >= _end && _step < 0
+                 && "Loop is illogical.");
+        }
 
-        //assert( Base::is_signed && _beg <= _end && _step > 0
-             //|| Base::is_signed && _beg >= _end && _step < 0
-             //&& "Loop is illogical.");
     }
 
 };
