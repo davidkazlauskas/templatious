@@ -67,7 +67,8 @@ struct StaticVector {
             return false;
         }
 
-        for (auto i = _cnt++; i > 0; --i) {
+        ++_cnt;
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(1,_cnt).rev()) {
             _vct[i] = std::move(_vct[i - 1]);
         }
         _vct[0] = e;
@@ -79,7 +80,8 @@ struct StaticVector {
             return false;
         }
 
-        for (auto i = _cnt++; i > 0; --i) {
+        ++_cnt;
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(1,_cnt).rev()) {
             _vct[i] = std::move(_vct[i - 1]);
         }
         _vct[0] = e;
