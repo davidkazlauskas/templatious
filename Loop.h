@@ -120,8 +120,13 @@ struct LoopL : public LoopBase<T> {
     }
 
     LoopL(Unit beg,Unit end) {
+        if (Base::is_signed && beg > end) {
+            _step = -1;
+        } else {
+            _step = 1;
+        }
+
         _beg = beg;
-        _step = 1;
         _end = getPerfectEnd(end);
 
         loopAssert();
@@ -131,6 +136,10 @@ struct LoopL : public LoopBase<T> {
         _beg = beg;
         _step = step;
         _end = getPerfectEnd(end);
+
+        if (Base::is_signed) {
+            setAppropriateStep();
+        }
 
         loopAssert();
     }
@@ -214,6 +223,14 @@ private:
         }
 
         return _beg + total * _step;
+    }
+
+    void setAppropriateStep() {
+        if (   (_step < 0 && _beg <= _end)
+            || (_step > 0 && _beg >  _end) )
+        {
+            _step = -_step;
+        }
     }
 
 

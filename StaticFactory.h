@@ -21,6 +21,7 @@
 
 #include <templatious/map/MapMaker.h>
 #include <templatious/CollectionMaker.h>
+#include <templatious/Loop.h>
 
 namespace templatious {
 
@@ -104,6 +105,50 @@ struct StaticFactory {
     {
         templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make(size);
+    }
+
+    template <class T = int>
+    static templatious::LoopL<T> loopL(const T& end) {
+        return templatious::LoopL<T>(0,end,1);
+    }
+
+    template <class T = int>
+    static templatious::LoopL<T> loopL(const T& start,const T& end) {
+        return templatious::LoopL<T>(start,end,1);
+    }
+
+    template <class T = int>
+    static templatious::LoopL<T> loopL(const T& start,const T& end,const T& step) {
+        return templatious::LoopL<T>(start,end,step);
+    }
+
+
+    template <class T = int>
+    static templatious::LoopL<T> loopI(const T& end) {
+        if (0 <= end) {
+            return templatious::LoopL<T>(0,end + 1,1);
+        } else {
+            return templatious::LoopL<T>(0,end - 1,1);
+        }
+    }
+
+    template <class T = int>
+    static templatious::LoopL<T> loopI(const T& start,const T& end) {
+        if (start <= end) {
+            return templatious::LoopL<T>(start,end + 1,1);
+        } else {
+            return templatious::LoopL<T>(start,end - 1,1);
+        }
+    }
+
+    template <class T = int>
+    static templatious::LoopL<T> loopI(const T& start,const T& end,const T& step) {
+        assert((end - start) % step == 0 && "Ending of loop is not included with this step.");
+        if (start <= end) {
+            return templatious::LoopL<T>(start,end + step,step);
+        } else {
+            return templatious::LoopL<T>(start,end - step,step);
+        }
     }
 
 };
