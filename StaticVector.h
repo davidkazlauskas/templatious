@@ -63,28 +63,40 @@ struct StaticVector {
     }
 
     bool push_first(const T& e) {
-        if (isFull()) {
-            return false;
-        }
-
-        ++_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(1,_cnt).rev()) {
-            _vct[i] = std::move(_vct[i - 1]);
-        }
-        _vct[0] = e;
-        return true;
+        return insert(0,e);
     }
 
     bool push_first(T&& e) {
+        return insert(0,e);
+    }
+
+    bool insert(ulong at,const T& e) {
         if (isFull()) {
             return false;
         }
 
+        assert(at <= _cnt && "Insertion point cannot be past the end of the vector.");
+
         ++_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(1,_cnt).rev()) {
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(at+1,_cnt).rev()) {
             _vct[i] = std::move(_vct[i - 1]);
         }
-        _vct[0] = e;
+        _vct[at] = e;
+        return true;
+    }
+
+    bool insert(ulong at,T&& e) {
+        if (isFull()) {
+            return false;
+        }
+
+        assert(at <= _cnt && "Insertion point cannot be past the end of the vector.");
+
+        ++_cnt;
+        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(at+1,_cnt).rev()) {
+            _vct[i] = std::move(_vct[i - 1]);
+        }
+        _vct[at] = e;
         return true;
     }
 
