@@ -110,6 +110,7 @@ struct LoopL : public LoopBase<T> {
                     !isReversed,LoopIter<T>,LoopIter<T,false>
                 >::val
         >::val ThisIter;
+    typedef ThisIter ConstIter;
 
     LoopL(Unit end) {
         _beg = 0;
@@ -246,7 +247,7 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
     typedef templatious::LoopL<T,isReversed> ThisCol;
     typedef const ThisCol ConstCol;
     typedef decltype(ThisCol(0).begin()) iterator;
-    typedef const decltype(ConstCol(0).begin()) const_iterator;
+    typedef iterator const_iterator;
     typedef T value_type;
     typedef const T const_value_type;
 
