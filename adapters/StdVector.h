@@ -21,6 +21,7 @@
 
 #include <utility>
 #include <vector>
+#include <templatious/CollectionMaker.h>
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {
@@ -221,6 +222,39 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
         c->clear();
     }
 };
+
+template <
+    class Val,
+    template <class> class Alloc
+>
+struct CollectionMaker<Val,std::vector,Alloc> {
+    typedef std::vector<Val,Alloc<Val> > Collection;
+    typedef Collection* CollectionPtr;
+
+    static const bool is_maker_valid = true;
+
+    static Collection make() {
+        return std::move(Collection());
+    }
+
+    static Collection make(size_t size) {
+        Collection res;
+        res.reserve(size);
+        return std::move(res);
+    }
+
+    static Collection* makeHeap() {
+        return new Collection();
+    }
+
+    static Collection* makeHeap(size_t size) {
+        CollectionPtr res = new Collection();
+        res->reserve(size);
+        return res;
+    }
+
+};
+
 }
 }
 

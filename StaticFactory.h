@@ -30,19 +30,21 @@ struct StaticFactory {
     template <
         class Val,
         template <class...> class Collection,
-        template <class> class Allocator 
+        template <class> class Allocator = std::allocator
     >
     static auto makeCollection() 
     -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make()) 
     {
-        templatious::adapters::CollectionMaker<Val,Collection,Allocator> mk;
+        typedef typename templatious::adapters::CollectionMaker<Val,Collection,Allocator> Maker;
+        static_assert(Maker::is_maker_valid,"Collection maker is invalid.");
+        Maker mk;
         return mk.make();
     }
 
     template <
         class Val,
         template <class...> class Collection,
-        template <class> class Allocator 
+        template <class> class Allocator = std::allocator
     >
     static auto makeCollection(size_t size) 
     -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make(size)) 

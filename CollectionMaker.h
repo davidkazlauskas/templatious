@@ -22,6 +22,7 @@
 namespace templatious {
 namespace adapters {
 
+#include <cstddef>
 #include <utility>
 
 template <
@@ -30,17 +31,14 @@ template <
     template <class> class Alloc
 >
 struct CollectionMaker {
-    typedef Coll< Val,Alloc<Val> > Collection;
+    typedef int Collection;
 
     static const bool is_maker_valid = false;
 
-    Collection make() {
-        return std::move(Collection());
-    }
-
-    Collection make(size_t size) {
-        return std::move(Collection());
-    }
+    static Collection make();
+    static Collection make(size_t size);
+    static Collection* makeHeap();
+    static Collection* makeHeap(size_t size);
 
 };
 

@@ -24,7 +24,7 @@
 
 #include <templatious/util/spec/DefaultComparators.h>
 #include <templatious/map/MapAdapter.h>
-#include <templatious/StaticFactory.h>
+#include <templatious/CollectionMaker.h>
 
 namespace templatious {
 
@@ -41,18 +41,20 @@ struct CollectionMap {
     typedef Key KeyType;
     typedef Value ValueType;
     typedef std::pair<KeyType,ValueType> NodeType;
-    typedef decltype(SF::makeCollection< NodeType, Coll, Alloc >()) CollectionType;
-    
+    typedef typename templatious::adapters::CollectionMaker<
+        NodeType, Coll, Alloc> ColMaker;
+    typedef typename ColMaker::Collection CollectionType;
+
     Comparator _comp;
     CollectionType _col;
 
     CollectionMap(Comparator c) :
         _comp(c),
-        _col(std::move(SF::makeCollection< NodeType,Coll,Alloc >())) 
+        _col(std::move(ColMaker::make()))
     { }
 
     CollectionMap() :
-        _col(std::move(SF::makeCollection< NodeType,Coll,Alloc >())) 
+        _col(std::move(ColMaker::make()))
     { }
 
     bool keyExists(const KeyType& k) const {
