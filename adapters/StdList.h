@@ -77,7 +77,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int getSize(ConstCol& c) {
+	static size_t getSize(ConstCol& c) {
 		return c.size();
 	}
 
@@ -193,7 +193,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 		return c->cend();
 	}
 
-	static int getSize(ConstCol c) {
+	static size_t getSize(ConstCol c) {
 		return c->size();
 	}
 
@@ -270,6 +270,36 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
     static void clear(ThisCol c) {
         c->clear();
     }
+};
+
+template <
+    class Val,
+    template <class> class Alloc
+>
+struct CollectionMaker<Val,std::list,Alloc> {
+    typedef std::list<Val,Alloc<Val> > Collection;
+    typedef Collection* CollectionPtr;
+
+    static const bool is_maker_valid = true;
+
+    static Collection make() {
+        return std::move(Collection());
+    }
+
+    static Collection make(size_t size) {
+        Collection res;
+        return std::move(res);
+    }
+
+    static Collection* makeHeap() {
+        return new Collection();
+    }
+
+    static Collection* makeHeap(size_t size) {
+        CollectionPtr res = new Collection();
+        return res;
+    }
+
 };
 
 }

@@ -24,14 +24,12 @@ struct CollectionAdapter {
     typedef void* value_type;
     typedef const void* const_value_type;
 
-    CollectionAdapter() {}
-
     static bool add(ThisCol& c, const value_type& i);
     static bool remove(ThisCol& c, const value_type& i);
     static value_type& getByIndex(ThisCol& c, int i);
     static const_value_type& getByIndex(ConstCol& c, int i);
 
-    static int getSize(const ThisCol& c);
+    static size_t getSize(const ThisCol& c);
 
     static bool erase(ThisCol& c, iterator beg);
     static bool erase(ThisCol& c, iterator beg, iterator end);
@@ -216,7 +214,7 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static int getSize(const T& c) {
+    static size_t getSize(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::getSize(c);

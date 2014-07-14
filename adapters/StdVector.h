@@ -78,7 +78,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int getSize(ConstCol& c) {
+	static size_t getSize(ConstCol& c) {
 		return c.size();
 	}
 
@@ -177,7 +177,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 		return c->cend();
 	}
 
-	static int getSize(ConstCol c) {
+	static size_t getSize(ConstCol c) {
 		return c->size();
 	}
 

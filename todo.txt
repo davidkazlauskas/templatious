@@ -17,6 +17,7 @@ features:
 13. lambda cat
 14. static array container (like vector)
 15. foreach
+16. traverse static arrays with foreach
 
 compatibility:
 
