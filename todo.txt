@@ -12,12 +12,13 @@ features:
 1. findIter @ CollectionManipulator needs comparator support
 7. virtual collection wrapper
 10. tune map object
-11. loops
+#11. loops
 12. quadro function
 13. lambda cat
-14. static array container (like vector)
-15. foreach
-16. traverse static arrays with foreach
+#14. static array container (like vector)
+#15. foreach
+#16. traverse static arrays with foreach
+17. adapters for StaticVector HybridVector
 
 compatibility:
 
