@@ -31,7 +31,12 @@ struct StaticVector {
 
     typedef size_t ulong;
     typedef StaticVector<T,sz> ThisVector;
-    struct Iterator;
+
+    template <bool isConst = false>
+    struct SvIterator;
+
+    typedef SvIterator<false> Iterator;
+    typedef SvIterator<true> ConstIter;
 
     static const ulong size = sz;
     static_assert(size > 0,"Static vector cannot be of negative size.");
@@ -100,6 +105,14 @@ struct StaticVector {
         return true;
     }
 
+    bool insert(Iterator at,const T& e) {
+        return insert(at._iter,e);
+    }
+
+    bool insert(Iterator at,T&& e) {
+        return insert(at._iter,e);
+    }
+
     bool pop(T& out) {
         if (isEmpty()) {
             return false;
@@ -143,6 +156,11 @@ struct StaticVector {
         return Iterator(_vct,_cnt,pos);
     }
 
+    ConstIter citerAt(size_t pos) const {
+        assert(pos < _cnt && "Position cannot be greater than size");
+        return ConstIter(_vct,_cnt,pos);
+    }
+
     void erase(const Iterator& beg,const Iterator& end) {
         assert(_vct == beg._vct && _cnt == beg._size
                 && "Begginning iterator does not belong to this vector.");
@@ -157,11 +175,23 @@ struct StaticVector {
 
         Iterator j = beg;
         for (auto i = end; i != this->end(); ++i) {
-            *j = *i;
+            if (std::is_destructible<T>::value) {
+                (*j).~T();
+            }
+
+            *j = std::move(*i);
+
+            if (std::is_destructible<T>::value) {
+                (*i).~T();
+            }
             ++j;
         }
 
         _cnt -= (end._iter - beg._iter);
+    }
+
+    void erase(const Iterator& beg) {
+        erase(beg,end());
     }
 
     T& at(ulong pos) const {
@@ -178,6 +208,10 @@ struct StaticVector {
         return _cnt == 0;
     }
 
+    ulong getSize() const {
+        return _cnt;
+    }
+
     Iterator begin() const {
         return Iterator(_vct,_cnt);
     }
@@ -186,20 +220,23 @@ struct StaticVector {
         return Iterator(_vct,_cnt,_cnt);
     }
 
-    const Iterator cbegin() const {
+    ConstIter cbegin() const {
         return Iterator(_vct,_cnt);
     }
 
-    const Iterator cend() const {
+    ConstIter cend() const {
         return Iterator(_vct,_cnt,_cnt);
     }
 
-    struct Iterator {
+    template <bool isConst>
+    struct SvIterator {
+        typedef typename templatious::util::TypeSelector<isConst,const T,T>::val ValType;
+        typedef SvIterator<isConst> Iterator;
 
-        Iterator(T* vct,ulong size) :
+        SvIterator(ValType* vct,ulong size) :
             _vct(vct), _size(size), _iter(0) {}
 
-        Iterator(T* vct,ulong size,ulong pos) :
+        SvIterator(ValType* vct,ulong size,ulong pos) :
             _vct(vct), _size(size), _iter(pos)
         {
             assert(_iter <= _size && "Iterator position cannot be greater than size.");
@@ -233,12 +270,12 @@ struct StaticVector {
             return !(*this == rhs);
         }
 
-        T& operator*() const {
+        ValType& operator*() const {
             assert(_iter < _size && "Iterator out of bounds.");
             return _vct[_iter];
         }
 
-        T* operator->() const {
+        ValType* operator->() const {
             assert(_iter < _size && "Iterator out of bounds.");
             return &_vct[_iter];
         }
@@ -284,43 +321,102 @@ struct CollectionAdapter< StaticVector<T,sz> > {
 
     typedef StaticVector<T,sz> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef void* iterator;
-    typedef const void* const_iterator;
-    typedef void* value_type;
-    typedef const void* const_value_type;
+    typedef typename ThisCol::Iterator iterator;
+    typedef typename ThisCol::ConstIter const_iterator;
+    typedef T value_type;
+    typedef const T const_value_type;
 
     static bool add(ThisCol& c, const value_type& i) {
         return c.push(i);
     }
 
-    static bool remove(ThisCol& c, const value_type& i);
-    static value_type& getByIndex(ThisCol& c, int i);
-    static const_value_type& getByIndex(ConstCol& c, int i);
+    static bool remove(ThisCol& c, const value_type& i) {
 
-    static size_t getSize(const ThisCol& c);
+    }
 
-    static bool erase(ThisCol& c, iterator beg);
-    static bool erase(ThisCol& c, iterator beg, iterator end);
+    static value_type& getByIndex(ThisCol& c, int i) {
+        return c.at(i);
+    }
 
-    static ThisCol instantiate();
-    static ThisCol instantiate(int size);
+    static const_value_type& getByIndex(ConstCol& c, int i) {
+        return c.at(i);
+    }
 
-    static iterator begin(ThisCol& c);
-    static iterator end(ThisCol& c);
-    static iterator iter_at(ThisCol& c, int i);
+    static size_t getSize(const ThisCol& c) {
+        return c.getSize();
+    }
 
-    static const_iterator cbegin(ThisCol& c);
-    static const_iterator cend(ThisCol& c);
-    static const_iterator citer_at(ThisCol& c, int i);
+    static bool erase(ThisCol& c, iterator beg) {
+        return c.erase(beg);
+    }
 
-    static value_type& first(ThisCol& c);
-    static const value_type& first(ConstCol& c);
-    static value_type& last(ThisCol& c);
-    static const value_type& last(ConstCol& c);
+    static bool erase(ThisCol& c, iterator beg, iterator end) {
+        return c.erase(beg,end);
+    }
 
-    static bool insert_at(ThisCol& c, iterator at, const value_type& i);
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
 
-    static void clear(ThisCol& c);
+    template <class U = int>
+    static ThisCol instantiate(int size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    static iterator begin(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator end(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator iter_at(ThisCol& c, int i) {
+        return c.iterAt(i);
+    }
+
+    static const_iterator cbegin(ThisCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ThisCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator citer_at(ThisCol& c, int i) {
+        return c.citerAt(i);
+    }
+
+    static value_type& first(ThisCol& c) {
+        return c.at(0);
+    }
+
+    static const value_type& first(ConstCol& c) {
+        return c.at(0);
+    }
+
+    static value_type& last(ThisCol& c) {
+        return c.at(c.getSize() - 1);
+    }
+
+    static const value_type& last(ConstCol& c) {
+        return c.at(c.getSize() - 1);
+    }
+
+    static bool insert_at(ThisCol& c, iterator at, const value_type& i) {
+        return c.insert(at,i);
+    }
+
+    static void clear(ThisCol& c) {
+        return c.clear();
+    }
 };
 }
 
