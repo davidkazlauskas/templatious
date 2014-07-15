@@ -124,6 +124,7 @@ struct StaticVector {
         return std::move(res);
     }
 
+    // xchg
     bool pop_first(T& out) {
         if (isEmpty()) {
             return false;
@@ -137,8 +138,35 @@ struct StaticVector {
         return true;
     }
 
+    Iterator iterAt(size_t pos) const {
+        assert(pos < _cnt && "Position cannot be greater than size");
+        return Iterator(_vct,_cnt,pos);
+    }
+
+    void erase(const Iterator& beg,const Iterator& end) {
+        assert(_vct == beg._vct && _cnt == beg._size
+                && "Begginning iterator does not belong to this vector.");
+        assert(_vct == end._vct && _cnt == end._size
+                && "End iterator does not belong to this vector.");
+        assert(beg._iter < end._iter
+                && "Beggining is greater than end.");
+        assert(beg._iter < _cnt
+                && "Beginning does not belong in the vector.");
+        assert(end._iter <= _cnt
+                && "End goes past end of the vector.");
+
+        Iterator j = beg;
+        for (auto i = end; i != this->end(); ++i) {
+            *j = *i;
+            ++j;
+        }
+
+        _cnt -= (end._iter - beg._iter);
+    }
+
     T& at(ulong pos) const {
-        assert(pos >= 0 && pos < size && "Requested position out of bounds.");
+        assert(pos >= 0 && pos < _cnt && pos < size
+                && "Requested position out of bounds.");
         return _vct[pos];
     }
 
@@ -151,25 +179,22 @@ struct StaticVector {
     }
 
     Iterator begin() const {
-        return Iterator(_vct,size);
+        return Iterator(_vct,_cnt);
     }
 
     Iterator end() const {
-        return Iterator(_vct,size,size);
+        return Iterator(_vct,_cnt,_cnt);
     }
 
     const Iterator cbegin() const {
-        return Iterator(_vct,size);
+        return Iterator(_vct,_cnt);
     }
 
     const Iterator cend() const {
-        return Iterator(_vct,size,size);
+        return Iterator(_vct,_cnt,_cnt);
     }
 
     struct Iterator {
-        T* _vct;
-        ulong _size;
-        ulong _iter;
 
         Iterator(T* vct,ulong size) :
             _vct(vct), _size(size), _iter(0) {}
@@ -182,6 +207,21 @@ struct StaticVector {
 
         Iterator& operator++() {
             ++_iter;
+            return *this;
+        }
+
+        Iterator& operator--() {
+            --_iter;
+            return *this;
+        }
+
+        Iterator& operator+=(size_t s) {
+            _iter += s;
+            return *this;
+        }
+
+        Iterator& operator-=(size_t s) {
+            _iter -= s;
             return *this;
         }
 
@@ -203,6 +243,25 @@ struct StaticVector {
             return &_vct[_iter];
         }
 
+        friend Iterator operator+(const Iterator& i,size_t s) {
+            Iterator res = i;
+            res._iter += s;
+            return res;
+        }
+
+        friend Iterator operator-(const Iterator& i,size_t s) {
+            Iterator res = i;
+            res._iter -= s;
+            return res;
+        }
+
+        friend class StaticVector<T,sz>;
+
+    private:
+        T* _vct;
+        ulong _size;
+        ulong _iter;
+
     };
 
 private:
@@ -215,6 +274,54 @@ private:
 template <class T,size_t sz>
 StaticVector<T,sz> makeStaticVector(T (&arr)[sz]) {
     return StaticVector<T,sz>(arr);
+}
+
+namespace adapters {
+
+template <class T,size_t sz>
+struct CollectionAdapter< StaticVector<T,sz> > {
+    static const bool is_valid = true;
+
+    typedef StaticVector<T,sz> ThisCol;
+    typedef const ThisCol ConstCol;
+    typedef void* iterator;
+    typedef const void* const_iterator;
+    typedef void* value_type;
+    typedef const void* const_value_type;
+
+    static bool add(ThisCol& c, const value_type& i) {
+        return c.push(i);
+    }
+
+    static bool remove(ThisCol& c, const value_type& i);
+    static value_type& getByIndex(ThisCol& c, int i);
+    static const_value_type& getByIndex(ConstCol& c, int i);
+
+    static size_t getSize(const ThisCol& c);
+
+    static bool erase(ThisCol& c, iterator beg);
+    static bool erase(ThisCol& c, iterator beg, iterator end);
+
+    static ThisCol instantiate();
+    static ThisCol instantiate(int size);
+
+    static iterator begin(ThisCol& c);
+    static iterator end(ThisCol& c);
+    static iterator iter_at(ThisCol& c, int i);
+
+    static const_iterator cbegin(ThisCol& c);
+    static const_iterator cend(ThisCol& c);
+    static const_iterator citer_at(ThisCol& c, int i);
+
+    static value_type& first(ThisCol& c);
+    static const value_type& first(ConstCol& c);
+    static value_type& last(ThisCol& c);
+    static const value_type& last(ConstCol& c);
+
+    static bool insert_at(ThisCol& c, iterator at, const value_type& i);
+
+    static void clear(ThisCol& c);
+};
 }
 
 }
