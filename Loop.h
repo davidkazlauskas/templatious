@@ -291,14 +291,6 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
     }
 
     template <class U = int>
-    static bool remove(ThisCol& c, const value_type& i) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class U = int>
     static value_type& getByIndex(ThisCol& c, int i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,

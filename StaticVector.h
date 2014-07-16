@@ -330,10 +330,6 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.push(i);
     }
 
-    static bool remove(ThisCol& c, const value_type& i) {
-
-    }
-
     static value_type& getByIndex(ThisCol& c, int i) {
         return c.at(i);
     }

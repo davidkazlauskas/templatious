@@ -48,13 +48,6 @@ struct CollectionAdapter< T[sz] > {
             "Add not supported as static array doesn't hold any state.");
     }
 
-    template <class U = int>
-    static bool remove(T c[size], const value_type& i) {
-        // suppress static assert unless method is actually used
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-            "Remove not supported as static array doesn't hold any state.");
-    }
-
     static value_type& getByIndex(T c[size], int i) {
         return c[i];
     }
