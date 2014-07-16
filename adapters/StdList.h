@@ -44,9 +44,13 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 		return true;
 	}
 
-	static ThisCol instantiate() {
-		return std::move(ThisCol());
+	static bool add(ThisCol& c,value_type&& i) {
+		c.push_back(i);
+		return true;
 	}
+
+	static ThisCol instantiate() {
+		return std::move(ThisCol()); }
 
 	static ThisCol instantiate(int size) {
 		ThisCol r;
@@ -157,6 +161,11 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
 	typedef const T const_value_type;
 
 	static bool add(ThisCol c,const value_type& i) {
+		c->push_back(i);
+		return true;
+	}
+
+	static bool add(ThisCol c,value_type&& i) {
 		c->push_back(i);
 		return true;
 	}

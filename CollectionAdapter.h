@@ -25,6 +25,7 @@ struct CollectionAdapter {
     typedef const void* const_value_type;
 
     static bool add(ThisCol& c, const value_type& i);
+    static bool add(ThisCol& c, value_type&& i);
     static value_type& getByIndex(ThisCol& c, int i);
     static const_value_type& getByIndex(ConstCol& c, int i);
 
@@ -50,6 +51,7 @@ struct CollectionAdapter {
     static const value_type& last(ConstCol& c);
 
     static bool insert_at(ThisCol& c, iterator at, const value_type& i);
+    static bool insert_at(ThisCol& c, iterator at, value_type&& i);
 
     static void clear(ThisCol& c);
 };

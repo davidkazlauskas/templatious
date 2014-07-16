@@ -151,12 +151,12 @@ struct StaticVector {
         return true;
     }
 
-    Iterator iterAt(size_t pos) const {
+    Iterator iterAt(ulong pos) const {
         assert(pos < _cnt && "Position cannot be greater than size");
         return Iterator(_vct,_cnt,pos);
     }
 
-    ConstIter citerAt(size_t pos) const {
+    ConstIter citerAt(ulong pos) const {
         assert(pos < _cnt && "Position cannot be greater than size");
         return ConstIter(_vct,_cnt,pos);
     }
@@ -252,12 +252,12 @@ struct StaticVector {
             return *this;
         }
 
-        Iterator& operator+=(size_t s) {
+        Iterator& operator+=(ulong s) {
             _iter += s;
             return *this;
         }
 
-        Iterator& operator-=(size_t s) {
+        Iterator& operator-=(ulong s) {
             _iter -= s;
             return *this;
         }
@@ -280,13 +280,13 @@ struct StaticVector {
             return &_vct[_iter];
         }
 
-        friend Iterator operator+(const Iterator& i,size_t s) {
+        friend Iterator operator+(const Iterator& i,ulong s) {
             Iterator res = i;
             res._iter += s;
             return res;
         }
 
-        friend Iterator operator-(const Iterator& i,size_t s) {
+        friend Iterator operator-(const Iterator& i,ulong s) {
             Iterator res = i;
             res._iter -= s;
             return res;
@@ -327,6 +327,10 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     typedef const T const_value_type;
 
     static bool add(ThisCol& c, const value_type& i) {
+        return c.push(i);
+    }
+
+    static bool add(ThisCol& c, value_type&& i) {
         return c.push(i);
     }
 
@@ -407,6 +411,10 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     }
 
     static bool insert_at(ThisCol& c, iterator at, const value_type& i) {
+        return c.insert(at,i);
+    }
+
+    static bool insert_at(ThisCol& c, iterator at,value_type&& i) {
         return c.insert(at,i);
     }
 

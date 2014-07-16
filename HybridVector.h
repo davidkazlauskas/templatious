@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <templatious/CollectionMaker.h>
+#include <templatious/CollectionAdapter.h>
 #include <templatious/StaticVector.h>
 
 #ifndef HYBRIDVECTOR_5CFAJMGM
@@ -33,16 +34,84 @@ template <class T,size_t sz,
 >
 struct HybridVector {
 
-    typedef StaticVector<T,sz> StatVector;
-    typedef templatious::adapters::CollectionMaker<T,Additional,Alloc> ColMaker;
+    typedef typename templatious::StaticVector<T,sz> StatVector;
+    typedef typename templatious::adapters::CollectionMaker<T,Additional,Alloc> ColMaker;
     typedef typename ColMaker::Collection Collection;
+    typedef typename templatious::adapters::CollectionAdapter<Collection*> Ad;
 
     static const size_t static_size = sz;
 
     StatVector _s;
     Collection* _a;
 
-    HybridVector(T c[static_size]) : _s(c), _a(nullptr) { }
+    static_assert(Ad::is_valid,
+            "Adapter is invalid.");
+
+    HybridVector(T (&c)[static_size]) : _s(c), _a(nullptr) { }
+
+    ~HybridVector() {
+        delete _a;
+    }
+
+    bool push(const T& e) {
+        if (!_s.isFull()) {
+            return _s.push(e);
+        }
+
+        return Ad::add(extra());
+    }
+
+    bool push(T&& e) {
+        if (!_s.isFull()) {
+            return _s.push(e);
+        }
+
+        return Ad::add(extra(),e);
+    }
+
+    bool insert(ulong at,const T& e) {
+        if (!_s.isFull()) {
+            return _s.insert(at,e);
+        }
+
+        if (at < static_size) {
+            Ad::insert_at(
+                    extra(),
+                    Ad::begin(extra()),
+                    _s.pop());
+            return _s.insert(at,e);
+        } else {
+            auto i = Ad::iter_at(extra(),at - static_size);
+            return Ad::insert_at(extra(),i,e);
+        }
+    }
+
+    bool insert(ulong at,T&& e) {
+        if (!_s.isFull()) {
+            return _s.insert(at,e);
+        }
+
+        if (at < static_size) {
+            Ad::insert_at(
+                    extra(),
+                    Ad::begin(extra()),
+                    _s.pop());
+            return _s.insert(at,e);
+        } else {
+            auto i = Ad::iter_at(extra(),at - static_size);
+            return Ad::insert_at(extra(),i,e);
+        }
+    }
+
+private:
+
+    Collection* extra() {
+        if (nullptr == _a) {
+            _a = ColMaker::makeHeap(static_size);
+        }
+
+        return _a;
+    }
 
 };
 

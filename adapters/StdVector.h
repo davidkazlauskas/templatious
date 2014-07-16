@@ -44,6 +44,11 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return true;
 	}
 
+	static bool add(ThisCol& c,value_type&& i) {
+		c.push_back(i);
+		return true;
+	}
+
 	static ThisCol instantiate() {
 		return std::move(ThisCol());
 	}
@@ -143,6 +148,11 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 		return true;
 	}
 
+	static bool add(ThisCol c,value_type&& i) {
+		c->push_back(i);
+		return true;
+	}
+
 	static ThisCol instantiate() {
 		return new ColType();
 	}
@@ -195,7 +205,14 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
         return true;
     }
 
-    static bool insert_at(ThisCol c, iterator at, const value_type& v) {
+    static bool insert_at(ThisCol c,iterator at,const value_type& v) {
+        assert(at >= begin(c) && at < end(c));
+
+        c->insert(at,v);
+        return true;
+    }
+
+    static bool insert_at(ThisCol c, iterator at,value_type&& v) {
         assert(at >= begin(c) && at < end(c));
 
         c->insert(at,v);
