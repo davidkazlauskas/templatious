@@ -175,17 +175,17 @@ struct StaticAdapter {
     }
 
     template <class T, class U>
-    static bool add(T& c, const U& o) {
+    static bool add(T& c, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return adapters::add_custom<
                 adapters::AdditionSelector<T, U>::val
-            >::add(c, o);
+            >::add(c, std::forward<U>(o));
     }
 
     template <class T, class U, class... Args>
-    static bool add(T& c, const U& o, const Args&... args) {
-        if (!add(c, o)) {
+    static bool add(T& c, U&& o, Args&&... args) {
+        if (!add(c, std::forward<U>(o))) {
             return false;
         }
 
