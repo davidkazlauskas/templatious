@@ -138,7 +138,7 @@ struct StaticManipulator {
 
     // T - return col, U - functor, Args - collections
     template <class T,bool passIndex = false,class U,class ...Args> 
-    static T moldToOne(U& fn,Args & ... args) {
+    static T moldToOne(U&& fn,Args&&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
@@ -160,14 +160,8 @@ struct StaticManipulator {
         return std::move(result);
     }
 
-
     template <bool passIndex = false, class U, class... Args>
-    static void traverse(U fn, Args&... args) {
-        traverseRef<passIndex>(fn,args...);
-    }
-
-    template <bool passIndex = false, class U, class... Args>
-    static void traverseRef(U& fn, Args&... args) {
+    static void traverse(U&& fn, Args&&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
