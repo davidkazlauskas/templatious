@@ -39,15 +39,20 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	typedef T value_type;
 	typedef const T const_value_type;
 
-	static bool add(ThisCol& c,const value_type& i) {
-		c.push_back(i);
+    template <class V>
+	static bool add(ThisCol& c,V&& i) {
+		c.push_back(std::forward<V>(i));
 		return true;
 	}
 
-	static bool add(ThisCol& c,value_type&& i) {
-		c.push_back(i);
-		return true;
-	}
+    template <class V>
+    static bool insert_at(ThisCol& c, iterator at, V&& v) {
+        assert(at >= begin(c) && at < end(c));
+
+        c.insert(at,std::forward<V>(v));
+        return true;
+    }
+
 
 	static ThisCol instantiate() {
 		return std::move(ThisCol());
@@ -101,13 +106,6 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
         return true;
     }
 
-    static bool insert_at(ThisCol& c, iterator at, const_value_type& v) {
-        assert(at >= begin(c) && at < end(c));
-
-        c.insert(at,v);
-        return true;
-    }
-
     static value_type& first(ThisCol& c) {
         return c.front();
     }
@@ -143,15 +141,20 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 	typedef T value_type;
 	typedef const T const_value_type;
 
-	static bool add(ThisCol c,const value_type& i) {
-		c->push_back(i);
+    template <class V>
+	static bool add(ThisCol c,V&& i) {
+		c->push_back(std::forward<V>(i));
 		return true;
 	}
 
-	static bool add(ThisCol c,value_type&& i) {
-		c->push_back(i);
-		return true;
-	}
+    template <class V>
+    static bool insert_at(ThisCol c, iterator at,V&& v) {
+        assert(at >= begin(c) && at < end(c));
+
+        c->insert(at,std::forward<V>(v));
+        return true;
+    }
+
 
 	static ThisCol instantiate() {
 		return new ColType();
@@ -202,20 +205,6 @@ struct CollectionAdapter< std::vector<T,Alloc<T> >* > {
 
     static bool erase(ThisCol c,iterator beg,iterator end) {
         c->erase(beg,end);
-        return true;
-    }
-
-    static bool insert_at(ThisCol c,iterator at,const value_type& v) {
-        assert(at >= begin(c) && at < end(c));
-
-        c->insert(at,v);
-        return true;
-    }
-
-    static bool insert_at(ThisCol c, iterator at,value_type&& v) {
-        assert(at >= begin(c) && at < end(c));
-
-        c->insert(at,v);
         return true;
     }
 

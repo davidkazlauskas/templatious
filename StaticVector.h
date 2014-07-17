@@ -49,33 +49,23 @@ struct StaticVector {
             && "Initial static array size cannot be larger than a capacity.");
     }
 
-    bool push(const T& e) {
+    template <class V>
+    bool push(V&& e) {
         if (isFull()) {
             return false;
         }
 
-        _vct[_cnt++] = e;
+        _vct[_cnt++] = std::forward<V>(e);
         return true;
     }
 
-    bool push(T&& e) {
-        if (isFull()) {
-            return false;
-        }
-
-        _vct[_cnt++] = e;
-        return true;
+    template <class V>
+    bool push_first(V&& e) {
+        return insert(0,std::forward<V>(e));
     }
 
-    bool push_first(const T& e) {
-        return insert(0,e);
-    }
-
-    bool push_first(T&& e) {
-        return insert(0,e);
-    }
-
-    bool insert(ulong at,const T& e) {
+    template <class V>
+    bool insert(ulong at,V&& e) {
         if (isFull()) {
             return false;
         }
@@ -86,31 +76,13 @@ struct StaticVector {
         TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(at+1,_cnt).rev()) {
             _vct[i] = std::move(_vct[i - 1]);
         }
-        _vct[at] = e;
+        _vct[at] = std::forward<V>(e);
         return true;
     }
 
-    bool insert(ulong at,T&& e) {
-        if (isFull()) {
-            return false;
-        }
-
-        assert(at <= _cnt && "Insertion point cannot be past the end of the vector.");
-
-        ++_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(at+1,_cnt).rev()) {
-            _vct[i] = std::move(_vct[i - 1]);
-        }
-        _vct[at] = e;
-        return true;
-    }
-
-    bool insert(Iterator at,const T& e) {
-        return insert(at._iter,e);
-    }
-
+    template <class V>
     bool insert(Iterator at,T&& e) {
-        return insert(at._iter,e);
+        return insert(at._iter,std::forward<V>(e));
     }
 
     bool pop(T& out) {
@@ -326,12 +298,14 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     typedef T value_type;
     typedef const T const_value_type;
 
-    static bool add(ThisCol& c, const value_type& i) {
-        return c.push(i);
+    template <class V>
+    static bool add(ThisCol& c, V&& i) {
+        return c.push(std::forward<V>(i));
     }
 
-    static bool add(ThisCol& c, value_type&& i) {
-        return c.push(i);
+    template <class V>
+    static bool insert_at(ThisCol& c, iterator at,V&& i) {
+        return c.insert(at,std::forward<V>(i));
     }
 
     static value_type& getByIndex(ThisCol& c, int i) {
@@ -408,14 +382,6 @@ struct CollectionAdapter< StaticVector<T,sz> > {
 
     static const value_type& last(ConstCol& c) {
         return c.at(c.getSize() - 1);
-    }
-
-    static bool insert_at(ThisCol& c, iterator at, const value_type& i) {
-        return c.insert(at,i);
-    }
-
-    static bool insert_at(ThisCol& c, iterator at,value_type&& i) {
-        return c.insert(at,i);
     }
 
     static void clear(ThisCol& c) {
