@@ -32,7 +32,7 @@ struct CollectionAdapter {
     static value_type& getByIndex(ThisCol& c, size_t i);
     static const_value_type& getByIndex(ConstCol& c, size_t i);
 
-    static size_t getSize(const ThisCol& c);
+    static size_t getSize(ConstCol& c);
 
     static bool erase(ThisCol& c, iterator beg);
     static bool erase(ThisCol& c, iterator beg, iterator end);
@@ -46,9 +46,9 @@ struct CollectionAdapter {
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c, size_t i);
 
-    static const_iterator cbegin(ThisCol& c);
-    static const_iterator cend(ThisCol& c);
-    static const_iterator citer_at(ThisCol& c, size_t i);
+    static const_iterator cbegin(ConstCol& c);
+    static const_iterator cend(ConstCol& c);
+    static const_iterator citer_at(ConstCol& c, size_t i);
 
     static value_type& first(ThisCol& c);
     static const value_type& first(ConstCol& c);
