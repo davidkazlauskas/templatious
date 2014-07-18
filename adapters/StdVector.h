@@ -58,7 +58,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return std::move(ThisCol());
 	}
 
-	static ThisCol instantiate(int size) {
+	static ThisCol instantiate(size_t size) {
 		ThisCol r;
 		r.reserve(size);
 		return std::move(r);
@@ -68,7 +68,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return new ThisCol();
 	}
 
-	static ThisCol* instHeap(int size) {
+	static ThisCol* instHeap(size_t size) {
 		ThisCol* r = new ThisCol();
 		r->reserve(size);
 		return r;
@@ -103,7 +103,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static value_type& getByIndex(ThisCol& c, int i) {
+    static value_type& getByIndex(ThisCol& c, size_t i) {
         return c[i];
     }
 
@@ -138,6 +138,104 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
     }
 
 };
+
+template <class T,template <class> class Alloc >
+struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
+
+    static const bool is_valid = true;
+
+	typedef typename std::vector<T, Alloc<T> > const ThisCol;
+	typedef typename std::vector<T, Alloc<T> > const ConstCol;
+	typedef typename ThisCol::const_iterator iterator;
+	typedef typename ThisCol::const_iterator const_iterator;
+	typedef const T value_type;
+	typedef const T const_value_type;
+
+    template <class V,class U = int>
+	static bool add(ThisCol& c,V&& i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
+	}
+
+    template <class V,class U = int>
+    static bool insert_at(ThisCol& c, iterator at, V&& v) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
+    }
+
+
+	static ThisCol instantiate() {
+		return std::move(ThisCol());
+	}
+
+	static ThisCol instantiate(size_t size) {
+		ThisCol r;
+		r.reserve(size);
+		return std::move(r);
+	}
+
+	static ThisCol* instHeap() {
+		return new ThisCol();
+	}
+
+	static ThisCol* instHeap(size_t size) {
+		ThisCol* r = new ThisCol();
+		r->reserve(size);
+		return r;
+	}
+
+	static const_iterator begin(ConstCol& c) {
+		return c.cbegin();
+	}
+
+	static const_iterator end(ConstCol& c) {
+		return c.cend();
+	}
+
+	static const_iterator cbegin(ConstCol& c) {
+		return c.cbegin();
+	}
+
+	static const_iterator cend(ConstCol& c) {
+		return c.cend();
+	}
+
+	static size_t getSize(ConstCol& c) {
+		return c.size();
+	}
+
+    static value_type& getByIndex(ThisCol& c, size_t i) {
+        return c[i];
+    }
+
+    template <class U>
+    static bool erase(ThisCol& c,iterator beg) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
+    }
+
+    template <class U>
+    static bool erase(ThisCol& c,iterator beg,iterator end) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.front();
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.back();
+    }
+
+    template <class U>
+    static void clear(ThisCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
+    }
+
+};
+
 
 template <
     class Val,
