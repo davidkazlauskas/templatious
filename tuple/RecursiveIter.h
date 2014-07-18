@@ -41,7 +41,8 @@ struct RecursiveIterator<A> {
 
     Iterator _a;
 
-    RecursiveIterator(A& a) : _a(SA::begin(a)) {
+    template <class U>
+    RecursiveIterator(U&& a) : _a(SA::begin(std::forward<U>(a))) {
         //std::cout << "rec iter - " << a << std::endl;
     }
 
@@ -59,13 +60,15 @@ struct RecursiveIterator<A> {
     }
 
     template <class F>
-    auto callFunction(F& f) -> decltype(f(*_a)) {
+    auto callFunction(F&& f) -> decltype(f(*_a)) {
         return f(*_a);
     }
 
     template <class F, class... Args>
-    auto callFunction(F& f, Args&... args) -> decltype(f(args..., *_a)) {
-        return f(args..., *_a);
+    auto callFunction(F&& f, Args&&... args) ->
+    decltype(f(std::forward<Args>(args)..., *_a))
+    {
+        return f(std::forward<Args>(args)..., *_a);
     }
 };
 
@@ -80,7 +83,10 @@ struct RecursiveIterator<A, Tail...> {
     Iterator _a;
     RecursiveIterator<Tail...> _t;
 
-    RecursiveIterator(A& a, Tail & ... args) : _a(SA::begin(a)), _t(args...) { }
+    template <class U,class... TailC>
+    RecursiveIterator(U&& a, TailC&&... args) :
+        _a(SA::begin(std::forward<U>(a))),
+        _t(std::forward<TailC>(args)...) { }
 
     void print() {
         std::cout << *_a << std::endl;
@@ -110,15 +116,21 @@ struct RecursiveIterator<A, Tail...> {
     }
 
     template <class F>
-    auto callFunction(F& f) -> decltype(_t.callFunction(f, *_a)) {
-        return _t.callFunction(f, *_a);
+    auto callFunction(F&& f) -> decltype(
+        _t.callFunction(std::forward<F>(f), *_a))
+    {
+        return _t.callFunction(std::forward<F>(f), *_a);
     }
 
     template <class F, class... Args>
-    auto callFunction(F& f, Args&... args)
-        -> decltype(_t.callFunction(f, args..., *_a)) 
+    auto callFunction(F&& f, Args&&... args)
+        -> decltype(_t.callFunction(
+        std::forward<F>(f), std::forward<Args>(args)..., *_a))
     {
-        return _t.callFunction(f, args..., *_a);
+        return _t.callFunction(
+                std::forward<F>(f),
+                std::forward<Args>(args)...,
+                *_a);
     }
 };
 
