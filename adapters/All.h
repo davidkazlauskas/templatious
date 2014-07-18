@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 
+#include <templatious/adapters/PtrAdapter.h>
 #include <templatious/adapters/StdVector.h>
 #include <templatious/adapters/StdList.h>
 #include <templatious/adapters/StaticArray.h>

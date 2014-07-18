@@ -29,8 +29,8 @@ struct CollectionAdapter {
     template <class V>
     static bool insert_at(ThisCol& c, iterator at, V&& i);
 
-    static value_type& getByIndex(ThisCol& c, int i);
-    static const_value_type& getByIndex(ConstCol& c, int i);
+    static value_type& getByIndex(ThisCol& c, size_t i);
+    static const_value_type& getByIndex(ConstCol& c, size_t i);
 
     static size_t getSize(const ThisCol& c);
 
@@ -38,15 +38,17 @@ struct CollectionAdapter {
     static bool erase(ThisCol& c, iterator beg, iterator end);
 
     static ThisCol instantiate();
-    static ThisCol instantiate(int size);
+    static ThisCol instantiate(size_t size);
+    static ThisCol* instHeap();
+    static ThisCol* instHeap(size_t size);
 
     static iterator begin(ThisCol& c);
     static iterator end(ThisCol& c);
-    static iterator iter_at(ThisCol& c, int i);
+    static iterator iter_at(ThisCol& c, size_t i);
 
     static const_iterator cbegin(ThisCol& c);
     static const_iterator cend(ThisCol& c);
-    static const_iterator citer_at(ThisCol& c, int i);
+    static const_iterator citer_at(ThisCol& c, size_t i);
 
     static value_type& first(ThisCol& c);
     static const value_type& first(ConstCol& c);
