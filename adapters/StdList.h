@@ -144,68 +144,71 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 };
 
+
 template <class T,template <class> class Alloc >
-struct CollectionAdapter< std::list<T,Alloc<T> >* > {
+struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 
     static const bool is_valid = true;
 
-	typedef typename std::list<T, Alloc<T> >* ThisCol;
-	typedef typename std::list<T, Alloc<T> > const* ConstCol;
-	typedef typename std::list<T, Alloc<T> > ColType;
-	typedef typename ColType::iterator iterator;
-	typedef typename ColType::const_iterator const_iterator;
-	typedef T value_type;
+	typedef typename std::list<T, Alloc<T> > const ThisCol;
+	typedef typename std::list<T, Alloc<T> > const ConstCol;
+	typedef typename ThisCol::const_iterator iterator;
+	typedef typename ThisCol::const_iterator const_iterator;
+	typedef const T value_type;
 	typedef const T const_value_type;
 
-    template <class V>
-	static bool add(ThisCol c,V&& i) {
-		c->push_back(std::forward<V>(i));
-		return true;
+    template <class V,class U = int>
+	static bool add(ThisCol& c,V&& i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
 	}
 
-    template <class V>
-    static bool insert_at(ThisCol c, iterator at,V&& v) {
-        c->insert(at,std::forward<V>(v));
-        return true;
+    template <class V,class U = int>
+    static bool insert_at(ThisCol& c, iterator at, V&& v) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
+
 	static ThisCol instantiate() {
-		return new ColType();
+		return std::move(ThisCol());
 	}
 
-	static ThisCol instantiate(int size) {
-		return new ColType();
+	static ThisCol instantiate(size_t size) {
+		ThisCol r;
+		return std::move(r);
 	}
 
-	static iterator begin(ThisCol c) {
-		return c->begin();
+	static ThisCol* instHeap() {
+		return new ThisCol();
 	}
 
-	static iterator end(ThisCol c) {
-		return c->end();
+	static ThisCol* instHeap(size_t size) {
+		ThisCol* r = new ThisCol();
+		return r;
 	}
 
-	static const iterator begin(ConstCol c) {
-		return c->cbegin();
+	static const_iterator begin(ConstCol& c) {
+		return c.cbegin();
 	}
 
-	static const iterator end(ConstCol c) {
-		return c->cend();
+	static const_iterator end(ConstCol& c) {
+		return c.cend();
 	}
 
-	static const iterator cbegin(ConstCol c) {
-		return c->cbegin();
+	static const_iterator cbegin(ConstCol& c) {
+		return c.cbegin();
 	}
 
-	static const iterator cend(ConstCol c) {
-		return c->cend();
+	static const_iterator cend(ConstCol& c) {
+		return c.cend();
 	}
 
-	static size_t getSize(ConstCol c) {
-		return c->size();
+	static size_t getSize(ConstCol& c) {
+		return c.size();
 	}
 
-	static value_type& getByIndex(ThisCol c,int i) {
+    static value_type& getByIndex(ThisCol& c, size_t i) {
         assert(getSize(c) > i);
 
         int count = 0;
@@ -218,62 +221,34 @@ struct CollectionAdapter< std::list<T,Alloc<T> >* > {
         return *iter;
     }
 
-    static bool erase(ThisCol c,iterator beg) {
-        c->erase(beg);
-        return true;
+    template <class U>
+    static bool erase(ThisCol& c,iterator beg) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
-    static bool erase(ThisCol c,iterator beg,iterator end) {
-        c->erase(beg,end);
-        return true;
+    template <class U>
+    static bool erase(ThisCol& c,iterator beg,iterator end) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
-    static iterator iter_at(ThisCol c,int i) {
-        assert(getSize(c) > i);
-
-        int count = 0;
-        auto iter = begin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return iter;
+    static const_value_type& first(ConstCol& c) {
+        return c.front();
     }
 
-    static const_iterator citer_at(ConstCol c,int i) {
-        assert(getSize(c) > i);
-
-        int count = 0;
-        auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return iter;
+    static const_value_type& last(ConstCol& c) {
+        return c.back();
     }
 
-    static value_type& first(ThisCol c) {
-        return c->front();
+    template <class U>
+    static void clear(ThisCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
-    static const_value_type& first(ConstCol c) {
-        return c->front();
-    }
-
-    static value_type& last(ThisCol c) {
-        return c->back();
-    }
-
-    static const_value_type& last(ConstCol c) {
-        return c->back();
-    }
-
-    static void clear(ThisCol c) {
-        c->clear();
-    }
 };
+
 
 template <
     class Val,
