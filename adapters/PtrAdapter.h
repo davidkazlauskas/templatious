@@ -127,9 +127,9 @@ struct CollectionAdapter<const T*> {
 
     typedef const T* ThisCol;
     typedef const T* ConstCol;
-    typedef typename Inner::iterator iterator;
+    typedef typename Inner::const_iterator iterator;
     typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
+    typedef typename Inner::const_value_type value_type;
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V,class U = int>
@@ -313,9 +313,9 @@ struct CollectionAdapter<const T&> {
 
     typedef const T& ThisCol;
     typedef const T& ConstCol;
-    typedef typename Inner::iterator iterator;
+    typedef typename Inner::const_iterator iterator;
     typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
+    typedef typename Inner::const_value_type value_type;
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V,class U = int>

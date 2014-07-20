@@ -118,31 +118,15 @@ struct add_custom<2> {
 
 struct StaticAdapter {
     template <class T>
-    static auto begin(T& c)
-        -> typename adapters::CollectionAdapter<T>::iterator {
+    static auto begin(T&& c)
+        -> decltype(adapters::CollectionAdapter<T>::begin(c)) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::begin(c);
     }
 
     template <class T>
-    static auto end(T& c) -> typename adapters::CollectionAdapter<T>::iterator {
-        typedef adapters::CollectionAdapter<T> Ad;
-        static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::end(c);
-    }
-
-    template <class T>
-    static auto begin(const T& c)
-        -> typename adapters::CollectionAdapter<T>::const_iterator {
-        typedef adapters::CollectionAdapter<T> Ad;
-        static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::begin(c);
-    }
-
-    template <class T>
-    static auto end(const T& c)
-        -> typename adapters::CollectionAdapter<T>::const_iterator {
+    static auto end(T&& c) -> decltype(adapters::CollectionAdapter<T>::end(c)) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::end(c);
