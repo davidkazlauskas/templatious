@@ -38,6 +38,8 @@ struct RecursiveIterator<A> {
 
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
+    typedef decltype(*Iterator()) ValType;
+    static_assert(Adapter::is_valid,"Adapter is invalid.");
 
     Iterator _a;
 
@@ -60,15 +62,17 @@ struct RecursiveIterator<A> {
     }
 
     template <class F>
-    auto callFunction(F&& f) -> decltype(f(*_a)) {
-        return f(*_a);
+    auto callFunction(F&& f)
+        -> decltype(f(std::forward<ValType>(*_a)))
+    {
+        return f(std::forward<ValType>(*_a));
     }
 
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args) ->
-    decltype(f(std::forward<Args>(args)..., *_a))
+    decltype(f(std::forward<Args>(args)..., std::forward<ValType>(*_a)))
     {
-        return f(std::forward<Args>(args)..., *_a);
+        return f(std::forward<Args>(args)..., std::forward<ValType>(*_a));
     }
 };
 
@@ -79,6 +83,9 @@ struct RecursiveIterator<A, Tail...> {
 
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
+    typedef decltype(*Iterator()) ValType;
+
+    static_assert(Adapter::is_valid,"Adapter is invalid.");
 
     Iterator _a;
     RecursiveIterator<Tail...> _t;
@@ -117,20 +124,20 @@ struct RecursiveIterator<A, Tail...> {
 
     template <class F>
     auto callFunction(F&& f) -> decltype(
-        _t.callFunction(std::forward<F>(f), *_a))
+        _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_a)))
     {
-        return _t.callFunction(std::forward<F>(f), *_a);
+        return _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_a));
     }
 
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args)
         -> decltype(_t.callFunction(
-        std::forward<F>(f), std::forward<Args>(args)..., *_a))
+        std::forward<F>(f), std::forward<Args>(args)..., std::forward<ValType>(*_a)))
     {
         return _t.callFunction(
                 std::forward<F>(f),
                 std::forward<Args>(args)...,
-                *_a);
+                std::forward<ValType>(*_a));
     }
 };
 

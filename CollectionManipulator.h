@@ -13,20 +13,26 @@ namespace manip {
 
 struct StaticManipulator {
     private:
-     template <class F, class ITER,bool callWithIndex = false,typename Index = int>
+     template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
      struct IteratorCaller;
 
-     template <class F,class ITER,typename Index>
+     template <class F,class ITER,class Index>
      struct IteratorCaller<F, ITER, false, Index> {
-         static auto call(F& f, Index idx, ITER& i) -> decltype(i.callFunction(f)) {
-             return i.callFunction(f);
+         static auto call(F&& f, const Index& idx, ITER&& i)
+             -> decltype(i.callFunction(std::forward<F>(f)))
+         {
+             return i.callFunction(std::forward<F>(f));
          }
      };
 
-     template <class F,class ITER,typename Index>
+     template <class F,class ITER,class Index>
      struct IteratorCaller<F, ITER, true, Index> {
-         static auto call(F& f, Index idx, ITER& i) -> decltype(i.callFunction(f,idx)) {
-             return i.callFunction(f,idx);
+         static auto call(F&& f, const Index& idx, ITER&& i)
+             -> decltype(i.callFunction(std::forward<F>(f),
+                         idx))
+         {
+             return i.callFunction(
+                     std::forward<F>(f),idx);
          }
      };
 
@@ -147,18 +153,27 @@ struct StaticManipulator {
         namespace ut = templatious::util;
 
         typedef typename templatious::adapters::CollectionAdapter<T> CA;
-        auto it = ItMk::makeIter(args...);
-        typedef IteratorCaller<U,decltype(it),passIndex,int> ICall;
+        auto it = ItMk::makeIter(std::forward<Args>(args)...);
+        typedef decltype(it) Iter;
+        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        int size = SA::getSize(ut::getFirst(args...));
+        size_t size = SA::getSize(ut::getFirst(std::forward<Args>(args)...));
         auto result = CA::instantiate(size);
-        for (int i = 0; i < size; ++i) {
-            CA::add(result,ICall::call(fn,i,it));
+        for (size_t i = 0; i < size; ++i) {
+            CA::add(result,
+                    ICall::call(std::forward<U>(fn),
+                    i,std::forward<Iter>(it)));
             it.inc();
         }
 
         return std::move(result);
     }
+
+    //template <bool passIndex = false, class U, class... Args>
+    //static void traverse(U&& fn, Args&&... args) {
+        ////traverseInternal<passIndex>(fn,templatious::ref(std::forward<Args>(args))...);
+        //traverseInternal<passIndex>(fn,args...);
+    //} // Artefacts ftw
 
     template <bool passIndex = false, class U, class... Args>
     static void traverse(U&& fn, Args&&... args) {
@@ -169,13 +184,20 @@ struct StaticManipulator {
         namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 
-        auto it = ItMk::makeIter(args...);
-        typedef IteratorCaller<U,decltype(it),passIndex,int> ICall;
+        auto it = ItMk::makeIter(std::forward<Args>(args)...);
+        typedef decltype(it) Iter;
+        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        int size = SA::getSize(ut::getFirst(args...));
-        for (int i = 0; i < size; ++i) {
-            typedef typename ut::RetValSelector<decltype(ICall::call(fn,i,it))> Sel;
-            if (!Sel::callAndEval(ICall::call,fn,i,it)) {
+        size_t size = SA::getSize(ut::getFirst(std::forward<Args>(args)...));
+        for (size_t i = 0; i < size; ++i) {
+            typedef typename ut::RetValSelector<
+                decltype(
+                    ICall::call(std::forward<U>(fn),i,std::forward<Iter>(it))
+                ) > Sel;
+
+            if (!Sel::callAndEval(
+                ICall::call,std::forward<U>(fn),i,std::forward<Iter>(it))) 
+            {
                 return;
             }
             it.inc();

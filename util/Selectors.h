@@ -19,6 +19,8 @@
 #ifndef SELECTORS_1ZD32CZT
 #define SELECTORS_1ZD32CZT
 
+#include <utility>
+
 namespace templatious {
 namespace util {
 
@@ -91,24 +93,20 @@ namespace util {
     // T - class to evaluate. Has to be specialized
     // ret - default return value
     template <class T,bool ret = true>
-    struct RetValSelector;
-    
-    template <bool ret>
-    struct RetValSelector<bool,ret> {
-
+    struct RetValSelector {
         template <class F,class... Args>
-        static bool callAndEval(F& f,Args & ... args) {
-            return f(args...);
+        static bool callAndEval(F&& f,Args&&... args) {
+            f(std::forward<Args>(args)...);
+            return ret;
         }
     };
 
     template <bool ret>
-    struct RetValSelector<void,ret> {
+    struct RetValSelector<bool,ret> {
 
         template <class F,class... Args>
-        static bool callAndEval(F& f,Args & ... args) {
-            f(args...);
-            return ret;
+        static bool callAndEval(F&& f,Args&&... args) {
+            return f(std::forward<Args>(args)...);
         }
     };
 

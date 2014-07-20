@@ -75,7 +75,7 @@ struct add_custom;
 template <>  // add data one by one
 struct add_custom<0> {
     template <class T>
-    static bool add(T& c, const typename CollectionAdapter<T>::value_type& i) {
+    static bool add(T& c,typename CollectionAdapter<T>::const_value_type& i) {
         typedef CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::add(c, i);
@@ -85,7 +85,7 @@ struct add_custom<0> {
 template <>  // add collections
 struct add_custom<1> {
     template <class T, class U>
-    static bool add(T& t, const U& u) {
+    static bool add(T& t,const U& u) {
         typedef CollectionAdapter<T> AdT;
         typedef CollectionAdapter<U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
@@ -191,7 +191,7 @@ struct StaticAdapter {
             return false;
         }
 
-        return add(c, args...);
+        return add(c,std::forward<Args>(args)...);
     }
 
     template <class T>
