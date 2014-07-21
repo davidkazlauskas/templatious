@@ -40,6 +40,15 @@ struct HybridVector {
     typedef typename ColMaker::Collection Collection;
     typedef typename templatious::adapters::CollectionAdapter<Collection*> Ad;
 
+    template <bool isConst>
+    struct HvIterator;
+
+    typedef HvIterator<false> Iterator;
+    typedef HvIterator<true> ConstIterator;
+
+    friend struct HvIterator<false>;
+    friend struct HvIterator<true>;
+
     static const size_t static_size = sz;
 
     static_assert(Ad::is_valid,
@@ -47,28 +56,22 @@ struct HybridVector {
 
     StatVector _s;
 
-    friend class HvIterator;
-
     HybridVector(T (&c)[static_size]) : _s(c), _a(nullptr) { }
 
     ~HybridVector() {
         delete _a;
     }
 
-    bool push(const T& e) {
+    template <class U>
+    bool push(U&& e) {
         if (!_s.isFull()) {
-            return _s.push(e);
+            return _s.push(
+                std::forward<U>(e));
         }
 
-        return Ad::add(extra());
-    }
-
-    bool push(T&& e) {
-        if (!_s.isFull()) {
-            return _s.push(e);
-        }
-
-        return Ad::add(extra(),e);
+        return Ad::add(
+            extra(),
+            std::forward<U>(e));
     }
 
     bool insert(ulong at,const T& e) {
@@ -105,7 +108,15 @@ struct HybridVector {
         }
     }
 
-    ulong size() {
+    Iterator begin() {
+        return Iterator(*this,0);
+    }
+
+    Iterator end() {
+        return Iterator(*this,getSize());
+    }
+
+    ulong getSize() const {
         return _s.getSize() + extraSize();
     }
 
@@ -174,7 +185,7 @@ private:
         return _a;
     }
 
-    ulong extraSize() {
+    ulong extraSize() const {
         if (nullptr == _a) {
             return 0;
         }
