@@ -34,6 +34,7 @@ template <class T,size_t sz,
 >
 struct HybridVector {
 
+    typedef HybridVector<T,sz,Additional,Alloc> ThisVector;
     typedef typename templatious::StaticVector<T,sz> StatVector;
     typedef typename templatious::adapters::CollectionMaker<T,Additional,Alloc> ColMaker;
     typedef typename ColMaker::Collection Collection;
@@ -41,11 +42,12 @@ struct HybridVector {
 
     static const size_t static_size = sz;
 
-    StatVector _s;
-    Collection* _a;
-
     static_assert(Ad::is_valid,
             "Adapter is invalid.");
+
+    StatVector _s;
+
+    friend class HvIterator;
 
     HybridVector(T (&c)[static_size]) : _s(c), _a(nullptr) { }
 
@@ -103,7 +105,66 @@ struct HybridVector {
         }
     }
 
+    ulong size() {
+        return _s.getSize() + extraSize();
+    }
+
+    template <bool isConst>
+    struct HvIterator {
+        typedef typename templatious::util::TypeSelector<
+            isConst,const T,T>::val ValType;
+        typedef HvIterator<isConst> Iterator;
+
+        HvIterator(ThisVector& v,ulong pos) {
+            _v = &v;
+            _pos = pos;
+            if (nullptr != _v->_a) {
+                _i = Ad::begin(_v->_a);
+            }
+        }
+
+        HvIterator& operator++() {
+            ++_pos;
+            if (_pos > _v->_s.getSize()) {
+                ++_i;
+            }
+
+            return *this;
+        }
+
+        bool operator==(const Iterator& rhs) const {
+            return _pos == rhs._pos;
+        }
+
+        bool operator!=(const Iterator& rhs) const {
+            return !(*this == rhs);
+        }
+
+        ValType& operator*() const {
+            if (_pos < _v->_s.getSize()) {
+                return _v->_s.at(_pos);
+            }
+
+            return *_i;
+        }
+
+        ValType* operator->() const {
+            if (_pos < _v->_s.getSize()) {
+                return &(_v->_s.at(_pos));
+            }
+
+            return &(*_i);
+        }
+
+    private:
+        ThisVector* _v;
+        ulong _pos;
+        typename Ad::iterator _i;
+
+    };
+
 private:
+    Collection* _a;
 
     Collection* extra() {
         if (nullptr == _a) {
@@ -111,6 +172,14 @@ private:
         }
 
         return _a;
+    }
+
+    ulong extraSize() {
+        if (nullptr == _a) {
+            return 0;
+        }
+
+        return Ad::getSize(_a);
     }
 
 };
