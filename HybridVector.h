@@ -108,6 +108,47 @@ struct HybridVector {
         }
     }
 
+    void erase(const Iterator& beg,const Iterator& end) {
+        assert(beg._pos < end._pos
+                && "Beggining iterator is greater than end.");
+        assert(end._pos <= getSize()
+                && "End iterator is out of bounds.");
+
+        bool statTrimmed = false;
+        if (end._pos < _s.getSize()) {
+            _s.erase(_s.iterAt(beg._pos),_s.iterAt(end._pos));
+
+            statTrimmed = true;
+        } else if (beg._pos < _s.getSize()) {
+            assert(extraSize() > 0
+                && "Dynamic collection has to contain something.");
+            _s.erase(_s.iterAt(beg._pos),_s.end());
+            Ad::erase(extra(), Ad::begin(extra()),
+                    Ad::iter_at(extra(),end._pos - static_size));
+
+            statTrimmed = true;
+        } else {
+            Ad::erase(extra(),
+                      Ad::iter_at(extra(), beg._pos - static_size),
+                      Ad::iter_at(extra(), end._pos - static_size));
+        }
+
+        if (statTrimmed && extraSize() > 0) {
+            auto i = Ad::begin(extra());
+            auto e = Ad::end(extra());
+            while (!_s.isFull() && i != e) {
+                _s.push(std::move(*i));
+                ++i;
+            }
+
+            Ad::erase(extra(),Ad::begin(extra()),i);
+        }
+    }
+
+    void erase(const Iterator& beg) {
+        erase(beg,end());
+    }
+
     Iterator begin() {
         return Iterator(*this,0);
     }
@@ -125,6 +166,8 @@ struct HybridVector {
         typedef typename templatious::util::TypeSelector<
             isConst,const T,T>::val ValType;
         typedef HvIterator<isConst> Iterator;
+
+        friend class HybridVector<T,sz,Additional,Alloc>;
 
         HvIterator(ThisVector& v,ulong pos) {
             _v = &v;

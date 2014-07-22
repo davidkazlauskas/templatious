@@ -83,6 +83,11 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.end();
 	}
 
+    static iterator iter_at(ThisCol& c,size_t pos) {
+        assert(c.size() >= pos && "Array index out of bounds.");
+        return c.begin() + pos;
+    }
+
 	static const_iterator begin(ConstCol& c) {
 		return c.cbegin();
 	}
