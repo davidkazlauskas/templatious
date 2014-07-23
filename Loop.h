@@ -339,7 +339,7 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ThisCol instantiate(int size) {
+    static ThisCol instantiate(size_t size) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
@@ -348,7 +348,7 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
 
 
     template <class U = int>
-    static iterator iter_at(ThisCol& c, int i) {
+    static iterator iter_at(ThisCol& c,size_t i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
@@ -356,7 +356,7 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
     }
 
     template <class U = int>
-    static const_iterator citer_at(ThisCol& c, int i) {
+    static const_iterator citer_at(ThisCol& c,size_t i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \

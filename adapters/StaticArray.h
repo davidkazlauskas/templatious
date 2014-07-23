@@ -48,11 +48,11 @@ struct CollectionAdapter< T[sz] > {
             "Add not supported as static array doesn't hold any state.");
     }
 
-    static value_type& getByIndex(T c[size], int i) {
+    static value_type& getByIndex(T c[size],size_t i) {
         return c[i];
     }
 
-    static const_value_type& getByIndex(const T c[size], int i) {
+    static const_value_type& getByIndex(const T c[size],size_t i) {
         return c[i];
     }
 
@@ -96,7 +96,7 @@ struct CollectionAdapter< T[sz] > {
         return &c[size];
     }
 
-    static iterator iter_at(T c[size], int i) {
+    static iterator iter_at(T c[size],size_t i) {
         return &c[i];
     }
 
@@ -108,7 +108,7 @@ struct CollectionAdapter< T[sz] > {
         return &c[size];
     }
 
-    static const_iterator citer_at(T c[size], int i) {
+    static const_iterator citer_at(T c[size],size_t i) {
         return &c[i];
     }
 

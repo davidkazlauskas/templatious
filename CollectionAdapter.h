@@ -226,7 +226,7 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static auto iterAt(T& c, int i)
+    static auto iterAt(T& c,size_t i)
         -> typename adapters::CollectionAdapter<T>::iterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -234,7 +234,7 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static auto citerAt(T& c, int i)
+    static auto citerAt(T& c,size_t i)
         -> typename adapters::CollectionAdapter<T>::const_iterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");

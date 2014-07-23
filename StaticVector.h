@@ -349,11 +349,23 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     }
 
     static iterator end(ThisCol& c) {
-        return c.begin();
+        return c.end();
     }
 
-    static iterator iter_at(ThisCol& c, int i) {
+    static iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static iterator iter_at(ThisCol& c,size_t i) {
         return c.iterAt(i);
+    }
+
+    static iterator iter_at(ConstCol& c,size_t i) {
+        return c.citerAt(i);
     }
 
     static const_iterator cbegin(ThisCol& c) {
@@ -364,7 +376,7 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.cend();
     }
 
-    static const_iterator citer_at(ThisCol& c, int i) {
+    static const_iterator citer_at(ThisCol& c,size_t i) {
         return c.citerAt(i);
     }
 

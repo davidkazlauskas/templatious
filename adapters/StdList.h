@@ -110,11 +110,37 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return true;
     }
 
-    static iterator iter_at(ThisCol& c,int i) {
+    static iterator iter_at(ThisCol& c,size_t i) {
         assert(getSize(c) > i);
 
         int count = 0;
         auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+
+    static const_iterator iter_at(ConstCol& c,size_t i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+
+    static const_iterator citer_at(ConstCol& c,size_t i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
         while (count < i) {
             ++iter;
             ++count;
@@ -239,6 +265,32 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 
     static const_value_type& last(ConstCol& c) {
         return c.back();
+    }
+
+    static const_iterator iter_at(ConstCol& c,size_t i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+
+    static const_iterator citer_at(ConstCol& c,size_t i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
     }
 
     template <class U>
