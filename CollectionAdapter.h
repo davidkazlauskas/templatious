@@ -46,6 +46,10 @@ struct CollectionAdapter {
     static iterator end(ThisCol& c);
     static iterator iter_at(ThisCol& c, size_t i);
 
+    static iterator begin(ConstCol& c);
+    static iterator end(ConstCol& c);
+    static iterator iter_at(ConstCol& c, size_t i);
+
     static const_iterator cbegin(ConstCol& c);
     static const_iterator cend(ConstCol& c);
     static const_iterator citer_at(ConstCol& c, size_t i);

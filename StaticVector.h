@@ -344,6 +344,22 @@ struct CollectionAdapter< StaticVector<T,sz> > {
                        because it uses static array memory.");
     }
 
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(int size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
     static iterator begin(ThisCol& c) {
         return c.begin();
     }

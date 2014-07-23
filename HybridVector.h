@@ -39,6 +39,7 @@ struct HybridVector {
     typedef typename templatious::adapters::CollectionMaker<T,Additional,Alloc> ColMaker;
     typedef typename ColMaker::Collection Collection;
     typedef typename templatious::adapters::CollectionAdapter<Collection*> Ad;
+    typedef T ValType;
 
     template <bool isConst>
     struct HvIterator;
@@ -74,7 +75,8 @@ struct HybridVector {
             std::forward<U>(e));
     }
 
-    bool insert(ulong at,const T& e) {
+    template <class U>
+    bool insert(ulong at,U&& e) {
         if (!_s.isFull()) {
             return _s.insert(at,e);
         }
@@ -91,21 +93,28 @@ struct HybridVector {
         }
     }
 
-    bool insert(ulong at,T&& e) {
-        if (!_s.isFull()) {
-            return _s.insert(at,e);
+    template <class U>
+    bool insert(const Iterator& at,U&& u) {
+        return insert(at._pos,u);
+    }
+
+    Iterator iterAt(ulong i) {
+        assert(i <= getSize());
+        return Iterator(*this,i);
+    }
+
+    ConstIterator citerAt(ulong i) {
+        assert(i <= getSize());
+        return ConstIterator(*this,i);
+    }
+
+    ValType& getByIndex(ulong i) {
+        if (i < _s.getSize()) {
+            return _s.getByIndex(i);
         }
 
-        if (at < static_size) {
-            Ad::insert_at(
-                    extra(),
-                    Ad::begin(extra()),
-                    _s.pop());
-            return _s.insert(at,e);
-        } else {
-            auto i = Ad::iter_at(extra(),at - static_size);
-            return Ad::insert_at(extra(),i,e);
-        }
+        return Ad::getByIndex(extra(),
+                i - _s.getSize());
     }
 
     void erase(const Iterator& beg,const Iterator& end) {
@@ -161,6 +170,13 @@ struct HybridVector {
         return _s.getSize() + extraSize();
     }
 
+    void clear() {
+        _s.clear();
+        if (extraExists()) {
+            Ad::clear(_a);
+        }
+    }
+
     template <bool isConst>
     struct HvIterator {
         typedef typename templatious::util::TypeSelector<
@@ -173,7 +189,12 @@ struct HybridVector {
             _v = &v;
             _pos = pos;
             if (nullptr != _v->_a) {
-                _i = Ad::begin(_v->_a);
+                if (_pos <= _v->_s.getSize()) {
+                    _i = Ad::begin(_v->_a);
+                } else {
+                    Ad::iter_at(_v->_a,
+                        _pos - _v->_s.getSize());
+                }
             }
         }
 
@@ -228,8 +249,12 @@ private:
         return _a;
     }
 
+    bool extraExists() const {
+        return nullptr == _a;
+    }
+
     ulong extraSize() const {
-        if (nullptr == _a) {
+        if (extraExists()) {
             return 0;
         }
 
@@ -237,6 +262,149 @@ private:
     }
 
 };
+
+namespace adapters {
+
+template <class T,size_t sz,
+         template <class...> class Additional,
+         template <class> class Alloc
+>
+struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
+
+    static const bool is_valid = true;
+
+    typedef HybridVector<T,sz,Additional,Alloc> ThisCol;
+    typedef const ThisCol ConstCol;
+    typedef typename ThisCol::Iterator iterator;
+    typedef typename ThisCol::ConstIterator const_iterator;
+    typedef T value_type;
+    typedef const value_type const_value_type;
+
+    template <class V>
+    static bool add(ThisCol& c, V&& i) {
+        return c.push(std::forward<V>(i));
+    }
+
+    template <class V>
+    static bool insert_at(ThisCol& c, iterator at, V&& i) {
+        return c.insert(at,std::forward<V>(i));
+    }
+
+    static value_type& getByIndex(ThisCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
+
+    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
+
+    static size_t getSize(ConstCol& c) {
+        return c.getSize();
+    }
+
+    static bool erase(ThisCol& c,const iterator& beg) {
+        c.erase(beg);
+        return true;
+    }
+
+    static bool erase(ThisCol& c, const iterator& beg,
+            const iterator& end)
+    {
+        c.erase(beg,end);
+        return true;
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    static iterator begin(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator end(ThisCol& c) {
+        return c.end();
+    }
+
+    static iterator iter_at(ThisCol& c, size_t i) {
+        return c.iterAt(i);
+    }
+
+    static const_iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator iter_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator citer_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static value_type& first(ThisCol& c) {
+        return c.getByIndex(0);
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.getByIndex(0);
+    }
+
+    static value_type& last(ThisCol& c) {
+        return c.getByIndex(c.getSize() - 1);
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.getByIndex(c.getSize() - 1);
+    }
+
+    static void clear(ThisCol& c) {
+        return c.clear();
+    }
+
+};
+
+}
 
 }
 
