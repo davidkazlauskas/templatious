@@ -404,6 +404,130 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
 
 };
 
+template <class T,size_t sz,
+         template <class...> class Additional,
+         template <class> class Alloc
+>
+struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
+
+    static const bool is_valid = true;
+
+    typedef const HybridVector<T,sz,Additional,Alloc> ThisCol;
+    typedef ThisCol ConstCol;
+    typedef typename ThisCol::ConstIterator iterator;
+    typedef typename ThisCol::ConstIterator const_iterator;
+    typedef const T value_type;
+    typedef const T const_value_type;
+
+    template <class V>
+    static bool add(ThisCol& c, V&& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<V, false>::val,
+                      "Const collection doesn't support add.");
+    }
+
+    template <class V>
+    static bool insert_at(ThisCol& c, iterator at, V&& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<V, false>::val,
+                      "Const collection doesn't support insert.");
+    }
+
+    template <class U = int>
+    static const_value_type& getByIndex(ThisCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
+
+    static size_t getSize(ConstCol& c) {
+        return c.getSize();
+    }
+
+    template <class U = int>
+    static bool erase(ThisCol& c, iterator beg) { 
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Const collection doesn't support erase.");
+    }
+
+    template <class U = int>
+    static bool erase(ThisCol& c, iterator beg, iterator end) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Const collection doesn't support erase.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "HybridVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    static const_iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator end(ConstCol& c) {
+        return c.cend();
+    }
+    static const_iterator iter_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator citer_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.getByIndex(0);
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.getByIndex(c.getSize() - 1);
+    }
+
+    template <class U = int>
+    static void clear(ConstCol& c) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Const collection doesn't support clear.");
+    }
+
+};
+
 }
 
 }
