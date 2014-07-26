@@ -18,7 +18,7 @@ struct StaticManipulator {
 
      template <class F,class ITER,class Index>
      struct IteratorCaller<F, ITER, false, Index> {
-         static auto call(F&& f, const Index& idx, ITER&& i)
+         static auto call(F&& f, Index idx, ITER&& i)
              -> decltype(i.callFunction(std::forward<F>(f)))
          {
              return i.callFunction(std::forward<F>(f));
@@ -27,12 +27,11 @@ struct StaticManipulator {
 
      template <class F,class ITER,class Index>
      struct IteratorCaller<F, ITER, true, Index> {
-         static auto call(F&& f, const Index& idx, ITER&& i)
+         static auto call(F&& f, Index idx, ITER&& i)
              -> decltype(i.callFunction(std::forward<F>(f),
                          idx))
          {
-             return i.callFunction(
-                     std::forward<F>(f),idx);
+             return i.callFunction(std::forward<F>(f),idx);
          }
      };
 
@@ -169,12 +168,6 @@ struct StaticManipulator {
         return std::move(result);
     }
 
-    //template <bool passIndex = false, class U, class... Args>
-    //static void traverse(U&& fn, Args&&... args) {
-        ////traverseInternal<passIndex>(fn,templatious::ref(std::forward<Args>(args))...);
-        //traverseInternal<passIndex>(fn,args...);
-    //} // Artefacts ftw
-
     template <bool passIndex = false, class U, class... Args>
     static void traverse(U&& fn, Args&&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
@@ -188,19 +181,25 @@ struct StaticManipulator {
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        size_t size = SA::getSize(ut::getFirst(std::forward<Args>(args)...));
-        for (size_t i = 0; i < size; ++i) {
+        auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
+        size_t idx;
+        if (passIndex) {
+            idx = 0;
+        }
+
+        for (; it._a != e; it.inc()) {
             typedef typename ut::RetValSelector<
                 decltype(
-                    ICall::call(std::forward<U>(fn),i,std::forward<Iter>(it))
+                    ICall::call(std::forward<U>(fn),idx,std::forward<Iter>(it))
                 ) > Sel;
 
             if (!Sel::callAndEval(
-                ICall::call,std::forward<U>(fn),i,std::forward<Iter>(it))) 
-            {
-                return;
+                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it))) 
+            { return; }
+
+            if (passIndex) {
+                ++idx;
             }
-            it.inc();
         }
     }
 

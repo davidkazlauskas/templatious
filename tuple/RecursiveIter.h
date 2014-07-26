@@ -74,6 +74,7 @@ struct RecursiveIterator<A> {
     {
         return f(std::forward<Args>(args)..., std::forward<ValType>(*_a));
     }
+
 };
 
 template <class A, class... Tail>
@@ -139,6 +140,7 @@ struct RecursiveIterator<A, Tail...> {
                 std::forward<Args>(args)...,
                 std::forward<ValType>(*_a));
     }
+
 };
 
 }

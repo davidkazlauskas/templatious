@@ -23,7 +23,7 @@ namespace templatious {
 namespace util {
 
 template <class T, class... Args>
-T& getFirst(T& t, Args&... args) {
+T&& getFirst(T&& t, Args&&... args) {
     return t;
 }
 
