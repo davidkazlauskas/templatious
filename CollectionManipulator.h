@@ -157,12 +157,22 @@ struct StaticManipulator {
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
         size_t size = SA::getSize(ut::getFirst(std::forward<Args>(args)...));
+        auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
         auto result = CA::instantiate(size);
-        for (size_t i = 0; i < size; ++i) {
+
+        size_t idx;
+        if (passIndex) {
+            idx = 0;
+        }
+
+        for (; it._a != e; it.inc()) {
             CA::add(result,
                     ICall::call(std::forward<U>(fn),
-                    i,std::forward<Iter>(it)));
-            it.inc();
+                    idx,std::forward<Iter>(it)));
+
+            if (passIndex) {
+                ++idx;
+            }
         }
 
         return std::move(result);

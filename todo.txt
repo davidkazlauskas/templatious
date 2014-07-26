@@ -19,6 +19,7 @@ features:
 #15. foreach
 #16. traverse static arrays with foreach
 17. adapters for StaticVector HybridVector
+18. variadic template function to call function on var arg [ t(f,a1,a2,a3...)]
 
 compatibility:
 
