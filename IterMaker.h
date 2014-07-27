@@ -19,7 +19,8 @@
 #ifndef ITERMAKER_W1WSUFYD
 #define ITERMAKER_W1WSUFYD
 
-#include <templatious/tuple/RecursiveIter.h>
+#include <templatious/recursive/RecursiveIter.h>
+#include <templatious/recursive/QuadroIter.h>
 #include <templatious/TupleCaller.h>
 
 namespace templatious {

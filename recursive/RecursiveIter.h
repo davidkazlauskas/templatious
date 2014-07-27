@@ -27,7 +27,6 @@ namespace templatious {
 namespace recursive {
 
 namespace col = templatious::adapters;
-typedef templatious::StaticAdapter SA;
 
 template <class... Args>
 struct RecursiveIterator;
@@ -36,6 +35,7 @@ template <class A>
 struct RecursiveIterator<A> {
     enum { num = 1 };
 
+    typedef RecursiveIterator<A> ThisIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
     typedef decltype(*Iterator()) ValType;
@@ -44,7 +44,7 @@ struct RecursiveIterator<A> {
     Iterator _a;
 
     template <class U>
-    RecursiveIterator(U&& a) : _a(SA::begin(std::forward<U>(a))) {
+    RecursiveIterator(U&& a) : _a(Adapter::begin(std::forward<U>(a))) {
         //std::cout << "rec iter - " << a << std::endl;
     }
 
@@ -55,6 +55,11 @@ struct RecursiveIterator<A> {
     void print_enum() { std::cout << num << std::endl; }
 
     void inc() { ++_a; }
+
+    ThisIter& operator++() {
+        inc();
+        return *this;
+    }
 
     template <int i = 0, class T>
     void setTuple(T& c) const {
@@ -82,6 +87,7 @@ struct RecursiveIterator<A, Tail...> {
     enum { num = RecursiveIterator<Tail...>::num + 1 };
 
 
+    typedef RecursiveIterator<A, Tail...> ThisIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
     typedef decltype(*Iterator()) ValType;
@@ -93,7 +99,7 @@ struct RecursiveIterator<A, Tail...> {
 
     template <class U,class... TailC>
     RecursiveIterator(U&& a, TailC&&... args) :
-        _a(SA::begin(std::forward<U>(a))),
+        _a(Adapter::begin(std::forward<U>(a))),
         _t(std::forward<TailC>(args)...) { }
 
     void print() {
@@ -121,6 +127,11 @@ struct RecursiveIterator<A, Tail...> {
     void inc() {
         ++_a;
         _t.inc();
+    }
+
+    ThisIter& operator++() {
+        inc();
+        return *this;
     }
 
     template <class F>
