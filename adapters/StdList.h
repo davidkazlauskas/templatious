@@ -111,7 +111,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static iterator iter_at(ThisCol& c,size_t i) {
-        assert(getSize(c) > i);
+        assert(getSize(c) >= i);
 
         int count = 0;
         auto iter = begin(c);
@@ -124,7 +124,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static const_iterator iter_at(ConstCol& c,size_t i) {
-        assert(getSize(c) > i);
+        assert(getSize(c) >= i);
 
         int count = 0;
         auto iter = cbegin(c);
@@ -137,7 +137,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static const_iterator citer_at(ConstCol& c,size_t i) {
-        assert(getSize(c) > i);
+        assert(getSize(c) >= i);
 
         int count = 0;
         auto iter = cbegin(c);
