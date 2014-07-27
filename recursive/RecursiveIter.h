@@ -19,6 +19,7 @@
 #ifndef RECURSIVEITER_4VX65VTM
 #define RECURSIVEITER_4VX65VTM
 
+#include <type_traits>
 #include <tuple>
 
 #include <templatious/CollectionAdapter.h>
@@ -44,8 +45,12 @@ struct RecursiveIterator<A> {
     Iterator _a;
 
     template <class U>
-    RecursiveIterator(U&& a) : _a(Adapter::begin(std::forward<U>(a))) {
-        //std::cout << "rec iter - " << a << std::endl;
+    RecursiveIterator(U&& a) :
+        _a(Adapter::begin(std::forward<U>(a)))
+    {
+        static_assert(std::is_same<U,A>::value,
+                "Collection passed to constructor differs \
+                from the collection this iterator should take");
     }
 
     void print() {
@@ -100,7 +105,12 @@ struct RecursiveIterator<A, Tail...> {
     template <class U,class... TailC>
     RecursiveIterator(U&& a, TailC&&... args) :
         _a(Adapter::begin(std::forward<U>(a))),
-        _t(std::forward<TailC>(args)...) { }
+        _t(std::forward<TailC>(args)...)
+    {
+        static_assert(std::is_same<U,A>::value,
+                "Collection passed to constructor differs \
+                from the collection this iterator should take");
+    }
 
     void print() {
         std::cout << *_a << std::endl;
@@ -144,7 +154,9 @@ struct RecursiveIterator<A, Tail...> {
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args)
         -> decltype(_t.callFunction(
-        std::forward<F>(f), std::forward<Args>(args)..., std::forward<ValType>(*_a)))
+        std::forward<F>(f),
+        std::forward<Args>(args)...,
+        std::forward<ValType>(*_a)))
     {
         return _t.callFunction(
                 std::forward<F>(f),
