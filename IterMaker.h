@@ -19,6 +19,8 @@
 #ifndef ITERMAKER_W1WSUFYD
 #define ITERMAKER_W1WSUFYD
 
+#include <utility>
+
 #include <templatious/recursive/RecursiveIter.h>
 #include <templatious/recursive/QuadroIter.h>
 #include <templatious/TupleCaller.h>
@@ -31,6 +33,12 @@ struct IteratorMaker {
     static auto makeIter(Args&&... args) -> RecursiveIterator<Args...>
     {
         return RecursiveIterator<Args...>(std::forward<Args>(args)...);
+    }
+
+    template <class... Args>
+    static auto makeQuadro(Args&&... args) -> QuadroIterator<Args...>
+    {
+        return QuadroIterator<Args...>(std::forward<Args>(args)...);
     }
 };
 

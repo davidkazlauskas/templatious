@@ -36,13 +36,13 @@ struct QuadroIterator<A> {
     typedef typename Adapter::iterator Iterator;
     typedef decltype(*Iterator()) ValType;
 
-    A* _c;
+    A& _c;
     Iterator _i;
     Iterator _e;
 
     template <class T>
     QuadroIterator(T&& t) :
-        _c(&t),
+        _c(t),
         _i(Adapter::begin(t)),
         _e(Adapter::end(t))
     {
@@ -89,14 +89,14 @@ struct QuadroIterator<A, Tail...> {
     typedef typename Adapter::iterator Iterator;
     typedef decltype(*Iterator()) ValType;
 
-    A* _c;
+    A& _c;
     Iterator _i;
     Iterator _e;
     TailIter _t;
 
     template <class T,class... TailC>
     QuadroIterator(T&& t,TailC&&... tail) :
-        _c(&t),
+        _c(t),
         _i(Adapter::begin(std::forward<T>(t))),
         _e(Adapter::end(std::forward<T>(t))),
         _t(std::forward<TailC>(tail)...)
@@ -108,6 +108,7 @@ struct QuadroIterator<A, Tail...> {
 
     bool inc() {
         if (_t.inc()) {
+            _t.reset();
             ++_i;
             if (_i == _e) {
                 return true;

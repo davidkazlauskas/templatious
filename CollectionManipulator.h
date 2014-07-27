@@ -184,7 +184,6 @@ struct StaticManipulator {
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::StaticAdapter SA;
-        namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
@@ -211,6 +210,36 @@ struct StaticManipulator {
                 ++idx;
             }
         }
+    }
+
+    template <bool passIndex = false, class U, class... Args>
+    static void quadro(U&& fn, Args&&... args) {
+        typedef typename templatious::recursive::IteratorMaker ItMk;
+        typedef typename templatious::StaticAdapter SA;
+        namespace ut = templatious::util;
+
+        auto it = ItMk::makeQuadro(std::forward<Args>(args)...);
+        typedef decltype(it) Iter;
+        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+
+        size_t idx;
+        if (passIndex) {
+            idx = 0;
+        }
+
+        do {
+            typedef typename ut::RetValSelector<
+                decltype(
+                    ICall::call(std::forward<U>(fn),idx,std::forward<Iter>(it))
+                ) > Sel;
+            if (!Sel::callAndEval(
+                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it)))
+            { return; }
+
+            if (passIndex) {
+                ++idx;
+            }
+        } while (!it.inc());
     }
 
     template <class T,class U,class Comp = templatious::util::ComparatorEq<U,U,templatious::util::Default> >
