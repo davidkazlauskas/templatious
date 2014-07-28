@@ -100,8 +100,8 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return *iter;
     }
 
-    static bool erase(ThisCol& c,iterator beg) {
-        c.erase(beg);
+    static bool erase(ThisCol& c,iterator pos) {
+        c.erase(pos);
         return true;
     }
 
@@ -248,7 +248,7 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
     }
 
     template <class U>
-    static bool erase(ThisCol& c,iterator beg) {
+    static bool erase(ThisCol& c,iterator pos) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }

@@ -162,8 +162,8 @@ struct StaticVector {
         _cnt -= (end._iter - beg._iter);
     }
 
-    void erase(const Iterator& beg) {
-        erase(beg,end());
+    void erase(const Iterator& i) {
+        erase(i,Iterator(_vct,_cnt,i._iter + 1));
     }
 
     T& at(ulong pos) const {
@@ -324,8 +324,8 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.getSize();
     }
 
-    static bool erase(ThisCol& c, iterator beg) {
-        c.erase(beg);
+    static bool erase(ThisCol& c, iterator pos) {
+        c.erase(pos);
         return true;
     }
 

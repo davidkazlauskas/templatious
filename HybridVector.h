@@ -154,8 +154,8 @@ struct HybridVector {
         }
     }
 
-    void erase(const Iterator& beg) {
-        erase(beg,end());
+    void erase(const Iterator& pos) {
+        erase(pos,++Iterator(pos));
     }
 
     Iterator begin() {
@@ -302,8 +302,8 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.getSize();
     }
 
-    static bool erase(ThisCol& c,const iterator& beg) {
-        c.erase(beg);
+    static bool erase(ThisCol& c,const iterator& pos) {
+        c.erase(pos);
         return true;
     }
 
@@ -443,7 +443,7 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     }
 
     template <class U = int>
-    static bool erase(ThisCol& c, iterator beg) { 
+    static bool erase(ThisCol& c, iterator pos) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
