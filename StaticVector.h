@@ -81,7 +81,7 @@ struct StaticVector {
     }
 
     template <class V>
-    bool insert(Iterator at,T&& e) {
+    bool insert(Iterator at,V&& e) {
         return insert(at._iter,std::forward<V>(e));
     }
 
@@ -198,6 +198,10 @@ struct StaticVector {
 
     ConstIter cend() const {
         return Iterator(_vct,_cnt,_cnt);
+    }
+
+    void clear() {
+        _cnt = 0;
     }
 
     template <bool isConst>
@@ -321,11 +325,13 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     }
 
     static bool erase(ThisCol& c, iterator beg) {
-        return c.erase(beg);
+        c.erase(beg);
+        return true;
     }
 
     static bool erase(ThisCol& c, iterator beg, iterator end) {
-        return c.erase(beg,end);
+        c.erase(beg,end);
+        return true;
     }
 
     template <class U = int>
