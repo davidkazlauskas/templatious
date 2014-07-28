@@ -124,12 +124,12 @@ struct StaticVector {
     }
 
     Iterator iterAt(ulong pos) const {
-        assert(pos < _cnt && "Position cannot be greater than size");
+        assert(pos <= _cnt && "Position cannot be greater than size");
         return Iterator(_vct,_cnt,pos);
     }
 
     ConstIter citerAt(ulong pos) const {
-        assert(pos < _cnt && "Position cannot be greater than size");
+        assert(pos <= _cnt && "Position cannot be greater than size");
         return ConstIter(_vct,_cnt,pos);
     }
 

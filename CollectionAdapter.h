@@ -223,10 +223,19 @@ struct StaticAdapter {
 
     template <class T>
     static bool erase(T& c,
-                      typename adapters::CollectionAdapter<T>::iterator beg) {
+                      typename adapters::CollectionAdapter<T>::iterator pos) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::erase(c, beg);
+        return Ad::erase(c, pos);
+    }
+
+    template <class T>
+    static bool eraseTillEnd(T& c,
+         typename adapters::CollectionAdapter<T>::iterator pos)
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::erase(c, pos, Ad::end(c));
     }
 
     template <class T>
