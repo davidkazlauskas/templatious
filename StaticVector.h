@@ -50,39 +50,34 @@ struct StaticVector {
     }
 
     template <class V>
-    bool push(V&& e) {
-        if (isFull()) {
-            return false;
-        }
+    void push(V&& e) {
+        assert(!isFull() && "Trying to push to a full vector.");
 
         _vct[_cnt++] = std::forward<V>(e);
-        return true;
     }
 
     template <class V>
-    bool push_first(V&& e) {
-        return insert(0,std::forward<V>(e));
+    void push_first(V&& e) {
+        insert(0,std::forward<V>(e));
     }
 
     template <class V>
-    bool insert(ulong at,V&& e) {
-        if (isFull()) {
-            return false;
-        }
-
+    void insert(ulong at,V&& e) {
+        assert(!isFull() && "Trying to insert to a full vector.");
         assert(at <= _cnt && "Insertion point cannot be past the end of the vector.");
 
         ++_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(at+1,_cnt).rev()) {
+        TEMPLATIOUS_FOREACH(auto i,
+            templatious::LoopL<ulong>(at+1,_cnt).rev())
+        {
             _vct[i] = std::move(_vct[i - 1]);
         }
         _vct[at] = std::forward<V>(e);
-        return true;
     }
 
     template <class V>
-    bool insert(Iterator at,V&& e) {
-        return insert(at._iter,std::forward<V>(e));
+    void insert(Iterator at,V&& e) {
+        insert(at._iter,std::forward<V>(e));
     }
 
     bool pop(T& out) {
@@ -303,13 +298,13 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     typedef const T const_value_type;
 
     template <class V>
-    static bool add(ThisCol& c, V&& i) {
-        return c.push(std::forward<V>(i));
+    static void add(ThisCol& c, V&& i) {
+        c.push(std::forward<V>(i));
     }
 
     template <class V>
-    static bool insert_at(ThisCol& c, iterator at,V&& i) {
-        return c.insert(at,std::forward<V>(i));
+    static void insert_at(ThisCol& c, iterator at,V&& i) {
+        c.insert(at,std::forward<V>(i));
     }
 
     static value_type& getByIndex(ThisCol& c, int i) {
@@ -324,14 +319,12 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.getSize();
     }
 
-    static bool erase(ThisCol& c, iterator pos) {
+    static void erase(ThisCol& c, iterator pos) {
         c.erase(pos);
-        return true;
     }
 
-    static bool erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, iterator beg, iterator end) {
         c.erase(beg,end);
-        return true;
     }
 
     template <class U = int>
@@ -420,6 +413,10 @@ struct CollectionAdapter< StaticVector<T,sz> > {
 
     static void clear(ThisCol& c) {
         return c.clear();
+    }
+
+    static bool canAdd(ThisCol& c) {
+        return !(c.isFull());
     }
 };
 }

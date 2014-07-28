@@ -38,13 +38,13 @@ struct CollectionAdapter<T*> {
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V>
-    static bool add(ThisCol c, V&& i) {
-        return Inner::add(*c,i);
+    static void add(ThisCol c, V&& i) {
+        Inner::add(*c,i);
     }
 
     template <class V>
-    static bool insert_at(ThisCol c,iterator at,V&& i) {
-        return Inner::insert_at(*c,at,i);
+    static void insert_at(ThisCol c,iterator at,V&& i) {
+        Inner::insert_at(*c,at,i);
     }
 
     static value_type& getByIndex(ThisCol c,size_t i) {
@@ -59,12 +59,12 @@ struct CollectionAdapter<T*> {
         return Inner::getSize(*c);
     }
 
-    static bool erase(ThisCol c, iterator beg) {
-        return Inner::erase(*c,beg);
+    static void erase(ThisCol c, iterator beg) {
+        Inner::erase(*c,beg);
     }
 
-    static bool erase(ThisCol c, iterator beg, iterator end) {
-        return Inner::erase(*c,beg,end);
+    static void erase(ThisCol c, iterator beg, iterator end) {
+        Inner::erase(*c,beg,end);
     }
 
     static ThisCol instantiate() {
@@ -133,13 +133,13 @@ struct CollectionAdapter<const T*> {
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V,class U = int>
-    static bool add(ThisCol c, V&& i) {
+    static void add(ThisCol c, V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class V,class U = int>
-    static bool insert_at(ThisCol c,iterator at,V&& i) {
+    static void insert_at(ThisCol c,iterator at,V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -153,13 +153,13 @@ struct CollectionAdapter<const T*> {
     }
 
     template <class U = int>
-    static bool erase(ThisCol c, iterator beg) {
+    static void erase(ThisCol c, iterator beg) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U = int>
-    static bool erase(ThisCol c, iterator beg, iterator end) {
+    static void erase(ThisCol c, iterator beg, iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -224,13 +224,13 @@ struct CollectionAdapter<T&> {
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V>
-    static bool add(ThisCol c, V&& i) {
-        return Inner::add(c,i);
+    static void add(ThisCol c, V&& i) {
+        Inner::add(c,i);
     }
 
     template <class V>
-    static bool insert_at(ThisCol c,iterator at,V&& i) {
-        return Inner::insert_at(c,at,i);
+    static void insert_at(ThisCol c,iterator at,V&& i) {
+        Inner::insert_at(c,at,i);
     }
 
     static value_type& getByIndex(ThisCol c,size_t i) {
@@ -245,12 +245,12 @@ struct CollectionAdapter<T&> {
         return Inner::getSize(c);
     }
 
-    static bool erase(ThisCol c, iterator beg) {
-        return Inner::erase(c,beg);
+    static void erase(ThisCol c, iterator beg) {
+        Inner::erase(c,beg);
     }
 
-    static bool erase(ThisCol c, iterator beg, iterator end) {
-        return Inner::erase(c,beg,end);
+    static void erase(ThisCol c, iterator beg, iterator end) {
+        Inner::erase(c,beg,end);
     }
 
     static ThisCol instantiate() {
@@ -319,13 +319,13 @@ struct CollectionAdapter<const T&> {
     typedef typename Inner::const_value_type const_value_type;
 
     template <class V,class U = int>
-    static bool add(ThisCol c, V&& i) {
+    static void add(ThisCol c, V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class V,class U = int>
-    static bool insert_at(ThisCol c,iterator at,V&& i) {
+    static void insert_at(ThisCol c,iterator at,V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -339,13 +339,13 @@ struct CollectionAdapter<const T&> {
     }
 
     template <class U = int>
-    static bool erase(ThisCol c, iterator beg) {
+    static void erase(ThisCol c, iterator beg) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U = int>
-    static bool erase(ThisCol c, iterator beg, iterator end) {
+    static void erase(ThisCol c, iterator beg, iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }

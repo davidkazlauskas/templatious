@@ -40,15 +40,13 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 	typedef const T const_value_type;
 
     template <class V>
-	static bool add(ThisCol& c,V&& i) {
+	static void add(ThisCol& c,V&& i) {
 		c.push_back(std::forward<V>(i));
-		return true;
 	}
 
     template <class V>
-    static bool insert_at(ThisCol& c,iterator at,V&& v) {
+    static void insert_at(ThisCol& c,iterator at,V&& v) {
         c.insert(at,std::forward<V>(v));
-        return true;
     }
 
 	static ThisCol instantiate() {
@@ -100,14 +98,12 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return *iter;
     }
 
-    static bool erase(ThisCol& c,iterator pos) {
+    static void erase(ThisCol& c,iterator pos) {
         c.erase(pos);
-        return true;
     }
 
-    static bool erase(ThisCol& c,iterator beg,iterator end) {
+    static void erase(ThisCol& c,iterator beg,iterator end) {
         c.erase(beg,end);
-        return true;
     }
 
     static iterator iter_at(ThisCol& c,size_t i) {
@@ -168,6 +164,10 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     static void clear(ThisCol& c) {
         c.clear();
     }
+
+    static bool canAdd(ThisCol& c) {
+        return true;
+    }
 };
 
 
@@ -184,13 +184,13 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 	typedef const T const_value_type;
 
     template <class V,class U = int>
-	static bool add(ThisCol& c,V&& i) {
+	static void add(ThisCol& c,V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
 	}
 
     template <class V,class U = int>
-    static bool insert_at(ThisCol& c, iterator at, V&& v) {
+    static void insert_at(ThisCol& c, iterator at, V&& v) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -248,13 +248,13 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
     }
 
     template <class U>
-    static bool erase(ThisCol& c,iterator pos) {
+    static void erase(ThisCol& c,iterator pos) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U>
-    static bool erase(ThisCol& c,iterator beg,iterator end) {
+    static void erase(ThisCol& c,iterator beg,iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -297,6 +297,10 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
     static void clear(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
+    }
+
+    static bool canAdd(ThisCol& c) {
+        return false;
     }
 
 };

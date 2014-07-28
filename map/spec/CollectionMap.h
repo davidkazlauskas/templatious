@@ -95,7 +95,8 @@ struct CollectionMap {
             }
         }
         
-        return SA::add(_col,std::make_pair(k,v));
+        SA::add(_col,std::make_pair(k,v));
+        return true;
     }
 
     void clear() {

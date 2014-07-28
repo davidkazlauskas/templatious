@@ -25,17 +25,17 @@ struct CollectionAdapter {
     typedef const void* const_value_type;
 
     template <class V>
-    static bool add(ThisCol& c, V&& i);
+    static void add(ThisCol& c, V&& i);
     template <class V>
-    static bool insert_at(ThisCol& c, iterator at, V&& i);
+    static void insert_at(ThisCol& c, iterator at, V&& i);
 
     static value_type& getByIndex(ThisCol& c, size_t i);
     static const_value_type& getByIndex(ConstCol& c, size_t i);
 
     static size_t getSize(ConstCol& c);
 
-    static bool erase(ThisCol& c, iterator beg);
-    static bool erase(ThisCol& c, iterator beg, iterator end);
+    static void erase(ThisCol& c, iterator beg);
+    static void erase(ThisCol& c, iterator beg, iterator end);
 
     static ThisCol instantiate();
     static ThisCol instantiate(size_t size);
@@ -60,6 +60,7 @@ struct CollectionAdapter {
     static const value_type& last(ConstCol& c);
 
     static void clear(ThisCol& c);
+    static bool canAdd(ConstCol& c);
 };
 
 template <class T, class U>
@@ -79,43 +80,35 @@ struct add_custom;
 template <>  // add data one by one
 struct add_custom<0> {
     template <class T>
-    static bool add(T& c,typename CollectionAdapter<T>::const_value_type& i) {
+    static void add(T& c,typename CollectionAdapter<T>::const_value_type& i) {
         typedef CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::add(c, i);
+        Ad::add(c, i);
     }
 };
 
 template <>  // add collections
 struct add_custom<1> {
     template <class T, class U>
-    static bool add(T& t,const U& u) {
+    static void add(T& t,const U& u) {
         typedef CollectionAdapter<T> AdT;
         typedef CollectionAdapter<U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
         static_assert(AdU::is_valid, "Adapter not supported.");
         for (auto i = AdU::begin(u); i != AdU::end(u); ++i) {
-            if (!AdT::add(t, *i)) {
-                return false;
-            }
+            AdT::add(t, *i);
         }
-
-        return true;
     }
 };
 
 template <>  // add static arrays
 struct add_custom<2> {
     template <class T, class Arr, unsigned long count>
-    static bool add(T& c, const Arr (&arr)[count]) {
+    static void add(T& c, const Arr (&arr)[count]) {
         typedef CollectionAdapter<T> Ad;
         for (int i = 0; i < count; ++i) {
-            if (!Ad::add(c, arr[i])) {
-                return false;
-            }
+            Ad::add(c, arr[i]);
         }
-
-        return true;
     }
 };
 }
@@ -153,33 +146,28 @@ struct StaticAdapter {
     }
 
     template <class T, class U>
-    static bool add(T& c, const std::initializer_list<U>& o) {
+    static void add(T& c, const std::initializer_list<U>& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         for (auto i = o.begin(); i != o.end(); ++i) {
-            if (!Ad::add(c,*i)) {
-                return false;
-            }
+            Ad::add(c,*i);
         }
-        return true;
     }
 
     template <class T, class U>
-    static bool add(T& c, U&& o) {
+    static void add(T& c, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return adapters::add_custom<
+        adapters::add_custom<
                 adapters::AdditionSelector<T, U>::val
             >::add(c, std::forward<U>(o));
     }
 
     template <class T, class U, class... Args>
-    static bool add(T& c, U&& o, Args&&... args) {
-        if (!add(c, std::forward<U>(o))) {
-            return false;
-        }
+    static void add(T& c, U&& o, Args&&... args) {
+        add(c, std::forward<U>(o));
 
-        return add(c,std::forward<Args>(args)...);
+        add(c,std::forward<Args>(args)...);
     }
 
     template <class T>
@@ -212,30 +200,30 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static bool erase(T& c,
+    static void erase(T& c,
                       typename adapters::CollectionAdapter<T>::iterator beg,
                       typename adapters::CollectionAdapter<T>::iterator end) 
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::erase(c, beg, end);
+        Ad::erase(c, beg, end);
     }
 
     template <class T>
-    static bool erase(T& c,
+    static void erase(T& c,
                       typename adapters::CollectionAdapter<T>::iterator pos) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::erase(c, pos);
+        Ad::erase(c, pos);
     }
 
     template <class T>
-    static bool eraseTillEnd(T& c,
+    static void eraseTillEnd(T& c,
          typename adapters::CollectionAdapter<T>::iterator pos)
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::erase(c, pos, Ad::end(c));
+        Ad::erase(c, pos, Ad::end(c));
     }
 
     template <class T>
@@ -255,13 +243,13 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static bool insert(
+    static void insert(
         T& c, typename adapters::CollectionAdapter<T>::iterator at,
         const typename adapters::CollectionAdapter<T>::value_type& val) 
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::insert_at(c,at,val);
+        Ad::insert_at(c,at,val);
     }
 
     template <class T>
@@ -272,7 +260,7 @@ struct StaticAdapter {
     }
 
     template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
-    static bool sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
+    static void sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         typedef typename Ad::value_type ValType;
@@ -281,25 +269,24 @@ struct StaticAdapter {
         auto comp = templatious::util::rev<reverse>(Comparator());
 
         if (0 == Ad::getSize(c)) {
-            return Ad::add(c,val);
+            Ad::add(c,val);
         }
 
         if (0 >= comp(Ad::last(c),val)) {
-            return Ad::add(c,val);
+            Ad::add(c,val);
         }
 
         if (0 <= comp(Ad::first(c),val)) {
-            return Ad::insert_at(c,Ad::begin(c),val);
+            Ad::insert_at(c,Ad::begin(c),val);
         }
 
         for (auto i = Ad::begin(c); i != Ad::end(c); ++i) {
             if (0 <= comp(*i,val)) {
-                return Ad::insert_at(c,i,val);
+                Ad::insert_at(c,i,val);
             }
         }
 
         assert(false);
-
     }
 
 };

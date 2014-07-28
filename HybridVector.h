@@ -64,21 +64,19 @@ struct HybridVector {
     }
 
     template <class U>
-    bool push(U&& e) {
+    void push(U&& e) {
         if (!_s.isFull()) {
-            return _s.push(
-                std::forward<U>(e));
+            _s.push(std::forward<U>(e));
         }
 
-        return Ad::add(
-            extra(),
+        Ad::add(extra(),
             std::forward<U>(e));
     }
 
     template <class U>
-    bool insert(ulong at,U&& e) {
+    void insert(ulong at,U&& e) {
         if (!_s.isFull()) {
-            return _s.insert(at,e);
+            _s.insert(at,e);
         }
 
         if (at < static_size) {
@@ -86,16 +84,16 @@ struct HybridVector {
                     extra(),
                     Ad::begin(extra()),
                     _s.pop());
-            return _s.insert(at,e);
+            _s.insert(at,e);
         } else {
             auto i = Ad::iter_at(extra(),at - static_size);
-            return Ad::insert_at(extra(),i,e);
+            Ad::insert_at(extra(),i,e);
         }
     }
 
     template <class U>
-    bool insert(const Iterator& at,U&& u) {
-        return insert(at._pos,u);
+    void insert(const Iterator& at,U&& u) {
+        insert(at._pos,u);
     }
 
     Iterator iterAt(ulong i) {
@@ -293,13 +291,13 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
     typedef const value_type const_value_type;
 
     template <class V>
-    static bool add(ThisCol& c, V&& i) {
-        return c.push(std::forward<V>(i));
+    static void add(ThisCol& c, V&& i) {
+        c.push(std::forward<V>(i));
     }
 
     template <class V>
-    static bool insert_at(ThisCol& c, iterator at, V&& i) {
-        return c.insert(at,std::forward<V>(i));
+    static void insert_at(ThisCol& c, iterator at, V&& i) {
+        c.insert(at,std::forward<V>(i));
     }
 
     static value_type& getByIndex(ThisCol& c, size_t i) {
@@ -314,16 +312,14 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.getSize();
     }
 
-    static bool erase(ThisCol& c,const iterator& pos) {
+    static void erase(ThisCol& c,const iterator& pos) {
         c.erase(pos);
-        return true;
     }
 
-    static bool erase(ThisCol& c, const iterator& beg,
+    static void erase(ThisCol& c, const iterator& beg,
             const iterator& end)
     {
         c.erase(beg,end);
-        return true;
     }
 
     template <class U = int>
@@ -414,6 +410,10 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.clear();
     }
 
+    static bool canAdd(ThisCol& c) {
+        return true;
+    }
+
 };
 
 template <class T,size_t sz,
@@ -432,14 +432,14 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     typedef const T const_value_type;
 
     template <class V>
-    static bool add(ThisCol& c, V&& i) {
+    static void add(ThisCol& c, V&& i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<V, false>::val,
                       "Const collection doesn't support add.");
     }
 
     template <class V>
-    static bool insert_at(ThisCol& c, iterator at, V&& i) {
+    static void insert_at(ThisCol& c, iterator at, V&& i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<V, false>::val,
                       "Const collection doesn't support insert.");
@@ -455,14 +455,14 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     }
 
     template <class U = int>
-    static bool erase(ThisCol& c, iterator pos) {
+    static void erase(ThisCol& c, iterator pos) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
     }
 
     template <class U = int>
-    static bool erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, iterator beg, iterator end) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
@@ -536,6 +536,10 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support clear.");
+    }
+
+    static bool canAdd(ThisCol& c) {
+        return false;
     }
 
 };
