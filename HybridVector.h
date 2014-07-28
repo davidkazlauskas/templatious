@@ -250,7 +250,7 @@ private:
     }
 
     bool extraExists() const {
-        return nullptr == _a;
+        return nullptr != _a;
     }
 
     ulong extraSize() const {
@@ -262,6 +262,18 @@ private:
     }
 
 };
+
+template <class T,
+         size_t sz,
+         template <class...> class Additional = std::vector,
+         template <class> class Alloc = std::allocator
+>
+auto makeHybridVector(T (&arr)[sz]) ->
+HybridVector<T,sz,Additional,Alloc>
+{
+    return HybridVector<T,sz,Additional,Alloc>(arr);
+}
+
 
 namespace adapters {
 
