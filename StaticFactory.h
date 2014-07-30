@@ -22,6 +22,7 @@
 #include <templatious/map/MapMaker.h>
 #include <templatious/CollectionMaker.h>
 #include <templatious/Loop.h>
+#include <templatious/Proxy.h>
 
 namespace templatious {
 
@@ -151,6 +152,44 @@ struct StaticFactory {
         } else {
             return templatious::LoopL<T>(start,end - step,step);
         }
+    }
+
+    template <class T>
+    static auto makeRange(T&& t,
+        typename adapters::CollectionAdapter<T>::iterator b,
+        typename adapters::CollectionAdapter<T>::iterator e)
+            -> templatious::Range<T>
+    {
+        return Range<T>(std::forward<T>(t),b,e);
+    }
+
+    template <class T>
+    static auto makeRange(T&& t,
+        typename adapters::CollectionAdapter<T>::iterator b)
+            -> templatious::Range<T>
+    {
+        return Range<T>(std::forward<T>(t),b);
+    }
+
+    template <class T>
+    static auto makeRange(T&& t,
+        size_t b, size_t e)
+            -> templatious::Range<T>
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        return Range<T>(std::forward<T>(t),
+                Ad::iter_at(std::forward<T>(t),b),
+                Ad::iter_at(std::forward<T>(t),e));
+    }
+
+    template <class T>
+    static auto makeRange(T&& t,
+        size_t b)
+            -> templatious::Range<T>
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        return Range<T>(std::forward<T>(t),
+                Ad::iter_at(std::forward<T>(t),b));
     }
 
 };

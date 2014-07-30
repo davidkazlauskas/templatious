@@ -19,6 +19,8 @@
 #ifndef RANGE_KFIVLD23
 #define RANGE_KFIVLD23
 
+#include <utility>
+
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {
@@ -39,6 +41,12 @@ struct Range {
     Range(V&& v,const iterator& b,const iterator& e) :
         _c(v), _b(b), _e(e) {}
 
+    template <class V>
+    Range(V&& v,const iterator& b) :
+        _c(v), _b(b),
+        _e(Ad::end(std::forward<V>(v))) {}
+
+
     iterator begin() {
         return _b;
     }
@@ -56,6 +64,37 @@ struct Range {
     }
 };
 
+namespace adapters {
+
+template <class T>
+struct CollectionAdapter< Range<T> > {
+    static const bool is_valid = true;
+
+    typedef Range<T> ThisCol;
+    typedef const ThisCol ConstCol;
+    typedef typename ThisCol::iterator iterator;
+    typedef typename ThisCol::const_iterator const_iterator;
+    typedef typename ThisCol::Ad::value_type value_type;
+    typedef typename ThisCol::Ad::const_value_type const_value_type;
+
+    static iterator begin(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator end(ThisCol& c) {
+        return c.end();
+    }
+
+    static iterator cbegin(ThisCol& c) {
+        return c.cbegin();
+    }
+
+    static iterator cend(ThisCol& c) {
+        return c.cend();
+    }
+};
+
+}
 }
 
 #endif /* end of include guard: RANGE_KFIVLD23 */
