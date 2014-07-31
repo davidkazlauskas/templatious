@@ -180,6 +180,16 @@ struct LoopL : public LoopBase<T> {
         return res;
     }
 
+    ThisIter iterAt(Unit i) const {
+        ThisIter res(_beg + i * _step,_step);
+        assert(res <= end() && "Iterator goes past end of loop.");
+    }
+
+    ConstIter citerAt(Unit i) const {
+        ConstIter res(_beg + i * _step,_step);
+        assert(res <= end() && "Iterator goes past end of loop.");
+    }
+
 private:
     Unit _beg;
     Unit _end;
@@ -281,6 +291,16 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
         return c.end();
     }
 
+    template <class U = int>
+    static iterator iter_at(ThisCol& c,size_t i) {
+        return c.iterAt(c,i);
+    }
+
+    template <class U = int>
+    static const_iterator citer_at(ThisCol& c,size_t i) {
+        return c.citerAt(c,i);
+    }
+
     // Invalid adapter method for loop class follow:
     template <class U = int>
     static bool add(ThisCol& c, const value_type& i) {
@@ -340,23 +360,6 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
 
     template <class U = int>
     static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-
-    template <class U = int>
-    static iterator iter_at(ThisCol& c,size_t i) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class U = int>
-    static const_iterator citer_at(ThisCol& c,size_t i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
