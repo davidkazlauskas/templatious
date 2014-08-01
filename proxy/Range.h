@@ -32,6 +32,8 @@ struct Range {
     typedef typename Ad::iterator iterator;
     typedef typename Ad::const_iterator const_iterator;
 
+    static const bool floating_iterator = Ad::floating_iterator;
+
     static_assert(Ad::is_valid,"Adapter is invalid.");
     T&& _c;
     iterator _b;
@@ -39,7 +41,8 @@ struct Range {
 
     template <class V>
     Range(V&& v,const iterator& b,const iterator& e) :
-        _c(v), _b(b), _e(e) {}
+        _c(v), _b(b), _e(e)
+    { }
 
     template <class V>
     Range(V&& v,const iterator& b) :
@@ -62,12 +65,73 @@ struct Range {
     const_iterator cend() {
         return _e;
     }
+
+    //template <class V,class Iter>
+    //void insert(Iter&& i,V&& v) {
+        //// we assume iterator passed to
+        //// this method belongs to this range
+        //Ad::insert(std::forward<T>(_c),
+                //std::forward<Iter>(i),
+                //std::forward<V>(v));
+        //for (int i = 0; i < erase_shift; ++i) {
+            //++_e;
+        //}
+    //}
+
+    //void erase(iterator i) {
+        //// we assume iterator passed to
+        //// this method belongs to this range
+        //Ad::erase(std::forward<T>(_c),i);
+        //static_assert(Ad::bidirectional_iterator,
+                //"Collection cannot be iterated backwards, therefore, cannot erase.");
+        //assert(_b != _e && "Range is empty (start iterator equals end)");
+        //for (size_t i = 0; i < erase_shift; ++i) {
+            //--_e;
+        //}
+    //}
+
+    //void erase(iterator beg,iterator end) {
+        //// we assume iterator passed to
+        //// this method belongs to this range
+        //Ad::erase(std::forward<T>(_c),beg,end);
+        //static_assert(Ad::bidirectional_iterator,
+                //"Collection cannot be iterated backwards, therefore, cannot erase.");
+        //if (rand_access) {
+            //size_t diff = end - beg;
+            //for (size_t i = 0; i < erase_shift * diff; ++i) {
+                //--_e;
+            //}
+        //} else {
+            //while (beg != end) {
+                //erase(beg);
+                //++beg;
+            //}
+        //}
+    //}
+
+    //iterator iterAt(size_t i) {
+        //if (rand_access) {
+            //assert(i <= _e && "index outside collection range.");
+            //assert(i >= _b && "index outside collection range.");
+            //return _b + i;
+        //}
+
+        //auto b = _b;
+        //size_t j = 0;
+
+        //while (j != i) {
+            //++b;
+        //}
+
+        //return b;
+    //}
 };
 
 namespace adapters {
 
 template <class T>
 struct CollectionAdapter< Range<T> > {
+
     static const bool is_valid = true;
 
     typedef Range<T> ThisCol;
@@ -76,6 +140,8 @@ struct CollectionAdapter< Range<T> > {
     typedef typename ThisCol::const_iterator const_iterator;
     typedef typename ThisCol::Ad::value_type value_type;
     typedef typename ThisCol::Ad::const_value_type const_value_type;
+
+    static const bool floating_iterator = ThisCol::Ad::floating_iterator;
 
     static iterator begin(ThisCol& c) {
         return c.begin();
@@ -92,6 +158,20 @@ struct CollectionAdapter< Range<T> > {
     static iterator cend(ThisCol& c) {
         return c.cend();
     }
+
+    template <class V>
+    static void insert_at(ThisCol& c,iterator i,V&& v) {
+        c.insert(i,std::forward<V>(v));
+    }
+
+    static void erase(ThisCol& c, iterator i) {
+        c.erase(i);
+    }
+
+    static void erase(ThisCol& c, iterator beg, iterator end) {
+        c.erase(beg,end);
+    }
+
 };
 
 }

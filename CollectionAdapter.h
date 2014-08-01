@@ -16,8 +16,7 @@ namespace adapters {
 template <class T>
 struct CollectionAdapter {
     static const bool is_valid = false;
-    static const bool random_access_iterator = false;
-    static const int erase_shift = 0;
+    static const bool floating_iterator = false;
 
     typedef void* ThisCol;
     typedef const void* ConstCol;
@@ -36,7 +35,7 @@ struct CollectionAdapter {
 
     static size_t getSize(ConstCol& c);
 
-    static void erase(ThisCol& c, iterator beg);
+    static void erase(ThisCol& c, iterator i);
     static void erase(ThisCol& c, iterator beg, iterator end);
 
     static ThisCol instantiate();

@@ -31,8 +31,7 @@ template <class T,template <class> class Alloc >
 struct CollectionAdapter< std::list<T,Alloc<T> > > {
 
     static const bool is_valid = true;
-    static const bool random_access_iterator = false;
-    static const int erase_shift = 0;
+    static const bool floating_iterator = false;
 
 	typedef typename std::list<T,Alloc<T> > ThisCol;
 	typedef typename std::list<T,Alloc<T> > const ConstCol;
@@ -177,8 +176,7 @@ template <class T,template <class> class Alloc >
 struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 
     static const bool is_valid = true;
-    static const bool random_access_iterator = false;
-    static const int erase_shift = 0;
+    static const bool floating_iterator = false;
 
 	typedef typename std::list<T, Alloc<T> > const ThisCol;
 	typedef typename std::list<T, Alloc<T> > const ConstCol;
