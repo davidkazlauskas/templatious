@@ -19,6 +19,8 @@
 #ifndef PROXY_9OLY5GZA
 #define PROXY_9OLY5GZA
 
+#include <templatious/proxy/Picker.h>
+
 #include <templatious/proxy/Range.h>
 
 #endif /* end of include guard: PROXY_9OLY5GZA */

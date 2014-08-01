@@ -22,6 +22,7 @@
 #include <utility>
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/proxy/Picker.h>
 
 namespace templatious {
 
@@ -31,7 +32,10 @@ struct Range {
     typedef typename adapters::CollectionAdapter<T> Ad;
     typedef typename Ad::iterator iterator;
     typedef typename Ad::const_iterator const_iterator;
+    typedef IsProxy<T> ProxUtil;
+    typedef typename ProxUtil::ICollection ICollection;
 
+    static const bool proxy_inside = ProxUtil::val;
     static const bool floating_iterator = Ad::floating_iterator;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
@@ -125,6 +129,48 @@ struct Range {
 
         //return b;
     //}
+
+    void clear() {
+        clearRoutine<floating_iterator>(*this);
+    }
+
+    auto getInternal()
+        -> decltype(ProxUtil::unwrap(_c))
+    {
+        return ProxUtil::unwrap(_c);
+    }
+
+    template <class V>
+    auto iterUnwrap(V&& v)
+        -> decltype(ProxUtil::iter_unwrap(
+            std::forward<V>(v)))
+    {
+        return ProxUtil::iter_unwrap(
+            std::forward<V>(v)
+        );
+    }
+};
+
+template <class T>
+struct IsProxy< Range< T&& > > {
+    static const bool val = true;
+
+    typedef adapters::CollectionAdapter<T> Ad;
+    typedef typename Ad::ThisCol ICollection;
+
+    template <class C>
+    static auto unwrap(C&& c)
+        -> decltype(c.getInternal())
+    {
+        return c.getInternal();
+    }
+
+    template <class C>
+    static auto iter_unwrap(C&& c)
+        -> decltype(c.getInternal())
+    {
+        return c.getInternal();
+    }
 };
 
 namespace adapters {
