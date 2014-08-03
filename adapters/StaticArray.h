@@ -31,7 +31,7 @@ template <class T,size_t sz>
 struct CollectionAdapter< T[sz] > {
 
     static const bool is_valid = true;
-    //static const bool is_valid = false;
+    static const bool floating_iterator = true;
     static const size_t size = sz;
 
 	typedef T* ThisCol;
