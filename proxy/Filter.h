@@ -87,6 +87,8 @@ struct Filter {
         Fun&& _fn;
 
     public:
+        friend class Filter<T,Fun>;
+
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
 
@@ -124,19 +126,21 @@ struct Filter {
             return &(this->_i);
         }
 
-        I& getInternal() {
-            return _i;
+        auto getInternal() 
+            -> decltype(ProxUtil::iter_unwrap(_i))&
+        {
+            return ProxUtil::iter_unwrap(_i);
         }
 
     };
 
     void clear() {
         clearRoutine<floating_iterator>(*this);
-        _b = _e;
+        _b._i = _e._i;
     }
 
     auto getInternal()
-        -> decltype(ProxUtil::unwrap(_c))
+        -> decltype(ProxUtil::unwrap(_c))&
     {
         return ProxUtil::unwrap(_c);
     }
@@ -144,7 +148,7 @@ struct Filter {
     template <class V>
     static auto iterUnwrap(V&& v)
         -> decltype(ProxUtil::iter_unwrap(
-            std::forward<V>(v)))
+            std::forward<V>(v)))&
     {
         return ProxUtil::iter_unwrap(
             std::forward<V>(v)
@@ -164,14 +168,14 @@ struct IsProxy< Filter< T,Fn > > {
 
     template <class C>
     static auto unwrap(C&& c)
-        -> decltype(c.getInternal())
+        -> decltype(c.getInternal())&
     {
         return c.getInternal();
     }
 
     template <class C>
     static auto iter_unwrap(C&& c)
-        -> decltype(c.getInternal())
+        -> decltype(c.getInternal())&
     {
         return c.getInternal();
     }

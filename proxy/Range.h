@@ -118,8 +118,10 @@ struct Range {
             return &(this->_i);
         }
 
-        I& getInternal() {
-            return _i;
+        auto getInternal() 
+            -> decltype(ProxUtil::iter_unwrap(_i))
+        {
+            return ProxUtil::iter_unwrap(_i);
         }
 
     };
@@ -157,14 +159,14 @@ struct IsProxy< Range< T > > {
 
     template <class C>
     static auto unwrap(C&& c)
-        -> decltype(c.getInternal())
+        -> decltype(c.getInternal())&
     {
         return c.getInternal();
     }
 
     template <class C>
     static auto iter_unwrap(C&& c)
-        -> decltype(c.getInternal())
+        -> decltype(c.getInternal())&
     {
         return c.getInternal();
     }
