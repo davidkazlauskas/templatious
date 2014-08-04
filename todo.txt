@@ -6,6 +6,7 @@ BUG LOG:
 defects:
 
 #8. fix std::move semantics on instantiate collection
+20. when range/proxy get's clobbered it should throw an error trying to reiterate
 
 features:
 

@@ -186,6 +186,7 @@ struct Range {
 
     void clear() {
         clearRoutine<floating_iterator>(*this);
+        _b = _e;
     }
 
     auto getInternal()

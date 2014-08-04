@@ -192,15 +192,17 @@ void clearRoutine(C&& c) {
         bool flag;
         auto beg = SA::begin(c);
         for (auto i = SA::begin(ic);
-            i != SA::end(ic);
+            i != SA::end(ic) && beg != SA::end(c);
             ({if (!flag) ++i;}))
         {
             flag = false;
             auto& u = ProxUtil::iter_unwrap(beg);
             if (i == u) {
                 flag = true;
+                auto cpy = i;
+                ++i;
                 ++beg;
-                SA::erase(ic,i);
+                SA::erase(ic,cpy);
             }
         }
     }
