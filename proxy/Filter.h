@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  Range.h
+ *       Filename:  Filter.h
  *
- *    Description:  Range class
+ *    Description:  Filter class
  *
  *        Version:  1.0
- *        Created:  07/30/2014 06:01:51 PM
+ *        Created:  08/04/2014 07:37:01 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#ifndef RANGE_KFIVLD23
-#define RANGE_KFIVLD23
+#ifndef FILTER_O8Y22ICC
+#define FILTER_O8Y22ICC
 
 #include <utility>
 
@@ -26,15 +26,15 @@
 
 namespace templatious {
 
-template <class T>
-struct Range {
+template <class T,class Fn>
+struct Filter {
 
-    template <class I>
+    template <class I,class Fun>
     struct PIterator;
 
     typedef typename adapters::CollectionAdapter<T> Ad;
-    typedef PIterator<typename Ad::iterator> iterator;
-    typedef PIterator<typename Ad::const_iterator> const_iterator;
+    typedef PIterator<typename Ad::iterator,Fn> iterator;
+    typedef PIterator<typename Ad::const_iterator,Fn> const_iterator;
     typedef IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
 
@@ -43,19 +43,25 @@ struct Range {
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
     T&& _c;
+    Fn&& _fn;
     iterator _b;
     iterator _e;
 
-    template <class V>
-    Range(V&& v,const iterator& b,const iterator& e) :
-        _c(v), _b(b), _e(e)
-    { }
-
-    template <class V>
-    Range(V&& v,const iterator& b) :
-        _c(v), _b(b),
-        _e(Ad::end(std::forward<V>(v))) {}
-
+    template <class V,class FnRef>
+    Filter(V&& v,FnRef&& fn) :
+        _c(v),
+        _fn(std::forward<FnRef>(fn)),
+        _b(Ad::begin(std::forward<V>(v)),
+            Ad::end(std::forward<V>(v)),
+            std::forward<FnRef>(fn)),
+        _e(Ad::end(std::forward<V>(v)),
+            Ad::end(std::forward<V>(v)),
+            std::forward<FnRef>(fn))
+     {
+         if (!fn(*_b)) {
+             ++_b;
+         }
+     }
 
     iterator begin() {
         return _b;
@@ -73,29 +79,29 @@ struct Range {
         return _e;
     }
 
-    template <class I>
+    template <class I,class Fun>
     struct PIterator {
     private:
         I _i;
+        I _e;
+        Fun&& _fn;
 
     public:
-        typedef PIterator<I> ThisIter;
+        typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
 
         //template <class V>
         //PIterator(V&& i) : _i(std::forward<V>(i)) {}
 
-        // FIX THIS DAZLOW ... maybe?
-        PIterator(const I& i) : _i(i) {}
-
+        template <class V>
+        PIterator(const I& i,const I& e,V&& fn) :
+            _i(i), _e(e), _fn(std::forward<V>(fn)) {}
 
         ThisIter& operator++() {
-            ++_i;
-            return *this;
-        }
-
-        ThisIter& operator--() {
-            --_i;
+            assert(_e != _i && "Trying to iterate past end of filter.");
+            do {
+                ++_i;
+            } while (_e != _i && !_fn(*_i));
             return *this;
         }
 
@@ -144,10 +150,11 @@ struct Range {
             std::forward<V>(v)
         );
     }
+
 };
 
-template <class T>
-struct IsProxy< Range< T > > {
+template <class T,class Fn>
+struct IsProxy< Filter< T,Fn > > {
     static const bool val = true;
 
     typedef adapters::CollectionAdapter<T> Ad;
@@ -171,13 +178,12 @@ struct IsProxy< Range< T > > {
 };
 
 namespace adapters {
-
-template <class T>
-struct CollectionAdapter< Range<T> > {
+template <class T,class Fn>
+struct CollectionAdapter< Filter<T,Fn> > {
 
     static const bool is_valid = true;
 
-    typedef Range<T> ThisCol;
+    typedef Filter<T,Fn> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::iterator iterator;
     typedef typename ThisCol::const_iterator const_iterator;
@@ -234,6 +240,8 @@ struct CollectionAdapter< Range<T> > {
 };
 
 }
+
 }
 
-#endif /* end of include guard: RANGE_KFIVLD23 */
+#endif /* end of include guard: FILTER_O8Y22ICC */
+

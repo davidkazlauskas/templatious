@@ -22,5 +22,6 @@
 #include <templatious/proxy/Picker.h>
 
 #include <templatious/proxy/Range.h>
+#include <templatious/proxy/Filter.h>
 
 #endif /* end of include guard: PROXY_9OLY5GZA */

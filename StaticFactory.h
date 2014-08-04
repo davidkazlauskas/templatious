@@ -185,11 +185,20 @@ struct StaticFactory {
     template <class T>
     static auto makeRange(T&& t,
         size_t b)
-            -> templatious::Range<T>
+            -> Range<T>
     {
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<T>(std::forward<T>(t),
                 Ad::iter_at(std::forward<T>(t),b));
+    }
+
+    template <class T,class Fun>
+    static auto filter(T&& t,Fun&& f)
+        -> Filter<T,Fun>
+    {
+        return Filter<T,Fun>(
+                std::forward<T>(t),
+                std::forward<Fun>(f));
     }
 
 };
