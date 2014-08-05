@@ -256,6 +256,24 @@ struct StaticManipulator {
         return false;
     }
 
+    template <class T,class V,class... Col>
+    static void set(T&& t,V& v,Col&... args) {
+        set(std::forward<T>(t),v);
+        set(std::forward<T>(t),args...);
+    }
+
+    template <class T,class V>
+    static void set(T&& t,V& col) {
+        typedef typename templatious::StaticAdapter SA;
+
+        for (auto i = SA::begin(col);
+                  i != SA::end(col);
+                  ++i)
+        {
+            *i = t;
+        }
+    }
+
     template <class T,class U>
     static auto findFirstIter(T& col,const U& v) 
         -> decltype(findIterInternal<true>(col,v))
