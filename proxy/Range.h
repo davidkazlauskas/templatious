@@ -39,6 +39,7 @@ struct Range {
     typedef typename ProxUtil::ICollection ICollection;
 
     static const bool proxy_inside = ProxUtil::val;
+    static const bool random_access_iterator = ProxUtil::random_access_iterator;
     static const bool floating_iterator = Ad::floating_iterator;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
@@ -71,6 +72,21 @@ struct Range {
 
     const_iterator cend() {
         return _e;
+    }
+
+    iterator iterAt(size_t n) {
+        if (!random_access_iterator) {
+            iterator res(_b);
+            naiveIterAdvance(res,_e,n);
+            return res;
+        } else {
+            auto i = iterUnwrap(_b);
+            auto e = iterUnwrap(_e);
+            typedef AdvancePicker<random_access_iterator> A;
+            int mul = ProxUtil::get_mul(_c);
+            A::adv(i,e,mul * n);
+            return iterator(i);
+        }
     }
 
     template <class I>
@@ -137,6 +153,10 @@ struct Range {
         return ProxUtil::unwrap(_c);
     }
 
+    int getMul() {
+        return ProxUtil::get_mul(_c);
+    }
+
     template <class V>
     static auto iterUnwrap(V&& v)
         -> decltype(ProxUtil::iter_unwrap(
@@ -169,6 +189,12 @@ struct IsProxy< Range< T > > {
         -> decltype(c.getInternal())&
     {
         return c.getInternal();
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return u.getMul();
     }
 };
 
@@ -204,6 +230,10 @@ struct CollectionAdapter< Range<T> > {
         return c.cend();
     }
 
+    static iterator iter_at(ThisCol& c,size_t i) {
+        return c.iterAt(i);
+    }
+
     template <class V>
     static void insert_at(ThisCol& c,iterator i,V&& v) {
         c.insert(i,std::forward<V>(v));
@@ -215,6 +245,10 @@ struct CollectionAdapter< Range<T> > {
 
     static void erase(ThisCol& c, iterator beg, iterator end) {
         c.erase(beg,end);
+    }
+
+    static void clear(ThisCol& c) {
+        c.clear();
     }
 
     template <class V = int>

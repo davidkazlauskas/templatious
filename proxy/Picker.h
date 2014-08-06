@@ -34,6 +34,8 @@ struct IsProxy {
     typedef T ICollection;
     typedef Ad IAdapter;
 
+    static const bool random_access_iterator = Ad::floating_iterator;
+
     template <class V>
     static V&& unwrap(V&& c) {
         return std::forward<V>(c);
@@ -42,6 +44,12 @@ struct IsProxy {
     template <class V>
     static V&& iter_unwrap(V&& i) {
         return std::forward<V>(i);
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return 1;
     }
 };
 
@@ -54,6 +62,9 @@ struct IsProxy<T&&> {
     typedef typename Ad::ThisCol ICollection;
     typedef typename Internal::IAdapter IAdapter;
 
+    static const bool random_access_iterator
+        = Internal::random_access_iterator;
+
     template <class C>
     static auto unwrap(C&& c)
         -> decltype( Internal::unwrap(std::forward<C>(c)) )
@@ -68,6 +79,13 @@ struct IsProxy<T&&> {
     {
         return Internal::iter_unwrap(
                 std::forward<C>(c));
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return Internal::get_mul(
+                std::forward<U>(u));
     }
 };
 
@@ -80,6 +98,9 @@ struct IsProxy<const T&&> {
     typedef typename Ad::ThisCol ICollection;
     typedef typename Internal::IAdapter IAdapter;
 
+    static const bool random_access_iterator
+        = Internal::random_access_iterator;
+
     template <class C>
     static auto unwrap(C&& c)
         -> decltype( Internal::unwrap(std::forward<C>(c)) )
@@ -94,6 +115,13 @@ struct IsProxy<const T&&> {
     {
         return Internal::iter_unwrap(
                 std::forward<C>(c));
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return Internal::get_mul(
+                std::forward<U>(u));
     }
 };
 
@@ -106,6 +134,9 @@ struct IsProxy<T&> {
     typedef typename Ad::ThisCol ICollection;
     typedef typename Internal::IAdapter IAdapter;
 
+    static const bool random_access_iterator
+        = Internal::random_access_iterator;
+
     template <class C>
     static auto unwrap(C&& c)
         -> decltype( Internal::unwrap(std::forward<C>(c)) )
@@ -120,6 +151,13 @@ struct IsProxy<T&> {
     {
         return Internal::iter_unwrap(
                 std::forward<C>(c));
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return Internal::get_mul(
+                std::forward<U>(u));
     }
 };
 
@@ -132,6 +170,9 @@ struct IsProxy<const T&> {
     typedef typename Ad::ThisCol ICollection;
     typedef typename Internal::IAdapter IAdapter;
 
+    static const bool random_access_iterator
+        = Internal::random_access_iterator;
+
     template <class C>
     static auto unwrap(C&& c)
         -> decltype( Internal::unwrap(std::forward<C>(c)) )
@@ -146,6 +187,13 @@ struct IsProxy<const T&> {
     {
         return Internal::iter_unwrap(
                 std::forward<C>(c));
+    }
+
+    typedef int Dist;
+    template <class U>
+    static Dist get_mul(U&& u) {
+        return Internal::get_mul(
+                std::forward<U>(u));
     }
 };
 
@@ -207,6 +255,37 @@ void clearRoutine(C&& c) {
         }
     }
 }
+
+template <class T>
+void naiveIterAdvance(T& i,const T& end,size_t t) {
+    for (size_t j = 0; j < t; ++j) {
+        if (i == end) {
+            return;
+        }
+        ++i;
+    }
+}
+
+template <bool naiveAdvance>
+struct AdvancePicker {
+
+    template <class T>
+    static void adv(T& i,const T& end,size_t t) {
+        naiveIterAdvance(i,end,t);
+    }
+
+};
+
+template <>
+struct AdvancePicker<false> {
+
+    template <class T>
+    static void adv(T& i,const T& end,size_t t) {
+        i += t;
+        assert(i < end && "Advanced past end.");
+    }
+
+};
 
 }
 

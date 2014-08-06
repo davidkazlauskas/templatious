@@ -40,6 +40,7 @@ struct Filter {
 
     static const bool proxy_inside = ProxUtil::val;
     static const bool floating_iterator = Ad::floating_iterator;
+    static const bool random_access_iterator = false;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
     T&& _c;
@@ -77,6 +78,12 @@ struct Filter {
 
     const_iterator cend() {
         return _e;
+    }
+
+    iterator iterAt(size_t i) {
+        auto res(_b);
+        naiveIterAdvance(res,_e,i);
+        return res;
     }
 
     template <class I,class Fun>
@@ -179,6 +186,15 @@ struct IsProxy< Filter< T,Fn > > {
     {
         return c.getInternal();
     }
+
+    template <class C>
+    static void iter_advance(C& i,C& e,size_t s) {
+        naiveIterAdvance(i,e,s);
+    }
+
+    int get_mul() {
+        return -1;
+    }
 };
 
 namespace adapters {
@@ -210,6 +226,10 @@ struct CollectionAdapter< Filter<T,Fn> > {
 
     static iterator cend(ThisCol& c) {
         return c.cend();
+    }
+
+    static iterator iter_at(ThisCol& c,size_t i) {
+        return c.iterAt(i);
     }
 
     template <class V>
