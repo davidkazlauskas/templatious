@@ -155,7 +155,7 @@ struct StaticFactory {
     }
 
     template <class T>
-    static auto makeRange(T&& t,
+    static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::iterator b,
         typename adapters::CollectionAdapter<T>::iterator e)
             -> templatious::Range<T>
@@ -164,7 +164,7 @@ struct StaticFactory {
     }
 
     template <class T>
-    static auto makeRange(T&& t,
+    static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::iterator b)
             -> templatious::Range<T>
     {
@@ -172,7 +172,7 @@ struct StaticFactory {
     }
 
     template <class T>
-    static auto makeRange(T&& t,
+    static auto range(T&& t,
         size_t b, size_t e)
             -> templatious::Range<T>
     {
@@ -183,7 +183,7 @@ struct StaticFactory {
     }
 
     template <class T>
-    static auto makeRange(T&& t,
+    static auto range(T&& t,
         size_t b)
             -> Range<T>
     {

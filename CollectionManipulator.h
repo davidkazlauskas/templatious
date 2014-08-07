@@ -46,7 +46,7 @@ struct StaticManipulator {
     static Out findIterInternal(
             T& col,
             const typename templatious::adapters::CollectionAdapter<T>::value_type& v
-            ) 
+            )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
@@ -68,7 +68,7 @@ struct StaticManipulator {
         return std::move(res);
     }
 
-    template 
+    template
     <
         bool stopAtFirst,
         class T,
@@ -77,7 +77,7 @@ struct StaticManipulator {
     static Out findIdxInternal(
             T& col,
             const typename templatious::adapters::CollectionAdapter<T>::value_type& v
-            ) 
+            )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
@@ -101,7 +101,7 @@ struct StaticManipulator {
         return std::move(res);
     }
 
-    template 
+    template
     <
         bool stopAtFirst,
         class T,
@@ -115,7 +115,7 @@ struct StaticManipulator {
     static Out findIdxIterInternal(
             T& col,
             const typename templatious::adapters::CollectionAdapter<T>::value_type& v
-            ) 
+            )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
@@ -142,7 +142,7 @@ struct StaticManipulator {
     public:
 
     // T - return col, U - functor, Args - collections
-    template <class T,bool passIndex = false,class U,class ...Args> 
+    template <class T,bool passIndex = false,class U,class ...Args>
     static T moldToOne(U&& fn,Args&&... args) {
         assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
 
@@ -203,7 +203,7 @@ struct StaticManipulator {
                 ) > Sel;
 
             if (!Sel::callAndEval(
-                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it))) 
+                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it)))
             { return; }
 
             if (passIndex) {
@@ -275,42 +275,42 @@ struct StaticManipulator {
     }
 
     template <class T,class U>
-    static auto findFirstIter(T& col,const U& v) 
+    static auto findFirstIter(T& col,const U& v)
         -> decltype(findIterInternal<true>(col,v))
     {
         return findIterInternal<true>(col,v);
     }
 
     template <class T,class U>
-    static auto findIter(T& col,const U& v) 
+    static auto findIter(T& col,const U& v)
         -> decltype(findIterInternal<false>(col,v))
     {
         return findIterInternal<false>(col,v);
     }
 
     template <class T,class U>
-    static auto findFirstIdx(T& col,const U& v) 
+    static auto findFirstIdx(T& col,const U& v)
         -> decltype(findIdxInternal<true>(col,v))
     {
         return findIdxInternal<true>(col,v);
     }
 
     template <class T,class U>
-    static auto findIdx(T& col,const U& v) 
+    static auto findIdx(T& col,const U& v)
         -> decltype(findIdxInternal<false>(col,v))
     {
         return findIdxInternal<false>(col,v);
     }
 
     template <class T,class U>
-    static auto findIdxIter(T& col,const U& v) 
+    static auto findIdxIter(T& col,const U& v)
         -> decltype(findIdxIterInternal<false>(col,v))
     {
         return findIdxIterInternal<false>(col,v);
     }
 
     template <class T,class U>
-    static auto findFirstIdxIter(T& col,const U& v) 
+    static auto findFirstIdxIter(T& col,const U& v)
         -> decltype(findIdxIterInternal<true>(col,v))
     {
         return findIdxIterInternal<true>(col,v);
