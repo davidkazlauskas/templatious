@@ -282,6 +282,9 @@ struct AdvancePicker<false> {
     template <class T>
     static void adv(T& i,const T& end,size_t t) {
         i += t;
+        if (i > end) {
+            i = end;
+        }
         assert(i < end && "Advanced past end.");
     }
 
