@@ -201,6 +201,15 @@ struct StaticFactory {
                 std::forward<Fun>(f));
     }
 
+    template <class T>
+    static auto skip(T&& t,size_t sz)
+        -> Skipper<T>
+    {
+        return Skipper<T>(
+                std::forward<T>(t),
+                sz);
+    }
+
 };
 
 }

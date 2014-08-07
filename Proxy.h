@@ -23,5 +23,6 @@
 
 #include <templatious/proxy/Range.h>
 #include <templatious/proxy/Filter.h>
+#include <templatious/proxy/Skipper.h>
 
 #endif /* end of include guard: PROXY_9OLY5GZA */

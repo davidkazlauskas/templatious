@@ -175,7 +175,7 @@ struct IsProxy<const T&> {
 
     template <class C>
     static auto unwrap(C&& c)
-        -> decltype( Internal::unwrap(std::forward<C>(c)) )
+        -> decltype( Internal::unwrap(std::forward<C>(c)) )&
     {
         return Internal::unwrap(
                 std::forward<C>(c));
@@ -183,7 +183,7 @@ struct IsProxy<const T&> {
 
     template <class C>
     static auto iter_unwrap(C&& c)
-        -> decltype( Internal::iter_unwrap(std::forward<C>(c)) )
+        -> decltype( Internal::iter_unwrap(std::forward<C>(c)) )&
     {
         return Internal::iter_unwrap(
                 std::forward<C>(c));
