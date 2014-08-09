@@ -82,7 +82,7 @@ struct Skipper {
         } else {
             auto i = iterUnwrap(_b);
             auto e = iterUnwrap(_e);
-            typedef AdvancePicker<random_access_iterator> A;
+            typedef AdvancePicker<!random_access_iterator> A;
             int mul = ProxUtil::get_mul(_c);
             A::adv(i,e,mul * n);
             return iterator(i);
@@ -123,7 +123,7 @@ struct Skipper {
                 auto i = iterUnwrap(_i);
                 auto e = iterUnwrap(
                     SA::end(_p).getInternal());
-                typedef AdvancePicker<random_access_iterator> A;
+                typedef AdvancePicker<!random_access_iterator> A;
                 size_t mul = ProxUtil::get_mul(_p);
                 A::adv(i,e,mul * _sk);
                 ProxUtil::iter_unwrap(_i) = i;

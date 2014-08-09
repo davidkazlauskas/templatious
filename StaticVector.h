@@ -233,6 +233,22 @@ struct StaticVector {
             return *this;
         }
 
+        bool operator<(const Iterator& rhs) const {
+            return _iter < rhs._iter;
+        }
+
+        bool operator>(const Iterator& rhs) const {
+            return !(*this < rhs);
+        }
+
+        bool operator<=(const Iterator& rhs) const {
+            return _iter <= rhs._iter;
+        }
+
+        bool operator>=(const Iterator& rhs) const {
+            return _iter >= rhs._iter;
+        }
+
         bool operator==(const Iterator& rhs) const {
             return _iter == rhs._iter;
         }
@@ -289,6 +305,7 @@ namespace adapters {
 template <class T,size_t sz>
 struct CollectionAdapter< StaticVector<T,sz> > {
     static const bool is_valid = true;
+    static const bool floating_iterator = true;
 
     typedef StaticVector<T,sz> ThisCol;
     typedef const ThisCol ConstCol;

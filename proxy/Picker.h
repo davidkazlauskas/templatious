@@ -285,7 +285,7 @@ struct AdvancePicker<false> {
         if (i > end) {
             i = end;
         }
-        assert(i < end && "Advanced past end.");
+        assert(i <= end && "Advanced past end.");
     }
 
 };
