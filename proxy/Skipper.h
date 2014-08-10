@@ -86,14 +86,10 @@ struct Skipper {
             auto i = _b.getInternal();
             auto e = _e.getInternal();
             typedef AdvancePicker<!random_access_iterator> A;
-            int mul = ProxUtil::get_mul(_c);
+            int mul = _sk * ProxUtil::get_mul(_c);
             A::adv(i,e,mul * n);
             return iterator(*this,i,_sk);
         }
-
-        //iterator res(_b);
-        //naiveIterAdvance(res,_e,n);
-        //return res;
     }
 
     template <class I>
