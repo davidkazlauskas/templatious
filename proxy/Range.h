@@ -21,6 +21,7 @@
 
 #include <utility>
 
+#include <templatious/util/RefMaker.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
@@ -43,7 +44,9 @@ struct Range {
     static const bool floating_iterator = Ad::floating_iterator;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
-    T&& _c;
+
+    typedef typename templatious::util::RefMaker<T>::val Ref;
+    Ref _c;
     iterator _b;
     iterator _e;
 
@@ -171,6 +174,8 @@ struct Range {
 template <class T>
 struct IsProxy< Range< T > > {
     static const bool val = true;
+    static const bool random_access_iterator =
+        IsProxy< T >::random_access_iterator;
 
     typedef adapters::CollectionAdapter<T> Ad;
     typedef typename Ad::ThisCol ICollection;

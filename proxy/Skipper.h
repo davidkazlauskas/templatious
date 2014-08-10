@@ -21,6 +21,7 @@
 
 #include <utility>
 
+#include <templatious/util/RefMaker.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
@@ -45,7 +46,9 @@ struct Skipper {
     static const bool floating_iterator = Ad::floating_iterator;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
-    T&& _c;
+
+    typedef typename templatious::util::RefMaker<T>::val Ref;
+    Ref _c;
     iterator _b;
     iterator _e;
     size_t _sk; // - skip size
@@ -105,9 +108,6 @@ struct Skipper {
         typedef PIterator<I> ThisIter;
         typedef decltype(*_i) IVal;
 
-        //template <class V>
-        //PIterator(V&& i) : _i(std::forward<V>(i)) {}
-
         PIterator(Parent& p,const I& i,size_t sz) :
             _p(p),
             _i(i),
@@ -121,8 +121,7 @@ struct Skipper {
                     _sk);
             } else {
                 auto i = iterUnwrap(_i);
-                auto e = iterUnwrap(
-                    SA::end(_p).getInternal());
+                auto e = SA::end(_p).getInternal();
                 typedef AdvancePicker<!random_access_iterator> A;
                 size_t mul = ProxUtil::get_mul(_p);
                 A::adv(i,e,mul * _sk);
@@ -155,7 +154,7 @@ struct Skipper {
             return &(this->_i);
         }
 
-        auto getInternal() 
+        auto getInternal()
             -> decltype(ProxUtil::iter_unwrap(_i))
         {
             return ProxUtil::iter_unwrap(_i);

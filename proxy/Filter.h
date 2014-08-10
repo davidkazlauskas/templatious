@@ -21,6 +21,7 @@
 
 #include <utility>
 
+#include <templatious/util/RefMaker.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
@@ -43,7 +44,9 @@ struct Filter {
     static const bool random_access_iterator = false;
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
-    T&& _c;
+
+    typedef typename templatious::util::RefMaker<T>::val Ref;
+    Ref _c;
     Fn&& _fn;
     iterator _b;
     iterator _e;

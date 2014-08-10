@@ -26,4 +26,5 @@
 #include <templatious/util/Hasher.h>
 #include <templatious/util/Math.h>
 #include <templatious/util/Convert.h>
+#include <templatious/util/RefMaker.h>
 
