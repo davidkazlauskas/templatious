@@ -83,13 +83,17 @@ struct Skipper {
             naiveIterAdvance(res,_e,n);
             return res;
         } else {
-            auto i = iterUnwrap(_b);
-            auto e = iterUnwrap(_e);
+            auto i = _b.getInternal();
+            auto e = _e.getInternal();
             typedef AdvancePicker<!random_access_iterator> A;
             int mul = ProxUtil::get_mul(_c);
             A::adv(i,e,mul * n);
-            return iterator(i);
+            return iterator(*this,i,_sk);
         }
+
+        //iterator res(_b);
+        //naiveIterAdvance(res,_e,n);
+        //return res;
     }
 
     template <class I>
@@ -250,7 +254,12 @@ struct CollectionAdapter< Skipper<T> > {
         return c.cend();
     }
 
-    static iterator iter_at(ThisCol& c,size_t i) {
+    //static iterator iter_at(ThisCol& c,size_t i) {
+        //return c.iterAt(i);
+    //}
+
+    template <class V>
+    static iterator iter_at(V&& c,size_t i) {
         return c.iterAt(i);
     }
 
