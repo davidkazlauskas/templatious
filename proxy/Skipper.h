@@ -234,11 +234,13 @@ struct CollectionAdapter< Skipper<T> > {
 
     static const bool floating_iterator = ThisCol::Ad::floating_iterator;
 
-    static iterator begin(ThisCol& c) {
+    template <class C>
+    static iterator begin(C&& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    template <class C>
+    static iterator end(C&& c) {
         return c.end();
     }
 
@@ -259,20 +261,23 @@ struct CollectionAdapter< Skipper<T> > {
         return c.iterAt(i);
     }
 
-    template <class V>
-    static void insert_at(ThisCol& c,iterator i,V&& v) {
+    template <class C,class V>
+    static void insert_at(C&& c,iterator i,V&& v) {
         c.insert(i,std::forward<V>(v));
     }
 
-    static void erase(ThisCol& c, iterator i) {
+    template <class C>
+    static void erase(C&& c, iterator i) {
         c.erase(i);
     }
 
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    template <class C>
+    static void erase(C&& c, iterator beg, iterator end) {
         c.erase(beg,end);
     }
 
-    static void clear(ThisCol& c) {
+    template <class C>
+    static void clear(C&& c) {
         c.clear();
     }
 
