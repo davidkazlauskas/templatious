@@ -109,6 +109,11 @@ struct Filter {
         PIterator(const I& i,const I& e,V&& fn) :
             _i(i), _e(e), _fn(std::forward<V>(fn)) {}
 
+        PIterator& operator=(const PIterator& rhs) {
+            _i = rhs._i;
+            _e = rhs._e;
+        }
+
         ThisIter& operator++() {
             assert(_e != _i && "Trying to iterate past end of filter.");
             do {
@@ -253,6 +258,11 @@ struct CollectionAdapter< Filter<T,Fn> > {
     template <class C>
     static void erase(C&& c, iterator beg, iterator end) {
         c.erase(beg,end);
+    }
+
+    template <class C>
+    static void clear(C&& c) {
+        c.clear();
     }
 
     template <class V = int>

@@ -107,6 +107,9 @@ struct Range {
         // FIX THIS DAZLOW ... maybe?
         PIterator(const I& i) : _i(i) {}
 
+        PIterator& operator=(const PIterator& rhs) {
+            _i = rhs._i;
+        }
 
         ThisIter& operator++() {
             ++_i;
