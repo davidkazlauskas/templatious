@@ -83,8 +83,8 @@ struct Skipper {
             naiveIterAdvance(res,_e,n);
             return res;
         } else {
-            auto i = _b.getInternal();
-            auto e = _e.getInternal();
+            auto i = _b._i;
+            auto e = _e._i;
             typedef AdvancePicker<!random_access_iterator> A;
             int mul = _sk * ProxUtil::get_mul(_c);
             A::adv(i,e,mul * n);
@@ -97,6 +97,7 @@ struct Skipper {
     private:
         typedef Skipper<T> Parent;
         typedef Parent::ProxUtil ProxUtil;
+        friend class Skipper<T>;
 
         I _i;
         size_t _sk;
