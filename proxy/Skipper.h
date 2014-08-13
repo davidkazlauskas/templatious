@@ -115,6 +115,13 @@ struct Skipper {
             _sk(sz)
         {}
 
+        PIterator& operator=(const PIterator& rhs) {
+            _i = rhs._i;
+            _sk = rhs._sk;
+
+            assert(&_p == &rhs._p);
+        }
+
         ThisIter& operator++() {
             if (!random_access_iterator) {
                 naiveIterAdvance(_i,
