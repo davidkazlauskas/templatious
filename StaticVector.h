@@ -188,11 +188,11 @@ struct StaticVector {
     }
 
     ConstIter cbegin() const {
-        return Iterator(_vct,_cnt);
+        return ConstIter(_vct,_cnt);
     }
 
     ConstIter cend() const {
-        return Iterator(_vct,_cnt,_cnt);
+        return ConstIter(_vct,_cnt,_cnt);
     }
 
     void clear() {
@@ -282,7 +282,7 @@ struct StaticVector {
         friend class StaticVector<T,sz>;
 
     private:
-        T* _vct;
+        ValType* _vct;
         ulong _size;
         ulong _iter;
 
@@ -400,11 +400,15 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ThisCol& c) {
+    static const_iterator citer_at(ConstCol& c,size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ThisCol& c) {
+    static const_iterator cend(ConstCol& c) {
         return c.cend();
     }
 

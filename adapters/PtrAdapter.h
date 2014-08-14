@@ -378,8 +378,8 @@ struct CollectionAdapter<const T&> {
         return Inner::cend(c);
     }
 
-    static iterator iter_at(CRCol c,size_t i) {
-        return Inner::iter_at(c,i);
+    static const_iterator iter_at(CRCol c,size_t i) {
+        return Inner::citer_at(c,i);
     }
 
     static const_iterator cbegin(CRCol c) {
