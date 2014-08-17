@@ -23,6 +23,7 @@
 #include <templatious/CollectionMaker.h>
 #include <templatious/Loop.h>
 #include <templatious/Proxy.h>
+#include <templatious/Virtual.h>
 
 namespace templatious {
 
@@ -208,6 +209,13 @@ struct StaticFactory {
         return Skipper<T>(
                 std::forward<T>(t),
                 sz);
+    }
+
+    template <class T>
+    static auto socket(T& t)
+     -> CollectionSocket<T>
+    {
+        return CollectionSocket<T>(t);
     }
 
 };
