@@ -19,7 +19,7 @@
 #ifndef SIZEVERIFIER_S81TOGPX
 #define SIZEVERIFIER_S81TOGPX
 
-#include <templatious/CollectionAdapter.h>
+#include <templatious/StaticAdapter.h>
 
 namespace templatious {
 namespace util {

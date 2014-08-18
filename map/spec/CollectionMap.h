@@ -25,6 +25,7 @@
 #include <templatious/util/spec/DefaultComparators.h>
 #include <templatious/map/MapAdapter.h>
 #include <templatious/CollectionMaker.h>
+#include <templatious/StaticAdapter.h>
 
 namespace templatious {
 

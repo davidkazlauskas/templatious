@@ -19,6 +19,7 @@
 #ifndef VIRTUAL_I7YB4CBD
 #define VIRTUAL_I7YB4CBD
 
+#include <templatious/virtual/Iterator.h>
 #include <templatious/virtual/Socket.h>
 #include <templatious/virtual/spec/CollectionSocket.h>
 
