@@ -119,6 +119,10 @@ struct CollectionAdapter<T*> {
         return Inner::clear(*c);
     }
 
+    static bool canAdd(ConstCol c) {
+        return Inner::canAdd(*c);
+    }
+
 };
 
 template <class T>
@@ -209,6 +213,10 @@ struct CollectionAdapter<const T*> {
     static void clear(ThisCol c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
+    }
+
+    static bool canAdd(ConstCol c) {
+        return Inner::canAdd(*c);
     }
 
 };
@@ -314,6 +322,10 @@ struct CollectionAdapter<T&> {
         return Inner::clear(c);
     }
 
+    static bool canAdd(CRCol c) {
+        return Inner::canAdd(c);
+    }
+
 };
 
 template <class T>
@@ -408,6 +420,9 @@ struct CollectionAdapter<const T&> {
                 "Const version of a collection doesn't support this method");
     }
 
+    static bool canAdd(CRCol c) {
+        return Inner::canAdd(c);
+    }
 };
 
 }

@@ -14,18 +14,20 @@ features:
 7. virtual collection wrapper
 10. tune map object
 #11. loops
-12. quadro function
-13. lambda cat
+#12. quadro function
+#13. lambda cat
 #14. static array container (like vector)
 #15. foreach
 #16. traverse static arrays with foreach
 17. adapters for StaticVector HybridVector
 18. variadic template function to call function on var arg [ t(f,a1,a2,a3...)]
-19. pick range from ANY collection to be used as collection
+#19. pick range from ANY collection to be used as collection
+#21. proxies
+22. permissions for collections (DA BIG ONE)
 
 compatibility:
 
-3. const traverse and mold to one
+#3. const traverse and mold to one
 #5. da empty initializer problem (std::map takes std::less function which uses empty constructor)
 #4. fix comparator specializations (sortedAdd)
 

@@ -19,6 +19,8 @@
 #ifndef COLLECTIONSOCKET_18UW7ASG
 #define COLLECTIONSOCKET_18UW7ASG
 
+#include <templatious/CollectionAdapter.h>
+
 #include <templatious/virtual/Socket.h>
 
 namespace templatious {

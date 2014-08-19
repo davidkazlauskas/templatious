@@ -91,9 +91,16 @@ struct VIteratorImpl:
             static_cast<const iterator>(_i));
     }
 
+    iterator& internal() {
+        return _i;
+    }
+
 private:
     iterator _i;
 };
+
+template <class T>
+struct VCollection;
 
 template <class T>
 struct VIterator {
@@ -154,6 +161,11 @@ struct VIterator {
         _i = rhs._i;
         rhs._i = nullptr;
         return *this;
+    }
+
+    // temporary workaround
+    Base* getBase() const {
+        return _i;
     }
 
 private:

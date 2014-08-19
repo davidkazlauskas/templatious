@@ -250,6 +250,58 @@ struct StaticAdapter {
         return VIterator< ValType >(v);
     }
 
+    template <class T>
+    static auto vcbegin(const T& c)
+    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    {
+        typedef adapters::CollectionAdapter<const T> Ad;
+        typedef typename Ad::const_value_type ValType;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+
+        typedef VIteratorImpl<const T> VImpl;
+        VImpl *v = new VImpl( Ad::cbegin(c) );
+        return VIterator< ValType >(v);
+    }
+
+    template <class T>
+    static auto vcend(const T& c)
+    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    {
+        typedef adapters::CollectionAdapter<const T> Ad;
+        typedef typename Ad::const_value_type ValType;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+
+        typedef VIteratorImpl<const T> VImpl;
+        VImpl *v = new VImpl( Ad::cend(c) );
+        return VIterator< ValType >(v);
+    }
+
+    template <class T>
+    static auto viterAt(T& c,size_t s)
+    -> VIterator< typename adapters::CollectionAdapter<T>::value_type >
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        typedef typename Ad::value_type ValType;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+
+        typedef VIteratorImpl<T> VImpl;
+        VImpl *v = new VImpl( Ad::iter_at(c,s) );
+        return VIterator< ValType >(v);
+    }
+
+    template <class T>
+    static auto vciterAt(const T& c,size_t s)
+    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        typedef typename Ad::const_value_type ValType;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+
+        typedef VIteratorImpl<const T> VImpl;
+        VImpl *v = new VImpl( Ad::citer_at(c,s) );
+        return VIterator< ValType >(v);
+    }
+
     // will be removed in the future.
     template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
     static void sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
