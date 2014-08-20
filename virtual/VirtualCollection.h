@@ -32,6 +32,8 @@ struct VCollectionBase {
     typedef VIterator<const T> CIter;
     typedef VCollectionBase<T> ThisCol;
 
+    virtual ~VCollectionBase() {}
+
     virtual void add(const T& e) = 0;
     virtual void insert(const Iter& i,const T& t) = 0;
     virtual void clear() = 0;
@@ -45,6 +47,7 @@ struct VCollectionBase {
     virtual CIter citerAt(size_t idx) const = 0;
 
     virtual bool canAdd() const = 0;
+    virtual size_t size() const = 0;
 
     virtual bool equals(ThisCol& c) const = 0;
     virtual bool equals(ThisCol* c) const = 0;
@@ -121,6 +124,10 @@ struct VCollectionImpl:
         return Ad::canAdd(_ref);
     }
 
+    virtual size_t size() const {
+        return Ad::getSize(_ref);
+    }
+
     virtual bool equals(Super& c) const {
         return comp(c);
     }
@@ -172,7 +179,7 @@ struct VCollection {
         o._b = nullptr;
     }
 
-    ~VCollection() { delete _b; }
+    virtual ~VCollection() { delete _b; }
 
     void add(const T& e) {
         _b->add(e);
@@ -214,6 +221,10 @@ struct VCollection {
         return _b->canAdd();
     }
 
+    size_t size() const {
+        return _b->size();
+    }
+
     bool operator==(const VCollection& vc) const {
         return _b->equals(vc._b);
     }
@@ -226,6 +237,131 @@ private:
     Base* _b;
 };
 
+namespace adapters {
+
+template <class T>
+struct CollectionAdapter< VCollection<T> > {
+
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+
+    typedef VCollection<T> ThisCol;
+    typedef const ThisCol ConstCol;
+    typedef typename ThisCol::Iter iterator;
+    typedef typename ThisCol::CIter const_iterator;
+    typedef T value_type;
+    typedef const T const_value_type;
+
+    template <class V>
+    static void add(ThisCol& c, V&& i) {
+        c.add(i);
+    }
+
+    template <class V>
+    static void insert_at(ThisCol& c, iterator at, V&& i) {
+        // TO IMPLEMENT
+    }
+
+    // TO IMPLEMENT
+    static value_type& getByIndex(ThisCol& c, size_t i);
+    static const_value_type& getByIndex(ConstCol& c, size_t i);
+
+    static size_t getSize(ConstCol& c) {
+        return c.size();
+    }
+
+    // TO IMPLEMENT
+    static void erase(ThisCol& c, iterator i);
+    static void erase(ThisCol& c, iterator beg, iterator end);
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    static iterator begin(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator end(ThisCol& c) {
+        return c.end();
+    }
+
+    static iterator iter_at(ThisCol& c, size_t i) {
+        return c.iterAt(i);
+    }
+
+    static iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static iterator iter_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator citer_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    // TO IMPLEMENT
+    static value_type& first(ThisCol& c);
+    static const value_type& first(ConstCol& c);
+    static value_type& last(ThisCol& c);
+    static const value_type& last(ConstCol& c);
+
+    static void clear(ThisCol& c) {
+        c.clear();
+    }
+
+    static bool canAdd(ConstCol& c) {
+        return c.canAdd();
+    }
+};
+
+}
 }
 
 #endif /* end of include guard: VIRTUALCOLLECTION_4I04BTF7 */

@@ -111,7 +111,7 @@ struct VIterator {
     VIterator(Base* b) : _i(b) {}
 
     VIterator(const ThisIter& i) {
-        _i = i._i.clone();
+        _i = i._i->clone();
     }
 
     VIterator(ThisIter&& i) {
@@ -152,7 +152,7 @@ struct VIterator {
 
     ThisIter& operator=(const ThisIter& rhs) {
         freePtr();
-        _i = rhs._i.clone();
+        _i = rhs._i->clone();
         return *this;
     }
 
