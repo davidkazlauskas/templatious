@@ -33,3 +33,4 @@ compatibility:
 
 perfection:
 9. add const qualifiers to comparators
+23. replace asserts with thrown exceptions

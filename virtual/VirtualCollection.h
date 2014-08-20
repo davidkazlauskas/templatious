@@ -26,10 +26,11 @@
 namespace templatious {
 
 template <class T>
-struct VCollection {
+struct VCollectionBase {
 
     typedef VIterator<T> Iter;
     typedef VIterator<const T> CIter;
+    typedef VCollectionBase<T> ThisCol;
 
     virtual void add(const T& e) = 0;
     virtual void insert(const Iter& i,const T& t) = 0;
@@ -45,6 +46,9 @@ struct VCollection {
 
     virtual bool canAdd() const = 0;
 
+    virtual bool equals(ThisCol& c) const = 0;
+    virtual bool equals(ThisCol* c) const = 0;
+    virtual ThisCol* clone() const = 0;
 protected:
 
     template <class V>
@@ -56,14 +60,16 @@ protected:
 
 template <class T>
 struct VCollectionImpl:
-    public VCollection< typename templatious::adapters::CollectionAdapter<T>::value_type >
+    public VCollectionBase< typename templatious::adapters::CollectionAdapter<T>::value_type >
 {
+
 
     typedef templatious::adapters::CollectionAdapter<T> Ad;
     typedef templatious::StaticAdapter SA;
-    typedef VCollection< typename Ad::value_type > Super;
+    typedef VCollectionBase< typename Ad::value_type > Super;
 
     typedef typename Ad::value_type ValType;
+    typedef VCollectionImpl< T > ThisCol;
     typedef typename Super::Iter Iter;
     typedef typename Super::CIter CIter;
 
@@ -114,8 +120,110 @@ struct VCollectionImpl:
     virtual bool canAdd() const {
         return Ad::canAdd(_ref);
     }
+
+    virtual bool equals(Super& c) const {
+        return comp(c);
+    }
+
+    virtual bool equals(Super* c) const {
+        return comp(*c);
+    }
+
+    virtual ThisCol* clone() const {
+        return new ThisCol(_ref);
+    }
+
 private:
+
+    bool comp(Super& c) const {
+        if (typeid(c) == typeid(*this)) {
+            ThisCol& ref = static_cast<ThisCol&>(c);
+            return std::addressof(_ref) == std::addressof(ref._ref);
+        }
+
+        return false;
+    }
+
     T& _ref;
+};
+
+template <class T>
+struct VCollection {
+    typedef VCollection<T> ThisCol;
+    typedef VCollectionBase<T> Base;
+    typedef typename Base::Iter Iter;
+    typedef typename Base::CIter CIter;
+
+    VCollection(Base* b) : _b(b) {}
+    VCollection(ThisCol&& o) {
+        _b = o._b;
+        o._b = nullptr;
+    }
+
+    VCollection(const ThisCol& o) : _b(o._b->clone()) {}
+
+    ThisCol& operator=(const ThisCol& o) {
+        delete _b;
+        _b = o._b->clone();
+    }
+
+    ThisCol& operator=(ThisCol&& o) {
+        _b = o._b;
+        o._b = nullptr;
+    }
+
+    ~VCollection() { delete _b; }
+
+    void add(const T& e) {
+        _b->add(e);
+    }
+
+    void insert(const Iter& i,const T& t) {
+        _b->insert(i,t);
+    }
+
+    void clear() {
+        _b->clear();
+    }
+
+    Iter begin() {
+        return _b->begin();
+    }
+
+    Iter end() {
+        return _b->end();
+    }
+
+    CIter cbegin() const {
+        return _b->cbegin();
+    }
+
+    CIter cend() const {
+        return _b->cend();
+    }
+
+    Iter iterAt(size_t idx) {
+        return _b->iterAt(idx);
+    }
+
+    CIter citerAt(size_t idx) const {
+        return _b->citerAt(idx);
+    }
+
+    bool canAdd() const {
+        return _b->canAdd();
+    }
+
+    bool operator==(const VCollection& vc) const {
+        return _b->equals(vc._b);
+    }
+
+    bool operator!=(const VCollection& vc) const {
+        return !(*this == vc);
+    }
+
+private:
+    Base* _b;
 };
 
 }

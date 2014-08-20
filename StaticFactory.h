@@ -218,6 +218,19 @@ struct StaticFactory {
         return CollectionSocket<T>(t);
     }
 
+    template <class T>
+    static auto vcollection(T& t)
+     -> VCollection< typename adapters::CollectionAdapter<T>::value_type >
+    {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef typename Ad::value_type ValType;
+
+        typedef VCollectionImpl<T> VImpl;
+        VImpl *v = new VImpl( t );
+        return VCollection< ValType >(v);
+    }
+
 };
 
 }
