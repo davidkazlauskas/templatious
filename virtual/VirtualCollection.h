@@ -39,7 +39,9 @@ struct VCollectionBase {
     virtual void erase(const Iter& i) = 0;
     virtual void erase(const Iter& beg,const Iter& end) = 0;
     virtual void clear() = 0;
+
     virtual T& getByIndex(size_t idx) = 0;
+    virtual const T& cgetByIndex(size_t idx) const = 0;
 
     virtual Iter begin() = 0;
     virtual Iter end() = 0;
@@ -118,6 +120,10 @@ struct VCollectionImpl:
 
     virtual ValType& getByIndex(size_t idx) {
         return Ad::getByIndex(_ref,idx);
+    }
+
+    virtual CValType& cgetByIndex(size_t idx) const {
+        return Ad::getByIndex(static_cast<const T&>(_ref),idx);
     }
 
     virtual ValType& first() {
@@ -200,6 +206,8 @@ struct VCollection {
     typedef VCollectionBase<T> Base;
     typedef typename Base::Iter Iter;
     typedef typename Base::CIter CIter;
+    typedef T ValType;
+    typedef const ValType CValType;
 
     VCollection(Base* b) : _b(b) {}
     VCollection(ThisCol&& o) {
@@ -229,8 +237,36 @@ struct VCollection {
         _b->insert(i,t);
     }
 
+    void erase(const Iter& i) {
+        _b->erase(i);
+    }
+
+    void erase(const Iter& beg,const Iter& end) {
+        _b->erase(beg,end);
+    }
+
     void clear() {
         _b->clear();
+    }
+
+    T& getByIndex(size_t idx) {
+        return _b->getByIndex(idx);
+    }
+
+    ValType& first() {
+        return _b->first();
+    }
+
+    CValType& cfirst() {
+        return _b->cfirst();
+    }
+
+    ValType& last() {
+        return _b->last();
+    }
+
+    CValType& clast() {
+        return _b->clast();
     }
 
     Iter begin() {
@@ -298,13 +334,17 @@ struct CollectionAdapter< VCollection<T> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i) {
-        // TO IMPLEMENT
+    static void insert_at(ThisCol& c, const iterator& at, V&& i) {
+        c.insert(at,std::forward<V>(i));
     }
 
-    // TO IMPLEMENT
-    static value_type& getByIndex(ThisCol& c, size_t i);
-    static const_value_type& getByIndex(ConstCol& c, size_t i);
+    static value_type& getByIndex(ThisCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
+
+    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
 
     static size_t getSize(ConstCol& c) {
         return c.size();

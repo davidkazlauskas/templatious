@@ -120,6 +120,10 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
         return c[i];
     }
 
+    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+        return c[i];
+    }
+
     static void erase(ThisCol& c,iterator pos) {
         c.erase(pos);
     }

@@ -440,6 +440,117 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return !(c.isFull());
     }
 };
+
+template <class T,size_t sz>
+struct CollectionAdapter< const StaticVector<T,sz> > {
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+
+    typedef const StaticVector<T,sz> ThisCol;
+    typedef ThisCol ConstCol;
+    typedef typename ThisCol::ConstIter iterator;
+    typedef typename ThisCol::ConstIter const_iterator;
+    typedef const T value_type;
+    typedef const T const_value_type;
+
+    template <class V>
+    static void add(ThisCol& c, V&& i) {
+        c.push(std::forward<V>(i));
+    }
+
+    template <class V>
+    static void insert_at(ThisCol& c, iterator at,V&& i) {
+        c.insert(at,std::forward<V>(i));
+    }
+
+    static value_type& getByIndex(ThisCol& c, int i) {
+        return c.at(i);
+    }
+
+    static size_t getSize(const ThisCol& c) {
+        return c.getSize();
+    }
+
+    static void erase(ThisCol& c, iterator pos) {
+        c.erase(pos);
+    }
+
+    static void erase(ThisCol& c, iterator beg, iterator end) {
+        c.erase(beg,end);
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(int size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(int size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "StaticVector cannot be just instantiated \
+                       because it uses static array memory.");
+    }
+
+    static iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator iter_at(ConstCol& c,size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator citer_at(ConstCol& c,size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_value_type& first(ThisCol& c) {
+        return c.at(0);
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.at(c.getSize() - 1);
+    }
+
+    static void clear(ThisCol& c) {
+        return c.clear();
+    }
+
+    static bool canAdd(ThisCol& c) {
+        return !(c.isFull());
+    }
+};
 }
 
 }

@@ -99,6 +99,19 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return *iter;
     }
 
+	static const_value_type& getByIndex(ConstCol& c,int i) {
+        assert(getSize(c) > i);
+
+        int count = 0;
+        auto iter = cbegin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return *iter;
+    }
+
     static void erase(ThisCol& c,iterator pos) {
         c.erase(pos);
     }
