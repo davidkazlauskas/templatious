@@ -56,9 +56,9 @@ struct CollectionAdapter {
     static const_iterator citer_at(ConstCol& c, size_t i);
 
     static value_type& first(ThisCol& c);
-    static const value_type& first(ConstCol& c);
+    static const_value_type& first(ConstCol& c);
     static value_type& last(ThisCol& c);
-    static const value_type& last(ConstCol& c);
+    static const_value_type& last(ConstCol& c);
 
     static void clear(ThisCol& c);
     static bool canAdd(ConstCol& c);

@@ -36,7 +36,10 @@ struct VCollectionBase {
 
     virtual void add(const T& e) = 0;
     virtual void insert(const Iter& i,const T& t) = 0;
+    virtual void erase(const Iter& i) = 0;
+    virtual void erase(const Iter& beg,const Iter& end) = 0;
     virtual void clear() = 0;
+    virtual T& getByIndex(size_t idx) = 0;
 
     virtual Iter begin() = 0;
     virtual Iter end() = 0;
@@ -45,6 +48,11 @@ struct VCollectionBase {
 
     virtual Iter iterAt(size_t idx) = 0;
     virtual CIter citerAt(size_t idx) const = 0;
+
+    virtual T& first() = 0;
+    virtual const T& cfirst() = 0;
+    virtual T& last() = 0;
+    virtual const T& clast() = 0;
 
     virtual bool canAdd() const = 0;
     virtual size_t size() const = 0;
@@ -72,6 +80,7 @@ struct VCollectionImpl:
     typedef VCollectionBase< typename Ad::value_type > Super;
 
     typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
     typedef VCollectionImpl< T > ThisCol;
     typedef typename Super::Iter Iter;
     typedef typename Super::CIter CIter;
@@ -92,8 +101,39 @@ struct VCollectionImpl:
         Ad::insert_at(_ref,impl->internal(),t);
     }
 
+    virtual void erase(const Iter& i) {
+        IterImpl* impl = static_cast<IterImpl*>(i.getBase());
+        Ad::erase(_ref,impl->internal());
+    }
+
+    virtual void erase(const Iter& beg,const Iter& end) {
+        IterImpl* iBeg = static_cast<IterImpl*>(beg.getBase());
+        IterImpl* iEnd = static_cast<IterImpl*>(end.getBase());
+        Ad::erase(_ref,iBeg->internal(),iEnd->internal());
+    }
+
     virtual void clear() {
         Ad::clear(_ref);
+    }
+
+    virtual ValType& getByIndex(size_t idx) {
+        return Ad::getByIndex(_ref,idx);
+    }
+
+    virtual ValType& first() {
+        return Ad::first(_ref);
+    }
+
+    virtual CValType& cfirst() {
+        return Ad::first(_ref);
+    }
+
+    virtual ValType& last() {
+        return Ad::last(_ref);
+    }
+
+    virtual CValType& clast() {
+        return Ad::last(_ref);
     }
 
     virtual Iter begin() {
@@ -270,9 +310,13 @@ struct CollectionAdapter< VCollection<T> > {
         return c.size();
     }
 
-    // TO IMPLEMENT
-    static void erase(ThisCol& c, iterator i);
-    static void erase(ThisCol& c, iterator beg, iterator end);
+    static void erase(ThisCol& c, const iterator& i) {
+        c.erase(i);
+    }
+
+    static void erase(ThisCol& c, const iterator& beg, const iterator& end) {
+        c.erase(beg,end);
+    }
 
     template <class U = int>
     static ThisCol instantiate() {
@@ -346,11 +390,21 @@ struct CollectionAdapter< VCollection<T> > {
         return c.citerAt(i);
     }
 
-    // TO IMPLEMENT
-    static value_type& first(ThisCol& c);
-    static const value_type& first(ConstCol& c);
-    static value_type& last(ThisCol& c);
-    static const value_type& last(ConstCol& c);
+    static value_type& first(ThisCol& c) {
+        return c.first();
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.cfirst();
+    }
+
+    static value_type& last(ThisCol& c) {
+        return c.last();
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.clast();
+    }
 
     static void clear(ThisCol& c) {
         c.clear();
