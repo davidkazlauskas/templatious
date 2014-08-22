@@ -26,22 +26,18 @@
 namespace templatious {
 
 template <
-    class T,
-    template <class> class Container
+    class T
 >
 struct Tail: public T {
     typedef typename T::Ad Ad;
     typedef typename Ad::ThisCol ThisCol;
-    typedef Container<typename Ad::ThisCol> Cont;
 
-    Tail(ThisCol& c) : _c(c) {}
+    Tail(ThisCol& c) : T(c) {}
 
 protected:
-    virtual ThisCol& getRef() {
-        return _c.getRef();
+    ThisCol& getRef() {
+        return T::getRef();
     }
-private:
-    Cont _c;
 };
 
 }

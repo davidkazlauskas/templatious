@@ -30,6 +30,8 @@ struct Traversable: public T {
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
+    Traversable(ThisCol& t) : T(t) {}
+
     Iter begin() {
         return Ad::begin(getRef());
     }
@@ -47,7 +49,9 @@ struct Traversable: public T {
     }
 
 protected:
-    virtual ThisCol& getRef() = 0;
+    ThisCol& getRef() {
+        return T::getRef();
+    }
 };
 
 }

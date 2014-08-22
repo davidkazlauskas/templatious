@@ -23,12 +23,22 @@
 
 namespace templatious {
 
-template <class T>
+template <
+    class T,
+    template <class> class Container
+>
 struct Root {
     typedef adapters::CollectionAdapter<T> Ad;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef Container<typename Ad::ThisCol> Cont;
 
+    Root(T& t) : _c(t) {}
 protected:
-    virtual T& getRef() = 0;
+    T& getRef() {
+        return _c.getRef();
+    }
+private:
+    Cont _c;
 };
 
 }
