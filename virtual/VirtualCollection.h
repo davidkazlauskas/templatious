@@ -31,6 +31,7 @@ struct VCollectionBase {
     typedef VIterator<T> Iter;
     typedef VIterator<const T> CIter;
     typedef VCollectionBase<T> ThisCol;
+    typedef T ValType;
 
     virtual ~VCollectionBase() {}
 

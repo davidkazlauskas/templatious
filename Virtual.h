@@ -23,5 +23,6 @@
 #include <templatious/virtual/Socket.h>
 #include <templatious/virtual/spec/CollectionSocket.h>
 #include <templatious/virtual/VirtualCollection.h>
+#include <templatious/virtual/Modular.h>
 
 #endif /* end of include guard: VIRTUAL_I7YB4CBD */
