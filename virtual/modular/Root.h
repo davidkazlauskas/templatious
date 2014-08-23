@@ -37,6 +37,10 @@ protected:
     T& getRef() {
         return _c.getRef();
     }
+
+    const T& cgetRef() const {
+        return _c.cgetRef();
+    }
 private:
     Cont _c;
 };

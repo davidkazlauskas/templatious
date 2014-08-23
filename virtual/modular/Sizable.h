@@ -35,12 +35,16 @@ struct Sizable: public T {
     Sizable(ThisCol& t) : T(t) {}
 
     size_t size() const {
-        return Ad::getSize(static_cast<ConstCol&>(getRef()));
+        return Ad::getSize(static_cast<ConstCol&>(cgetRef()));
     }
 
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 
@@ -61,6 +65,10 @@ protected:
     ThisCol& getRef() {
         return T::getRef();
     }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
 };
 
 template <class T>
@@ -80,6 +88,10 @@ struct SizableThrow: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 

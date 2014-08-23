@@ -66,6 +66,10 @@ protected:
     ThisCol& getRef() {
         return T::getRef();
     }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
 };
 
 template <class T>
@@ -113,6 +117,10 @@ struct AccessThrow: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 

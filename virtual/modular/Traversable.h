@@ -65,6 +65,10 @@ protected:
     ThisCol& getRef() {
         return T::getRef();
     }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
 };
 
 // Traversable which always returns collection end
@@ -106,6 +110,10 @@ struct TraversableFakeEnd: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 
@@ -154,6 +162,10 @@ struct TraversableThrow: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 

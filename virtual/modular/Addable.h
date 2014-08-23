@@ -52,6 +52,10 @@ protected:
     ThisCol& getRef() {
         return T::getRef();
     }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
 };
 
 template <class T>
@@ -74,6 +78,10 @@ struct AddableFake: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 
@@ -108,6 +116,10 @@ struct AddableThrow: public T {
 protected:
     ThisCol& getRef() {
         return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
     }
 };
 
