@@ -21,4 +21,5 @@
 #include <templatious/virtual/modular/Traversable.h>
 #include <templatious/virtual/modular/Addable.h>
 #include <templatious/virtual/modular/Clearable.h>
+#include <templatious/virtual/modular/Access.h>
 
