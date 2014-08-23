@@ -28,4 +28,5 @@
 #include <templatious/util/Convert.h>
 #include <templatious/util/RefMaker.h>
 #include <templatious/util/Container.h>
+#include <templatious/util/Exceptions.h>
 
