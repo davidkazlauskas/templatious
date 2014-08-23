@@ -19,6 +19,7 @@
 #ifndef TRAVERSABLE_9YOIEPI9
 #define TRAVERSABLE_9YOIEPI9
 
+#include <cstddef>
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
@@ -43,12 +44,21 @@ struct Traversable: public T {
         return Ad::end(getRef());
     }
 
-    CIter cbegin() {
+    Iter iterAt(size_t idx) {
+        return Ad::iter_at(getRef(),idx);
+    }
+
+    CIter cbegin() const {
         return Ad::cbegin(getRef());
     }
 
-    CIter cend() {
+    CIter cend() const {
         return Ad::cend(getRef());
+    }
+
+    CIter citerAt(size_t idx) const {
+        return Ad::iter_at(
+            static_cast<ConstCol&>(getRef()),idx);
     }
 
 protected:
@@ -77,11 +87,19 @@ struct TraversableFakeEnd: public T {
         return Ad::end(getRef());
     }
 
-    CIter cbegin() {
+    Iter iterAt(size_t idx) {
+        return Ad::end(getRef());
+    }
+
+    CIter cbegin() const {
         return Ad::cend(getRef());
     }
 
-    CIter cend() {
+    CIter cend() const {
+        return Ad::cend(getRef());
+    }
+
+    CIter citerAt(size_t idx) const {
         return Ad::cend(getRef());
     }
 
@@ -113,12 +131,22 @@ struct TraversableThrow: public T {
             "Traversal is disabled in current collection.");
     }
 
-    CIter cbegin() {
+    CIter iterAt(size_t idx) {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
     }
 
-    CIter cend() {
+    CIter cbegin() const {
+        throw templatious::util::FeatureDisabled(
+            "Traversal is disabled in current collection.");
+    }
+
+    CIter cend() const {
+        throw templatious::util::FeatureDisabled(
+            "Traversal is disabled in current collection.");
+    }
+
+    CIter citerAt(size_t idx) const {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
     }
