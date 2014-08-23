@@ -19,6 +19,8 @@
 #ifndef ADDABLE_T69BV8TV
 #define ADDABLE_T69BV8TV
 
+#include <templatious/util/Exceptions.h>
+
 namespace templatious {
 
 template <class T>
@@ -47,6 +49,59 @@ protected:
         return T::getRef();
     }
 };
+
+template <class T>
+struct AddableFake: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    AddableFake(ThisCol& t) : T(t) {}
+
+    void add(const ValType& i) {}
+
+    void insert(const Iter& at,const ValType& i) {}
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+};
+
+template <class T>
+struct AddableThrow: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    AddableThrow(ThisCol& t) : T(t) {}
+
+    void add(const ValType& i) {
+        throw templatious::util::FeatureDisabled(
+            "Adding is disabled in current collection.");
+    }
+
+    void insert(const Iter& at,const ValType& i) {
+        throw templatious::util::FeatureDisabled(
+            "Adding is disabled in current collection.");
+    }
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+};
+
 
 }
 
