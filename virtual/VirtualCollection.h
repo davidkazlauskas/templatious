@@ -53,9 +53,9 @@ struct VCollectionBase {
     virtual CIter citerAt(size_t idx) const = 0;
 
     virtual T& first() = 0;
-    virtual const T& cfirst() = 0;
+    virtual const T& cfirst() const = 0;
     virtual T& last() = 0;
-    virtual const T& clast() = 0;
+    virtual const T& clast() const = 0;
 
     virtual bool canAdd() const = 0;
     virtual size_t size() const = 0;
@@ -131,7 +131,7 @@ struct VCollectionImpl:
         return Ad::first(_ref);
     }
 
-    virtual CValType& cfirst() {
+    virtual CValType& cfirst() const {
         return Ad::first(_ref);
     }
 
@@ -139,7 +139,7 @@ struct VCollectionImpl:
         return Ad::last(_ref);
     }
 
-    virtual CValType& clast() {
+    virtual CValType& clast() const {
         return Ad::last(_ref);
     }
 
@@ -258,7 +258,7 @@ struct VCollection {
         return _b->first();
     }
 
-    CValType& cfirst() {
+    CValType& cfirst() const {
         return _b->cfirst();
     }
 
@@ -266,7 +266,7 @@ struct VCollection {
         return _b->last();
     }
 
-    CValType& clast() {
+    CValType& clast() const {
         return _b->clast();
     }
 

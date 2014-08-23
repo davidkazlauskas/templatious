@@ -44,6 +44,10 @@ struct Addable: public T {
         Ad::insert_at(getRef(),at,i);
     }
 
+    bool canAdd() const {
+        return false;
+    }
+
 protected:
     ThisCol& getRef() {
         return T::getRef();
@@ -64,8 +68,8 @@ struct AddableFake: public T {
     AddableFake(ThisCol& t) : T(t) {}
 
     void add(const ValType& i) {}
-
     void insert(const Iter& at,const ValType& i) {}
+    bool canAdd() const { return false; }
 
 protected:
     ThisCol& getRef() {
@@ -92,6 +96,11 @@ struct AddableThrow: public T {
     }
 
     void insert(const Iter& at,const ValType& i) {
+        throw templatious::util::FeatureDisabled(
+            "Adding is disabled in current collection.");
+    }
+
+    bool canAdd() const {
         throw templatious::util::FeatureDisabled(
             "Adding is disabled in current collection.");
     }
