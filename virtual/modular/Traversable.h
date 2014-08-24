@@ -74,7 +74,7 @@ protected:
 
 // Traversable which always returns collection end
 template <class T>
-struct TraversableFakeEnd: public T {
+struct TraversableFake: public T {
     typedef typename T::Ad Ad;
 
     typedef typename Ad::iterator Iter;
@@ -82,7 +82,7 @@ struct TraversableFakeEnd: public T {
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
-    TraversableFakeEnd(ThisCol& t) : T(t) {}
+    TraversableFake(ThisCol& t) : T(t) {}
 
     Iter begin() {
         return Ad::end(getRef());

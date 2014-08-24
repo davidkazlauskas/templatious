@@ -24,5 +24,6 @@
 #include <templatious/virtual/spec/CollectionSocket.h>
 #include <templatious/virtual/VirtualCollection.h>
 #include <templatious/virtual/Modular.h>
+#include <templatious/virtual/VCollectionFactory.h>
 
 #endif /* end of include guard: VIRTUAL_I7YB4CBD */
