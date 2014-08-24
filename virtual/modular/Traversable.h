@@ -50,11 +50,11 @@ struct Traversable: public T {
     }
 
     CIter cbegin() const {
-        return Ad::cbegin(getRef());
+        return Ad::cbegin(cgetRef());
     }
 
     CIter cend() const {
-        return Ad::cend(getRef());
+        return Ad::cend(cgetRef());
     }
 
     CIter citerAt(size_t idx) const {

@@ -258,7 +258,7 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
         return c.back();
     }
 
-    template <class U>
+    template <class U = int>
     static void clear(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
