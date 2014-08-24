@@ -24,6 +24,7 @@
 #include <templatious/virtual/VirtualCollection.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <
     class T
@@ -41,7 +42,7 @@ protected:
 };
 
 }
-
+}
 
 #endif /* end of include guard: TAIL_8FSTJFTQ */
 

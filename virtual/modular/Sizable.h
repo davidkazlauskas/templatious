@@ -24,6 +24,7 @@
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <class T>
 struct Sizable: public T {
@@ -95,6 +96,7 @@ protected:
     }
 };
 
+}
 }
 
 #endif /* end of include guard: SIZABLE_T81BW4IT */

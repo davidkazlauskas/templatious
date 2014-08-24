@@ -22,6 +22,7 @@
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <class T>
 struct Clearable: public T {
@@ -123,6 +124,7 @@ protected:
     }
 };
 
+}
 }
 
 #endif /* end of include guard: CLEARABLE_D3H5AWSJ */

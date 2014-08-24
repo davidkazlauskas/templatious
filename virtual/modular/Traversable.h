@@ -23,6 +23,7 @@
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
+namespace vmodular {
 
 // Standard traversable
 template <class T>
@@ -169,6 +170,7 @@ protected:
     }
 };
 
+}
 }
 
 #endif /* end of include guard: TRAVERSABLE_9YOIEPI9 */

@@ -24,6 +24,7 @@
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <class T>
 struct Access: public T {
@@ -124,6 +125,7 @@ protected:
     }
 };
 
+}
 }
 
 #endif /* end of include guard: GENERAL_1NN4MGYY */

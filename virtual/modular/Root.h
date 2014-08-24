@@ -22,6 +22,7 @@
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <
     class T,
@@ -45,6 +46,7 @@ private:
     Cont _c;
 };
 
+}
 }
 
 #endif /* end of include guard: ROOT_7NZ548VK */

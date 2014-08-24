@@ -22,6 +22,7 @@
 #include <templatious/util/Exceptions.h>
 
 namespace templatious {
+namespace vmodular {
 
 template <class T>
 struct Addable: public T {
@@ -124,6 +125,7 @@ protected:
 };
 
 
+}
 }
 
 #endif /* end of include guard: ADDABLE_T69BV8TV */
