@@ -151,6 +151,11 @@ struct VCollectionFactory {
             "Could not deduce type from selected addablePolicy policy. "
             "Make sure to select policy from corresponsing enums.");
 
+    typedef templatious::vmodular::Tail<TrPol> Type;
+
+    static Type make(ThisCol& c) {
+        return Type(c);
+    }
 };
 
 

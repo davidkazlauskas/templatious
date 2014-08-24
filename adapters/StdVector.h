@@ -238,13 +238,13 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
         return c.cbegin() + pos;
     }
 
-    template <class U>
+    template <class U = int>
     static void erase(ThisCol& c,iterator pos) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
-    template <class U>
+    template <class U = int>
     static void erase(ThisCol& c,iterator beg,iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
@@ -267,7 +267,6 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
     static bool canAdd(ThisCol& c) {
         return false;
     }
-
 
 };
 
