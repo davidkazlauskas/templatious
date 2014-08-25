@@ -57,7 +57,7 @@ struct add_custom<1> {
     template <class T, class U>
     static void add(T& t,const U& u) {
         typedef templatious::adapters::CollectionAdapter<T> AdT;
-        typedef templatious::adapters::CollectionAdapter<U> AdU;
+        typedef templatious::adapters::CollectionAdapter<const U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
         static_assert(AdU::is_valid, "Adapter not supported.");
         for (auto i = AdU::begin(u); i != AdU::end(u); ++i) {

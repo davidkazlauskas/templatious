@@ -34,7 +34,7 @@ struct QuadroIterator<A> {
     typedef QuadroIterator<A> ThisIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
-    typedef decltype(*Iterator()) ValType;
+    typedef typename Adapter::value_type ValType;
 
     A& _c;
     Iterator _i;
@@ -87,7 +87,7 @@ struct QuadroIterator<A, Tail...> {
     typedef QuadroIterator<Tail...> TailIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
-    typedef decltype(*Iterator()) ValType;
+    typedef typename Adapter::value_type ValType;
 
     A& _c;
     Iterator _i;

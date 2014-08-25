@@ -43,14 +43,14 @@ template <class T,bool addOnIncrement>
 struct LoopIter {
     typedef T Unit;
     typedef LoopIter<Unit,addOnIncrement> ThisIter;
-    Unit _count;
+    mutable Unit _count;
     Unit _step;
 
     LoopIter(Unit count,Unit step) :
         _count(count), _step(step) {}
 
     LoopIter(Unit count) :
-        _count(count) {}
+        _count(count), _step(1) {}
 
     ThisIter& operator++() {
         if (addOnIncrement) {
@@ -110,7 +110,13 @@ struct LoopL : public LoopBase<T> {
                     !isReversed,LoopIter<T>,LoopIter<T,false>
                 >::val
         >::val ThisIter;
-    typedef ThisIter ConstIter;
+
+    typedef typename templatious::util::TypeSelector<
+        Base::is_signed,LoopIter<const T>,
+                typename templatious::util::TypeSelector<
+                    !isReversed,LoopIter<const T>,LoopIter<const T,false>
+                >::val
+        >::val ConstIter;
 
     LoopL(Unit end) {
         _beg = 0;
@@ -160,6 +166,20 @@ struct LoopL : public LoopBase<T> {
         return standardEnd();
     }
 
+    ConstIter cbegin() const {
+        if (!Base::is_signed && isReversed) {
+            return ConstIter(_end - _step,_step);
+        }
+        return ConstIter(_beg,_step);
+    }
+
+    ConstIter cend() const {
+        if (!Base::is_signed && isReversed) {
+            return ConstIter(_beg - _step,_step);
+        }
+
+        return cstandardEnd();
+    }
 
     template <class U = int>
     RevType rev() const {
@@ -199,6 +219,12 @@ private:
         Unit res = _end - _beg;
         res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
         return ThisIter(_beg + res * _step);
+    }
+
+    ConstIter cstandardEnd() const {
+        Unit res = _end - _beg;
+        res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
+        return ConstIter(_beg + res * _step);
     }
 
     Unit getModulus() const {
@@ -251,44 +277,38 @@ namespace adapters {
 
 template <class T,bool isReversed>
 struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
-    
+
     static const bool is_valid = true;
 
     typedef templatious::LoopL<T,isReversed> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef decltype(ThisCol(0).begin()) iterator;
-    typedef iterator const_iterator;
+    typedef typename ThisCol::ThisIter iterator;
+    typedef typename ThisCol::ConstIter const_iterator;
     typedef T value_type;
     typedef const T const_value_type;
 
-    template <class U = int>
     static iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    template <class U = int>
-    static iterator end(const ThisCol& c) {
+    static iterator end(ThisCol& c) {
         return c.end();
     }
 
-    template <class U = int>
-    static const_iterator begin(const ThisCol& c) {
-        return c.begin();
+    static const_iterator begin(ConstCol& c) {
+        return c.cbegin();
     }
 
-    template <class U = int>
-    static const_iterator end(ThisCol& c) {
-        return c.end();
+    static const_iterator end(ConstCol& c) {
+        return c.cend();
     }
 
-    template <class U = int>
-    static const_iterator cbegin(ThisCol& c) {
-        return c.begin();
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
     }
 
-    template <class U = int>
-    static const_iterator cend(ThisCol& c) {
-        return c.end();
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
     }
 
     template <class U = int>
@@ -392,6 +412,138 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
 
     template <class U = int>
     static const value_type& last(ConstCol& c) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static bool insert_at(ThisCol& c, iterator at, const value_type& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static void clear(ThisCol& c) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+};
+
+template <class T,bool isReversed>
+struct CollectionAdapter< const templatious::LoopL<T,isReversed> > {
+
+    static const bool is_valid = true;
+
+    typedef const templatious::LoopL<T,isReversed> ThisCol;
+    typedef ThisCol ConstCol;
+    typedef typename ThisCol::ThisIter iterator;
+    typedef typename ThisCol::ConstIter const_iterator;
+    typedef const T value_type;
+    typedef const T const_value_type;
+
+    template <class U = int>
+    static const_iterator begin(const ThisCol& c) {
+        return c.cbegin();
+    }
+
+    template <class U = int>
+    static const_iterator end(ThisCol& c) {
+        return c.cend();
+    }
+
+    template <class U = int>
+    static const_iterator cbegin(ThisCol& c) {
+        return c.cbegin();
+    }
+
+    template <class U = int>
+    static const_iterator cend(ThisCol& c) {
+        return c.cend();
+    }
+
+    template <class U = int>
+    static iterator iter_at(ThisCol& c,size_t i) {
+        return c.iterAt(c,i);
+    }
+
+    template <class U = int>
+    static const_iterator citer_at(ThisCol& c,size_t i) {
+        return c.citerAt(c,i);
+    }
+
+    // Invalid adapter method for loop class follow:
+    template <class U = int>
+    static bool add(ThisCol& c, const value_type& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static const_value_type& getByIndex(ConstCol& c, int i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static int getSize(const ThisCol& c) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static bool erase(ThisCol& c, iterator beg) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static bool erase(ThisCol& c, iterator beg, iterator end) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static const_value_type& first(ConstCol& c) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Loop class is not meant to be a full fledged \
+                collection, therefore, doesn't support this method.");
+    }
+
+    template <class U = int>
+    static const_value_type& last(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \

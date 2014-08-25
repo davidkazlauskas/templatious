@@ -49,11 +49,11 @@ struct __ForeachCounter {
 };
 
 #define TEMPLATIOUS_FOREACH(var,col) \
-    for (templatious::__ForeachCounter<decltype(templatious::StaticAdapter::begin(col))>    \
-            _tmp_i(templatious::StaticAdapter::begin(col));                                 \
-            _tmp_i._i != templatious::StaticAdapter::end(col)                               \
-            && _tmp_i._keepGoing;                                                           \
-            ++_tmp_i)                                                                       \
+    for (::templatious::__ForeachCounter<decltype(::templatious::StaticAdapter::begin(col))>    \
+            _tmp_i(::templatious::StaticAdapter::begin(col));                                   \
+            _tmp_i._i != ::templatious::StaticAdapter::end(col)                                 \
+            && _tmp_i._keepGoing;                                                               \
+            ++_tmp_i)                                                                           \
         for (var = *_tmp_i._i; ; ({_tmp_i.flipGoing();break;}))
 
 }

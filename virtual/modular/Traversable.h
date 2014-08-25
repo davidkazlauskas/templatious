@@ -140,7 +140,7 @@ struct TraversableThrow: public T {
             "Traversal is disabled in current collection.");
     }
 
-    CIter iterAt(size_t idx) {
+    Iter iterAt(size_t idx) {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
     }

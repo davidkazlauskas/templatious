@@ -144,6 +144,111 @@ struct CollectionAdapter< T[sz] > {
 
 };
 
+template <class T,size_t sz>
+struct CollectionAdapter< const T[sz] > {
+
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+    static const size_t size = sz;
+
+	typedef const T* ThisCol;
+    typedef ThisCol ConstCol;
+	typedef const T* iterator;
+	typedef iterator const_iterator;
+	typedef const T value_type;
+	typedef value_type const_value_type;
+
+    template <class U = int>
+    static bool add(T c[size], const value_type& i) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Add not supported as static array doesn't hold any state.");
+    }
+
+    static const_value_type& getByIndex(const T c[size],size_t i) {
+        return c[i];
+    }
+
+    static size_t getSize(const T c[size]) {
+        return size;
+    }
+
+    template <class U = int>
+    static bool erase(T c[size], iterator beg) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Erase not supported as static array doesn't hold any state.");
+    }
+
+    template <class U = int>
+    static bool erase(T c[size], iterator beg, iterator end) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Erase not supported as static array doesn't hold any state.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Instantiate not supported as static arrays are allocated on the stack.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(int size) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Instantiate not supported as static arrays are allocated on the stack.");
+    }
+
+    static iterator begin(const T c[size]) {
+        return &c[0];
+    }
+
+    static iterator end(const T c[size]) {
+        return &c[size];
+    }
+
+    static iterator iter_at(const T c[size],size_t i) {
+        return &c[i];
+    }
+
+    static const_iterator cbegin(const T c[size]) {
+        return &c[0];
+    }
+
+    static const_iterator cend(const T c[size]) {
+        return &c[size];
+    }
+
+    static const_iterator citer_at(const T c[size],size_t i) {
+        return &c[i];
+    }
+
+    static const_value_type& first(const T c[size]) {
+        return c[0];
+    }
+
+    static const_value_type& last(const T c[size]) {
+        return c[size - 1];
+    }
+
+    template <class U = int>
+    static bool insert_at(T c, iterator at, const value_type& i) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Insert not supported as static array doesn't hold any state.");
+    }
+
+    template <class U = int>
+    static void clear(T c[size]) {
+        // suppress static assert unless method is actually used
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+            "Clear not supported as static array doesn't hold any state.");
+    }
+
+};
+
 }
 }
 

@@ -39,7 +39,7 @@ struct RecursiveIterator<A> {
     typedef RecursiveIterator<A> ThisIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
-    typedef decltype(*Iterator()) ValType;
+    typedef typename Adapter::value_type ValType;
     static_assert(Adapter::is_valid,"Adapter is invalid.");
 
     Iterator _a;
@@ -73,16 +73,16 @@ struct RecursiveIterator<A> {
 
     template <class F>
     auto callFunction(F&& f)
-        -> decltype(f(std::forward<ValType>(*_a)))
+        -> decltype(f(*_a))
     {
-        return f(std::forward<ValType>(*_a));
+        return f(*_a);
     }
 
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args) ->
-    decltype(f(std::forward<Args>(args)..., std::forward<ValType>(*_a)))
+    decltype(f(std::forward<Args>(args)..., *_a))
     {
-        return f(std::forward<Args>(args)..., std::forward<ValType>(*_a));
+        return f(std::forward<Args>(args)..., *_a);
     }
 
 };
@@ -91,11 +91,10 @@ template <class A, class... Tail>
 struct RecursiveIterator<A, Tail...> {
     enum { num = RecursiveIterator<Tail...>::num + 1 };
 
-
     typedef RecursiveIterator<A, Tail...> ThisIter;
     typedef col::CollectionAdapter<A> Adapter;
     typedef typename Adapter::iterator Iterator;
-    typedef decltype(*Iterator()) ValType;
+    typedef typename Adapter::value_type ValType;
 
     static_assert(Adapter::is_valid,"Adapter is invalid.");
 
@@ -146,9 +145,9 @@ struct RecursiveIterator<A, Tail...> {
 
     template <class F>
     auto callFunction(F&& f) -> decltype(
-        _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_a)))
+        _t.callFunction(std::forward<F>(f), *_a))
     {
-        return _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_a));
+        return _t.callFunction(std::forward<F>(f), *_a);
     }
 
     template <class F, class... Args>
@@ -156,12 +155,12 @@ struct RecursiveIterator<A, Tail...> {
         -> decltype(_t.callFunction(
         std::forward<F>(f),
         std::forward<Args>(args)...,
-        std::forward<ValType>(*_a)))
+        *_a))
     {
         return _t.callFunction(
                 std::forward<F>(f),
                 std::forward<Args>(args)...,
-                std::forward<ValType>(*_a));
+                *_a);
     }
 
 };

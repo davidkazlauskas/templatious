@@ -142,9 +142,9 @@ struct StaticManipulator {
     public:
 
     // T - return col, U - functor, Args - collections
-    template <class T,bool passIndex = false,class U,class ...Args>
+    template <class T,bool passIndex = false,class U,class... Args>
     static T moldToOne(U&& fn,Args&&... args) {
-        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
+        assert(templatious::util::SizeVerifier<Args...>(std::forward<Args>(args)...).areAllEqual());
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::StaticAdapter SA;

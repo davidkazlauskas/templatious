@@ -129,15 +129,15 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.iterAt(i);
     }
 
-    static iterator begin(ConstCol& c) {
+    static const_iterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static iterator end(ConstCol& c) {
+    static const_iterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static iterator iter_at(ConstCol& c, size_t i) {
+    static const_iterator iter_at(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
@@ -178,6 +178,114 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
     }
 };
 
+template <class T>
+struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+
+    typedef typename T::Ad Inner;
+
+    typedef const ::templatious::vmodular::Tail<T> ThisCol;
+    typedef const ThisCol ConstCol;
+    typedef typename Inner::const_iterator iterator;
+    typedef typename Inner::const_iterator const_iterator;
+    typedef typename Inner::const_value_type value_type;
+    typedef typename Inner::const_value_type const_value_type;
+
+    template <class V>
+    static void add(ThisCol& c, V&& i) {
+        c.add(i);
+    }
+
+    template <class V>
+    static void insert_at(ThisCol& c, iterator at, V&& i) {
+        c.insert(at,i);
+    }
+
+    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+        return c.cgetByIndex(i);
+    }
+
+    static size_t getSize(ConstCol& c) {
+        return c.size();
+    }
+
+    static void erase(ThisCol& c,const iterator& i) {
+        return c.erase(i);
+    }
+
+    static void erase(ThisCol& c,const iterator& beg,const iterator& end) {
+        return c.erase(beg,end);
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Virtual collection shall be wrapped around actual collection, "
+                "not instantiated on its own.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Virtual collection shall be wrapped around actual collection, "
+                "not instantiated on its own.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Virtual collection shall be wrapped around actual collection, "
+                "not instantiated on its own.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Virtual collection shall be wrapped around actual collection, "
+                "not instantiated on its own.");
+    }
+
+    static const_iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator iter_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_iterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static const_iterator citer_at(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static const_value_type& first(ConstCol& c) {
+        return c.cfirst();
+    }
+
+    static const_value_type& last(ConstCol& c) {
+        return c.clast();
+    }
+
+    static void clear(ThisCol& c) {
+        return c.clear();
+    }
+
+    static bool canAdd(ConstCol& c) {
+        return c.canAdd();
+    }
+};
 
 }
 }

@@ -249,7 +249,7 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static const_value_type& getByIndex(ThisCol& c, size_t i) {
         assert(getSize(c) > i);
 
         int count = 0;
@@ -283,16 +283,7 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
     }
 
     static const_iterator iter_at(ConstCol& c,size_t i) {
-        assert(getSize(c) > i);
-
-        int count = 0;
-        auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return iter;
+        return citer_at(c,i);
     }
 
     static const_iterator citer_at(ConstCol& c,size_t i) {
