@@ -29,4 +29,5 @@
 #include <templatious/util/RefMaker.h>
 #include <templatious/util/Container.h>
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/TypeMap.h>
 

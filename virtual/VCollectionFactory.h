@@ -20,7 +20,7 @@
 #define VCOLLECTIONFACTORY_4CCSY5Y2
 
 #include <templatious/virtual/Modular.h>
-#include <templatious/util/Selectors.h>
+#include <templatious/util/TypeMap.h>
 
 namespace templatious {
 
@@ -74,62 +74,39 @@ struct VCollectionFactory {
             ThisCol,templatious::util::RefContainer>
     >::val Root;
 
-    typedef typename templatious::util::TypeSelector<
-        sizablePolicy == SP_ENABLED,
-        templatious::vmodular::Sizable<Root>,
-        typename templatious::util::TypeSelector<sizablePolicy == SP_FAKE,
-            templatious::vmodular::SizableFake<Root>,
-            typename templatious::util::TypeSelector<sizablePolicy == SP_THROW,
-                typename templatious::vmodular::SizableThrow<Root>,
-                void
-            >::val
-        >::val
-    >::val SzPol;
+    typedef templatious::util::NumTypeMap<
+        TEMPLATIOUS_PAIR_NT(SP_ENABLED,templatious::vmodular::Sizable<Root>),
+        TEMPLATIOUS_PAIR_NT(SP_FAKE,templatious::vmodular::SizableFake<Root>),
+        TEMPLATIOUS_PAIR_NT(SP_THROW,templatious::vmodular::SizableThrow<Root>)
+        > SzMap;
+    typedef typename SzMap::template getType<sizablePolicy,void>::val SzPol;
 
-    typedef typename templatious::util::TypeSelector<
-        accessPolicy == ACP_ENABLED,
-        templatious::vmodular::Access<SzPol>,
-        typename templatious::util::TypeSelector<accessPolicy == ACP_THROW,
-            templatious::vmodular::AccessThrow<SzPol>,
-            void
-        >::val
-    >::val AccPol;
+    typedef templatious::util::NumTypeMap<
+        TEMPLATIOUS_PAIR_NT(ACP_ENABLED,templatious::vmodular::Access<SzPol>),
+        TEMPLATIOUS_PAIR_NT(ACP_THROW,templatious::vmodular::AccessThrow<SzPol>)
+        > AccMap;
+    typedef typename AccMap::template getType<accessPolicy,void>::val AccPol;
 
-    typedef typename templatious::util::TypeSelector<
-        addablePolicy == AP_ENABLED,
-        templatious::vmodular::Addable<AccPol>,
-        typename templatious::util::TypeSelector<addablePolicy == AP_FAKE,
-            templatious::vmodular::AddableFake<AccPol>,
-            typename templatious::util::TypeSelector<addablePolicy == AP_THROW,
-                typename templatious::vmodular::AddableThrow<AccPol>,
-                void
-            >::val
-        >::val
-    >::val AddPol;
+    typedef templatious::util::NumTypeMap<
+        TEMPLATIOUS_PAIR_NT(AP_ENABLED,templatious::vmodular::Addable<AccPol>),
+        TEMPLATIOUS_PAIR_NT(AP_FAKE,templatious::vmodular::AddableFake<AccPol>),
+        TEMPLATIOUS_PAIR_NT(AP_THROW,templatious::vmodular::AddableThrow<AccPol>)
+        > AddMap;
+    typedef typename AddMap::template getType<addablePolicy,void>::val AddPol;
 
-    typedef typename templatious::util::TypeSelector<
-        clearablePolicy == CP_ENABLED,
-        templatious::vmodular::Clearable<AddPol>,
-        typename templatious::util::TypeSelector<clearablePolicy == CP_FAKE,
-            templatious::vmodular::ClearableFake<AddPol>,
-            typename templatious::util::TypeSelector<clearablePolicy == CP_THROW,
-                typename templatious::vmodular::ClearableThrow<AddPol>,
-                void
-            >::val
-        >::val
-    >::val ClPol;
+    typedef templatious::util::NumTypeMap<
+        TEMPLATIOUS_PAIR_NT(CP_ENABLED,templatious::vmodular::Clearable<AddPol>),
+        TEMPLATIOUS_PAIR_NT(CP_FAKE,templatious::vmodular::ClearableFake<AddPol>),
+        TEMPLATIOUS_PAIR_NT(CP_THROW,templatious::vmodular::ClearableThrow<AddPol>)
+        > ClMap;
+    typedef typename ClMap::template getType<clearablePolicy,void>::val ClPol;
 
-    typedef typename templatious::util::TypeSelector<
-        traversablePolicy == TP_ENABLED,
-        templatious::vmodular::Traversable<ClPol>,
-        typename templatious::util::TypeSelector<traversablePolicy == TP_FAKE,
-            templatious::vmodular::TraversableFake<ClPol>,
-            typename templatious::util::TypeSelector<traversablePolicy == TP_THROW,
-                typename templatious::vmodular::TraversableThrow<ClPol>,
-                void
-            >::val
-        >::val
-    >::val TrPol;
+    typedef templatious::util::NumTypeMap<
+        TEMPLATIOUS_PAIR_NT(TP_ENABLED,templatious::vmodular::Traversable<ClPol>),
+        TEMPLATIOUS_PAIR_NT(TP_FAKE,templatious::vmodular::TraversableFake<ClPol>),
+        TEMPLATIOUS_PAIR_NT(TP_THROW,templatious::vmodular::TraversableThrow<ClPol>)
+        > TrMap;
+    typedef typename TrMap::template getType<traversablePolicy,void>::val TrPol;
 
     static_assert(!std::is_same<void,SzPol>::value,
             "Could not deduce type from selected sizablePolicy policy. "
@@ -144,11 +121,11 @@ struct VCollectionFactory {
             "Make sure to select policy from corresponsing enums.");
 
     static_assert(!std::is_same<void,ClPol>::value,
-            "Could not deduce type from selected addablePolicy policy. "
+            "Could not deduce type from selected clearablePolicy policy. "
             "Make sure to select policy from corresponsing enums.");
 
     static_assert(!std::is_same<void,TrPol>::value,
-            "Could not deduce type from selected addablePolicy policy. "
+            "Could not deduce type from selected traversablePolicy policy. "
             "Make sure to select policy from corresponsing enums.");
 
     typedef templatious::vmodular::Tail<TrPol> Type;
