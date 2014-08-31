@@ -20,6 +20,7 @@
 #define SUGAR_RISZR4GH
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/StaticFactory.h>
 
 namespace templatious {
 
@@ -50,12 +51,16 @@ struct __ForeachCounter {
 
 #define TEMPLATIOUS_FOREACH(var,col) \
     for (::templatious::__ForeachCounter<decltype(::templatious::StaticAdapter::begin(col))>    \
-            _tmp_i(::templatious::StaticAdapter::begin(col));                                   \
-            _tmp_i._i != ::templatious::StaticAdapter::end(col)                                 \
-            && _tmp_i._keepGoing;                                                               \
-            ++_tmp_i)                                                                           \
-        for (var = *_tmp_i._i; ; ({_tmp_i.flipGoing();break;}))
+            __tmp_i(::templatious::StaticAdapter::begin(col));                                   \
+            __tmp_i._i != ::templatious::StaticAdapter::end(col)                                 \
+            && __tmp_i._keepGoing;                                                               \
+            ++__tmp_i)                                                                           \
+        for (var = *__tmp_i._i; ; ({__tmp_i.flipGoing();break;}))
+
+#define TEMPLATIOUS_REPEAT(n) \
+    TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::loopL(n))
 
 }
+
 
 #endif /* end of include guard: SUGAR_RISZR4GH */
