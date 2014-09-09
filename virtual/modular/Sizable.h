@@ -22,6 +22,7 @@
 #include <cstddef>
 
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace vmodular {
@@ -84,6 +85,32 @@ struct SizableThrow: public T {
     size_t size() const {
         throw templatious::util::FeatureDisabled(
             "Size info is disabled in current collection.");
+    }
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
+};
+
+template <class T>
+struct SizablePrevent: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    SizablePrevent(ThisCol& t) : T(t) {}
+
+    template <class U = int>
+    size_t size() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Sizable feature is disabled.");
     }
 
 protected:

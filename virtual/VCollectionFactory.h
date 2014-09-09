@@ -27,30 +27,35 @@ namespace templatious {
 enum SizablePolicy {
     SP_ENABLED = 7,
     SP_FAKE,
-    SP_THROW
+    SP_THROW,
+    SP_PREVENT
 };
 
 enum AccessPolicy {
     ACP_ENABLED = 27,
-    ACP_THROW
+    ACP_THROW,
+    ACP_PREVENT
 };
 
 enum AddablePolicy {
     AP_ENABLED = 47,
     AP_FAKE,
-    AP_THROW
+    AP_THROW,
+    AP_PREVENT
 };
 
 enum ClearablePolicy {
     CP_ENABLED = 67,
     CP_FAKE,
-    CP_THROW
+    CP_THROW,
+    CP_PREVENT
 };
 
 enum TraversablePolicy {
     TP_ENABLED = 87,
     TP_FAKE,
-    TP_THROW
+    TP_THROW,
+    TP_PREVENT
 };
 
 template <
@@ -77,34 +82,39 @@ struct VCollectionFactory {
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(SP_ENABLED,templatious::vmodular::Sizable<Root>),
         TEMPLATIOUS_PAIR_NT(SP_FAKE,templatious::vmodular::SizableFake<Root>),
-        TEMPLATIOUS_PAIR_NT(SP_THROW,templatious::vmodular::SizableThrow<Root>)
+        TEMPLATIOUS_PAIR_NT(SP_THROW,templatious::vmodular::SizableThrow<Root>),
+        TEMPLATIOUS_PAIR_NT(SP_PREVENT,templatious::vmodular::SizablePrevent<Root>)
         > SzMap;
     typedef typename SzMap::template getType<sizablePolicy,void>::val SzPol;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(ACP_ENABLED,templatious::vmodular::Access<SzPol>),
-        TEMPLATIOUS_PAIR_NT(ACP_THROW,templatious::vmodular::AccessThrow<SzPol>)
+        TEMPLATIOUS_PAIR_NT(ACP_THROW,templatious::vmodular::AccessThrow<SzPol>),
+        TEMPLATIOUS_PAIR_NT(ACP_PREVENT,templatious::vmodular::AccessPrevent<SzPol>)
         > AccMap;
     typedef typename AccMap::template getType<accessPolicy,void>::val AccPol;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(AP_ENABLED,templatious::vmodular::Addable<AccPol>),
         TEMPLATIOUS_PAIR_NT(AP_FAKE,templatious::vmodular::AddableFake<AccPol>),
-        TEMPLATIOUS_PAIR_NT(AP_THROW,templatious::vmodular::AddableThrow<AccPol>)
+        TEMPLATIOUS_PAIR_NT(AP_THROW,templatious::vmodular::AddableThrow<AccPol>),
+        TEMPLATIOUS_PAIR_NT(AP_PREVENT,templatious::vmodular::AddablePrevent<AccPol>)
         > AddMap;
     typedef typename AddMap::template getType<addablePolicy,void>::val AddPol;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(CP_ENABLED,templatious::vmodular::Clearable<AddPol>),
         TEMPLATIOUS_PAIR_NT(CP_FAKE,templatious::vmodular::ClearableFake<AddPol>),
-        TEMPLATIOUS_PAIR_NT(CP_THROW,templatious::vmodular::ClearableThrow<AddPol>)
+        TEMPLATIOUS_PAIR_NT(CP_THROW,templatious::vmodular::ClearableThrow<AddPol>),
+        TEMPLATIOUS_PAIR_NT(CP_PREVENT,templatious::vmodular::ClearablePrevent<AddPol>)
         > ClMap;
     typedef typename ClMap::template getType<clearablePolicy,void>::val ClPol;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(TP_ENABLED,templatious::vmodular::Traversable<ClPol>),
         TEMPLATIOUS_PAIR_NT(TP_FAKE,templatious::vmodular::TraversableFake<ClPol>),
-        TEMPLATIOUS_PAIR_NT(TP_THROW,templatious::vmodular::TraversableThrow<ClPol>)
+        TEMPLATIOUS_PAIR_NT(TP_THROW,templatious::vmodular::TraversableThrow<ClPol>),
+        TEMPLATIOUS_PAIR_NT(TP_PREVENT,templatious::vmodular::TraversablePrevent<ClPol>)
         > TrMap;
     typedef typename TrMap::template getType<traversablePolicy,void>::val TrPol;
 

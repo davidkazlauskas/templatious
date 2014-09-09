@@ -20,6 +20,7 @@
 #define ADDABLE_T69BV8TV
 
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace vmodular {
@@ -112,6 +113,50 @@ struct AddableThrow: public T {
     bool canAdd() const {
         throw templatious::util::FeatureDisabled(
             "Adding is disabled in current collection.");
+    }
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
+};
+
+template <class T>
+struct AddablePrevent: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    AddablePrevent(ThisCol& t) : T(t) {}
+
+    template <class U = int>
+    void add(const ValType& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Addable feature is disabled.");
+    }
+
+    template <class U = int>
+    void insert(const Iter& at,const ValType& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Addable feature is disabled.");
+    }
+
+    template <class U = int>
+    bool canAdd() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Addable feature is disabled.");
     }
 
 protected:

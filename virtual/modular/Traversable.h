@@ -21,6 +21,7 @@
 
 #include <cstddef>
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace vmodular {
@@ -158,6 +159,69 @@ struct TraversableThrow: public T {
     CIter citerAt(size_t idx) const {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
+    }
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
+};
+
+template <class T>
+struct TraversablePrevent: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    TraversablePrevent(ThisCol& t) : T(t) {}
+
+    template <class U = int>
+    Iter begin() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
+    }
+
+    template <class U = int>
+    Iter end() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
+    }
+
+    template <class U = int>
+    Iter iterAt(size_t idx) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
+    }
+
+    template <class U = int>
+    CIter cbegin() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
+    }
+
+    template <class U = int>
+    CIter cend() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
+    }
+
+    template <class U = int>
+    CIter citerAt(size_t idx) const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Traversable feature is disabled.");
     }
 
 protected:

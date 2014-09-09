@@ -22,6 +22,7 @@
 #include <cstddef>
 
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace vmodular {
@@ -114,6 +115,70 @@ struct AccessThrow: public T {
     CValType& cgetByIndex(size_t idx) const {
         throw templatious::util::FeatureDisabled(
             "Access operations are disabled in current collection.");
+    }
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
+};
+
+template <class T>
+struct AccessPrevent: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    AccessPrevent(ThisCol& t) : T(t) {}
+
+    template <class U = int>
+    ValType& first() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
+    }
+
+    template <class U = int>
+    CValType& cfirst() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
+    }
+
+    template <class U = int>
+    ValType& last() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
+    }
+
+    template <class U = int>
+    CValType& clast() const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
+    }
+
+    template <class U = int>
+    ValType& getByIndex(size_t idx) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
+    }
+
+    template <class U = int>
+    CValType& cgetByIndex(size_t idx) const {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Access feature is disabled.");
     }
 protected:
     ThisCol& getRef() {

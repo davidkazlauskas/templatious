@@ -20,6 +20,7 @@
 #define CLEARABLE_D3H5AWSJ
 
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 
 namespace templatious {
 namespace vmodular {
@@ -113,6 +114,50 @@ struct ClearableThrow: public T {
     }
 
     ClearableThrow(ThisCol& t) : T(t) {}
+
+protected:
+    ThisCol& getRef() {
+        return T::getRef();
+    }
+
+    ConstCol& cgetRef() const {
+        return T::cgetRef();
+    }
+};
+
+template <class T>
+struct ClearablePrevent: public T {
+    typedef typename T::Ad Ad;
+
+    typedef typename Ad::iterator Iter;
+    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::value_type ValType;
+    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::ThisCol ThisCol;
+    typedef typename Ad::ConstCol ConstCol;
+
+    template <class U = int>
+    void erase(const Iter& i) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Clearable feature is disabled.");
+    }
+
+    template <class U = int>
+    void erase(const Iter& beg,const Iter& end) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Clearable feature is disabled.");
+    }
+
+    template <class U = int>
+    void clear() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Clearable feature is disabled.");
+    }
+
+    ClearablePrevent(ThisCol& t) : T(t) {}
 
 protected:
     ThisCol& getRef() {
