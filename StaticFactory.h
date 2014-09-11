@@ -24,6 +24,7 @@
 #include <templatious/Loop.h>
 #include <templatious/Proxy.h>
 #include <templatious/Virtual.h>
+#include <templatious/virtual/VCollectionFactory.h>
 
 namespace templatious {
 
@@ -231,6 +232,67 @@ struct StaticFactory {
         return VCollection< ValType >(v);
     }
 
+    template <
+        bool add = false,
+        bool clear = false,
+        bool traverse = false,
+        bool access = false,
+        bool size = false,
+        class T
+    >
+    static auto prevent(T&& t)
+     -> typename templatious::VCollectionFactory<
+         T,false,
+         templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
+         templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
+         templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
+         templatious::util::IntSelector<clear,CP_PREVENT,CP_ENABLED>::val,
+         templatious::util::IntSelector<traverse,TP_PREVENT,TP_ENABLED>::val
+         >::Type
+    {
+
+        typedef typename templatious::VCollectionFactory<
+             T,false,
+             templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
+             templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
+             templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
+             templatious::util::IntSelector<clear,CP_PREVENT,CP_ENABLED>::val,
+             templatious::util::IntSelector<traverse,TP_PREVENT,TP_ENABLED>::val
+             > Maker;
+
+        return Maker::make(std::forward<T>(t));
+    }
+
+    template <
+        bool add = false,
+        bool clear = false,
+        bool traverse = false,
+        bool access = false,
+        bool size = false,
+        class T
+    >
+    static auto allow(T&& t)
+     -> typename templatious::VCollectionFactory<
+         T,false,
+         templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
+         templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
+         templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,
+         templatious::util::IntSelector<clear,CP_ENABLED,CP_PREVENT>::val,
+         templatious::util::IntSelector<traverse,TP_ENABLED,TP_PREVENT>::val
+         >::Type
+    {
+
+        typedef typename templatious::VCollectionFactory<
+             T,false,
+             templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
+             templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
+             templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,
+             templatious::util::IntSelector<clear,CP_ENABLED,CP_PREVENT>::val,
+             templatious::util::IntSelector<traverse,TP_ENABLED,TP_PREVENT>::val
+             > Maker;
+
+        return Maker::make(std::forward<T>(t));
+    }
 };
 
 }

@@ -31,7 +31,7 @@ template <
 struct Root {
     typedef adapters::CollectionAdapter<T> Ad;
     typedef typename Ad::ThisCol ThisCol;
-    typedef Container<typename Ad::ThisCol> Cont;
+    typedef Container<T> Cont;
 
     Root(T& t) : _c(t) {}
 protected:

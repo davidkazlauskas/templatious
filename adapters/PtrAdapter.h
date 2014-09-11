@@ -258,6 +258,10 @@ struct CollectionAdapter<T&> {
         return Inner::getSize(c);
     }
 
+    static size_t getSize(CRCol c) {
+        return Inner::getSize(c);
+    }
+
     static void erase(RCol c, iterator beg) {
         Inner::erase(c,beg);
     }
