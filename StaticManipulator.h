@@ -2,37 +2,46 @@
 #define COL_MANIPULATOR_SDJKQE
 
 #include <utility>
+#include <type_traits>
 #include <assert.h>
 
 #include <templatious/adapters/All.h>
 #include <templatious/Utilities.h>
 #include <templatious/IterMaker.h>
+#include <templatious/Pack.h>
 
 namespace templatious {
+namespace detail {
+
+    template <bool isPack>
+    struct PackHandler;
+
+}
 
 struct StaticManipulator {
-    private:
-     template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
-     struct IteratorCaller;
+private:
 
-     template <class F,class ITER,class Index>
-     struct IteratorCaller<F, ITER, false, Index> {
-         static auto call(F&& f, Index idx, ITER&& i)
-             -> decltype(i.callFunction(std::forward<F>(f)))
-         {
-             return i.callFunction(std::forward<F>(f));
-         }
-     };
+    template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
+    struct IteratorCaller;
 
-     template <class F,class ITER,class Index>
-     struct IteratorCaller<F, ITER, true, Index> {
-         static auto call(F&& f, Index idx, ITER&& i)
-             -> decltype(i.callFunction(std::forward<F>(f),
-                         idx))
-         {
-             return i.callFunction(std::forward<F>(f),idx);
-         }
-     };
+    template <class F,class ITER,class Index>
+    struct IteratorCaller<F, ITER, false, Index> {
+        static auto call(F&& f, Index idx, ITER&& i)
+            -> decltype(i.callFunction(std::forward<F>(f)))
+        {
+            return i.callFunction(std::forward<F>(f));
+        }
+    };
+
+    template <class F,class ITER,class Index>
+    struct IteratorCaller<F, ITER, true, Index> {
+        static auto call(F&& f, Index idx, ITER&& i)
+            -> decltype(i.callFunction(std::forward<F>(f),
+                        idx))
+        {
+            return i.callFunction(std::forward<F>(f),idx);
+        }
+    };
 
     template 
     <
@@ -275,13 +284,15 @@ struct StaticManipulator {
 
     template <class T,class U,class... V>
     static void callEach(T&& f,U&& arg,V&&... args) {
-        f(std::forward<U>(arg));
+        detail::PackHandler< IsPack<U>::val >::call(
+                std::forward<T>(f),std::forward<U>(arg));
         callEach(std::forward<T>(f),std::forward<V>(args)...);
     }
 
     template <class T,class U>
     static void callEach(T&& f,U&& arg) {
-        f(std::forward<U>(arg));
+        detail::PackHandler< IsPack<U>::val >::call(
+                std::forward<T>(f),std::forward<U>(arg));
     }
 
     template <class T,class U>
@@ -329,6 +340,43 @@ struct StaticManipulator {
 
 };
 
+namespace detail {
+    template <>
+    struct PackHandler<false> {
+        template <class F,class T>
+        static void call(F&& f,T&& t) {
+            f(std::forward<T>(t));
+        }
+    };
+
+    template <>
+    struct PackHandler<true> {
+
+        template <class Func>
+        struct PackCaller {
+            PackCaller(Func f) : _r(f) {}
+
+            template <class... T>
+            void operator()(T&&... t) {
+                templatious::StaticManipulator::callEach(_r.getRef(),std::forward<T>(t)...);
+            }
+
+        private:
+            typedef typename templatious::util::TypeSelector<
+                    std::is_lvalue_reference<Func>::value,
+                    templatious::util::RefContainer<Func>,
+                    templatious::util::CopyContainer<Func>
+                >::val Cont;
+
+            Cont _r;
+        };
+
+        template <class F,class T>
+        static void call(F&& f,T&& t) {
+            t.call(PackCaller<F>(std::forward<F>(f)));
+        }
+    };
+}
 }
 
 #endif

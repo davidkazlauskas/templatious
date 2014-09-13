@@ -22,6 +22,7 @@
 #include <templatious/map/MapMaker.h>
 #include <templatious/CollectionMaker.h>
 #include <templatious/Loop.h>
+#include <templatious/Pack.h>
 #include <templatious/Proxy.h>
 #include <templatious/Virtual.h>
 #include <templatious/virtual/VCollectionFactory.h>
@@ -292,6 +293,12 @@ struct StaticFactory {
              > Maker;
 
         return Maker::make(std::forward<T>(t));
+    }
+
+    template <class... T>
+    static auto pack(T&&... t)
+     -> Pack<T...> {
+        return Pack<T...>(std::forward<T>(t)...);
     }
 };
 
