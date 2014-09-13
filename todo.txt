@@ -23,7 +23,8 @@ features:
 18. variadic template function to call function on var arg [ t(f,a1,a2,a3...)]
 #19. pick range from ANY collection to be used as collection
 #21. proxies
-22. permissions for collections (DA BIG ONE)
+#22. permissions for collections (DA BIG ONE)
+24. pack arguments into packs
 
 compatibility:
 

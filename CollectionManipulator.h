@@ -274,6 +274,17 @@ struct StaticManipulator {
         }
     }
 
+    template <class T,class U,class... V>
+    static void callEach(T&& f,U&& arg,V&&... args) {
+        f(std::forward<U>(arg));
+        callEach(std::forward<T>(f),std::forward<V>(args)...);
+    }
+
+    template <class T,class U>
+    static void callEach(T&& f,U&& arg) {
+        f(std::forward<U>(arg));
+    }
+
     template <class T,class U>
     static auto findFirstIter(T& col,const U& v)
         -> decltype(findIterInternal<true>(col,v))
