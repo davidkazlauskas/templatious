@@ -9,7 +9,6 @@
 #include <templatious/IterMaker.h>
 
 namespace templatious {
-namespace manip {
 
 struct StaticManipulator {
     private:
@@ -330,7 +329,6 @@ struct StaticManipulator {
 
 };
 
-}
 }
 
 #endif

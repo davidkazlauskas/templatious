@@ -21,6 +21,7 @@
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/StaticFactory.h>
+#include <templatious/CollectionManipulator.h>
 
 namespace templatious {
 
@@ -50,7 +51,7 @@ struct __ForeachCounter {
 };
 
 #define TEMPLATIOUS_FOREACH(var,col) \
-    for (::templatious::__ForeachCounter<decltype(::templatious::StaticAdapter::begin(col))>    \
+    for (::templatious::__ForeachCounter<decltype(::templatious::StaticAdapter::begin(col))>     \
             __tmp_i(::templatious::StaticAdapter::begin(col));                                   \
             __tmp_i._i != ::templatious::StaticAdapter::end(col)                                 \
             && __tmp_i._keepGoing;                                                               \
@@ -59,6 +60,14 @@ struct __ForeachCounter {
 
 #define TEMPLATIOUS_REPEAT(n) \
     TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::loopL(n))
+
+#define TEMPLATIOUS_CALLEACH_FCTOR(name, expr) \
+    struct name {\
+        template <class T>\
+        void operator()(T&& i) {\
+            expr;\
+        }\
+    }\
 
 }
 
