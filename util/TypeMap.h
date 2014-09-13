@@ -65,6 +65,51 @@ struct NumTypeMap< NumTypeKeyValue<K,V> >
     };
 };
 
+
+
+
+template <class K,class V>
+struct TypeToTypeKeyValue {
+    typedef K Key;
+    typedef V Value;
+};
+
+#define TEMPLATIOUS_PAIR_TT(keyNum,valueType) \
+    templatious::util::TypeToTypeKeyValue<keyNum,valueType>
+
+template <class... Values>
+struct TypeToTypeMap;
+
+template <class K,class V,class... Other>
+struct TypeToTypeMap< TypeToTypeKeyValue<K,V>, Other... >
+{
+    typedef TypeToTypeKeyValue<K,V> Node;
+    typedef TypeToTypeMap< Other... > Child;
+
+    template <class i,class FalseType>
+    struct getType {
+        typedef typename TypeSelector< std::is_same<i,typename Node::Key>::value,
+            typename Node::Value,
+            typename Child::template getType<i,FalseType>::val
+        >::val val;
+    };
+};
+
+template <class K,class V>
+struct TypeToTypeMap< TypeToTypeKeyValue<K,V> >
+{
+    typedef TypeToTypeKeyValue<K,V> Node;
+
+    template <class i,class FalseType>
+    struct getType {
+        typedef typename TypeSelector< std::is_same<i,typename Node::Key>::value,
+            typename Node::Value,
+            FalseType
+        >::val val;
+    };
+};
+
+
 }
 }
 
