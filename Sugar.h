@@ -69,6 +69,18 @@ struct __ForeachCounter {
         }\
     };
 
+#define TEMPLATIOUS_CALLEACH_FCTOR_WSTOR(name, expr) \
+    template <class StorType>\
+    struct name {\
+        name(const StorType& t) : _c(t) {}\
+        name() {}\
+        template <class T>\
+        void operator()(T&& i) {\
+            expr;\
+        }\
+        StorType _c;\
+    };
+
 
 #define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
     typedef templatious::StaticAdapter AdName;\
