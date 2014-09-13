@@ -16,6 +16,6 @@
  * =====================================================================================
  */
 
-#include <templatious/CollectionManipulator.h>
+#include <templatious/StaticManipulator.h>
 #include <templatious/Sugar.h>
 #include <templatious/adapters/All.h>

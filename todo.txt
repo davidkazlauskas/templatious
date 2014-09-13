@@ -36,3 +36,4 @@ compatibility:
 perfection:
 9. add const qualifiers to comparators
 23. replace asserts with thrown exceptions
+26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)

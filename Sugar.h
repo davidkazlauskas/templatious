@@ -21,7 +21,7 @@
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/StaticFactory.h>
-#include <templatious/CollectionManipulator.h>
+#include <templatious/StaticManipulator.h>
 
 namespace templatious {
 
@@ -67,7 +67,15 @@ struct __ForeachCounter {
         void operator()(T&& i) {\
             expr;\
         }\
-    }\
+    };
+
+
+#define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
+    typedef templatious::StaticAdapter AdName;\
+    typedef templatious::StaticFactory FactName;\
+    typedef templatious::StaticManipulator ManipName;
+
+#define TEMPLATIOUS_TRIPLET_STD TEMPLATIOUS_TRIPLET(SA,SF,SM)
 
 }
 
