@@ -68,7 +68,7 @@ struct StaticVector {
 
         ++_cnt;
         TEMPLATIOUS_FOREACH(auto i,
-            templatious::LoopL<ulong>(at+1,_cnt).rev())
+            templatious::SeqL<ulong>(at+1,_cnt).rev())
         {
             _vct[i] = std::move(_vct[i - 1]);
         }
@@ -98,7 +98,7 @@ struct StaticVector {
         assert(_cnt > 0 && "Trying to pop an empty vector.");
         T res = std::move(_vct[0]);
         --_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(_cnt)) {
+        TEMPLATIOUS_FOREACH(auto i,templatious::SeqL<ulong>(_cnt)) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return std::move(res);
@@ -112,7 +112,7 @@ struct StaticVector {
 
         out = std::move(_vct[0]);
         --_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::LoopL<ulong>(_cnt)) {
+        TEMPLATIOUS_FOREACH(auto i,templatious::SeqL<ulong>(_cnt)) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return true;

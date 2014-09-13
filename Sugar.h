@@ -59,7 +59,7 @@ struct __ForeachCounter {
         for (var = *__tmp_i._i; ; ({__tmp_i.flipGoing();break;}))
 
 #define TEMPLATIOUS_REPEAT(n) \
-    TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::loopL(n))
+    TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::seqL(n))
 
 #define TEMPLATIOUS_CALLEACH_FCTOR(name, expr) \
     struct name {\

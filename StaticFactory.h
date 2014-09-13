@@ -21,7 +21,7 @@
 
 #include <templatious/map/MapMaker.h>
 #include <templatious/CollectionMaker.h>
-#include <templatious/Loop.h>
+#include <templatious/Sequence.h>
 #include <templatious/Pack.h>
 #include <templatious/Proxy.h>
 #include <templatious/Virtual.h>
@@ -114,46 +114,46 @@ struct StaticFactory {
     }
 
     template <class T = int>
-    static templatious::LoopL<T> loopL(const T& end) {
-        return templatious::LoopL<T>(0,end,1);
+    static templatious::SeqL<T> seqL(const T& end) {
+        return templatious::SeqL<T>(0,end,1);
     }
 
     template <class T = int>
-    static templatious::LoopL<T> loopL(const T& start,const T& end) {
-        return templatious::LoopL<T>(start,end,1);
+    static templatious::SeqL<T> seqL(const T& start,const T& end) {
+        return templatious::SeqL<T>(start,end,1);
     }
 
     template <class T = int>
-    static templatious::LoopL<T> loopL(const T& start,const T& end,const T& step) {
-        return templatious::LoopL<T>(start,end,step);
+    static templatious::SeqL<T> seqL(const T& start,const T& end,const T& step) {
+        return templatious::SeqL<T>(start,end,step);
     }
 
 
     template <class T = int>
-    static templatious::LoopL<T> loopI(const T& end) {
+    static templatious::SeqL<T> seqI(const T& end) {
         if (0 <= end) {
-            return templatious::LoopL<T>(0,end + 1,1);
+            return templatious::SeqL<T>(0,end + 1,1);
         } else {
-            return templatious::LoopL<T>(0,end - 1,1);
+            return templatious::SeqL<T>(0,end - 1,1);
         }
     }
 
     template <class T = int>
-    static templatious::LoopL<T> loopI(const T& start,const T& end) {
+    static templatious::SeqL<T> seqI(const T& start,const T& end) {
         if (start <= end) {
-            return templatious::LoopL<T>(start,end + 1,1);
+            return templatious::SeqL<T>(start,end + 1,1);
         } else {
-            return templatious::LoopL<T>(start,end - 1,1);
+            return templatious::SeqL<T>(start,end - 1,1);
         }
     }
 
     template <class T = int>
-    static templatious::LoopL<T> loopI(const T& start,const T& end,const T& step) {
+    static templatious::SeqL<T> seqI(const T& start,const T& end,const T& step) {
         assert((end - start) % step == 0 && "Ending of loop is not included with this step.");
         if (start <= end) {
-            return templatious::LoopL<T>(start,end + step,step);
+            return templatious::SeqL<T>(start,end + step,step);
         } else {
-            return templatious::LoopL<T>(start,end - step,step);
+            return templatious::SeqL<T>(start,end - step,step);
         }
     }
 

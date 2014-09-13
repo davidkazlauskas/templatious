@@ -29,27 +29,27 @@ namespace templatious {
 // ----------------------------------- FORWARD
 
 template <class T,bool addOnIncrement = true>
-struct LoopIter;
+struct SeqIter;
 template <class T>
-struct LoopBase;
+struct SeqBase;
 
 template <class T = int,bool isReversed = false>
-struct LoopL;
+struct SeqL;
 
-typedef LoopL<int> Loop;
+typedef SeqL<int> Loop;
 // ----------------------------------- FORWARD
 
 template <class T,bool addOnIncrement>
-struct LoopIter {
+struct SeqIter {
     typedef T Unit;
-    typedef LoopIter<Unit,addOnIncrement> ThisIter;
+    typedef SeqIter<Unit,addOnIncrement> ThisIter;
     mutable Unit _count;
     Unit _step;
 
-    LoopIter(Unit count,Unit step) :
+    SeqIter(Unit count,Unit step) :
         _count(count), _step(step) {}
 
-    LoopIter(Unit count) :
+    SeqIter(Unit count) :
         _count(count), _step(1) {}
 
     ThisIter& operator++() {
@@ -84,9 +84,9 @@ struct LoopIter {
 };
 
 template <class T>
-struct LoopBase {
-    LoopIter<T> begin();
-    LoopIter<T> end();
+struct SeqBase {
+    SeqIter<T> begin();
+    SeqIter<T> end();
     T size();
 
     static const bool is_signed = std::numeric_limits<T>::is_signed;
@@ -94,31 +94,31 @@ struct LoopBase {
 };
 
 template <class T,bool isReversed>
-struct LoopL : public LoopBase<T> {
+struct SeqL : public SeqBase<T> {
     typedef T Unit;
-    typedef LoopL<T> ThisLoop;
-    typedef LoopBase<T> Base;
+    typedef SeqL<T> ThisLoop;
+    typedef SeqBase<T> Base;
     typedef typename templatious::util::TypeSelector<
             Base::is_signed,ThisLoop,
                 typename templatious::util::TypeSelector<
-                    !isReversed,LoopL<T,true>,LoopL<T,false>
+                    !isReversed,SeqL<T,true>,SeqL<T,false>
                 >::val
         >::val RevType;
     typedef typename templatious::util::TypeSelector<
-        Base::is_signed,LoopIter<T>,
+        Base::is_signed,SeqIter<T>,
                 typename templatious::util::TypeSelector<
-                    !isReversed,LoopIter<T>,LoopIter<T,false>
+                    !isReversed,SeqIter<T>,SeqIter<T,false>
                 >::val
         >::val ThisIter;
 
     typedef typename templatious::util::TypeSelector<
-        Base::is_signed,LoopIter<const T>,
+        Base::is_signed,SeqIter<const T>,
                 typename templatious::util::TypeSelector<
-                    !isReversed,LoopIter<const T>,LoopIter<const T,false>
+                    !isReversed,SeqIter<const T>,SeqIter<const T,false>
                 >::val
         >::val ConstIter;
 
-    LoopL(Unit end) {
+    SeqL(Unit end) {
         _beg = 0;
         _step = 1;
         _end = getPerfectEnd(end);
@@ -126,7 +126,7 @@ struct LoopL : public LoopBase<T> {
         loopAssert();
     }
 
-    LoopL(Unit beg,Unit end) {
+    SeqL(Unit beg,Unit end) {
         if (Base::is_signed && beg > end) {
             _step = -1;
         } else {
@@ -139,7 +139,7 @@ struct LoopL : public LoopBase<T> {
         loopAssert();
     }
 
-    LoopL(Unit beg,Unit end,Unit step) {
+    SeqL(Unit beg,Unit end,Unit step) {
         _beg = beg;
         _step = step;
         _end = getPerfectEnd(end);
@@ -276,11 +276,11 @@ private:
 namespace adapters {
 
 template <class T,bool isReversed>
-struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
+struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
 
     static const bool is_valid = true;
 
-    typedef templatious::LoopL<T,isReversed> ThisCol;
+    typedef templatious::SeqL<T,isReversed> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::ThisIter iterator;
     typedef typename ThisCol::ConstIter const_iterator;
@@ -436,11 +436,11 @@ struct CollectionAdapter< templatious::LoopL<T,isReversed> > {
 };
 
 template <class T,bool isReversed>
-struct CollectionAdapter< const templatious::LoopL<T,isReversed> > {
+struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
 
     static const bool is_valid = true;
 
-    typedef const templatious::LoopL<T,isReversed> ThisCol;
+    typedef const templatious::SeqL<T,isReversed> ThisCol;
     typedef ThisCol ConstCol;
     typedef typename ThisCol::ThisIter iterator;
     typedef typename ThisCol::ConstIter const_iterator;
