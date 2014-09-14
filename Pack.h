@@ -20,6 +20,7 @@
 #define PACK_APF8NI0N
 
 #include <utility>
+#include <templatious/util/Selectors.h>
 #include <templatious/util/Container.h>
 
 namespace templatious {
@@ -29,6 +30,12 @@ struct Pack;
 
 template <class A,class... Tail>
 struct Pack<A,Tail...> {
+
+    typedef typename templatious::util::TypeSelector<
+            std::is_lvalue_reference<A>::value,
+            templatious::util::RefContainer<A>,
+            templatious::util::CopyContainer<A>
+        >::val Container;
 
     typedef Pack<A,Tail...> ThisPack;
     typedef Pack<Tail...> TailPack;
@@ -98,12 +105,19 @@ struct Pack<A,Tail...> {
     //templatious::util::RefContainer<A> _r;
     //Pack<Tail...> _t;
 private:
-    templatious::util::RefContainer<A> _r;
+    //templatious::util::RefContainer<A> _r;
+    Container _r;
     Pack<Tail...> _t;
 };
 
 template <class A>
 struct Pack<A> {
+
+    typedef typename templatious::util::TypeSelector<
+            std::is_lvalue_reference<A>::value,
+            templatious::util::RefContainer<A>,
+            templatious::util::CopyContainer<A>
+        >::val Container;
 
     typedef Pack<A> ThisPack;
 
@@ -156,7 +170,7 @@ struct Pack<A> {
 
     //templatious::util::RefContainer<A> _r;
 private:
-    templatious::util::RefContainer<A> _r;
+    Container _r;
 };
 
 template <class T>
