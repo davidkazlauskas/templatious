@@ -279,6 +279,7 @@ template <class T,bool isReversed>
 struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
 
     static const bool is_valid = true;
+    static const bool floating_iterator = true;
 
     typedef templatious::SeqL<T,isReversed> ThisCol;
     typedef const ThisCol ConstCol;
@@ -439,6 +440,7 @@ template <class T,bool isReversed>
 struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
 
     static const bool is_valid = true;
+    static const bool floating_iterator = true;
 
     typedef const templatious::SeqL<T,isReversed> ThisCol;
     typedef ThisCol ConstCol;

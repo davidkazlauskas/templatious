@@ -57,6 +57,23 @@ private:
 };
 
 template <class T>
+struct RefContainer<const T*> {
+
+    RefContainer(const T* const& t) : _r(t) {}
+
+    const T* const& getRef() const {
+        return _r;
+    }
+
+    const T* const& cgetRef() const {
+        return _r;
+    }
+
+private:
+    const T* const& _r;
+};
+
+template <class T>
 struct CopyContainer {
     CopyContainer(const T& t) : _r(t) {}
 
