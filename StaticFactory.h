@@ -300,6 +300,13 @@ struct StaticFactory {
      -> Pack<T...> {
         return Pack<T...>(std::forward<T>(t)...);
     }
+
+    template <class P,class T>
+    static auto packInsert(P&& p,T&& t)
+     -> decltype(p.template insert<T>(std::forward<T>(t)))
+    {
+        return p.template insert<T>(std::forward<T>(t));
+    }
 };
 
 }

@@ -16,6 +16,30 @@ namespace detail {
     template <bool isPack>
     struct PackHandler;
 
+    struct SetImplCollection {
+
+        template <class T,class V>
+        static void impl(T&& t,V& c) {
+            typedef typename templatious::adapters::CollectionAdapter<V> Ad;
+
+            for (auto i = Ad::begin(c);
+                      i != Ad::end(c);
+                      ++i)
+            {
+                *i = t;
+            }
+        }
+
+    };
+
+    struct SetImplVariable {
+
+        template <class T,class V>
+        static void impl(T&& t,V& c) {
+            c = t;
+        }
+
+    };
 }
 
 struct StaticManipulator {
@@ -272,14 +296,13 @@ private:
 
     template <class T,class V>
     static void set(T&& t,V& col) {
-        typedef typename templatious::StaticAdapter SA;
+        typedef typename templatious::adapters::CollectionAdapter<V> Ad;
+        typedef typename templatious::util::TypeSelector< Ad::is_valid,
+                detail::SetImplCollection,
+                detail::SetImplVariable
+            >::val Impl;
 
-        for (auto i = SA::begin(col);
-                  i != SA::end(col);
-                  ++i)
-        {
-            *i = t;
-        }
+        Impl::impl(std::forward<T>(t),col);
     }
 
     template <class T,class U,class... V>

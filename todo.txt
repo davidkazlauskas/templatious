@@ -25,7 +25,10 @@ features:
 #19. pick range from ANY collection to be used as collection
 #21. proxies
 #22. permissions for collections (DA BIG ONE)
-24. pack arguments into packs
+#24. pack arguments into packs
+29. SM::edit (traverse and process every element)
+#30. extend SM::set to set simple vars as well
+#31. convenience insert function
 
 compatibility:
 
@@ -38,4 +41,4 @@ perfection:
 9. add const qualifiers to comparators
 23. replace asserts with thrown exceptions
 26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
-27. rename value_type etc. in adapter to camel case (no hybrid conventions...)
+28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
