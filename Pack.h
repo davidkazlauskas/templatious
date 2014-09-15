@@ -88,7 +88,7 @@ struct Pack<A,Tail...> {
     auto insert(T&& t)
      -> typename FirstInsertType<T>::value
     const {
-         return _t.insert(std::forward<T>(t),_r.getRef());
+         return _t.insert(std::forward<T>(t),_r.cpy());
     }
 
     template <class T,class... Args>
@@ -99,7 +99,7 @@ struct Pack<A,Tail...> {
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
-                 _r.getRef());
+                 _r.cpy());
     }
 
 private:
@@ -147,7 +147,7 @@ struct Pack<A> {
 
     template <class T>
     ThisPack insert(T&& t) const {
-        return ThisPack(_r.getRef());
+        return ThisPack(_r.cpy());
     }
 
     template <class T,class... Args>
@@ -156,7 +156,7 @@ struct Pack<A> {
     const {
         typedef typename InsertType<T,Args...>::value RetType;
         return RetType(std::forward<Args>(args)...,
-                std::forward<T>(t),_r.getRef());
+                std::forward<T>(t),_r.cpy());
     }
 
 private:

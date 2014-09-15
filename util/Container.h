@@ -35,6 +35,10 @@ struct RefContainer {
         return _r;
     }
 
+    const T cpy() const {
+        return T(_r);
+    }
+
 private:
     T& _r;
 };
@@ -50,6 +54,10 @@ struct RefContainer<const T> {
 
     const T& cgetRef() const {
         return _r;
+    }
+
+    const T cpy() const {
+        return T(_r);
     }
 
 private:
@@ -69,6 +77,10 @@ struct RefContainer<const T*> {
         return _r;
     }
 
+    const T cpy() const {
+        return T(_r);
+    }
+
 private:
     const T* const& _r;
 };
@@ -84,6 +96,11 @@ struct CopyContainer {
     const T& cgetRef() const {
         return _r;
     }
+
+    const T cpy() const {
+        return T(_r);
+    }
+
 private:
     T _r;
 };
