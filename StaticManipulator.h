@@ -16,30 +16,10 @@ namespace detail {
     template <bool isPack>
     struct PackHandler;
 
-    struct SetImplCollection {
+    struct SetImplCollection;
+    struct SetImplVariable;
+    struct SetImplPack;
 
-        template <class T,class V>
-        static void impl(T&& t,V& c) {
-            typedef typename templatious::adapters::CollectionAdapter<V> Ad;
-
-            for (auto i = Ad::begin(c);
-                      i != Ad::end(c);
-                      ++i)
-            {
-                *i = t;
-            }
-        }
-
-    };
-
-    struct SetImplVariable {
-
-        template <class T,class V>
-        static void impl(T&& t,V& c) {
-            c = t;
-        }
-
-    };
 }
 
 struct StaticManipulator {
@@ -299,7 +279,9 @@ private:
         typedef typename templatious::adapters::CollectionAdapter<V> Ad;
         typedef typename templatious::util::TypeSelector< Ad::is_valid,
                 detail::SetImplCollection,
-                detail::SetImplVariable
+                typename templatious::util::TypeSelector< IsPack<V>::val,
+                detail::SetImplPack,
+                detail::SetImplVariable>::val
             >::val Impl;
 
         Impl::impl(std::forward<T>(t),col);
@@ -381,7 +363,8 @@ namespace detail {
 
             template <class... T>
             void operator()(T&&... t) {
-                templatious::StaticManipulator::callEach(_r.getRef(),std::forward<T>(t)...);
+                templatious::StaticManipulator::callEach(
+                        _r.getRef(),std::forward<T>(t)...);
             }
 
         private:
@@ -399,6 +382,53 @@ namespace detail {
             PackCaller<F> p(std::forward<F>(f));
             t.call(p);
         }
+    };
+
+    struct SetImplCollection {
+
+        template <class T,class V>
+        static void impl(T&& t,V& c) {
+            typedef typename templatious::adapters::CollectionAdapter<V> Ad;
+
+            for (auto i = Ad::begin(c);
+                      i != Ad::end(c);
+                      ++i)
+            {
+                *i = t;
+            }
+        }
+
+    };
+
+    struct SetImplVariable {
+
+        template <class T,class V>
+        static void impl(T&& t,V& c) {
+            c = t;
+        }
+
+    };
+
+    template <class T>
+    struct SetCalleachFctor {
+        const T& _c; // set variable storage
+        SetCalleachFctor(const T& t) : _c(t) {}
+
+        template <class V>
+        void operator()(V& v) {
+            v = _c;
+        }
+    };
+
+
+    struct SetImplPack {
+
+        template <class T,class V>
+        static void impl(T&& t,V& c) {
+            SetCalleachFctor<const T&> f(std::forward<T>(t));
+            templatious::StaticManipulator::callEach(f,c);
+        }
+
     };
 }
 }

@@ -28,13 +28,26 @@ namespace templatious {
 template <class... Args>
 struct Pack;
 
+template <class T>
+struct IsPack {
+    static const bool val = false;
+    typedef void ConstDropped;
+};
+
+
 template <class A,class... Tail>
 struct Pack<A,Tail...> {
 
+    typedef IsPack<A> IsP;
+
     typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value,
+            std::is_lvalue_reference<A>::value && !IsPack<A>::val ,
             templatious::util::RefContainer<A>,
-            templatious::util::CopyContainer<A>
+            typename templatious::util::TypeSelector<
+                    IsP::val,
+                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
+                    templatious::util::CopyContainer<A>
+                >::val
         >::val Container;
 
     typedef Pack<A,Tail...> ThisPack;
@@ -56,6 +69,8 @@ struct Pack<A,Tail...> {
     explicit Pack(ARef&& r,TailRef&&... t)
     : _r(std::forward<ARef>(r)),
       _t(std::forward<TailRef>(t)...) {}
+
+    Pack(const ThisPack& p) : _r(p._r), _t(p._t) {}
 
     template <class F,class... Args>
     void call(F&& f,Args&&... args) {
@@ -95,10 +110,16 @@ private:
 template <class A>
 struct Pack<A> {
 
+    typedef IsPack<A> IsP;
+
     typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value,
+            std::is_lvalue_reference<A>::value && !IsPack<A>::val ,
             templatious::util::RefContainer<A>,
-            templatious::util::CopyContainer<A>
+            typename templatious::util::TypeSelector<
+                    IsP::val,
+                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
+                    templatious::util::CopyContainer<A>
+                >::val
         >::val Container;
 
     typedef Pack<A> ThisPack;
@@ -117,13 +138,15 @@ struct Pack<A> {
     explicit Pack(ARef&& r)
     : _r(std::forward<ARef>(r)) {}
 
+    Pack(const ThisPack& p) : _r(p._r) {}
+
     template <class F,class... Args>
     void call(F&& f,Args&&... args) {
         f(std::forward<Args>(args)...,_r.getRef());
     }
 
     template <class T>
-    ThisPack insert(T&& t) {
+    ThisPack insert(T&& t) const {
         return ThisPack(_r.getRef());
     }
 
@@ -140,29 +163,28 @@ private:
     Container _r;
 };
 
-template <class T>
-struct IsPack {
-    static const bool val = false;
-};
-
 template <class... T>
 struct IsPack< Pack<T...> > {
     static const bool val = true;
+    typedef Pack<T...> ConstDropped;
 };
 
 template <class... T>
 struct IsPack< Pack<T...>& > {
     static const bool val = true;
+    typedef Pack<T...> ConstDropped;
 };
 
 template <class... T>
 struct IsPack< const Pack<T...> > {
     static const bool val = true;
+    typedef Pack<T...> ConstDropped;
 };
 
 template <class... T>
 struct IsPack< const Pack<T...>& > {
     static const bool val = true;
+    typedef Pack<T...> ConstDropped;
 };
 
 }
