@@ -53,17 +53,29 @@ struct Pack<A,Tail...> {
     typedef Pack<A,Tail...> ThisPack;
     typedef Pack<Tail...> TailPack;
 
-    template <class Ins,class... Args>
-    struct InsertType {
-        typedef typename TailPack::template InsertType<
-            Ins,Args...,Ins,A >::value value;
+    struct InnerPackInsertReturn {
+        template <class T,class Ins>
+        static auto pass(T&& t,Ins&& i)
+         -> decltype(t.insert(std::forward<Ins>(i)))
+        {
+            return t.insert(std::forward<Ins>(i));
+        }
     };
 
-    template <class Ins>
-    struct FirstInsertType {
-        typedef typename TailPack::template InsertType<
-            Ins,A>::value value;
+    struct ValReturn {
+        template <class T,class Ins>
+        static auto pass(T&& t,Ins&& i)
+         -> decltype(i)
+        {
+            return i;
+        }
     };
+
+    typedef typename templatious::util::TypeSelector<
+        IsP::val,
+        InnerPackInsertReturn,
+        ValReturn
+    >::val InnerPasser;
 
     template <class ARef,class... TailRef>
     explicit Pack(ARef&& r,TailRef&&... t)
@@ -86,20 +98,79 @@ struct Pack<A,Tail...> {
 
     template <class T>
     auto insert(T&& t)
-     -> typename FirstInsertType<T>::value
+     -> decltype(
+             std::declval<TailPack>().insert(
+                 std::forward<T>(t),
+                 std::declval<Container>().getRef()
+             )
+         )
     const {
-         return _t.insert(std::forward<T>(t),_r.cpy());
+         return _t.insert(std::forward<T>(t),_r.getRef());
     }
 
     template <class T,class... Args>
     auto insert(T&& t,Args&&... args)
-     -> typename InsertType<T,Args...>::value
+     -> decltype(
+             std::declval<TailPack>().insert(
+                 std::forward<T>(t),
+                 std::forward<Args>(args)...,
+                 std::forward<T>(t),
+                 std::declval<Container>().getRef()
+             )
+        )
     const {
          return _t.insert(
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
-                 _r.cpy());
+                 _r.getRef());
+    }
+
+    template <class T,class... Args>
+    auto insertWithin(T&& t,Args&&... args)
+     -> decltype( std::declval<TailPack>().insertWithin(
+                 std::forward<T>(t),
+                 std::forward<Args>(args)...,
+                 InnerPasser::pass(
+                     std::declval<Container>().getRef(),
+                     std::forward<T>(t)
+                     )) )
+    const {
+        typedef typename templatious::util::TypeSelector<
+            IsP::val,
+            InnerPackInsertReturn,
+            ValReturn
+        >::val Passer;
+
+        return _t.insertWithin(
+                std::forward<T>(t),
+                std::forward<Args>(args)...,
+                Passer::pass(_r.getRef(),
+                    std::forward<T>(t))
+                );
+    }
+
+    template <class T>
+    auto insertWithin(T&& t)
+     -> decltype( std::declval<TailPack>().insertWithin(
+                    std::forward<T>(t),
+                    InnerPasser::pass(
+                        std::declval<Container>().getRef(),
+                        std::forward<T>(t)
+                    )
+                 ))
+    const {
+        typedef typename templatious::util::TypeSelector<
+            IsP::val,
+            InnerPackInsertReturn,
+            ValReturn
+        >::val Passer;
+
+        return _t.insertWithin(
+                std::forward<T>(t),
+                Passer::pass(_r.getRef(),
+                    std::forward<T>(t))
+                );
     }
 
 private:
@@ -124,15 +195,29 @@ struct Pack<A> {
 
     typedef Pack<A> ThisPack;
 
-    template <class Ins,class... Args>
-    struct InsertType {
-        typedef Pack<Args...,Ins,A> value;
+    struct InnerPackInsertReturn {
+        template <class T,class Ins>
+        static auto pass(T&& t,Ins&& i)
+         -> decltype(t.insert(std::forward<Ins>(i)))
+        {
+            return t.insert(std::forward<Ins>(i));
+        }
     };
 
-    template <class Ins>
-    struct FirstInsertType {
-        typedef ThisPack value;
+    struct ValReturn {
+        template <class T,class Ins>
+        static auto pass(T&& t,Ins&& i)
+         -> decltype(i)
+        {
+            return i;
+        }
     };
+
+    typedef typename templatious::util::TypeSelector<
+        IsP::val,
+        InnerPackInsertReturn,
+        ValReturn
+    >::val InnerPasser;
 
     template <class ARef>
     explicit Pack(ARef&& r)
@@ -147,16 +232,48 @@ struct Pack<A> {
 
     template <class T>
     ThisPack insert(T&& t) const {
-        return ThisPack(_r.cpy());
+        return ThisPack(_r.getRef());
     }
 
     template <class T,class... Args>
     auto insert(T&& t,Args&&... args)
-     -> typename InsertType<T,Args...>::value
+     -> Pack<Args...,T,A>
     const {
-        typedef typename InsertType<T,Args...>::value RetType;
+        typedef Pack<Args...,T,A> RetType;
         return RetType(std::forward<Args>(args)...,
-                std::forward<T>(t),_r.cpy());
+                std::forward<T>(t),_r.getRef());
+    }
+
+    template <class T,class... Args>
+    auto insertWithin(T&& t,Args&&... args)
+     -> Pack<Args...,
+            decltype(InnerPasser::pass(
+                std::declval<Container>().getRef(),
+                std::forward<T>(t)))
+        >
+    const {
+        typedef Pack<Args...,decltype(
+            InnerPasser::pass(_r.getRef(),std::forward<T>(t))
+        )> RetType;
+
+        return RetType(std::forward<Args>(args)...,
+                InnerPasser::pass(_r.getRef(),std::forward<T>(t)));
+    }
+
+    template <class T>
+    auto insertWithin(T&& t)
+     -> Pack<
+            decltype(InnerPasser::pass(
+                std::declval<Container>().getRef(),
+                std::forward<T>(t)))
+        >
+    const {
+        typedef Pack<decltype(
+            InnerPasser::pass(_r.getRef(),std::forward<T>(t))
+        )> RetType;
+
+        return RetType(InnerPasser::pass(_r.getRef(),
+                    std::forward<T>(t)));
     }
 
 private:

@@ -8,6 +8,7 @@ defects:
 #8. fix std::move semantics on instantiate collection
 20. when range/proxy get's clobbered it should throw an error trying to reiterate
 #25. move CollectionManipulator to templatious instead of templatious::manip namespace
+35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
 
 features:
 
@@ -29,6 +30,9 @@ features:
 29. SM::edit (traverse and process every element)
 #30. extend SM::set to set simple vars as well
 #31. convenience insert function
+32. insert within (in between existing packs one level)
+33. repeaters (repeat collections)
+34. distribute from pack to collection and vice versa
 
 compatibility:
 

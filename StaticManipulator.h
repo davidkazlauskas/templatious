@@ -342,7 +342,6 @@ private:
         return findIdxIterInternal<true>(col,v);
     }
 
-
 };
 
 namespace detail {
