@@ -33,6 +33,8 @@ features:
 32. insert within (in between existing packs one level)
 33. repeaters (repeat collections)
 34. distribute from pack to collection and vice versa
+36. pack repeat
+37. add pack to collection (SA::add)
 
 compatibility:
 

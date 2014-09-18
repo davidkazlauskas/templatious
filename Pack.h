@@ -75,7 +75,7 @@ struct Pack<A,Tail...> {
     typedef Pack<A,Tail...> ThisPack;
     typedef Pack<Tail...> TailPack;
 
-    enum { size = detail::IsPack<A>::size + Pack<Tail...>::size };
+    enum { size = detail::IsPack<A>::size + Pack<Tail...>::size, flatSize = sizeof...(Tail) + 1 };
 
     struct InnerPackInsertReturn {
         template <class T,class Ins>
@@ -219,7 +219,7 @@ struct Pack<A> {
 
     typedef Pack<A> ThisPack;
 
-    enum { size = detail::IsPack<A>::size };
+    enum { size = detail::IsPack<A>::size, flatSize = 1 };
 
     struct InnerPackInsertReturn {
         template <class T,class Ins>
