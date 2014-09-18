@@ -377,7 +377,7 @@ namespace detail {
         };
 
         template <class F,class T>
-        static void call(F&& f,T&& t) {
+        static void call(F&& f,T t) {
             PackCaller<F> p(std::forward<F>(f));
             t.call(p);
         }

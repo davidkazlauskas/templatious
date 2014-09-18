@@ -36,6 +36,8 @@ struct IsPack {
     static const bool val = false;
     typedef T ConstDropped;
 
+    enum { size = 1 };
+
     template <class V>
     static auto forward(V&& val)
      -> decltype(std::forward<V>(val))
@@ -72,6 +74,8 @@ struct Pack<A,Tail...> {
 
     typedef Pack<A,Tail...> ThisPack;
     typedef Pack<Tail...> TailPack;
+
+    enum { size = detail::IsPack<A>::size + Pack<Tail...>::size };
 
     struct InnerPackInsertReturn {
         template <class T,class Ins>
@@ -215,6 +219,8 @@ struct Pack<A> {
 
     typedef Pack<A> ThisPack;
 
+    enum { size = detail::IsPack<A>::size };
+
     struct InnerPackInsertReturn {
         template <class T,class Ins>
         static auto pass(T&& t,Ins&& i)
@@ -318,6 +324,8 @@ struct IsPack< Pack<T...> > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
 
+    enum { size = Pack<T...>::size };
+
     template <class V>
     static auto forward(const V& val)
      -> Pack<T...>
@@ -330,6 +338,8 @@ template <class... T>
 struct IsPack< Pack<T...>& > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    enum { size = Pack<T...>::size };
 
     template <class V>
     static auto forward(const V& val)
@@ -344,6 +354,8 @@ struct IsPack< const Pack<T...> > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
 
+    enum { size = Pack<T...>::size };
+
     template <class V>
     static auto forward(const V& val)
      -> Pack<T...>
@@ -356,6 +368,8 @@ template <class... T>
 struct IsPack< const Pack<T...>& > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    enum { size = Pack<T...>::size };
 
     template <class V>
     static auto forward(const V& val)
