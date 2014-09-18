@@ -297,8 +297,8 @@ struct StaticFactory {
 
     template <class... T>
     static auto pack(T&&... t)
-     -> decltype( packUp(std::forward<T>(t)...) ) {
-        return packUp(std::forward<T>(t)...);
+     -> decltype( detail::packUp(std::forward<T>(t)...) ) {
+        return detail::packUp(std::forward<T>(t)...);
     }
 
     template <class P,class T>

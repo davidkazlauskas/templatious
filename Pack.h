@@ -28,6 +28,9 @@ namespace templatious {
 template <class... Args>
 struct Pack;
 
+namespace detail {
+
+
 template <class T>
 struct IsPack {
     static const bool val = false;
@@ -43,20 +46,22 @@ struct IsPack {
 
 template <class... T>
 auto packUp(T&&... t)
-  -> Pack< typename IsPack<T>::ConstDropped... >
+  -> Pack< typename detail::IsPack<T>::ConstDropped... >
 {
-    return Pack< typename IsPack<T>::ConstDropped... >(
-            IsPack<T>::forward(t)... );
+    return Pack< typename detail::IsPack<T>::ConstDropped... >(
+            detail::IsPack<T>::forward(t)... );
+}
+
 }
 
 
 template <class A,class... Tail>
 struct Pack<A,Tail...> {
 
-    typedef IsPack<A> IsP;
+    typedef detail::IsPack<A> IsP;
 
     typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value && !IsPack<A>::val ,
+            std::is_lvalue_reference<A>::value && !detail::IsPack<A>::val ,
             templatious::util::RefContainer<A>,
             typename templatious::util::TypeSelector<
                     IsP::val,
@@ -196,10 +201,10 @@ private:
 template <class A>
 struct Pack<A> {
 
-    typedef IsPack<A> IsP;
+    typedef detail::IsPack<A> IsP;
 
     typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value && !IsPack<A>::val ,
+            std::is_lvalue_reference<A>::value && !detail::IsPack<A>::val ,
             templatious::util::RefContainer<A>,
             typename templatious::util::TypeSelector<
                     IsP::val,
@@ -247,20 +252,20 @@ struct Pack<A> {
 
     template <class T>
     auto insert(T&& t)
-     -> decltype( packUp( std::declval<Container>().getRef() ) )
+     -> decltype( detail::packUp( std::declval<Container>().getRef() ) )
     const {
-        return packUp( _r.getRef() );
+        return detail::packUp( _r.getRef() );
     }
 
     template <class T,class... Args>
     auto insert(T&& t,Args&&... args)
-     -> decltype( packUp(
+     -> decltype( detail::packUp(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
                   std::declval<Container>().getRef()
                  ))
     const {
-        return packUp(
+        return detail::packUp(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
                   _r.getRef()
@@ -269,7 +274,7 @@ struct Pack<A> {
 
     template <class T,class... Args>
     auto insertWithin(T&& t,Args&&... args)
-      -> decltype( packUp(
+      -> decltype( detail::packUp(
                   std::forward<Args>(args)...,
                   InnerPasser::pass(
                       std::declval<Container>().getRef(),
@@ -277,7 +282,7 @@ struct Pack<A> {
                   )
               ))
     const {
-        return packUp(
+        return detail::packUp(
                 std::forward<Args>(args)...,
                 InnerPasser::pass(
                     _r.getRef(),
@@ -288,13 +293,13 @@ struct Pack<A> {
 
     template <class T>
     auto insertWithin(T&& t)
-     -> decltype( packUp(
+     -> decltype( detail::packUp(
                   InnerPasser::pass(
                       std::declval<Container>().getRef(),
                       std::forward<T>(t))
                   ))
     const {
-        return packUp(
+        return detail::packUp(
                 InnerPasser::pass(
                     _r.getRef(),
                     std::forward<T>(t)
@@ -306,6 +311,7 @@ private:
     Container _r;
 };
 
+namespace detail {
 
 template <class... T>
 struct IsPack< Pack<T...> > {
@@ -359,6 +365,7 @@ struct IsPack< const Pack<T...>& > {
     }
 };
 
+}
 
 }
 

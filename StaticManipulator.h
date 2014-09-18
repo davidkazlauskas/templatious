@@ -279,7 +279,7 @@ private:
         typedef typename templatious::adapters::CollectionAdapter<V> Ad;
         typedef typename templatious::util::TypeSelector< Ad::is_valid,
                 detail::SetImplCollection,
-                typename templatious::util::TypeSelector< IsPack<V>::val,
+                typename templatious::util::TypeSelector< detail::IsPack<V>::val,
                 detail::SetImplPack,
                 detail::SetImplVariable>::val
             >::val Impl;
@@ -289,14 +289,14 @@ private:
 
     template <class T,class U,class... V>
     static void callEach(T&& f,U&& arg,V&&... args) {
-        detail::PackHandler< IsPack<U>::val >::call(
+        detail::PackHandler< detail::IsPack<U>::val >::call(
                 std::forward<T>(f),std::forward<U>(arg));
         callEach(std::forward<T>(f),std::forward<V>(args)...);
     }
 
     template <class T,class U>
     static void callEach(T&& f,U&& arg) {
-        detail::PackHandler< IsPack<U>::val >::call(
+        detail::PackHandler< detail::IsPack<U>::val >::call(
                 std::forward<T>(f),std::forward<U>(arg));
     }
 
