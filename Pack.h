@@ -31,8 +31,23 @@ struct Pack;
 template <class T>
 struct IsPack {
     static const bool val = false;
-    typedef void ConstDropped;
+    typedef T ConstDropped;
+
+    template <class V>
+    static auto forward(V&& val)
+     -> decltype(std::forward<V>(val))
+    {
+        return std::forward<V>(val);
+    }
 };
+
+template <class... T>
+auto packUp(T&&... t)
+  -> Pack< typename IsPack<T>::ConstDropped... >
+{
+    return Pack< typename IsPack<T>::ConstDropped... >(
+            IsPack<T>::forward(t)... );
+}
 
 
 template <class A,class... Tail>
@@ -207,9 +222,9 @@ struct Pack<A> {
     struct ValReturn {
         template <class T,class Ins>
         static auto pass(T&& t,Ins&& i)
-         -> decltype(i)
+         -> decltype(std::forward<Ins>(i))
         {
-            return i;
+            return std::forward<Ins>(i);
         }
     };
 
@@ -231,78 +246,119 @@ struct Pack<A> {
     }
 
     template <class T>
-    ThisPack insert(T&& t) const {
-        return ThisPack(_r.getRef());
+    auto insert(T&& t)
+     -> decltype( packUp( std::declval<Container>().getRef() ) )
+    const {
+        return packUp( _r.getRef() );
     }
 
     template <class T,class... Args>
     auto insert(T&& t,Args&&... args)
-     -> Pack<Args...,T,A>
+     -> decltype( packUp(
+                  std::forward<Args>(args)...,
+                  std::forward<T>(t),
+                  std::declval<Container>().getRef()
+                 ))
     const {
-        typedef Pack<Args...,T,A> RetType;
-        return RetType(std::forward<Args>(args)...,
-                std::forward<T>(t),_r.getRef());
+        return packUp(
+                  std::forward<Args>(args)...,
+                  std::forward<T>(t),
+                  _r.getRef()
+                );
     }
 
     template <class T,class... Args>
     auto insertWithin(T&& t,Args&&... args)
-     -> Pack<Args...,
-            decltype(InnerPasser::pass(
-                std::declval<Container>().getRef(),
-                std::forward<T>(t)))
-        >
+      -> decltype( packUp(
+                  std::forward<Args>(args)...,
+                  InnerPasser::pass(
+                      std::declval<Container>().getRef(),
+                      std::forward<T>(t)
+                  )
+              ))
     const {
-        typedef Pack<Args...,decltype(
-            InnerPasser::pass(_r.getRef(),std::forward<T>(t))
-        )> RetType;
-
-        return RetType(std::forward<Args>(args)...,
-                InnerPasser::pass(_r.getRef(),std::forward<T>(t)));
+        return packUp(
+                std::forward<Args>(args)...,
+                InnerPasser::pass(
+                    _r.getRef(),
+                    std::forward<T>(t)
+                )
+            );
     }
 
     template <class T>
     auto insertWithin(T&& t)
-     -> Pack<
-            decltype(InnerPasser::pass(
-                std::declval<Container>().getRef(),
-                std::forward<T>(t)))
-        >
+     -> decltype( packUp(
+                  InnerPasser::pass(
+                      std::declval<Container>().getRef(),
+                      std::forward<T>(t))
+                  ))
     const {
-        typedef Pack<decltype(
-            InnerPasser::pass(_r.getRef(),std::forward<T>(t))
-        )> RetType;
-
-        return RetType(InnerPasser::pass(_r.getRef(),
-                    std::forward<T>(t)));
+        return packUp(
+                InnerPasser::pass(
+                    _r.getRef(),
+                    std::forward<T>(t)
+                )
+            );
     }
 
 private:
     Container _r;
 };
 
+
 template <class... T>
 struct IsPack< Pack<T...> > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    template <class V>
+    static auto forward(const V& val)
+     -> Pack<T...>
+    {
+        return Pack<T...>(val);
+    }
 };
 
 template <class... T>
 struct IsPack< Pack<T...>& > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    template <class V>
+    static auto forward(const V& val)
+     -> Pack<T...>
+    {
+        return Pack<T...>(val);
+    }
 };
 
 template <class... T>
 struct IsPack< const Pack<T...> > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    template <class V>
+    static auto forward(const V& val)
+     -> Pack<T...>
+    {
+        return Pack<T...>(val);
+    }
 };
 
 template <class... T>
 struct IsPack< const Pack<T...>& > {
     static const bool val = true;
     typedef Pack<T...> ConstDropped;
+
+    template <class V>
+    static auto forward(const V& val)
+     -> Pack<T...>
+    {
+        return Pack<T...>(val);
+    }
 };
+
 
 }
 

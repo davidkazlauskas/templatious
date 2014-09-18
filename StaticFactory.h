@@ -297,20 +297,19 @@ struct StaticFactory {
 
     template <class... T>
     static auto pack(T&&... t)
-     -> Pack<T...> {
-        return Pack<T...>(std::forward<T>(t)...);
+     -> decltype( packUp(std::forward<T>(t)...) ) {
+        return packUp(std::forward<T>(t)...);
     }
 
-    // CHECK DIS OUT - is insert<T> template argument needed?
     template <class P,class T>
-    static auto packInsert(P&& p,T&& t)
+    static auto packInsert(P p,T&& t)
      -> decltype(p.template insert<T>(std::forward<T>(t)))
     {
         return p.template insert<T>(std::forward<T>(t));
     }
 
     template <class P,class T>
-    static auto packInsertWithin(P&& p,T&& t)
+    static auto packInsertWithin(P p,T&& t)
      -> decltype(p.insertWithin(std::forward<T>(t)))
     {
         return p.insertWithin(std::forward<T>(t));
