@@ -108,6 +108,85 @@ struct Pack<A,Tail...> {
 
     Pack(const ThisPack& p) : _r(p._r), _t(p._t) {}
 
+    struct ThisValGetter {
+        template <int i>
+        static auto get(ThisPack& p)
+         -> decltype( std::declval<Container>().getRef() )
+        {
+            return p._r.getRef();
+        }
+    };
+
+    struct TailValGetterFlat {
+        template <int i>
+        static auto get(ThisPack& p)
+         -> decltype( std::declval<TailPack>().template flatGet<i - 1>() )
+        {
+            return p._t.template flatGet<i - 1>();
+        }
+    };
+
+    struct ThisValGetterRec {
+        template <int i,class P>
+        static auto get(P& p)
+         -> decltype( std::declval<typename P::Container>()
+             .getRef().template get<i>() )
+        {
+            return p._r.getRef().template get<i>();
+        }
+    };
+
+    struct TailValGetter {
+        template <int i,class P>
+        static auto get(P& p)
+         -> decltype( std::declval<TailPack>()
+                 .template get<i - IsP::size>() )
+        {
+            return p._t.template get<
+                i - IsP::size>();
+        }
+    };
+
+    template <int i>
+    auto get()
+     -> decltype(
+         templatious::util::TypeSelector<!IsP::val && i == 0,
+             ThisValGetter,
+             typename templatious::util::TypeSelector<
+                 i < IsP::size,
+                 ThisValGetterRec,
+                 TailValGetter
+             >::val
+         >::val::template get<i>( std::declval<ThisPack&>() )
+             )
+    {
+        static_assert(i >= 0,"Pack access index cannot be less than zero.");
+
+        typedef typename templatious::util::TypeSelector<!IsP::val && i == 0,
+            ThisValGetter,
+            typename templatious::util::TypeSelector<
+                i < IsP::size,
+                ThisValGetterRec,
+                TailValGetter
+            >::val
+        >::val Getter;
+        return Getter::template get<i>(*this);
+    }
+
+    template <int i>
+    auto flatGet()
+     -> decltype( templatious::util::TypeSelector< i == 0,
+        ThisValGetter,
+        TailValGetterFlat>::val::template get<i>( std::declval<ThisPack&>() ) )
+    {
+        static_assert(i >= 0,"Pack access index cannot be less than zero.");
+        typedef typename templatious::util::TypeSelector<
+            i == 0,
+            ThisValGetter,
+            TailValGetterFlat>::val Getter;
+        return Getter::template get<i>(*this);
+    }
+
     template <class F,class... Args>
     void call(F&& f,Args&&... args) {
         _t.call(std::forward<F>(f),
@@ -250,6 +329,51 @@ struct Pack<A> {
     : _r(std::forward<ARef>(r)) {}
 
     Pack(const ThisPack& p) : _r(p._r) {}
+
+    struct ThisValGetter {
+        template <int i>
+        static auto get(ThisPack& p)
+         -> decltype( std::declval<Container>().getRef() )
+        {
+            return p._r.getRef();
+        }
+    };
+
+    struct ThisValGetterRec {
+        template <int i,class P>
+        static auto get(P& p)
+         -> decltype( std::declval<P>()
+             ._r.getRef().template get<i>() )
+        {
+            return p._r.getRef().template get<i>();
+        }
+    };
+
+    template <int i>
+    auto get()
+     -> decltype(
+         templatious::util::TypeSelector<IsP::val,
+             ThisValGetterRec,ThisValGetter
+         >::val::template get<i>( std::declval<ThisPack&>() )
+         )
+    {
+        static_assert(i >= 0,"Pack access index cannot be less than zero.");
+        static_assert(i < IsP::size,"Trying get element past size of a Pack.");
+
+        typedef typename templatious::util::TypeSelector<IsP::val,
+            ThisValGetterRec,ThisValGetter>::val Getter;
+        return Getter::template get<i>(*this);
+    }
+
+    template <int i>
+    auto flatGet()
+     -> decltype( ThisValGetter::template get<i>( std::declval<ThisPack&>() ) )
+    {
+        static_assert(i >= 0,"Pack access index cannot be less than zero.");
+        static_assert(i == 0,"Trying get element past flat size of a Pack.");
+        typedef ThisValGetter Getter;
+        return Getter::template get<i>(*this);
+    }
 
     template <class F,class... Args>
     void call(F&& f,Args&&... args) {
