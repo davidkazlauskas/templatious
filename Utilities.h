@@ -30,4 +30,5 @@
 #include <templatious/util/Container.h>
 #include <templatious/util/Exceptions.h>
 #include <templatious/util/TypeMap.h>
+#include <templatious/util/Unirator.h>
 
