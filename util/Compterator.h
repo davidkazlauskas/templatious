@@ -20,7 +20,6 @@
 #define COMPTERATOR_64DY8BKD
 
 #include <templatious/util/Selectors.h>
-#include <templatious/util/Unirator.h>
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/Pack.h>
@@ -73,18 +72,6 @@ struct Compterator<T> {
     Compterator(Container p) : _p(p) {}
 
     Container _p;
-};
-
-struct UniratorPairMaker {
-
-    template <class T>
-    static auto make(T&& t)
-     -> IteratorPair< Unirator<T> >
-    {
-        typedef Unirator<T> Iter;
-        return IteratorPair<Iter>( Iter(t,false), Iter(t,true) );
-    }
-
 };
 
 struct AdapterPairMaker {
