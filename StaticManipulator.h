@@ -9,9 +9,10 @@
 #include <templatious/Utilities.h>
 #include <templatious/IterMaker.h>
 #include <templatious/Pack.h>
+#include <templatious/detail/Distributor.h>
 
 namespace templatious {
-namespace detail {
+namespace detail{ 
 
     template <bool isPack>
     struct PackHandler;
@@ -149,6 +150,30 @@ private:
             ++idx;
         }
         return std::move(res);
+    }
+
+    template <class Dist,class T,class... Args>
+    static size_t distributeInternal(T&& t,Args&&... args) {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        typedef templatious::detail::IsPack<T> IP;
+
+        static const bool isCollection = Ad::is_valid;
+        static const bool isPack = IP::val;
+
+        namespace TD = templatious::detail;
+
+        typedef typename std::conditional<
+                isPack,
+                TD::PackToRestDistribution<Dist>,
+                typename std::conditional<
+                    isCollection,
+                    TD::CollectionToRestDistribution<Dist>,
+                    TD::DummyErrorDistributor
+                >::type
+            >::type Distrubutor;
+
+        return Distrubutor::distribute(
+                std::forward<T>(t),std::forward<Args>(args)...);
     }
 
     public:
@@ -300,6 +325,20 @@ private:
                 std::forward<T>(f),std::forward<U>(arg));
     }
 
+    template <class T,class... Args>
+    static size_t distribute(T&& t,Args&&... args) {
+        return distributeInternal<
+            templatious::detail::AssignDispatcher
+        >(std::forward<T>(t),std::forward<Args>(args)...);
+    }
+
+    template <class T,class... Args>
+    static size_t distributeR(T&& t,Args&&... args) {
+        return distributeInternal<
+            templatious::detail::RevAssignDispatcher
+        >(std::forward<T>(t),std::forward<Args>(args)...);
+    }
+
     template <class T,class U>
     static auto findFirstIter(T& col,const U& v)
         -> decltype(findIterInternal<true>(col,v))
@@ -429,6 +468,9 @@ namespace detail {
         }
 
     };
+
+
+
 }
 }
 

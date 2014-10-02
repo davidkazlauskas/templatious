@@ -33,6 +33,10 @@ struct Unirator {
         return o._end == _end;
     }
 
+    bool operator!=(const ThisUnirator& o) const {
+        return !(*this == o);
+    }
+
     Unirator& operator++() {
         _end = true;
     }

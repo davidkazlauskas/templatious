@@ -89,9 +89,9 @@ struct Pack<A,Tail...> {
     struct ValReturn {
         template <class T,class Ins>
         static auto pass(T&& t,Ins&& i)
-         -> decltype(i)
+         -> decltype(t)
         {
-            return i;
+            return t;
         }
     };
 
@@ -312,9 +312,9 @@ struct Pack<A> {
     struct ValReturn {
         template <class T,class Ins>
         static auto pass(T&& t,Ins&& i)
-         -> decltype(std::forward<Ins>(i))
+         -> decltype(std::forward<T>(t))
         {
-            return std::forward<Ins>(i);
+            return std::forward<T>(t);
         }
     };
 
