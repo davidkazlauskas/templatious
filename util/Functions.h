@@ -28,6 +28,12 @@ template <class T, class... Args>
 auto makeFunction(T (*t)(Args...)) -> decltype(std::function<T(Args...)>(t)) {
     return std::function<T(Args...)>(t);
 }
+
+struct DoNothingFunctor {
+    template <class... T>
+    void operator()(T&&... t) {}
+};
+
 }
 }
 

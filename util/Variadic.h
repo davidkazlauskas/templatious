@@ -27,6 +27,19 @@ T&& getFirst(T&& t, Args&&... args) {
     return t;
 }
 
+template <class... T>
+struct GetFrist;
+
+template <class T>
+struct GetFrist<T> {
+    typedef T type;
+};
+
+template <class T,class... Tail>
+struct GetFrist<T,Tail...> {
+    typedef T type;
+};
+
 }
 }
 

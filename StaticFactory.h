@@ -26,6 +26,7 @@
 #include <templatious/Proxy.h>
 #include <templatious/Virtual.h>
 #include <templatious/virtual/VCollectionFactory.h>
+#include <templatious/detail/MatchFunctor.h>
 
 namespace templatious {
 
@@ -313,6 +314,87 @@ struct StaticFactory {
      -> decltype(p.insertWithin(std::forward<T>(t)))
     {
         return p.insertWithin(std::forward<T>(t));
+    }
+
+    template <class... T,class Func>
+    static auto matchTight(Func&& f)
+     -> detail::Match<
+        templatious::TypeList<T...>,
+        Func,
+        detail::TightRecursiveComparison,
+        templatious::detail::TypelistsEqual
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList<T...>,
+            Func,
+            detail::TightRecursiveComparison,
+            templatious::detail::TypelistsEqual
+        > TheMatch;
+
+        return TheMatch(std::forward<Func>(f));
+    }
+
+    template <class... T,class Func>
+    static auto matchLoose(Func&& f)
+     -> detail::Match<
+        templatious::TypeList<T...>,
+        Func,
+        detail::LooseRecursiveComparison,
+        templatious::detail::TypelistContains
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList<T...>,
+            Func,
+            detail::LooseRecursiveComparison,
+            templatious::detail::TypelistContains
+        > TheMatch;
+
+        return TheMatch(std::forward<Func>(f));
+    }
+
+    template <class Func>
+    static auto matchAny(Func&& f)
+     -> detail::Match<
+        templatious::TypeList< AnyType >,
+        Func,
+        detail::LooseRecursiveComparison,
+        templatious::detail::TypelistContains
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList< AnyType >,
+            Func,
+            detail::LooseRecursiveComparison,
+            templatious::detail::TypelistContains
+        > TheMatch;
+        return TheMatch(std::forward<Func>(f));
+    }
+
+    static auto matchAnyDoNothing()
+     -> detail::Match<
+        templatious::TypeList< AnyType >,
+        templatious::util::DoNothingFunctor,
+        detail::LooseRecursiveComparison,
+        templatious::detail::TypelistContains
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList< AnyType >,
+            templatious::util::DoNothingFunctor,
+            detail::LooseRecursiveComparison,
+            templatious::detail::TypelistContains
+        > TheMatch;
+        return TheMatch(templatious::util::DoNothingFunctor());
+    }
+
+    template <class... T>
+    static auto matchFunctor(T&&... t)
+     -> detail::MatchFunctor<T...>
+    {
+        typedef detail::MatchFunctor<T...> Fctor;
+        return Fctor(std::forward<T>(t)...);
     }
 
 };
