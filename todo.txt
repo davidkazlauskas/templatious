@@ -43,6 +43,7 @@ features:
 38. callEach should process collections too (optionally)
 #41. transform packs within one by one
 42. transformation on add methods
+43. return from callEach/distribute to stop traversal
 
 compatibility:
 

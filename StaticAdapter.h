@@ -53,8 +53,8 @@ struct add_custom;
 
 template <>  // add data one by one
 struct add_custom<0> {
-    template <class T,class F>
-    static void add(T& c,F&& f,typename templatious::adapters::CollectionAdapter<T>::const_value_type& i) {
+    template <class T,class F,class U>
+    static void add(T& c,F&& f,U&& i) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         Ad::add(c, f(i));
