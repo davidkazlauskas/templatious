@@ -81,7 +81,6 @@ struct __ForeachCounter {
         StorType _c;\
     };
 
-
 #define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
     typedef templatious::StaticAdapter AdName;\
     typedef templatious::StaticFactory FactName;\
