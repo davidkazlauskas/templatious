@@ -39,40 +39,49 @@ struct AdditionSelector {
     };
 };
 
+struct ForwardFunctor {
+    template <class T>
+    auto operator()(T&& t)
+     -> decltype(std::forward<T>(t))
+    {
+        return std::forward<T>(t);
+    }
+};
+
 template <int var>
 struct add_custom;
 
 template <>  // add data one by one
 struct add_custom<0> {
-    template <class T>
-    static void add(T& c,typename templatious::adapters::CollectionAdapter<T>::const_value_type& i) {
+    template <class T,class F>
+    static void add(T& c,F&& f,typename templatious::adapters::CollectionAdapter<T>::const_value_type& i) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        Ad::add(c, i);
+        Ad::add(c, f(i));
     }
 };
 
 template <>  // add collections
 struct add_custom<1> {
-    template <class T, class U>
-    static void add(T& t,const U& u) {
+    template <class T, class F, class U>
+    static void add(T& t, F&& f, const U& u) {
         typedef templatious::adapters::CollectionAdapter<T> AdT;
         typedef templatious::adapters::CollectionAdapter<const U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
         static_assert(AdU::is_valid, "Adapter not supported.");
         for (auto i = AdU::begin(u); i != AdU::end(u); ++i) {
-            AdT::add(t, *i);
+            AdT::add(t, f(*i));
         }
     }
 };
 
 template <>  // add static arrays
 struct add_custom<2> {
-    template <class T, class Arr, unsigned long count>
-    static void add(T& c, const Arr (&arr)[count]) {
+    template <class T, class F, class Arr, unsigned long count>
+    static void add(T& c, F&& f, const Arr (&arr)[count]) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         for (int i = 0; i < count; ++i) {
-            Ad::add(c, arr[i]);
+            Ad::add(c, f(arr[i]));
         }
     }
 };
@@ -132,7 +141,7 @@ struct StaticAdapter {
     static void add(T& c, U&& o, Args&&... args) {
         add(c, std::forward<U>(o));
 
-        add(c,std::forward<Args>(args)...);
+        add(c, std::forward<Args>(args)...);
     }
 
     template <class T, class F, class U>
