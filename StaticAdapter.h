@@ -123,8 +123,9 @@ struct StaticAdapter {
     static void add(T& c, const std::initializer_list<U>& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
+        sa_spec::ForwardFunctor fwd;
         for (auto i = o.begin(); i != o.end(); ++i) {
-            Ad::add(c,*i);
+            Ad::add(c,fwd(*i));
         }
     }
 
@@ -132,16 +133,18 @@ struct StaticAdapter {
     static void add(T& c, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
+        sa_spec::ForwardFunctor fwd;
         sa_spec::add_custom<
                 sa_spec::AdditionSelector<T, U>::val
-            >::add(c, std::forward<U>(o));
+            >::add(c,fwd,std::forward<U>(o));
     }
 
     template <class T, class U, class... Args>
     static void add(T& c, U&& o, Args&&... args) {
-        add(c, std::forward<U>(o));
+        sa_spec::ForwardFunctor fwd;
+        addCustom(c, fwd, std::forward<U>(o));
 
-        add(c, std::forward<Args>(args)...);
+        addCustom(c, fwd, std::forward<Args>(args)...);
     }
 
     template <class T, class F, class U>
@@ -150,7 +153,7 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
         sa_spec::add_custom<
                 sa_spec::AdditionSelector<T, U>::val
-            >::add(c, std::forward<U>(o));
+            >::add(c, std::forward<F>(f), std::forward<U>(o));
     }
 
     template <class T, class F, class U, class... Args>
