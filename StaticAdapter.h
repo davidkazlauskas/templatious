@@ -135,6 +135,23 @@ struct StaticAdapter {
         add(c,std::forward<Args>(args)...);
     }
 
+    template <class T, class F, class U>
+    static void addCustom(T& c, F&& f, U&& o) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        sa_spec::add_custom<
+                sa_spec::AdditionSelector<T, U>::val
+            >::add(c, std::forward<U>(o));
+    }
+
+    template <class T, class F, class U, class... Args>
+    static void addCustom(T& c, F&& f, U&& o, Args&&... args) {
+        addCustom(c, std::forward<F>(f), std::forward<U>(o));
+
+        addCustom(c, std::forward<F>(f), std::forward<Args>(args)...);
+    }
+
+
     template <class T>
     static T instantiate() {
         typedef adapters::CollectionAdapter<T> Ad;
