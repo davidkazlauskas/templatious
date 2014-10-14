@@ -22,6 +22,7 @@
 #include <utility>
 #include <templatious/util/Selectors.h>
 #include <templatious/util/Container.h>
+#include <templatious/util/ArgumentDelimiter.h>
 
 namespace templatious {
 
@@ -30,6 +31,7 @@ struct Pack;
 
 namespace detail {
 
+struct TransformDelimiter {};
 
 template <class T>
 struct IsPack {
@@ -46,19 +48,79 @@ struct IsPack {
     }
 };
 
-template <class... T>
-auto packUp(T&&... t)
-  -> Pack< typename detail::IsPack<T>::ConstDropped... >
-{
-    return Pack< typename detail::IsPack<T>::ConstDropped... >(
-            detail::IsPack<T>::forward(t)... );
-}
+struct PackTransformInsertWithin {
+    template <class... T,class U>
+    static auto call(Pack<T...> p,U&& u)
+     -> decltype(p.insert(std::forward<U>(u)))
+    {
+        return p.insert(std::forward<U>(u));
+    }
+
+    template <class U>
+    static auto call(U&& u)
+     -> decltype(std::forward<U>(u))
+    {
+        return std::forward<U>(u);
+    }
+};
+
+struct PackAccess {
+
+    template <class TrPol,class P,class... T>
+    static auto packTransformWithin(P p,T&&... t)
+     -> decltype(
+             p.template transform<TrPol>(
+                    std::forward<T>(t)...,
+                    detail::TransformDelimiter()
+             )
+        )
+    {
+        return p.template transform<TrPol>(
+                std::forward<T>(t)...,
+                detail::TransformDelimiter());
+    }
+
+    template <class P,class T>
+    static auto packInsert(P p,T&& t)
+     -> decltype(p.template insert<T>(std::forward<T>(t)))
+    {
+        return p.template insert<T>(std::forward<T>(t));
+    }
+
+    template <class P,class T>
+    static auto packInsertWithin(P&& p,T&& t)
+     -> decltype( packTransformWithin<PackTransformInsertWithin>(
+                 std::forward<P>(p),std::forward<T>(t)) )
+    {
+        return packTransformWithin<PackTransformInsertWithin>(
+                std::forward<P>(p),std::forward<T>(t) );
+    }
+
+    template <class... T>
+    static auto packUp(T&&... t)
+      -> Pack< typename detail::IsPack<T>::ConstDropped... >
+    {
+        return Pack< typename detail::IsPack<T>::ConstDropped... >(
+                detail::IsPack<T>::forward(t)... );
+    }
+
+};
+
+struct Packer {
+    template <class... Args>
+    static auto call(Args&&... args)
+     -> decltype( PackAccess::packUp(std::forward<Args>(args)...) )
+    {
+        return PackAccess::packUp(std::forward<Args>(args)...);
+    }
+};
 
 }
 
 
 template <class A,class... Tail>
 struct Pack<A,Tail...> {
+    friend struct PackAccess;
 
     typedef detail::IsPack<A> IsP;
 
@@ -111,9 +173,9 @@ struct Pack<A,Tail...> {
     struct ThisValGetter {
         template <int i>
         static auto get(ThisPack& p)
-         -> decltype( std::declval<Container>().getRef() )
+         -> decltype( std::declval<Container>().cpy() )
         {
-            return p._r.getRef();
+            return p._r.cpy();
         }
     };
 
@@ -130,9 +192,9 @@ struct Pack<A,Tail...> {
         template <int i,class P>
         static auto get(P& p)
          -> decltype( std::declval<typename P::Container>()
-             .getRef().template get<i>() )
+             .cpy().template get<i>() )
         {
-            return p._r.getRef().template get<i>();
+            return p._r.cpy().template get<i>();
         }
     };
 
@@ -191,12 +253,12 @@ struct Pack<A,Tail...> {
     void call(F&& f,Args&&... args) {
         _t.call(std::forward<F>(f),
                 std::forward<Args>(args)...,
-                _r.getRef());
+                _r.cpy());
     }
 
     template <class F>
     void call(F&& f) {
-        _t.call(std::forward<F>(f),_r.getRef());
+        _t.call(std::forward<F>(f),_r.cpy());
     }
 
     template <class T>
@@ -204,11 +266,11 @@ struct Pack<A,Tail...> {
      -> decltype(
              std::declval<TailPack>().insert(
                  std::forward<T>(t),
-                 std::declval<Container>().getRef()
+                 std::declval<Container>().cpy()
              )
          )
     const {
-         return _t.insert(std::forward<T>(t),_r.getRef());
+         return _t.insert(std::forward<T>(t),_r.cpy());
     }
 
     template <class T,class... Args>
@@ -218,7 +280,7 @@ struct Pack<A,Tail...> {
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
-                 std::declval<Container>().getRef()
+                 std::declval<Container>().cpy()
              )
         )
     const {
@@ -226,54 +288,33 @@ struct Pack<A,Tail...> {
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
-                 _r.getRef());
+                 _r.cpy());
     }
 
-    template <class T,class... Args>
-    auto insertWithin(T&& t,Args&&... args)
-     -> decltype( std::declval<TailPack>().insertWithin(
-                 std::forward<T>(t),
-                 std::forward<Args>(args)...,
-                 InnerPasser::pass(
-                     std::declval<Container>().getRef(),
-                     std::forward<T>(t)
-                     )) )
-    const {
-        typedef typename templatious::util::TypeSelector<
-            IsP::val,
-            InnerPackInsertReturn,
-            ValReturn
-        >::val Passer;
-
-        return _t.insertWithin(
-                std::forward<T>(t),
-                std::forward<Args>(args)...,
-                Passer::pass(_r.getRef(),
-                    std::forward<T>(t))
-                );
-    }
-
-    template <class T>
-    auto insertWithin(T&& t)
-     -> decltype( std::declval<TailPack>().insertWithin(
-                    std::forward<T>(t),
-                    InnerPasser::pass(
-                        std::declval<Container>().getRef(),
-                        std::forward<T>(t)
-                    )
-                 ))
-    const {
-        typedef typename templatious::util::TypeSelector<
-            IsP::val,
-            InnerPackInsertReturn,
-            ValReturn
-        >::val Passer;
-
-        return _t.insertWithin(
-                std::forward<T>(t),
-                Passer::pass(_r.getRef(),
-                    std::forward<T>(t))
-                );
+    template <class Tr,class... Args>
+    auto transform(Args&&... args)
+     -> decltype(
+         std::declval< Pack<Tail...> >().template transform<Tr>(
+             std::forward<Args>(args)...,
+             templatious::util::callGroup<
+                detail::TransformDelimiter,
+                Tr,
+                0
+             >( std::declval<Container>().cpy(),
+                std::forward<Args>(args)... )
+         )
+     )
+    {
+        namespace u = templatious::util;
+        return _t.template transform<Tr>(
+            std::forward<Args>(args)...,
+            u::callGroup<
+                detail::TransformDelimiter,
+                Tr,
+                0
+            >( _r.cpy(),
+               std::forward<Args>(args)... )
+        );
     }
 
 private:
@@ -283,6 +324,7 @@ private:
 
 template <class A>
 struct Pack<A> {
+    friend struct PackAccess;
 
     typedef detail::IsPack<A> IsP;
 
@@ -333,9 +375,9 @@ struct Pack<A> {
     struct ThisValGetter {
         template <int i>
         static auto get(ThisPack& p)
-         -> decltype( std::declval<Container>().getRef() )
+         -> decltype( std::declval<Container>().cpy() )
         {
-            return p._r.getRef();
+            return p._r.cpy();
         }
     };
 
@@ -343,9 +385,9 @@ struct Pack<A> {
         template <int i,class P>
         static auto get(P& p)
          -> decltype( std::declval<P>()
-             ._r.getRef().template get<i>() )
+             ._r.cpy().template get<i>() )
         {
-            return p._r.getRef().template get<i>();
+            return p._r.cpy().template get<i>();
         }
     };
 
@@ -377,69 +419,70 @@ struct Pack<A> {
 
     template <class F,class... Args>
     void call(F&& f,Args&&... args) {
-        f(std::forward<Args>(args)...,_r.getRef());
+        f(std::forward<Args>(args)...,_r.cpy());
     }
 
     template <class T>
     auto insert(T&& t)
-     -> decltype( detail::packUp( std::declval<Container>().getRef() ) )
+     -> decltype( detail::PackAccess::packUp(
+                 std::declval<Container>().cpy() ) )
     const {
-        return detail::packUp( _r.getRef() );
+        return detail::PackAccess::packUp( _r.cpy() );
     }
 
     template <class T,class... Args>
     auto insert(T&& t,Args&&... args)
-     -> decltype( detail::packUp(
+     -> decltype( detail::PackAccess::packUp(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
-                  std::declval<Container>().getRef()
+                  std::declval<Container>().cpy()
                  ))
     const {
-        return detail::packUp(
+        return detail::PackAccess::packUp(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
-                  _r.getRef()
+                  _r.cpy()
                 );
     }
 
-    template <class T,class... Args>
-    auto insertWithin(T&& t,Args&&... args)
-      -> decltype( detail::packUp(
-                  std::forward<Args>(args)...,
-                  InnerPasser::pass(
-                      std::declval<Container>().getRef(),
-                      std::forward<T>(t)
-                  )
-              ))
-    const {
-        return detail::packUp(
-                std::forward<Args>(args)...,
-                InnerPasser::pass(
-                    _r.getRef(),
-                    std::forward<T>(t)
-                )
-            );
-    }
-
-    template <class T>
-    auto insertWithin(T&& t)
-     -> decltype( detail::packUp(
-                  InnerPasser::pass(
-                      std::declval<Container>().getRef(),
-                      std::forward<T>(t))
-                  ))
-    const {
-        return detail::packUp(
-                InnerPasser::pass(
-                    _r.getRef(),
-                    std::forward<T>(t)
-                )
-            );
+    template <class Tr,class... Args>
+    auto transform(Args&&... args)
+     -> decltype(
+         templatious::util::callGroup<
+            detail::TransformDelimiter,
+            detail::Packer,
+            1
+         >(
+             std::forward<Args>(args)...,
+             templatious::util::callGroup<
+                detail::TransformDelimiter,
+                Tr,
+                0
+             >( std::declval<Container>().cpy(),
+                std::forward<Args>(args)... )
+         )
+     )
+    {
+        namespace u = templatious::util;
+        return u::callGroup<
+            detail::TransformDelimiter,
+            detail::Packer,
+            1
+        >(
+            std::forward<Args>(args)...,
+            u::callGroup<
+                detail::TransformDelimiter,
+                Tr,
+                0
+            >( _r.cpy(),
+               std::forward<Args>(args)... )
+        );
     }
 
 private:
     Container _r;
 };
+
 
 namespace detail {
 

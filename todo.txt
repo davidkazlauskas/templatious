@@ -1,3 +1,8 @@
+LEGEND:
+# - done
+~ - partial
+? - problems
+
 BUG LOG:
 
 ?2. need for implicit conversion to value from initializer list -- difficulties
@@ -8,7 +13,7 @@ defects:
 #8. fix std::move semantics on instantiate collection
 20. when range/proxy get's clobbered it should throw an error trying to reiterate
 #25. move CollectionManipulator to templatious instead of templatious::manip namespace
-35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
+~35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
 
 features:
 
@@ -30,13 +35,14 @@ features:
 29. SM::edit (traverse and process every element)
 #30. extend SM::set to set simple vars as well
 #31. convenience insert function
-32. insert within (in between existing packs one level)
+#32. insert within (in between existing packs one level)
 33. repeaters (repeat collections)
 34. distribute from pack to collection and vice versa
 36. pack repeat
 37. add pack to collection (SA::add)
 38. callEach should process collections too (optionally)
-41. transform packs within one by one
+#41. transform packs within one by one
+42. transformation on add methods
 
 compatibility:
 
@@ -50,5 +56,5 @@ compatibility:
 perfection:
 9. add const qualifiers to comparators
 23. replace asserts with thrown exceptions
-26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
+#26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
 28. rename value_type etc. in adapter to camel case (no hybrid conventions...)

@@ -27,6 +27,7 @@
 #include <templatious/Virtual.h>
 #include <templatious/virtual/VCollectionFactory.h>
 #include <templatious/detail/MatchFunctor.h>
+#include <templatious/detail/UserUtil.h>
 
 namespace templatious {
 
@@ -298,22 +299,40 @@ struct StaticFactory {
 
     template <class... T>
     static auto pack(T&&... t)
-     -> decltype( detail::packUp(std::forward<T>(t)...) ) {
-        return detail::packUp(std::forward<T>(t)...);
+     -> decltype( detail::PackAccess::packUp(std::forward<T>(t)...) ) {
+        return detail::PackAccess::packUp(std::forward<T>(t)...);
     }
 
     template <class P,class T>
-    static auto packInsert(P p,T&& t)
-     -> decltype(p.template insert<T>(std::forward<T>(t)))
+    static auto packInsert(P&& p,T&& t)
+     -> decltype(detail::PackAccess::packInsert(
+            std::forward<P>(p),std::forward<T>(t)))
     {
-        return p.template insert<T>(std::forward<T>(t));
+        return detail::PackAccess::packInsert(
+            std::forward<P>(p),std::forward<T>(t));
     }
 
     template <class P,class T>
-    static auto packInsertWithin(P p,T&& t)
-     -> decltype(p.insertWithin(std::forward<T>(t)))
+    static auto packInsertWithin(P&& p,T&& t)
+     -> decltype(detail::PackAccess::packInsertWithin(
+                 std::forward<P>(p),std::forward<T>(t)))
     {
-        return p.insertWithin(std::forward<T>(t));
+        return detail::PackAccess::packInsertWithin(
+                std::forward<P>(p),std::forward<T>(t));
+    }
+
+    template <class TrPol,class P,class... T>
+    static auto packTransformWithin(P&& p,T&&... t)
+     -> decltype(
+            detail::PackAccess::packTransformWithin<TrPol>(
+                std::forward<P>(p),
+                std::forward<T>(t)...)
+        )
+    {
+        return detail::PackAccess::packTransformWithin<TrPol>(
+            std::forward<P>(p),
+            std::forward<T>(t)...
+        );
     }
 
     template <class... T,class Func>
@@ -397,6 +416,23 @@ struct StaticFactory {
         return Fctor(std::forward<T>(t)...);
     }
 
+    template <class T>
+    static auto streamFunctor(T& t)
+     -> detail::CallEachStreamFunctor<T&>
+    {
+        return detail::CallEachStreamFunctor<T&>(t);
+    }
+
+    template <
+        template <class> class T,
+        class Stor
+    >
+    static auto storageFunctor(Stor&& s)
+     -> T< decltype(std::forward<Stor>(s)) >
+    {
+        return T< decltype(std::forward<Stor>(s)) >(
+                std::forward<Stor>(s));
+    }
 };
 
 }

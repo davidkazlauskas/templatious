@@ -38,8 +38,8 @@ struct RefContainer {
         return _r;
     }
 
-    const T cpy() const {
-        return T(_r);
+    const T& cpy() const {
+        return _r;
     }
 
 private:
@@ -59,8 +59,8 @@ struct RefContainer<const T> {
         return _r;
     }
 
-    const T cpy() const {
-        return T(_r);
+    const T& cpy() const {
+        return _r;
     }
 
 private:
@@ -80,8 +80,8 @@ struct RefContainer<const T*> {
         return _r;
     }
 
-    const T cpy() const {
-        return T(_r);
+    const T* cpy() const {
+        return _r;
     }
 
 private:
