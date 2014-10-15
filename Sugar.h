@@ -61,7 +61,15 @@ struct __ForeachCounter {
 #define TEMPLATIOUS_REPEAT(n) \
     TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::seqL(n))
 
+#define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
+    typedef templatious::StaticAdapter AdName;\
+    typedef templatious::StaticFactory FactName;\
+    typedef templatious::StaticManipulator ManipName;
+
+#define TEMPLATIOUS_TRIPLET_STD TEMPLATIOUS_TRIPLET(SA,SF,SM)
+
 #define TEMPLATIOUS_CALLEACH_FCTOR(name, expr) \
+    TEMPLATIOUS_TRIPLET_STD;\
     struct name {\
         template <class T>\
         void operator()(T&& i) {\
@@ -70,6 +78,7 @@ struct __ForeachCounter {
     };
 
 #define TEMPLATIOUS_CALLEACH_FCTOR_WSTOR(name, expr) \
+    TEMPLATIOUS_TRIPLET_STD;\
     template <class StorType>\
     struct name {\
         name(const StorType& t) : _c(t) {}\
@@ -80,13 +89,6 @@ struct __ForeachCounter {
         }\
         StorType _c;\
     };
-
-#define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
-    typedef templatious::StaticAdapter AdName;\
-    typedef templatious::StaticFactory FactName;\
-    typedef templatious::StaticManipulator ManipName;
-
-#define TEMPLATIOUS_TRIPLET_STD TEMPLATIOUS_TRIPLET(SA,SF,SM)
 
 }
 

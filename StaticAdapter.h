@@ -27,6 +27,8 @@
 namespace templatious {
 namespace sa_spec {
 
+enum AdditionVariant { Data, Collection, StaticArrays };
+
 template <class T, class U>
 struct AdditionSelector {
     static const bool areAdaptable =
@@ -34,8 +36,14 @@ struct AdditionSelector {
         && templatious::adapters::CollectionAdapter<U>::is_valid;
     enum {
         val = templatious::util::IntSelector<
-            areAdaptable, 1, templatious::util::IntSelector<
-                                 std::is_array<U>::value, 2, 0>::val>::val
+            areAdaptable,
+            AdditionVariant::Collection,
+            templatious::util::IntSelector<
+                std::is_array<U>::value,
+                AdditionVariant::StaticArrays,
+                AdditionVariant::Data
+            >::val
+        >::val
     };
 };
 
@@ -52,7 +60,7 @@ template <int var>
 struct add_custom;
 
 template <>  // add data one by one
-struct add_custom<0> {
+struct add_custom< AdditionVariant::Data > {
     template <class T,class F,class U>
     static void add(T& c,F&& f,U&& i) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
@@ -62,7 +70,7 @@ struct add_custom<0> {
 };
 
 template <>  // add collections
-struct add_custom<1> {
+struct add_custom< AdditionVariant::Collection > {
     template <class T, class F, class U>
     static void add(T& t, F&& f, const U& u) {
         typedef templatious::adapters::CollectionAdapter<T> AdT;
@@ -76,7 +84,7 @@ struct add_custom<1> {
 };
 
 template <>  // add static arrays
-struct add_custom<2> {
+struct add_custom< AdditionVariant::StaticArrays > {
     template <class T, class F, class Arr, unsigned long count>
     static void add(T& c, F&& f, const Arr (&arr)[count]) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;

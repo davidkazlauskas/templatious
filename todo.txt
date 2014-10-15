@@ -18,7 +18,7 @@ defects:
 features:
 
 1. findIter @ CollectionManipulator needs comparator support
-7. virtual collection wrapper
+#7. virtual collection wrapper
 10. tune map object
 #11. loops
 #12. quadro function
@@ -26,7 +26,7 @@ features:
 #14. static array container (like vector)
 #15. foreach
 #16. traverse static arrays with foreach
-17. adapters for StaticVector HybridVector
+#17. adapters for StaticVector HybridVector
 18. variadic template function to call function on var arg [ t(f,a1,a2,a3...)]
 #19. pick range from ANY collection to be used as collection
 #21. proxies
@@ -37,12 +37,12 @@ features:
 #31. convenience insert function
 #32. insert within (in between existing packs one level)
 33. repeaters (repeat collections)
-34. distribute from pack to collection and vice versa
+#34. distribute from pack to collection and vice versa
 36. pack repeat
 37. add pack to collection (SA::add)
-38. callEach should process collections too (optionally)
+#38. callEach should process collections too (optionally)
 #41. transform packs within one by one
-42. transformation on add methods
+#42. transformation on add methods
 43. return from callEach/distribute to stop traversal
 
 compatibility:

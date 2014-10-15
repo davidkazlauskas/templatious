@@ -14,8 +14,44 @@
 namespace templatious {
 namespace detail{ 
 
-    template <bool isPack>
-    struct PackHandler;
+    enum Variant { Item, Pack, Collection };
+
+    template <int variant>
+    struct CallHandler;
+
+
+    // Difference between callEach and forEach:
+    // callEach treats packs as composite
+    // forEach treats collections as composite
+    //
+    // Why not all in one?
+    // Because of static arrays
+    // Static arrays are collections for templatious
+    // But literal strings like "hello world"
+    // are desired to be considered like one item
+    // in callEach, not a collection of chars.
+    //
+    // Maybe there will be a better solution
+    // in the future to treat all three uniformily?
+    //
+    // We'll see.
+    template <class T>
+    struct DeciderCallEach {
+        static const int TheVar = templatious::util::IntSelector<
+            IsPack<T>::val,
+            Variant::Pack,
+            Variant::Item
+        >::val;
+    };
+
+    template <class T>
+    struct DeciderForEach {
+        static const int TheVar = templatious::util::IntSelector<
+            templatious::adapters::CollectionAdapter<T>::is_valid,
+            Variant::Collection,
+            Variant::Item
+        >::val;
+    };
 
     struct SetImplCollection;
     struct SetImplVariable;
@@ -314,14 +350,27 @@ private:
 
     template <class T,class U,class... V>
     static void callEach(T&& f,U&& arg,V&&... args) {
-        detail::PackHandler< detail::IsPack<U>::val >::call(
+        detail::CallHandler< detail::DeciderCallEach<U>::TheVar >::call(
                 std::forward<T>(f),std::forward<U>(arg));
         callEach(std::forward<T>(f),std::forward<V>(args)...);
     }
 
     template <class T,class U>
     static void callEach(T&& f,U&& arg) {
-        detail::PackHandler< detail::IsPack<U>::val >::call(
+        detail::CallHandler< detail::DeciderCallEach<U>::TheVar >::call(
+                std::forward<T>(f),std::forward<U>(arg));
+    }
+
+    template <class T,class U,class... V>
+    static void forEach(T&& f,U&& arg,V&&... args) {
+        detail::CallHandler< detail::DeciderForEach<U>::TheVar >::call(
+                std::forward<T>(f),std::forward<U>(arg));
+        callEach(std::forward<T>(f),std::forward<V>(args)...);
+    }
+
+    template <class T,class U>
+    static void forEach(T&& f,U&& arg) {
+        detail::CallHandler< detail::DeciderForEach<U>::TheVar >::call(
                 std::forward<T>(f),std::forward<U>(arg));
     }
 
@@ -385,7 +434,7 @@ private:
 
 namespace detail {
     template <>
-    struct PackHandler<false> {
+    struct CallHandler< Variant::Item > {
         template <class F,class T>
         static void call(F&& f,T&& t) {
             f(std::forward<T>(t));
@@ -393,7 +442,21 @@ namespace detail {
     };
 
     template <>
-    struct PackHandler<true> {
+    struct CallHandler< Variant::Collection > {
+        template <class F,class T>
+        static void call(F&& f,T&& t) {
+            typedef templatious::adapters::CollectionAdapter<T> Ad;
+            for (auto i = Ad::begin(std::forward<T>(t));
+                    i != Ad::end(std::forward<T>(t));
+                    ++i)
+            {
+                f(*i);
+            }
+        }
+    };
+
+    template <>
+    struct CallHandler< Variant::Pack > {
 
         template <class Func>
         struct PackCaller {
