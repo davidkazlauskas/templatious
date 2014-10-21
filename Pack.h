@@ -23,15 +23,11 @@
 #include <templatious/util/Selectors.h>
 #include <templatious/util/Container.h>
 #include <templatious/util/ArgumentDelimiter.h>
+#include <templatious/util/ArgumentMultiplier.h>
 
 namespace templatious {
 
-template <class... Args>
-struct Pack;
-
 namespace detail {
-
-struct TransformDelimiter {};
 
 template <class T>
 struct IsPack {
@@ -48,12 +44,48 @@ struct IsPack {
     }
 };
 
+}
+
+// default storage policy
+// takes by reference when available
+// and by copy when unavailable
+template <class T>
+struct DefaultPackStoragePolicy {
+    typedef detail::IsPack<T> IsP;
+    typedef typename std::conditional<
+            std::is_lvalue_reference<T>::value && !detail::IsPack<T>::val ,
+            templatious::util::RefContainer<T>,
+            typename std::conditional<
+                    IsP::val,
+                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
+                    templatious::util::CopyContainer<T>
+                >::type
+        >::type Container;
+};
+
+template <
+    template <class> class StoragePolicy = DefaultPackStoragePolicy,
+    class... Args>
+struct Pack;
+
+namespace detail {
+
+struct TransformDelimiter {};
+
+template <
+    template <class> class NewStoragePolicy = DefaultPackStoragePolicy
+>
 struct PackTransformInsertWithin {
-    template <class... T,class U>
-    static auto call(Pack<T...> p,U&& u)
-     -> decltype(p.insert(std::forward<U>(u)))
+    template <
+        template <class> class StoragePolicy,
+        class... T,class U
+    >
+    static auto call(Pack<StoragePolicy,T...> p,U&& u)
+     -> decltype(p.template insert<NewStoragePolicy>(
+                 std::forward<U>(u)))
     {
-        return p.insert(std::forward<U>(u));
+        return p.template insert<NewStoragePolicy>(
+                std::forward<U>(u));
     }
 
     template <class U>
@@ -63,6 +95,8 @@ struct PackTransformInsertWithin {
         return std::forward<U>(u);
     }
 };
+
+struct Packer;
 
 struct PackAccess {
 
@@ -80,88 +114,89 @@ struct PackAccess {
                 detail::TransformDelimiter());
     }
 
-    template <class P,class T>
+    template <
+        template <class> class StoragePolicy = DefaultPackStoragePolicy,
+        class P,class T
+    >
     static auto packInsert(P p,T&& t)
-     -> decltype(p.template insert<T>(std::forward<T>(t)))
+     -> decltype(p.template insert<StoragePolicy,T>(std::forward<T>(t)))
     {
-        return p.template insert<T>(std::forward<T>(t));
+        return p.template insert<StoragePolicy,T>(std::forward<T>(t));
     }
 
-    template <class P,class T>
+    template <
+        template <class> class StoragePolicy = DefaultPackStoragePolicy,
+        class P,class T
+    >
     static auto packInsertWithin(P&& p,T&& t)
-     -> decltype( packTransformWithin<PackTransformInsertWithin>(
+     -> decltype( packTransformWithin< PackTransformInsertWithin<StoragePolicy> >(
                  std::forward<P>(p),std::forward<T>(t)) )
     {
-        return packTransformWithin<PackTransformInsertWithin>(
+        return packTransformWithin< PackTransformInsertWithin<StoragePolicy> >(
                 std::forward<P>(p),std::forward<T>(t) );
     }
 
-    template <class... T>
+    template <
+        template <class> class StoragePolicy = DefaultPackStoragePolicy,
+        class... T
+    >
     static auto packUp(T&&... t)
-      -> Pack< typename detail::IsPack<T>::ConstDropped... >
+      -> Pack< StoragePolicy, typename detail::IsPack<T>::ConstDropped... >
     {
-        return Pack< typename detail::IsPack<T>::ConstDropped... >(
+        return Pack< StoragePolicy, typename detail::IsPack<T>::ConstDropped... >(
                 detail::IsPack<T>::forward(t)... );
     }
 
+    template <
+        int n,
+        class... Args
+    >
+    static auto packRepeat(Args&&... args)
+     -> decltype(
+         templatious::util::multiplyArgs<Packer,n>(
+             std::forward<Args>(args)...
+         )
+     )
+    {
+        return templatious::util::multiplyArgs<Packer,n>(
+                std::forward<Args>(args)...);
+    }
 };
 
 struct Packer {
-    template <class... Args>
+    template <
+        template <class> class StoragePolicy = DefaultPackStoragePolicy,
+        class... Args
+    >
     static auto call(Args&&... args)
-     -> decltype( PackAccess::packUp(std::forward<Args>(args)...) )
+     -> decltype( PackAccess::packUp<StoragePolicy>(
+                 std::forward<Args>(args)...) )
     {
-        return PackAccess::packUp(std::forward<Args>(args)...);
+        return PackAccess::packUp<StoragePolicy>(
+                std::forward<Args>(args)...);
     }
 };
 
 }
 
 
-template <class A,class... Tail>
-struct Pack<A,Tail...> {
+template <
+    template <class> class StoragePolicy,
+    class A,
+    class... Tail
+>
+struct Pack<StoragePolicy,A,Tail...> {
     friend struct PackAccess;
 
     typedef detail::IsPack<A> IsP;
 
-    typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value && !detail::IsPack<A>::val ,
-            templatious::util::RefContainer<A>,
-            typename templatious::util::TypeSelector<
-                    IsP::val,
-                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
-                    templatious::util::CopyContainer<A>
-                >::val
-        >::val Container;
+    typedef typename StoragePolicy<A>::Container
+        Container;
 
-    typedef Pack<A,Tail...> ThisPack;
-    typedef Pack<Tail...> TailPack;
+    typedef Pack<StoragePolicy,A,Tail...> ThisPack;
+    typedef Pack<StoragePolicy,Tail...> TailPack;
 
-    enum { size = detail::IsPack<A>::size + Pack<Tail...>::size, flatSize = sizeof...(Tail) + 1 };
-
-    struct InnerPackInsertReturn {
-        template <class T,class Ins>
-        static auto pass(T&& t,Ins&& i)
-         -> decltype(t.insert(std::forward<Ins>(i)))
-        {
-            return t.insert(std::forward<Ins>(i));
-        }
-    };
-
-    struct ValReturn {
-        template <class T,class Ins>
-        static auto pass(T&& t,Ins&& i)
-         -> decltype(t)
-        {
-            return t;
-        }
-    };
-
-    typedef typename templatious::util::TypeSelector<
-        IsP::val,
-        InnerPackInsertReturn,
-        ValReturn
-    >::val InnerPasser;
+    enum { size = detail::IsPack<A>::size + Pack<StoragePolicy,Tail...>::size, flatSize = sizeof...(Tail) + 1 };
 
     template <class ARef,class... TailRef>
     explicit Pack(ARef&& r,TailRef&&... t)
@@ -261,22 +296,30 @@ struct Pack<A,Tail...> {
         _t.call(std::forward<F>(f),_r.cpy());
     }
 
-    template <class T>
+    template <
+        template <class> class InsertStoragePolicy,
+        class T
+    >
     auto insert(T&& t)
      -> decltype(
-             std::declval<TailPack>().insert(
+             std::declval<TailPack>().template insert<InsertStoragePolicy>(
                  std::forward<T>(t),
                  std::declval<Container>().cpy()
              )
          )
     const {
-         return _t.insert(std::forward<T>(t),_r.cpy());
+         return _t.template insert<InsertStoragePolicy>(
+                 std::forward<T>(t),_r.cpy());
     }
 
-    template <class T,class... Args>
+    template <
+        template <class> class InsertStoragePolicy,
+        class T,
+        class... Args
+    >
     auto insert(T&& t,Args&&... args)
      -> decltype(
-             std::declval<TailPack>().insert(
+             std::declval<TailPack>().template insert<InsertStoragePolicy>(
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
@@ -284,7 +327,7 @@ struct Pack<A,Tail...> {
              )
         )
     const {
-         return _t.insert(
+         return _t.template insert<InsertStoragePolicy>(
                  std::forward<T>(t),
                  std::forward<Args>(args)...,
                  std::forward<T>(t),
@@ -294,7 +337,7 @@ struct Pack<A,Tail...> {
     template <class Tr,class... Args>
     auto transform(Args&&... args)
      -> decltype(
-         std::declval< Pack<Tail...> >().template transform<Tr>(
+         std::declval< Pack<StoragePolicy,Tail...> >().template transform<Tr>(
              std::forward<Args>(args)...,
              templatious::util::callGroup<
                 detail::TransformDelimiter,
@@ -319,52 +362,25 @@ struct Pack<A,Tail...> {
 
 private:
     Container _r;
-    Pack<Tail...> _t;
+    Pack<StoragePolicy,Tail...> _t;
 };
 
-template <class A>
-struct Pack<A> {
+template <
+    template <class> class StoragePolicy,
+    class A
+>
+struct Pack<StoragePolicy,A> {
     friend struct PackAccess;
 
     typedef detail::IsPack<A> IsP;
 
-    typedef typename templatious::util::TypeSelector<
-            std::is_lvalue_reference<A>::value && !detail::IsPack<A>::val ,
-            templatious::util::RefContainer<A>,
-            typename templatious::util::TypeSelector<
-                    IsP::val,
-                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
-                    templatious::util::CopyContainer<A>
-                >::val
-        >::val Container;
+    typedef typename StoragePolicy<A>::Container
+        Container;
 
-    typedef Pack<A> ThisPack;
+    typedef Pack<StoragePolicy,A> ThisPack;
 
     enum { size = detail::IsPack<A>::size, flatSize = 1 };
 
-    struct InnerPackInsertReturn {
-        template <class T,class Ins>
-        static auto pass(T&& t,Ins&& i)
-         -> decltype(t.insert(std::forward<Ins>(i)))
-        {
-            return t.insert(std::forward<Ins>(i));
-        }
-    };
-
-    struct ValReturn {
-        template <class T,class Ins>
-        static auto pass(T&& t,Ins&& i)
-         -> decltype(std::forward<T>(t))
-        {
-            return std::forward<T>(t);
-        }
-    };
-
-    typedef typename templatious::util::TypeSelector<
-        IsP::val,
-        InnerPackInsertReturn,
-        ValReturn
-    >::val InnerPasser;
 
     template <class ARef>
     explicit Pack(ARef&& r)
@@ -422,23 +438,30 @@ struct Pack<A> {
         f(std::forward<Args>(args)...,_r.cpy());
     }
 
-    template <class T>
+    template <
+        template <class> class InsertStoragePolicy,
+        class T
+    >
     auto insert(T&& t)
-     -> decltype( detail::PackAccess::packUp(
+     -> decltype( detail::PackAccess::packUp<InsertStoragePolicy>(
                  std::declval<Container>().cpy() ) )
     const {
-        return detail::PackAccess::packUp( _r.cpy() );
+        return detail::PackAccess::packUp<InsertStoragePolicy>(
+                _r.cpy());
     }
 
-    template <class T,class... Args>
+    template <
+        template <class> class InsertStoragePolicy,
+        class T,class... Args
+    >
     auto insert(T&& t,Args&&... args)
-     -> decltype( detail::PackAccess::packUp(
+     -> decltype( detail::PackAccess::packUp<InsertStoragePolicy>(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
                   std::declval<Container>().cpy()
                  ))
     const {
-        return detail::PackAccess::packUp(
+        return detail::PackAccess::packUp<InsertStoragePolicy>(
                   std::forward<Args>(args)...,
                   std::forward<T>(t),
                   _r.cpy()
@@ -486,63 +509,75 @@ private:
 
 namespace detail {
 
-template <class... T>
-struct IsPack< Pack<T...> > {
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< Pack<StoragePolicy,T...> > {
     static const bool val = true;
-    typedef Pack<T...> ConstDropped;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
 
-    enum { size = Pack<T...>::size };
+    enum { size = Pack<StoragePolicy,T...>::size };
 
     template <class V>
     static auto forward(const V& val)
-     -> Pack<T...>
+     -> Pack<StoragePolicy,T...>
     {
-        return Pack<T...>(val);
+        return Pack<StoragePolicy,T...>(val);
     }
 };
 
-template <class... T>
-struct IsPack< Pack<T...>& > {
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< Pack<StoragePolicy,T...>& > {
     static const bool val = true;
-    typedef Pack<T...> ConstDropped;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
 
-    enum { size = Pack<T...>::size };
+    enum { size = Pack<StoragePolicy,T...>::size };
 
     template <class V>
     static auto forward(const V& val)
-     -> Pack<T...>
+     -> Pack<StoragePolicy,T...>
     {
-        return Pack<T...>(val);
+        return Pack<StoragePolicy,T...>(val);
     }
 };
 
-template <class... T>
-struct IsPack< const Pack<T...> > {
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< const Pack<StoragePolicy,T...> > {
     static const bool val = true;
-    typedef Pack<T...> ConstDropped;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
 
-    enum { size = Pack<T...>::size };
+    enum { size = Pack<StoragePolicy,T...>::size };
 
     template <class V>
     static auto forward(const V& val)
-     -> Pack<T...>
+     -> Pack<StoragePolicy,T...>
     {
-        return Pack<T...>(val);
+        return Pack<StoragePolicy,T...>(val);
     }
 };
 
-template <class... T>
-struct IsPack< const Pack<T...>& > {
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< const Pack<StoragePolicy,T...>& > {
     static const bool val = true;
-    typedef Pack<T...> ConstDropped;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
 
-    enum { size = Pack<T...>::size };
+    enum { size = Pack<StoragePolicy,T...>::size };
 
     template <class V>
     static auto forward(const V& val)
-     -> Pack<T...>
+     -> Pack<StoragePolicy,T...>
     {
-        return Pack<T...>(val);
+        return Pack<StoragePolicy,T...>(val);
     }
 };
 

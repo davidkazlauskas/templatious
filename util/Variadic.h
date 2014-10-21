@@ -19,6 +19,8 @@
 #ifndef VARIADIC_HXND7XSS
 #define VARIADIC_HXND7XSS
 
+#include <utility>
+
 namespace templatious {
 namespace util {
 
@@ -38,6 +40,43 @@ struct GetFrist<T> {
 template <class T,class... Tail>
 struct GetFrist<T,Tail...> {
     typedef T type;
+};
+
+template <int i>
+struct GetNth;
+
+template <int n,class... Args>
+auto getNth(Args&&... args)
+ -> decltype( GetNth<n>::get(
+             std::forward<Args>(args)...) )
+{
+    static_assert(n >= 0,"Index cannot be negative.");
+    static_assert(n < sizeof...(Args),
+            "Asked element is out of bounds");
+    return GetNth<n>::get(
+            std::forward<Args>(args)...);
+}
+
+template <int i>
+struct GetNth {
+    template <class T,class... Args>
+    static auto get(T&& first,Args&&... args)
+     -> decltype( GetNth<i - 1>::get(
+            std::forward<Args>(args)...))
+    {
+        return GetNth<i - 1>::get(
+            std::forward<Args>(args)...);
+    }
+};
+
+template <>
+struct GetNth<0> {
+    template <class T,class... Args>
+    static auto get(T&& first,Args&&... args)
+     -> decltype( std::forward<T>(first) )
+    {
+        return std::forward<T>(first);
+    }
 };
 
 }

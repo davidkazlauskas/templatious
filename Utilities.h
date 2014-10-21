@@ -32,4 +32,6 @@
 #include <templatious/util/TypeMap.h>
 #include <templatious/util/Compterator.h>
 #include <templatious/util/ArgumentDelimiter.h>
+#include <templatious/util/ArgumentMultiplier.h>
+#include <templatious/util/DefaultStoragePolicy.h>
 

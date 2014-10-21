@@ -43,8 +43,6 @@ template <class T,bool addOnIncrement>
 struct SeqIter {
     typedef T Unit;
     typedef SeqIter<Unit,addOnIncrement> ThisIter;
-    mutable Unit _count;
-    Unit _step;
 
     SeqIter(Unit count,Unit step) :
         _count(count), _step(step) {}
@@ -81,6 +79,10 @@ struct SeqIter {
     Unit operator*() const {
         return _count;
     }
+
+private:
+    mutable Unit _count;
+    Unit _step;
 };
 
 template <class T>
@@ -166,19 +168,19 @@ struct SeqL : public SeqBase<T> {
         return standardEnd();
     }
 
-    ConstIter cbegin() const {
+    ThisIter cbegin() const {
         if (!Base::is_signed && isReversed) {
-            return ConstIter(_end - _step,_step);
+            return ThisIter(_end - _step,_step);
         }
-        return ConstIter(_beg,_step);
+        return ThisIter(_beg,_step);
     }
 
-    ConstIter cend() const {
+    ThisIter cend() const {
         if (!Base::is_signed && isReversed) {
-            return ConstIter(_beg - _step,_step);
+            return ThisIter(_beg - _step,_step);
         }
 
-        return cstandardEnd();
+        return standardEnd();
     }
 
     template <class U = int>
@@ -284,7 +286,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     typedef templatious::SeqL<T,isReversed> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::ThisIter iterator;
-    typedef typename ThisCol::ConstIter const_iterator;
+    typedef typename ThisCol::ThisIter const_iterator;
     typedef T value_type;
     typedef const T const_value_type;
 
@@ -445,7 +447,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
     typedef const templatious::SeqL<T,isReversed> ThisCol;
     typedef ThisCol ConstCol;
     typedef typename ThisCol::ThisIter iterator;
-    typedef typename ThisCol::ConstIter const_iterator;
+    typedef typename ThisCol::ThisIter const_iterator;
     typedef const T value_type;
     typedef const T const_value_type;
 

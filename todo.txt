@@ -14,6 +14,8 @@ defects:
 20. when range/proxy get's clobbered it should throw an error trying to reiterate
 #25. move CollectionManipulator to templatious instead of templatious::manip namespace
 ~35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
+45. SF::seq when used as rvalue only receives const iterator... maybe it should receive copies of normal iterator?
+46. tweak seq to only return one type of iterator
 
 features:
 
@@ -38,12 +40,14 @@ features:
 #32. insert within (in between existing packs one level)
 33. repeaters (repeat collections)
 #34. distribute from pack to collection and vice versa
-36. pack repeat
+#36. pack repeat
 37. add pack to collection (SA::add)
 #38. callEach should process collections too (optionally)
 #41. transform packs within one by one
 #42. transformation on add methods
 43. return from callEach/distribute to stop traversal
+#44. decorate functor - make few functors from one as decorator
+47. make recursive sequence generator from lamba
 
 compatibility:
 

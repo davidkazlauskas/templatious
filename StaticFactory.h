@@ -28,6 +28,7 @@
 #include <templatious/virtual/VCollectionFactory.h>
 #include <templatious/detail/MatchFunctor.h>
 #include <templatious/detail/UserUtil.h>
+#include <templatious/detail/ChainFunctor.h>
 
 namespace templatious {
 
@@ -297,18 +298,31 @@ struct StaticFactory {
         return Maker::make(std::forward<T>(t));
     }
 
-    template <class... T>
+    template <
+        template <class> class StoragePolicy =
+            DefaultPackStoragePolicy,
+        class... T
+    >
     static auto pack(T&&... t)
-     -> decltype( detail::PackAccess::packUp(std::forward<T>(t)...) ) {
-        return detail::PackAccess::packUp(std::forward<T>(t)...);
+     -> decltype(
+            detail::PackAccess::packUp<StoragePolicy>(
+                std::forward<T>(t)...)
+        )
+    {
+        return detail::PackAccess::packUp<StoragePolicy>(
+                std::forward<T>(t)...);
     }
 
-    template <class P,class T>
+    template <
+        template <class> class StoragePolicy =
+            DefaultPackStoragePolicy,
+        class P,class T
+    >
     static auto packInsert(P&& p,T&& t)
-     -> decltype(detail::PackAccess::packInsert(
+     -> decltype(detail::PackAccess::packInsert<StoragePolicy>(
             std::forward<P>(p),std::forward<T>(t)))
     {
-        return detail::PackAccess::packInsert(
+        return detail::PackAccess::packInsert<StoragePolicy>(
             std::forward<P>(p),std::forward<T>(t));
     }
 
@@ -333,6 +347,17 @@ struct StaticFactory {
             std::forward<P>(p),
             std::forward<T>(t)...
         );
+    }
+
+    template <int n,class... Args>
+    static auto packRepeat(Args&&... args)
+     -> decltype(
+         detail::PackAccess::packRepeat<n>(
+             std::forward<Args>(args)...)
+     )
+    {
+        return detail::PackAccess::packRepeat<n>(
+             std::forward<Args>(args)...);
     }
 
     template <class... T,class Func>
@@ -432,6 +457,18 @@ struct StaticFactory {
     {
         return T< decltype(std::forward<Stor>(s)) >(
                 std::forward<Stor>(s));
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class... Args
+    >
+    static auto chainFunctor(Args&&... args)
+     -> detail::ChainFunctor<StoragePolicy,Args...>
+    {
+        return detail::ChainFunctor<StoragePolicy,Args...>(
+                std::forward<Args>(args)...);
     }
 };
 
