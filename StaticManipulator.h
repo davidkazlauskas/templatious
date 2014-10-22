@@ -288,7 +288,6 @@ private:
     template <bool passIndex = false, class U, class... Args>
     static void quadro(U&& fn, Args&&... args) {
         typedef typename templatious::recursive::IteratorMaker ItMk;
-        typedef typename templatious::StaticAdapter SA;
         namespace ut = templatious::util;
 
         auto it = ItMk::makeQuadro(std::forward<Args>(args)...);

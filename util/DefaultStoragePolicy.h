@@ -34,8 +34,39 @@ struct DefaultStoragePolicy {
     typedef typename std::conditional<
             std::is_lvalue_reference<T>::value,
             templatious::util::RefContainer<T>,
-            templatious::util::CopyContainer< typename std::remove_const<T>::type >
+            typename std::conditional<
+                std::is_function<T>::value,
+                templatious::util::StaticPointerContainer<T>,
+                templatious::util::CopyContainer<
+                    typename std::remove_const<T>::type
+                >
+            >::type
         >::type Container;
+
+    template <class U>
+    static auto make(U&& u)
+     -> Container
+    {
+        return Container(std::forward<U>(u));
+    }
+
+    struct CopyMaker {
+        typedef typename std::remove_const<T>::type Result;
+
+        template <class U>
+        Result make(U&& u) {
+            return Result(std::forward<U>(u));
+        }
+    };
+
+    struct RefMaker {
+        typedef typename std::add_lvalue_reference<T>::type Result;
+
+        template <class U>
+        Result make(U&& u) {
+            return Result(std::forward<U>(u));
+        }
+    };
 };
 
 }

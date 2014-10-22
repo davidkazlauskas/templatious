@@ -157,6 +157,7 @@ struct AddablePrevent: public T {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Addable feature is disabled.");
+        return false;
     }
 
 protected:

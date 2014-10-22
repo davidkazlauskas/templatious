@@ -97,11 +97,11 @@ struct Skipper {
     private:
         typedef Skipper<T> Parent;
         typedef Parent::ProxUtil ProxUtil;
-        friend class Skipper<T>;
+        friend struct Skipper<T>;
 
+        Parent& _p;
         I _i;
         size_t _sk;
-        Parent& _p;
 
         static const bool random_access_iterator =
             Parent::random_access_iterator;
@@ -120,6 +120,7 @@ struct Skipper {
             _sk = rhs._sk;
 
             assert(&_p == &rhs._p);
+            return *this;
         }
 
         ThisIter& operator++() {
@@ -198,12 +199,16 @@ struct Skipper {
 
 template <class T>
 struct IsProxy< Skipper< T > > {
+    typedef IsProxy<T> Internal;
     static const bool val = true;
 
     typedef adapters::CollectionAdapter<T> Ad;
     typedef typename Ad::ThisCol ICollection;
     typedef typename
         adapters::CollectionAdapter<ICollection> IAdapter;
+
+    static const bool random_access_iterator
+        = Internal::random_access_iterator;
 
     template <class C>
     static auto unwrap(C&& c)

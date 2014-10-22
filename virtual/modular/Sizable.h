@@ -111,6 +111,7 @@ struct SizablePrevent: public T {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Sizable feature is disabled.");
+        return -1;
     }
 
 protected:

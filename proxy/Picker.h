@@ -202,7 +202,6 @@ template <bool floating_iterator,class C>
 void clearRoutine(C&& c) {
     typedef IsProxy<C> ProxUtil;
     typedef decltype(ProxUtil::unwrap(c)) ICol;
-    typedef adapters::CollectionAdapter<C> Ad;
     typedef adapters::CollectionAdapter<ICol> IAd;
     typedef adapters::CollectionAdapter<
         std::vector<typename IAd::iterator> > CAd;

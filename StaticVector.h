@@ -279,7 +279,7 @@ struct StaticVector {
             return res;
         }
 
-        friend class StaticVector<T,sz>;
+        friend struct StaticVector<T,sz>;
 
     private:
         ValType* _vct;

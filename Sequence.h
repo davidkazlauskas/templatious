@@ -243,8 +243,8 @@ private:
                 && "Unsigned loop can only move forward."
                 " (if you want unsigned loop to go backwards reverse forward loop)");
         } else {
-            assert( _beg <= _end && _step > 0
-                 || _beg >= _end && _step < 0
+            assert( ((_beg <= _end && _step > 0)
+                 || (_beg >= _end && _step < 0))
                  && "Loop is illogical.");
         }
 
@@ -331,6 +331,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -355,6 +356,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return -1;
     }
 
     template <class U = int>
@@ -363,6 +365,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -371,6 +374,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -427,6 +431,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -488,6 +493,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -504,6 +510,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return -1;
     }
 
     template <class U = int>
@@ -512,6 +519,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -520,6 +528,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>
@@ -560,6 +569,7 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+        return false;
     }
 
     template <class U = int>

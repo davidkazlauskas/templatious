@@ -62,6 +62,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<value_type&>(); // no compiler warning
     }
 
     template <class U = int>
@@ -69,6 +70,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_value_type&>(); // no compiler warning
     }
 
     template <class U = int>
@@ -76,6 +78,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return -1;
     }
 
     template <class U = int>
@@ -125,6 +128,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -132,6 +136,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -139,26 +144,30 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<iterator>(); // no compiler warning
     }
 
     template <class U>
-    static iterator begin(ConstCol& c) {
+    static const_iterator begin(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
     template <class U>
-    static iterator end(ConstCol& c) {
+    static const_iterator end(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
 
     template <class U>
-    static iterator iter_at(ConstCol& c, size_t i) {
+    static const_iterator iter_at(ConstCol& c, size_t i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -166,6 +175,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -173,6 +183,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -180,6 +191,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_iterator>(); // no compiler warning
     }
 
     template <class U>
@@ -187,13 +199,15 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<value_type&>(); // no compiler warning
     }
 
     template <class U>
-    static const value_type& first(ConstCol& c) {
+    static const_value_type& first(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_value_type&>(); // no compiler warning
     }
 
     template <class U>
@@ -201,13 +215,15 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<value_type&>(); // no compiler warning
     }
 
     template <class U>
-    static const value_type& last(ConstCol& c) {
+    static const_value_type& last(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return std::declval<const_value_type&>(); // no compiler warning
     }
 
     template <class U>
@@ -222,6 +238,7 @@ struct CollectionAdapter< Socket<T> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");
+        return false;
     }
 };
 

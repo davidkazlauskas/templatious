@@ -109,41 +109,23 @@ private:
 };
 
 template <class T>
-struct RefWhenAvailableContainer {
+struct StaticPointerContainer {
+    StaticPointerContainer(const T& t) : _r(&t) {}
 
-    typedef typename std::conditional<
-            std::is_lvalue_reference<T>::value,
-            RefContainer<T>,
-            templatious::util::CopyContainer<
-                typename std::remove_const<T>::type
-            >
-    >::type Container;
-
-    template <class U>
-    static auto make(U&& u)
-     -> Container
-    {
-        return Container(std::forward<U>(u));
+    const T& getRef() const {
+        return *_r;
     }
 
-    struct CopyMaker {
-        typedef typename std::remove_const<T>::type Result;
+    const T& cgetRef() const {
+        return *_r;
+    }
 
-        template <class U>
-        Result make(U&& u) {
-            return Result(std::forward<U>(u));
-        }
-    };
+    const T* cpy() const {
+        return _r;
+    }
 
-    struct RefMaker {
-        typedef typename std::add_lvalue_reference<T>::type Result;
-
-        template <class U>
-        Result make(U&& u) {
-            return Result(std::forward<U>(u));
-        }
-    };
-
+private:
+    const T* _r;
 };
 
 }

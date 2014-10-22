@@ -47,7 +47,7 @@ struct Filter {
 
     typedef typename templatious::util::RefMaker<T>::val Ref;
     Ref _c;
-    Fn&& _fn;
+    Fn _fn;
     iterator _b;
     iterator _e;
 
@@ -94,10 +94,10 @@ struct Filter {
     private:
         I _i;
         I _e;
-        Fun&& _fn;
+        Fun _fn;
 
     public:
-        friend class Filter<T,Fun>;
+        friend struct Filter<T,Fun>;
 
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
@@ -112,6 +112,7 @@ struct Filter {
         PIterator& operator=(const PIterator& rhs) {
             _i = rhs._i;
             _e = rhs._e;
+            return *this;
         }
 
         ThisIter& operator++() {

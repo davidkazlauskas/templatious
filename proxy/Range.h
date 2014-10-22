@@ -109,6 +109,7 @@ struct Range {
 
         PIterator& operator=(const PIterator& rhs) {
             _i = rhs._i;
+            return *this;
         }
 
         ThisIter& operator++() {

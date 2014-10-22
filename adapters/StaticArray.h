@@ -46,6 +46,7 @@ struct CollectionAdapter< T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
+        return false;
     }
 
     static value_type& getByIndex(T c[size],size_t i) {
@@ -65,6 +66,7 @@ struct CollectionAdapter< T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>
@@ -72,6 +74,7 @@ struct CollectionAdapter< T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>
@@ -133,6 +136,7 @@ struct CollectionAdapter< T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Insert not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>
@@ -163,6 +167,7 @@ struct CollectionAdapter< const T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
+        return false;
     }
 
     static const_value_type& getByIndex(const T c[size],size_t i) {
@@ -178,6 +183,7 @@ struct CollectionAdapter< const T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>
@@ -185,6 +191,7 @@ struct CollectionAdapter< const T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>
@@ -238,6 +245,7 @@ struct CollectionAdapter< const T[sz] > {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Insert not supported as static array doesn't hold any state.");
+        return false;
     }
 
     template <class U = int>

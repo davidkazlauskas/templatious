@@ -22,7 +22,7 @@
 #include <type_traits>
 
 #include <templatious/detail/TypeList.h>
-#include <templatious/util/Container.h>
+#include <templatious/util/DefaultStoragePolicy.h>
 
 namespace templatious {
 
@@ -142,7 +142,7 @@ struct Match<
 >
 {
     typedef typename templatious::util::
-        RefWhenAvailableContainer<Func> RefMaker;
+        DefaultStoragePolicy<Func> RefMaker;
 
     typedef typename RefMaker::Container Container;
 

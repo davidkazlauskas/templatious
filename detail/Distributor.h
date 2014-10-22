@@ -175,11 +175,10 @@ namespace detail {
             >::type Actions;
 
             typedef typename std::conditional<
-                compterator.last,
+                C::last,
                 CatchAllStepper,
                 TailStepper
             >::type Stepper;
-
 
             CountType myCnt = 0;
             do {
@@ -253,6 +252,7 @@ namespace detail {
                 templatious::util::DummyResolver<T,false>::val,
                 "Item passed is undistributable."
             );
+            return std::declval<CountType>(); // no compiler warning
         }
     };
 
