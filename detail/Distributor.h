@@ -30,39 +30,58 @@ namespace detail {
 
     struct AssignDispatcher {
         template <class T,class U>
-        static void dispatch(T& t,const U& u) {
-            t = u;
+        static void dispatch(const T& t,U& u) {
+            u = t;
+        }
+
+        template <class T,class U>
+        void operator()(const T& t,U& u) {
+            dispatch(t,u);
         }
     };
 
     struct RevAssignDispatcher {
         template <class T,class U>
-        static void dispatch(const T& t,U& u) {
-            u = t;
+        static void dispatch(T& t,const U& u) {
+            t = u;
+        }
+
+        template <class T,class U>
+        void operator()(T& t,const U& u) {
+            dispatch(t,u);
         }
     };
 
-    template <class Dispatcher>
     struct PackToRestDistribution {
 
-        template <class T,class... Tail>
-        static CountType distribute(T&& p,Tail&&... t) {
+        template <
+            bool ignoreBooleanReturn = false,
+            class Func,class T,class... Tail
+        >
+        static CountType distribute(Func&& f,T&& p,Tail&&... t) {
             namespace UD = templatious::util::detail;
             auto cTer = UD::makeCompteratorV2( std::forward<Tail>(t)... );
 
-            return step<0>(std::forward<T>(p),cTer);
+            return step<ignoreBooleanReturn,0>(
+                    std::forward<Func>(f),
+                    std::forward<T>(p),
+                    cTer);
         }
 
-        template <int i,class P,class C>
-        static CountType step(P&& p,C& compterator) {
+        template <
+            bool ignoreBooleanReturn = false,
+            int i,class Func,class P,class C
+        >
+        static CountType step(Func&& f,P&& p,C& compterator) {
+            typedef typename std::decay<decltype(p)>::type PType;
             typedef typename templatious::util::TypeSelector<
-                compterator.last || i == p.size - 1,
+                C::last || i == PType::size - 1,
                 CatchAllStepper,
                 TailStepper
             >::val TailStepper;
 
             typedef typename templatious::util::TypeSelector<
-                i == p.size - 1,
+                i == PType::size - 1,
                 CatchAllStepper,
                 ForwardStepper
             >::val FwdStepper;
@@ -78,41 +97,83 @@ namespace detail {
                 ValActions
             >::val Actions;
 
-            Actions::template assign<i>(std::forward<P>(p),compterator);
+            bool res = Actions::template assign<i>(
+                    std::forward<Func>(f),
+                    std::forward<P>(p),
+                    compterator);
+            if (!ignoreBooleanReturn && !res) {
+                return i;
+            }
 
             if (!Actions::isDone(compterator)) {
-                return FwdStepper::template stepSpecial<i + 1>(std::forward<P>(p),compterator);
+                return FwdStepper::template stepSpecial<
+                        ignoreBooleanReturn,i + 1
+                    >(std::forward<Func>(f),
+                      std::forward<P>(p),
+                      compterator);
             } else {
-                return TailStepper::template stepSpecial<i + 1>(std::forward<P>(p),compterator);
+                return TailStepper::template stepSpecial<
+                        ignoreBooleanReturn,i + 1
+                    >(std::forward<Func>(f),
+                      std::forward<P>(p),
+                      compterator);
             }
         }
 
         struct ForwardStepper {
-            template <int i,class P,class C>
-            static CountType stepSpecial(P&& p,C& compterator) {
-                return step<i>(std::forward<P>(p),compterator);
+            template <
+                bool ignoreBooleanReturn = false,
+                int i,class Func,class P,class C
+            >
+            static CountType stepSpecial(Func&& f,P&& p,C& compterator) {
+                return step<ignoreBooleanReturn,i>(
+                        std::forward<Func>(f),
+                        std::forward<P>(p),
+                        compterator);
             }
         };
 
         struct TailStepper {
-            template <int i,class P,class C>
-            static CountType stepSpecial(P&& p,C& compterator) {
-                return step<i>(std::forward<P>(p),compterator._t);
+            template <
+                bool ignoreBooleanReturn = false,
+                int i,class Func,class P,class C
+            >
+            static CountType stepSpecial(Func&& f,P&& p,C& compterator) {
+                return step<ignoreBooleanReturn,i>(
+                        std::forward<Func>(f),
+                        std::forward<P>(p),
+                        compterator._t);
             }
         };
 
         struct CatchAllStepper {
-            template <int i,class P,class C>
-            static CountType stepSpecial(P&& p,C& compterator) {
+            template <
+                bool ignoreBooleanReturn = false,
+                int i,class Func,class P,class C
+            >
+            static CountType stepSpecial(Func&& f,P&& p,C& compterator) {
                 return i;
             }
         };
 
         struct IterActions {
-            template <int i,class P,class C>
-            static void assign(P&& p,C& compterator) {
-                Dispatcher::dispatch(*compterator._p._a,p.template get<i>());
+            // return value could be called "keepGoing"
+            // if function returns true routine continues
+            // if function returns false routine breaks
+            // if function doesnt return boolean routine continues
+            template <int i,class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                typedef templatious::util::RetValSelector<
+                    decltype(f(p.template get<i>(),*compterator._p._a)),
+                    true> Sel;
+
+                bool res = Sel::callAndEval(
+                    std::forward<Func>(f),
+                    p.template get<i>(),
+                    *compterator._p._a
+                );
                 ++compterator._p._a;
+                return res;
             }
 
             template <class C>
@@ -122,9 +183,17 @@ namespace detail {
         };
 
         struct ValActions {
-            template <int i,class P,class C>
-            static void assign(P&& p,C& compterator) {
-                Dispatcher::dispatch(compterator._p,p.template get<i>());
+            template <int i,class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                typedef templatious::util::RetValSelector<
+                    decltype(f(p.template get<i>(),compterator._p)),
+                    true> Sel;
+
+                return Sel::callAndEval(
+                    std::forward<Func>(f),
+                    p.template get<i>(),
+                    compterator._p
+                );
             }
 
             template <class C>
@@ -134,8 +203,10 @@ namespace detail {
         };
 
         struct DummyActions {
-            template <int i,class P,class C>
-            static void assign(P&& p,C& compterator) {}
+            template <int i,class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                return true;
+            }
 
             template <class C>
             static bool isDone(C& compterator) {
@@ -145,11 +216,13 @@ namespace detail {
 
     };
 
-    template <class Dispatcher>
     struct CollectionToRestDistribution {
 
-        template <class T,class... Tail>
-        static CountType distribute(T&& p,Tail&&... t) {
+        template <
+            bool ignoreBooleanReturn = false,
+            class Func,class T,class... Tail
+        >
+        static CountType distribute(Func&& f,T&& p,Tail&&... t) {
             typedef templatious::adapters::CollectionAdapter<T> Ad;
             namespace U = templatious::util;
             namespace UD = U::detail;
@@ -158,11 +231,14 @@ namespace detail {
             Pair pair(Ad::begin(std::forward<T>(p)),Ad::end(std::forward<T>(p)));
             auto cTer = UD::makeCompteratorV2( std::forward<Tail>(t)... );
 
-            return step(pair,cTer);
+            return step<ignoreBooleanReturn>(std::forward<Func>(f),pair,cTer);
         }
 
-        template <class P,class C>
-        static CountType step(P&& p,C& compterator) {
+        template <
+            bool ignoreBooleanReturn = false,
+            class Func,class P,class C
+        >
+        static CountType step(Func&& f,P&& p,C& compterator) {
 
             namespace U = templatious::util;
             typedef decltype(compterator._p) ValType;
@@ -182,38 +258,64 @@ namespace detail {
 
             CountType myCnt = 0;
             do {
-                Actions::assign(std::forward<P>(p),compterator);
+                bool res = Actions::assign(
+                    std::forward<Func>(f),
+                    std::forward<P>(p),
+                    compterator);
+
                 ++p._a;
                 ++myCnt;
+
+                if (!ignoreBooleanReturn && !res) return myCnt;
             } while (!Actions::isDone(compterator) && p._a != p._b);
 
             if (p._a == p._b) {
                 return myCnt;
             }
 
-            return myCnt + Stepper::stepSpecial(
-                    std::forward<P>(p),compterator);
+            return myCnt + Stepper::template stepSpecial<
+                    ignoreBooleanReturn
+                >(std::forward<Func>(f),
+                  std::forward<P>(p),
+                  compterator);
         }
 
         struct CatchAllStepper {
-            template <class P,class C>
-            static CountType stepSpecial(P&& p,C& compterator) {
+            template <
+                bool ignoreBooleanReturn = false,
+                class Func,class P,class C
+            >
+            static CountType stepSpecial(Func&& f,P&& p,C& compterator) {
                 return 0;
             }
         };
 
         struct TailStepper {
-            template <class P,class C>
-            static CountType stepSpecial(P&& p,C& compterator) {
-                return step(std::forward<P>(p),compterator._t);
+            template <
+                bool ignoreBooleanReturn = false,
+                class Func,class P,class C
+            >
+            static CountType stepSpecial(Func&& f,P&& p,C& compterator) {
+                return step<ignoreBooleanReturn>(
+                        std::forward<Func>(f),
+                        std::forward<P>(p),
+                        compterator._t);
             }
         };
 
         struct IterActions {
-            template <class P,class C>
-            static void assign(P&& p,C& compterator) {
-                Dispatcher::dispatch(*compterator._p._a,*p._a);
+            template <class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                typedef typename templatious::util::RetValSelector<
+                    decltype(f(*p._a,*compterator._p._a)),
+                    true> Sel;
+
+                bool res = Sel::callAndEval(
+                    std::forward<Func>(f),
+                    *p._a,
+                    *compterator._p._a);
                 ++compterator._p._a;
+                return res;
             }
 
             template <class C>
@@ -223,9 +325,16 @@ namespace detail {
         };
 
         struct ValActions {
-            template <class P,class C>
-            static void assign(P&& p,C& compterator) {
-                Dispatcher::dispatch(compterator._p,*p._a);
+            template <class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                typedef typename templatious::util::RetValSelector<
+                    decltype(f(*p._a,compterator._p)),
+                    true> Sel;
+
+                return Sel::callAndEval(
+                    std::forward<Func>(f),
+                    *p._a,
+                    compterator._p);
             }
 
             template <class C>
@@ -235,8 +344,10 @@ namespace detail {
         };
 
         struct DummyActions {
-            template <class P,class C>
-            static void assign(P&& p,C& compterator) {}
+            template <class Func,class P,class C>
+            static bool assign(Func&& f,P&& p,C& compterator) {
+                return true;
+            }
 
             template <class C>
             static bool isDone(C& compterator) {
@@ -246,8 +357,11 @@ namespace detail {
     };
 
     struct DummyErrorDistributor {
-        template <class T,class... Tail>
-        static CountType distribute(T&& p,Tail&&... t) {
+        template <
+            bool ignoreBooleanReturn = false,
+            class Func,class T,class... Tail
+        >
+        static CountType distribute(Func&& f,T&& p,Tail&&... t) {
             static_assert(
                 templatious::util::DummyResolver<T,false>::val,
                 "Item passed is undistributable."

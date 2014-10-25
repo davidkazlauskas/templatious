@@ -34,4 +34,5 @@
 #include <templatious/util/ArgumentDelimiter.h>
 #include <templatious/util/ArgumentMultiplier.h>
 #include <templatious/util/DefaultStoragePolicy.h>
+#include <templatious/util/CallCountFunctor.h>
 

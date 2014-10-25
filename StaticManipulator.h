@@ -61,6 +61,8 @@ namespace detail{
 
 struct StaticManipulator {
 private:
+    template <int var>
+    friend struct detail::CallHandler;
 
     template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
     struct IteratorCaller;
@@ -188,8 +190,11 @@ private:
         return std::move(res);
     }
 
-    template <class Dist,class T,class... Args>
-    static size_t distributeInternal(T&& t,Args&&... args) {
+    template <
+        bool ignoreBooleanReturn = false,
+        class Func,class T,class... Args
+    >
+    static size_t distributeInternal(Func&& f,T&& t,Args&&... args) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         typedef templatious::detail::IsPack<T> IP;
 
@@ -200,19 +205,48 @@ private:
 
         typedef typename std::conditional<
                 isPack,
-                TD::PackToRestDistribution<Dist>,
+                TD::PackToRestDistribution,
                 typename std::conditional<
                     isCollection,
-                    TD::CollectionToRestDistribution<Dist>,
+                    TD::CollectionToRestDistribution,
                     TD::DummyErrorDistributor
                 >::type
             >::type Distrubutor;
 
-        return Distrubutor::distribute(
-                std::forward<T>(t),std::forward<Args>(args)...);
+        return Distrubutor::template distribute<ignoreBooleanReturn>(
+                std::forward<Func>(f),
+                std::forward<T>(t),
+                std::forward<Args>(args)...);
     }
 
-    public:
+    template <
+        template <class> class DeciderAlg,
+        bool ignoreBooleanReturn = false,
+        class T,class U,class... V>
+    static bool genericCallAll(T&& f,U&& arg,V&&... args) {
+        bool res = detail::CallHandler< DeciderAlg<U>::TheVar >
+            ::template call<ignoreBooleanReturn>(
+                    std::forward<T>(f),std::forward<U>(arg));
+        if (!ignoreBooleanReturn && !res) {
+            return false;
+        }
+
+        return genericCallAll<DeciderAlg,ignoreBooleanReturn>(
+                std::forward<T>(f),std::forward<V>(args)...);
+    }
+
+    template <
+        template <class> class DeciderAlg,
+        bool ignoreBooleanReturn = false,
+        class T,class U>
+    static bool genericCallAll(T&& f,U&& arg) {
+        return detail::CallHandler< DeciderAlg<U>::TheVar >
+            ::template call<ignoreBooleanReturn>(
+                    std::forward<T>(f),
+                    std::forward<U>(arg));
+    }
+
+public:
 
     // T - return col, U - functor, Args - collections
     template <class T,bool passIndex = false,class U,class... Args>
@@ -347,44 +381,67 @@ private:
         Impl::impl(std::forward<T>(t),col);
     }
 
-    template <class T,class U,class... V>
-    static void callEach(T&& f,U&& arg,V&&... args) {
-        detail::CallHandler< detail::DeciderCallEach<U>::TheVar >::call(
-                std::forward<T>(f),std::forward<U>(arg));
-        callEach(std::forward<T>(f),std::forward<V>(args)...);
+    template <
+        bool ignoreBooleanReturn = false,
+        class T,class... V
+    >
+    static size_t callEach(T&& f,V&&... args) {
+        templatious::util::CallCountFunctor<T>
+            func(std::forward<T>(f));
+
+        genericCallAll< detail::DeciderCallEach, ignoreBooleanReturn >(
+            func,std::forward<V>(args)...
+        );
+
+        return func.getCount();
     }
 
-    template <class T,class U>
-    static void callEach(T&& f,U&& arg) {
-        detail::CallHandler< detail::DeciderCallEach<U>::TheVar >::call(
-                std::forward<T>(f),std::forward<U>(arg));
+    template <
+        bool ignoreBooleanReturn = false,
+        class T,class U,class... V
+    >
+    static size_t forEach(T&& f,U&& arg,V&&... args) {
+        templatious::util::CallCountFunctor<T>
+            func(std::forward<T>(f));
+
+        genericCallAll< detail::DeciderForEach, ignoreBooleanReturn >(
+            func,std::forward<U>(arg),std::forward<V>(args)...
+        );
+
+        return func.getCount();
     }
 
-    template <class T,class U,class... V>
-    static void forEach(T&& f,U&& arg,V&&... args) {
-        detail::CallHandler< detail::DeciderForEach<U>::TheVar >::call(
-                std::forward<T>(f),std::forward<U>(arg));
-        callEach(std::forward<T>(f),std::forward<V>(args)...);
-    }
-
-    template <class T,class U>
-    static void forEach(T&& f,U&& arg) {
-        detail::CallHandler< detail::DeciderForEach<U>::TheVar >::call(
-                std::forward<T>(f),std::forward<U>(arg));
-    }
-
-    template <class T,class... Args>
+    template <
+        bool ignoreBooleanReturn = false,
+        class T,class... Args
+    >
     static size_t distribute(T&& t,Args&&... args) {
-        return distributeInternal<
-            templatious::detail::AssignDispatcher
-        >(std::forward<T>(t),std::forward<Args>(args)...);
+        return distributeInternal<ignoreBooleanReturn>(
+            templatious::detail::AssignDispatcher(),
+            std::forward<T>(t),
+            std::forward<Args>(args)...);
     }
 
-    template <class T,class... Args>
+    template <
+        bool ignoreBooleanReturn = false,
+        class T,class... Args
+    >
     static size_t distributeR(T&& t,Args&&... args) {
-        return distributeInternal<
-            templatious::detail::RevAssignDispatcher
-        >(std::forward<T>(t),std::forward<Args>(args)...);
+        return distributeInternal<ignoreBooleanReturn>(
+            templatious::detail::RevAssignDispatcher(),
+            std::forward<T>(t),
+            std::forward<Args>(args)...);
+    }
+
+    template <
+        bool ignoreBooleanReturn = false,
+        class Func,class T,class... Args
+    >
+    static size_t distributeSpecial(Func&& f,T&& t,Args&&... args) {
+        return distributeInternal<ignoreBooleanReturn>(
+            std::forward<Func>(f),
+            std::forward<T>(t),
+            std::forward<Args>(args)...);
     }
 
     template <class T,class U>
@@ -434,53 +491,81 @@ private:
 namespace detail {
     template <>
     struct CallHandler< Variant::Item > {
-        template <class F,class T>
-        static void call(F&& f,T&& t) {
-            f(std::forward<T>(t));
+        template <
+            bool ignoreBooleanReturn = false,
+            class F,class T
+        >
+        static bool call(F&& f,T&& t) {
+            typedef templatious::util::RetValSelector<
+                decltype(f(std::forward<T>(t))),
+                true> Sel;
+
+            bool res = Sel::callAndEval(
+                std::forward<F>(f),
+                std::forward<T>(t)
+            );
+
+            return ignoreBooleanReturn || res;
         }
     };
 
     template <>
     struct CallHandler< Variant::Collection > {
-        template <class F,class T>
-        static void call(F&& f,T&& t) {
+        template <
+            bool ignoreBooleanReturn = false,
+            class F,class T
+        >
+        static bool call(F&& f,T&& t) {
             typedef templatious::adapters::CollectionAdapter<T> Ad;
+            typedef decltype(Ad::begin(std::forward<T>(t))) It;
+            typedef templatious::util::RetValSelector<
+                decltype(f(*std::declval<It>())),
+                true> Sel;
+
             for (auto i = Ad::begin(std::forward<T>(t));
                     i != Ad::end(std::forward<T>(t));
                     ++i)
             {
-                f(*i);
+                bool res = Sel::callAndEval(std::forward<F>(f),*i);
+                if (!ignoreBooleanReturn && !res)
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
     };
 
     template <>
     struct CallHandler< Variant::Pack > {
 
-        template <class Func>
+        template <bool ignoreBooleanReturn, class Func>
         struct PackCaller {
             PackCaller(Func f) : _r(f) {}
 
             template <class... T>
-            void operator()(T&&... t) {
-                templatious::StaticManipulator::callEach(
+            bool operator()(T&&... t) {
+                return templatious::StaticManipulator::
+                    genericCallAll< detail::DeciderCallEach, ignoreBooleanReturn >(
                         _r.getRef(),std::forward<T>(t)...);
             }
 
         private:
-            typedef typename templatious::util::TypeSelector<
-                    std::is_lvalue_reference<Func>::value,
-                    templatious::util::RefContainer<Func>,
-                    templatious::util::CopyContainer<Func>
-                >::val Cont;
+            typedef typename templatious::util::
+                DefaultStoragePolicy<Func>::Container Cont;
 
             Cont _r;
         };
 
-        template <class F,class T>
-        static void call(F&& f,T t) {
-            PackCaller<F> p(std::forward<F>(f));
-            t.call(p);
+        template <
+            bool ignoreBooleanReturn = false,
+            class F,class T
+        >
+        static bool call(F&& f,T t) {
+            PackCaller<ignoreBooleanReturn,F> p(std::forward<F>(f));
+            bool res = t.template call<ignoreBooleanReturn>(p);
+            return ignoreBooleanReturn || res;
         }
     };
 

@@ -284,16 +284,24 @@ struct Pack<StoragePolicy,A,Tail...> {
         return Getter::template get<i>(*this);
     }
 
-    template <class F,class... Args>
-    void call(F&& f,Args&&... args) {
-        _t.call(std::forward<F>(f),
+    template <
+        bool ignoreBooleanReturn = false,
+        class F,class... Args
+    >
+    bool call(F&& f,Args&&... args) {
+        return _t.template call<ignoreBooleanReturn>(
+                std::forward<F>(f),
                 std::forward<Args>(args)...,
                 _r.cpy());
     }
 
-    template <class F>
-    void call(F&& f) {
-        _t.call(std::forward<F>(f),_r.cpy());
+    template <
+        bool ignoreBooleanReturn = false,
+        class F>
+    bool call(F&& f) {
+        return _t.template call<ignoreBooleanReturn>(
+                std::forward<F>(f),
+                _r.cpy());
     }
 
     template <
@@ -433,9 +441,22 @@ struct Pack<StoragePolicy,A> {
         return Getter::template get<i>(*this);
     }
 
-    template <class F,class... Args>
-    void call(F&& f,Args&&... args) {
-        f(std::forward<Args>(args)...,_r.cpy());
+    template <
+        bool ignoreBooleanReturn = false,
+        class F,class... Args
+    >
+    bool call(F&& f,Args&&... args) {
+        typedef templatious::util::RetValSelector<
+            decltype(f(std::forward<Args>(args)...,_r.cpy())),
+            true> Sel;
+
+        bool res = Sel::callAndEval(
+            f,
+            std::forward<Args>(args)...,
+            _r.cpy()
+        );
+
+        return ignoreBooleanReturn || res;
     }
 
     template <
