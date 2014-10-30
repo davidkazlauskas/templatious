@@ -308,6 +308,19 @@ struct UndoCaller {
     }
 };
 
+struct UndoUnavailableProcessor {
+    template <class T,class... Args>
+    static bool process(T&& t,Args&&... args)
+    {
+        static_assert(
+            templatious::util::DummyResolver<T,false>::val,
+            "Backwards opeartion is unavailable because "
+            "not all functors have undo operation."
+        );
+        return false;
+    }
+};
+
 template <class Caller>
 struct TailDoProcessor {
     template <class T,class... Args>
@@ -610,6 +623,12 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
         !reversed,
         RevProc,
         Proc
+    >::type IntBwdProc;
+
+    typedef typename std::conditional<
+        hasUndo,
+        IntBwdProc,
+        UndoUnavailableProcessor
     >::type BwdProc;
 
     static const bool is_last = false;
