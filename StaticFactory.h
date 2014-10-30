@@ -460,15 +460,38 @@ struct StaticFactory {
     }
 
     template <
+        bool statefulDefault = false,
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class... Args
     >
     static auto chainFunctor(Args&&... args)
-     -> detail::ChainFunctor<StoragePolicy,Args...>
+     -> decltype(
+        detail::makeChainFunctor< statefulDefault, false, StoragePolicy >(
+            detail::makeFunctorPair< StoragePolicy >(
+                std::forward<Args>(args)
+            )...
+        )
+     )
     {
-        return detail::ChainFunctor<StoragePolicy,Args...>(
-                std::forward<Args>(args)...);
+        return detail::makeChainFunctor< statefulDefault, false, StoragePolicy >(
+            detail::makeFunctorPair< StoragePolicy >(
+                std::forward<Args>(args)
+            )...
+        );
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T,class U
+    >
+    static auto functorPair(T&& t,U&& u)
+     -> detail::FunctorPair< StoragePolicy, true, T, U >
+    {
+        return detail::FunctorPair< StoragePolicy, true, T, U >(
+            std::forward<T>(t), std::forward<U>(u)
+        );
     }
 };
 

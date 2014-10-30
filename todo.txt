@@ -34,7 +34,7 @@ features:
 #21. proxies
 #22. permissions for collections (DA BIG ONE)
 #24. pack arguments into packs
-29. SM::edit (traverse and process every element)
+#29. SM::edit (traverse and process every element) ------> replaced by SM::foreach
 #30. extend SM::set to set simple vars as well
 #31. convenience insert function
 #32. insert within (in between existing packs one level)
@@ -45,12 +45,13 @@ features:
 #38. callEach should process collections too (optionally)
 #41. transform packs within one by one
 #42. transformation on add methods
-43. return from callEach/distribute to stop traversal
+#43. return from callEach/distribute to stop traversal
 #44. decorate functor - make few functors from one as decorator
 47. make recursive sequence generator from lamba
-48. pair functors - do/undo stuff
-49. set ignore return val
+#48. pair functors - do/undo stuff
+#49. set ignore return val
 50. static vector splitter from bigger array
+51. create one time traversable structure, so that begin would be advancing
 
 compatibility:
 
