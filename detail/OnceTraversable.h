@@ -47,6 +47,14 @@ struct OnceTraversable {
             ++_t;
             return *this;
         }
+
+        bool operator==(const Iterator& rhs) const {
+            return _t == rhs._t;
+        }
+
+        bool operator!=(const Iterator& rhs) const {
+            return !(*this == rhs);
+        }
     private:
         T& _t;
     };
