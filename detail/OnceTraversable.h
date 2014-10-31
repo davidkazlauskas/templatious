@@ -63,6 +63,17 @@ private:
 };
 
 }
+
+namespace adapters {
+
+template <class T>
+struct CollectionAdapter<
+    ::templatious::detail::OnceTraversable<T>
+>{
+
+};
+
+}
 }
 
 #endif /* end of include guard: ONCETRAVERSABLE_7K4ACVNE */
