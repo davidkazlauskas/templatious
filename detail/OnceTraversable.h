@@ -121,8 +121,19 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    static void erase(ThisCol& c, iterator i);
-    static void erase(ThisCol& c, iterator beg, iterator end);
+    template <class U = int>
+    static void erase(ThisCol& c, iterator i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
+
+    template <class U = int>
+    static void erase(ThisCol& c, iterator beg, iterator end) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
 
     static ThisCol instantiate();
     static ThisCol instantiate(size_t size);
