@@ -58,6 +58,14 @@ struct OnceTraversable {
     Iterator end() {
         return Iterator(_e);
     }
+
+    T origBegin() {
+        return _b;
+    }
+
+    T origEnd() {
+        return _e;
+    }
 private:
     T _b;
     T _e;
@@ -236,8 +244,10 @@ struct CollectionAdapter<
                 "can only be accessed through iterators.");
     }
 
+    template <class U = int>
     static void clear(ThisCol& c) {
-        c.clear();
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable cannot be cleared.");
     }
 
     static bool canAdd(ConstCol& c) {
