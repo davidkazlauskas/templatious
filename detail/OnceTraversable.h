@@ -20,6 +20,7 @@
 #define ONCETRAVERSABLE_7K4ACVNE
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/util/Selectors.h>
 
 #include <utility>
 
@@ -99,7 +100,13 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    static value_type& getByIndex(ThisCol& c, size_t i);
+    template <class U = int>
+    static value_type& getByIndex(ThisCol& c, size_t i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
+
     static const_value_type& getByIndex(ConstCol& c, size_t i);
 
     static size_t getSize(ConstCol& c);
