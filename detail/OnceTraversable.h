@@ -30,6 +30,8 @@ struct OnceTraversable {
      : _b(beg), _e(end) {}
 
     struct Iterator {
+        Iterator(ThisTraversable& t) : _t(t) {}
+
     private:
         ThisTraversable& _t;
     };
