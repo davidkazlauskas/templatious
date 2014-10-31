@@ -85,8 +85,13 @@ struct CollectionAdapter<
         *(std::declval<ConstCol>().begin())
     ) const_value_type;
 
-    template <class V>
-    static void add(ThisCol& c, V&& i);
+    template <class V,class U = int>
+    static void add(ThisCol c, V&& i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged "
+                "collection and can be traversed only.");
+    }
+
     template <class V>
     static void insert_at(ThisCol& c, iterator at, V&& i);
 
