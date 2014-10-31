@@ -107,9 +107,19 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    static const_value_type& getByIndex(ConstCol& c, size_t i);
+    template <class U = int>
+    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
 
-    static size_t getSize(ConstCol& c);
+    template <class U = int>
+    static size_t getSize(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
 
     static void erase(ThisCol& c, iterator i);
     static void erase(ThisCol& c, iterator beg, iterator end);
