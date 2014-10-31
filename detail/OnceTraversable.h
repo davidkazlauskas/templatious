@@ -32,25 +32,20 @@ struct OnceTraversable {
      : _b(beg), _e(end) {}
 
     struct Iterator {
-        Iterator(ThisTraversable& t) : _t(t) {}
+        Iterator(T& t) : _t(t) {}
 
         auto operator*()
-         -> decltype(
-             *(std::declval<ThisTraversable>()._b)
-         )
+         -> decltype(*std::declval<T>())
         {
-            return *_t._b;
+            return *_t;
         }
 
         Iterator operator++() {
-            if (_t._b != _t._e) {
-                ++_t._b;
-            }
-
+            ++_t;
             return *this;
         }
     private:
-        ThisTraversable& _t;
+        T& _t;
     };
 
 private:
