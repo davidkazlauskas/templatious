@@ -78,8 +78,12 @@ struct CollectionAdapter<
     typedef ::templatious::detail::OnceTraversable<const T> ConstCol;
     typedef typename ThisCol::Iterator iterator;
     typedef typename ConstCol::Iterator const_iterator;
-    typedef void* value_type;
-    typedef const void* const_value_type;
+    typedef decltype(
+        *(std::declval<ThisCol>().begin())
+    ) value_type;
+    typedef decltype(
+        *(std::declval<ConstCol>().begin())
+    ) const_value_type;
 
     template <class V>
     static void add(ThisCol& c, V&& i);
