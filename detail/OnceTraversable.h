@@ -19,6 +19,8 @@
 #ifndef ONCETRAVERSABLE_7K4ACVNE
 #define ONCETRAVERSABLE_7K4ACVNE
 
+#include <templatious/CollectionAdapter.h>
+
 #include <utility>
 
 namespace templatious {
