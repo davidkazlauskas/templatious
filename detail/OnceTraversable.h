@@ -41,6 +41,14 @@ struct OnceTraversable {
         {
             return *_t._b;
         }
+
+        Iterator operator++() {
+            if (_t._b != _t._e) {
+                ++_t._b;
+            }
+
+            return *this;
+        }
     private:
         ThisTraversable& _t;
     };
