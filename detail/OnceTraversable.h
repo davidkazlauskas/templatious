@@ -22,6 +22,11 @@
 namespace templatious {
 namespace detail {
 
+template <class T>
+struct OnceTraversable {
+
+};
+
 }
 }
 
