@@ -208,10 +208,33 @@ struct CollectionAdapter<
                 "from begin to end.");
     }
 
-    static value_type& first(ThisCol& c);
-    static const_value_type& first(ConstCol& c);
-    static value_type& last(ThisCol& c);
-    static const_value_type& last(ConstCol& c);
+    template <class U = int>
+    static value_type& first(ThisCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable collection elements "
+                "can only be accessed through iterators.");
+    }
+
+    template <class U = int>
+    static const_value_type& first(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable collection elements "
+                "can only be accessed through iterators.");
+    }
+
+    template <class U = int>
+    static value_type& last(ThisCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable collection elements "
+                "can only be accessed through iterators.");
+    }
+
+    template <class U = int>
+    static const_value_type& last(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable collection elements "
+                "can only be accessed through iterators.");
+    }
 
     static void clear(ThisCol& c);
     static bool canAdd(ConstCol& c);
