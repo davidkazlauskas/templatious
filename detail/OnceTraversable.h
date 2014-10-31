@@ -24,7 +24,12 @@ namespace detail {
 
 template <class T>
 struct OnceTraversable {
+    OnceTraversable(const T& beg,const T& end)
+     : _b(beg), _e(end) {}
 
+private:
+    T _b;
+    T _e;
 };
 
 }
