@@ -163,9 +163,20 @@ struct CollectionAdapter<
                 " out of another collection.");
     }
 
-    static iterator begin(ThisCol& c);
-    static iterator end(ThisCol& c);
-    static iterator iter_at(ThisCol& c, size_t i);
+    static iterator begin(ThisCol& c) {
+        return c.begin();
+    }
+
+    static iterator end(ThisCol& c) {
+        return c.end();
+    }
+
+    template <class U = int>
+    static iterator iter_at(ThisCol& c, size_t i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be iterated "
+                "from begin to end.");
+    }
 
     static iterator begin(ConstCol& c);
     static iterator end(ConstCol& c);
