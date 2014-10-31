@@ -236,8 +236,13 @@ struct CollectionAdapter<
                 "can only be accessed through iterators.");
     }
 
-    static void clear(ThisCol& c);
-    static bool canAdd(ConstCol& c);
+    static void clear(ThisCol& c) {
+        c.clear();
+    }
+
+    static bool canAdd(ConstCol& c) {
+        return false;
+    }
 
 };
 
