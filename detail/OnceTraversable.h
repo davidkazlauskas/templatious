@@ -24,8 +24,15 @@ namespace detail {
 
 template <class T>
 struct OnceTraversable {
+    typedef OnceTraversable<T> ThisTraversable;
+
     OnceTraversable(const T& beg,const T& end)
      : _b(beg), _e(end) {}
+
+    struct Iterator {
+    private:
+        ThisTraversable& _t;
+    };
 
 private:
     T _b;
