@@ -135,7 +135,13 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    static ThisCol instantiate();
+    template <class U = int>
+    static ThisCol instantiate() {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be instantiated"
+                " out of another collection.");
+    }
+
     static ThisCol instantiate(size_t size);
     static ThisCol* instHeap();
     static ThisCol* instHeap(size_t size);
