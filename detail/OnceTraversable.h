@@ -19,6 +19,8 @@
 #ifndef ONCETRAVERSABLE_7K4ACVNE
 #define ONCETRAVERSABLE_7K4ACVNE
 
+#include <utility>
+
 namespace templatious {
 namespace detail {
 
@@ -32,6 +34,13 @@ struct OnceTraversable {
     struct Iterator {
         Iterator(ThisTraversable& t) : _t(t) {}
 
+        auto operator*()
+         -> decltype(
+             *(std::declval<ThisTraversable>()._b)
+         )
+        {
+            return *_t._b;
+        }
     private:
         ThisTraversable& _t;
     };
