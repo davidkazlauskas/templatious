@@ -19,6 +19,10 @@
 #ifndef ONCETRAVERSABLE_7K4ACVNE
 #define ONCETRAVERSABLE_7K4ACVNE
 
+namespace templatious {
+namespace detail {
 
+}
+}
 
 #endif /* end of include guard: ONCETRAVERSABLE_7K4ACVNE */
