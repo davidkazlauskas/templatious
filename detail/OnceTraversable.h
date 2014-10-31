@@ -48,6 +48,13 @@ struct OnceTraversable {
         T& _t;
     };
 
+    Iterator begin() {
+        return Iterator(_b);
+    }
+
+    Iterator end() {
+        return Iterator(_e);
+    }
 private:
     T _b;
     T _e;
