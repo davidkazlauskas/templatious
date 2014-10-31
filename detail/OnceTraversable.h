@@ -142,9 +142,26 @@ struct CollectionAdapter<
                 " out of another collection.");
     }
 
-    static ThisCol instantiate(size_t size);
-    static ThisCol* instHeap();
-    static ThisCol* instHeap(size_t size);
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be instantiated"
+                " out of another collection.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be instantiated"
+                " out of another collection.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be instantiated"
+                " out of another collection.");
+    }
 
     static iterator begin(ThisCol& c);
     static iterator end(ThisCol& c);
