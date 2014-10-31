@@ -88,12 +88,16 @@ struct CollectionAdapter<
     template <class V,class U = int>
     static void add(ThisCol c, V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable is not full fledged "
-                "collection and can be traversed only.");
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
     }
 
-    template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i);
+    template <class V,class U = int>
+    static void insert(ThisCol c, V&& i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+    }
 
     static value_type& getByIndex(ThisCol& c, size_t i);
     static const_value_type& getByIndex(ConstCol& c, size_t i);
