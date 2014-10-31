@@ -509,8 +509,8 @@ struct StaticFactory {
             typename Ad::iterator > Res;
 
         return Res(
-                Ad::begin(std::forward<T>(t)),
-                Ad::end(std::forward<T>(t))
+            Ad::begin(std::forward<T>(t)),
+            Ad::end(std::forward<T>(t))
         );
     }
 };
