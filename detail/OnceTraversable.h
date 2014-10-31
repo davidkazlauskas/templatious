@@ -193,9 +193,20 @@ struct CollectionAdapter<
                 "from begin to end.");
     }
 
-    static const_iterator cbegin(ConstCol& c);
-    static const_iterator cend(ConstCol& c);
-    static const_iterator citer_at(ConstCol& c, size_t i);
+    static const_iterator cbegin(ConstCol& c) {
+        return c.begin();
+    }
+
+    static const_iterator cend(ConstCol& c) {
+        return c.end();
+    }
+
+    template <class U = int>
+    static const_iterator citer_at(ConstCol& c, size_t i) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable can only be iterated "
+                "from begin to end.");
+    }
 
     static value_type& first(ThisCol& c);
     static const_value_type& first(ConstCol& c);
