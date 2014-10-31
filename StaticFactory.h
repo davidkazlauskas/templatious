@@ -29,6 +29,7 @@
 #include <templatious/detail/MatchFunctor.h>
 #include <templatious/detail/UserUtil.h>
 #include <templatious/detail/ChainFunctor.h>
+#include <templatious/detail/OnceTraversable.h>
 
 namespace templatious {
 
@@ -491,6 +492,25 @@ struct StaticFactory {
     {
         return detail::FunctorPair< StoragePolicy, true, T, U >(
             std::forward<T>(t), std::forward<U>(u)
+        );
+    }
+
+    template <class T>
+    static auto onceTraversable(T&& t)
+     -> detail::OnceTraversable<
+         typename templatious::adapters::
+             CollectionAdapter<T>::iterator
+     >
+    {
+        typedef templatious::adapters::
+            CollectionAdapter<T> Ad;
+
+        typedef detail::OnceTraversable<
+            typename Ad::iterator > Res;
+
+        return Res(
+                Ad::begin(std::forward<T>(t)),
+                Ad::end(std::forward<T>(t))
         );
     }
 };
