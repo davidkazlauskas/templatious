@@ -71,6 +71,54 @@ struct CollectionAdapter<
     ::templatious::detail::OnceTraversable<T>
 >{
 
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+
+    typedef ::templatious::detail::OnceTraversable<T> ThisCol;
+    typedef ::templatious::detail::OnceTraversable<const T> ConstCol;
+    typedef typename ThisCol::Iterator iterator;
+    typedef typename ConstCol::Iterator const_iterator;
+    typedef void* value_type;
+    typedef const void* const_value_type;
+
+    template <class V>
+    static void add(ThisCol& c, V&& i);
+    template <class V>
+    static void insert_at(ThisCol& c, iterator at, V&& i);
+
+    static value_type& getByIndex(ThisCol& c, size_t i);
+    static const_value_type& getByIndex(ConstCol& c, size_t i);
+
+    static size_t getSize(ConstCol& c);
+
+    static void erase(ThisCol& c, iterator i);
+    static void erase(ThisCol& c, iterator beg, iterator end);
+
+    static ThisCol instantiate();
+    static ThisCol instantiate(size_t size);
+    static ThisCol* instHeap();
+    static ThisCol* instHeap(size_t size);
+
+    static iterator begin(ThisCol& c);
+    static iterator end(ThisCol& c);
+    static iterator iter_at(ThisCol& c, size_t i);
+
+    static iterator begin(ConstCol& c);
+    static iterator end(ConstCol& c);
+    static iterator iter_at(ConstCol& c, size_t i);
+
+    static const_iterator cbegin(ConstCol& c);
+    static const_iterator cend(ConstCol& c);
+    static const_iterator citer_at(ConstCol& c, size_t i);
+
+    static value_type& first(ThisCol& c);
+    static const_value_type& first(ConstCol& c);
+    static value_type& last(ThisCol& c);
+    static const_value_type& last(ConstCol& c);
+
+    static void clear(ThisCol& c);
+    static bool canAdd(ConstCol& c);
+
 };
 
 }
