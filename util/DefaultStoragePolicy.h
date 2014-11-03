@@ -29,6 +29,7 @@ namespace util {
 // default storage policy:
 // Ref when available
 // Copy when no other way
+// Copy when rvalue reference
 template <class T>
 struct DefaultStoragePolicy {
     typedef typename std::remove_const<T>::type TNoConst;

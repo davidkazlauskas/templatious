@@ -84,8 +84,9 @@ struct __ForeachCounter {
         name(const StorType& t) : _c(t) {}\
         name() {}\
         template <class T>\
-        void operator()(T&& i) {\
+        bool operator()(T&& i) {\
             expr;\
+            return true;\
         }\
         StorType _c;\
     };

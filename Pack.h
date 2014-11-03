@@ -24,6 +24,7 @@
 #include <templatious/util/Container.h>
 #include <templatious/util/ArgumentDelimiter.h>
 #include <templatious/util/ArgumentMultiplier.h>
+#include <templatious/util/DefaultStoragePolicy.h>
 
 namespace templatious {
 
@@ -44,6 +45,21 @@ struct IsPack {
     }
 };
 
+template <class T>
+struct IsPack<T&&> {
+    static const bool val = false;
+    typedef T&& ConstDropped;
+
+    enum { size = 1 };
+
+    template <class V>
+    static auto forward(V&& val)
+     -> decltype(std::forward<V>(val))
+    {
+        return std::forward<V>(val);
+    }
+};
+
 }
 
 // default storage policy
@@ -53,14 +69,12 @@ template <class T>
 struct DefaultPackStoragePolicy {
     typedef detail::IsPack<T> IsP;
     typedef typename std::conditional<
-            std::is_lvalue_reference<T>::value && !detail::IsPack<T>::val ,
-            templatious::util::RefContainer<T>,
-            typename std::conditional<
-                    IsP::val,
-                    templatious::util::CopyContainer<typename IsP::ConstDropped>,
-                    templatious::util::CopyContainer<T>
-                >::type
-        >::type Container;
+        !detail::IsPack<T>::val,
+        typename templatious::util::
+            DefaultStoragePolicy<T>::Container,
+        templatious::util::CopyContainer<
+            typename IsP::ConstDropped>
+    >::type Container;
 };
 
 template <
@@ -141,10 +155,21 @@ struct PackAccess {
         class... T
     >
     static auto packUp(T&&... t)
-      -> Pack< StoragePolicy, typename detail::IsPack<T>::ConstDropped... >
+      -> Pack<
+          StoragePolicy,
+          typename detail::IsPack<
+              decltype(std::forward<T>(t))
+          >::ConstDropped...
+      >
     {
-        return Pack< StoragePolicy, typename detail::IsPack<T>::ConstDropped... >(
-                detail::IsPack<T>::forward(t)... );
+        return Pack<
+            StoragePolicy,
+            typename detail::IsPack<
+                decltype(std::forward<T>(t))
+            >::ConstDropped...
+        >( detail::IsPack<T>::forward(
+            std::forward<T>(t)
+        )... );
     }
 
     template <
@@ -596,6 +621,40 @@ struct IsPack< const Pack<StoragePolicy,T...>& > {
 
     template <class V>
     static auto forward(const V& val)
+     -> Pack<StoragePolicy,T...>
+    {
+        return Pack<StoragePolicy,T...>(val);
+    }
+};
+
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< Pack<StoragePolicy,T...>&& > {
+    static const bool val = true;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
+
+    enum { size = Pack<StoragePolicy,T...>::size };
+
+    static auto forward(Pack<StoragePolicy,T...>&& val)
+     -> Pack<StoragePolicy,T...>
+    {
+        return Pack<StoragePolicy,T...>(val);
+    }
+};
+
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
+struct IsPack< const Pack<StoragePolicy,T...>&& > {
+    static const bool val = true;
+    typedef Pack<StoragePolicy,T...> ConstDropped;
+
+    enum { size = Pack<StoragePolicy,T...>::size };
+
+    static auto forward(Pack<StoragePolicy,T...>&& val)
      -> Pack<StoragePolicy,T...>
     {
         return Pack<StoragePolicy,T...>(val);
