@@ -109,6 +109,27 @@ private:
 };
 
 template <class T>
+struct RvalueCopyContainer {
+    RvalueCopyContainer(T&& t)
+        : _r(std::move(t)) {}
+
+    T& getRef() {
+        return _r;
+    }
+
+    const T& cgetRef() const {
+        return _r;
+    }
+
+    const T cpy() const {
+        return T(_r);
+    }
+
+private:
+    T _r;
+};
+
+template <class T>
 struct StaticPointerContainer {
     StaticPointerContainer(const T& t) : _r(&t) {}
 

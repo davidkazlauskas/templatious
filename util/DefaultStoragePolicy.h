@@ -31,17 +31,26 @@ namespace util {
 // Copy when no other way
 template <class T>
 struct DefaultStoragePolicy {
+    typedef typename std::remove_const<T>::type TNoConst;
+    typedef typename std::decay<T>::type TDecay;
+
     typedef typename std::conditional<
-            std::is_lvalue_reference<T>::value,
-            templatious::util::RefContainer<T>,
+        std::is_lvalue_reference<T>::value,
+        templatious::util::RefContainer<T>,
+        typename std::conditional<
+            std::is_function<T>::value,
+            templatious::util::StaticPointerContainer<T>,
             typename std::conditional<
-                std::is_function<T>::value,
-                templatious::util::StaticPointerContainer<T>,
+                std::is_rvalue_reference<T>::value,
+                typename templatious::util::RvalueCopyContainer<
+                    TDecay
+                >,
                 templatious::util::CopyContainer<
-                    typename std::remove_const<T>::type
+                    TNoConst
                 >
             >::type
-        >::type Container;
+        >::type
+    >::type Container;
 
     template <class U>
     static auto make(U&& u)

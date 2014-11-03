@@ -497,21 +497,15 @@ struct StaticFactory {
 
     template <class T>
     static auto onceTraversable(T&& t)
-     -> detail::OnceTraversable<
-         typename templatious::adapters::
-             CollectionAdapter<T>::iterator
-     >
+     -> decltype(
+        detail::makeOnceTraversable<
+            templatious::util::DefaultStoragePolicy
+        >(std::forward<T>(t))
+     )
     {
-        typedef templatious::adapters::
-            CollectionAdapter<T> Ad;
-
-        typedef detail::OnceTraversable<
-            typename Ad::iterator > Res;
-
-        return Res(
-            Ad::begin(std::forward<T>(t)),
-            Ad::end(std::forward<T>(t))
-        );
+        return detail::makeOnceTraversable<
+            templatious::util::DefaultStoragePolicy
+        >(std::forward<T>(t));
     }
 };
 
