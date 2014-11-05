@@ -30,6 +30,7 @@
 #include <templatious/detail/UserUtil.h>
 #include <templatious/detail/ChainFunctor.h>
 #include <templatious/detail/OnceTraversable.h>
+#include <templatious/detail/PackFunctor.h>
 
 namespace templatious {
 
@@ -360,6 +361,27 @@ struct StaticFactory {
         return detail::PackAccess::packRepeat<n>(
              std::forward<Args>(args)...);
     }
+
+    template <
+        template <class> class StoragePolicy =
+            ::templatious::util::DefaultStoragePolicy,
+        class F,class... Args>
+    static auto packFunctor(F&& f,Args&&... args)
+     -> detail::PackFunctor<
+         StoragePolicy,
+         decltype(std::forward<F>(f)),
+         decltype(pack(std::forward<Args>(args)...))
+     >
+    {
+        return detail::PackFunctor<
+            StoragePolicy,
+            decltype(std::forward<F>(f)),
+            decltype(pack(std::forward<Args>(args)...))
+        >(
+            std::forward<F>(f),
+            pack(std::forward<Args>(args)...)
+        );
+    };
 
     template <class... T,class Func>
     static auto matchTight(Func&& f)

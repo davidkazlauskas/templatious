@@ -112,6 +112,11 @@ struct PackTransformInsertWithin {
 
 struct Packer;
 
+// The sole purpose of this structure
+// is to differentiate between Pack
+// constructors accurately.
+struct ExpPackConInvoke {};
+
 struct PackAccess {
 
     template <class TrPol,class P,class... T>
@@ -167,7 +172,8 @@ struct PackAccess {
             typename detail::IsPack<
                 decltype(std::forward<T>(t))
             >::ConstDropped...
-        >( detail::IsPack<T>::forward(
+        >( ExpPackConInvoke(),
+        detail::IsPack<T>::forward(
             std::forward<T>(t)
         )... );
     }
@@ -224,9 +230,11 @@ struct Pack<StoragePolicy,A,Tail...> {
     enum { size = detail::IsPack<A>::size + Pack<StoragePolicy,Tail...>::size, flatSize = sizeof...(Tail) + 1 };
 
     template <class ARef,class... TailRef>
-    explicit Pack(ARef&& r,TailRef&&... t)
+    explicit Pack(
+            const detail::ExpPackConInvoke& i,
+            ARef&& r,TailRef&&... t)
     : _r(std::forward<ARef>(r)),
-      _t(std::forward<TailRef>(t)...) {}
+      _t(i,std::forward<TailRef>(t)...) {}
 
     Pack(const ThisPack& p) : _r(p._r), _t(p._t) {}
 
@@ -317,7 +325,7 @@ struct Pack<StoragePolicy,A,Tail...> {
         return _t.template call<ignoreBooleanReturn>(
                 std::forward<F>(f),
                 std::forward<Args>(args)...,
-                _r.cpy());
+                _r.getRef());
     }
 
     template <
@@ -326,7 +334,7 @@ struct Pack<StoragePolicy,A,Tail...> {
     bool call(F&& f) {
         return _t.template call<ignoreBooleanReturn>(
                 std::forward<F>(f),
-                _r.cpy());
+                _r.getRef());
     }
 
     template <
@@ -416,7 +424,9 @@ struct Pack<StoragePolicy,A> {
 
 
     template <class ARef>
-    explicit Pack(ARef&& r)
+    explicit Pack(
+        const detail::ExpPackConInvoke& i,
+        ARef&& r)
     : _r(std::forward<ARef>(r)) {}
 
     Pack(const ThisPack& p) : _r(p._r) {}
@@ -424,9 +434,9 @@ struct Pack<StoragePolicy,A> {
     struct ThisValGetter {
         template <int i>
         static auto get(ThisPack& p)
-         -> decltype( std::declval<Container>().cpy() )
+         -> decltype( std::declval<Container>().getRef() )
         {
-            return p._r.cpy();
+            return p._r.getRef();
         }
     };
 
@@ -434,9 +444,9 @@ struct Pack<StoragePolicy,A> {
         template <int i,class P>
         static auto get(P& p)
          -> decltype( std::declval<P>()
-             ._r.cpy().template get<i>() )
+             ._r.getRef().template get<i>() )
         {
-            return p._r.cpy().template get<i>();
+            return p._r.getRef().template get<i>();
         }
     };
 
@@ -472,13 +482,13 @@ struct Pack<StoragePolicy,A> {
     >
     bool call(F&& f,Args&&... args) {
         typedef templatious::util::RetValSelector<
-            decltype(f(std::forward<Args>(args)...,_r.cpy())),
+            decltype(f(std::forward<Args>(args)...,_r.getRef())),
             true> Sel;
 
         bool res = Sel::callAndEval(
             f,
             std::forward<Args>(args)...,
-            _r.cpy()
+            _r.getRef()
         );
 
         return ignoreBooleanReturn || res;

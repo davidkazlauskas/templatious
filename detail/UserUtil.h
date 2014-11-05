@@ -19,6 +19,8 @@
 #ifndef USERUTIL_2646KXF5
 #define USERUTIL_2646KXF5
 
+#include <utility>
+
 namespace templatious {
 namespace detail {
 
@@ -26,10 +28,18 @@ template <class StorType>
 struct CallEachStreamFunctor {
     CallEachStreamFunctor(const StorType& t) : _c(t) {}
     CallEachStreamFunctor() {}
+
     template <class T>
     void operator()(T&& i) {
         _c << i;
     }
+
+    template <class T,class... Args>
+    void operator()(T&& i,Args&&... args) {
+        (*this)(std::forward<T>(i));
+        (*this)(std::forward<Args>(args)...);
+    }
+
     StorType _c;
 };
 
