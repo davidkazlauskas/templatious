@@ -260,9 +260,9 @@ struct Pack<StoragePolicy,A,Tail...> {
         template <int i,class P>
         static auto get(P& p)
          -> decltype( std::declval<typename P::Container>()
-             .cpy().template get<i>() )
+             .getRef().template get<i>() )
         {
-            return p._r.cpy().template get<i>();
+            return p._r.getRef().template get<i>();
         }
     };
 

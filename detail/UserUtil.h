@@ -55,7 +55,7 @@ struct DummyVar {
     }
 };
 
-static auto dummyVar = DummyVar();
+static DummyVar dummyVar = DummyVar();
 
 // no unused variable warning for dummyVar
 DummyVar getDummy() { return dummyVar; }
