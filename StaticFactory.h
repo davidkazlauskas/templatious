@@ -414,6 +414,19 @@ struct StaticFactory {
              std::forward<Args>(args)...);
     }
 
+    template <int n = 1>
+    static auto dummyVar()
+     -> decltype(
+         detail::PackAccess::packRepeat<n>(
+             detail::dummyVar
+         )
+     )
+    {
+        return detail::PackAccess::packRepeat<n>(
+            detail::dummyVar
+        );
+    }
+
     template <
         template <class> class StoragePolicy =
             ::templatious::util::DefaultStoragePolicy,
