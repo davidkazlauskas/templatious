@@ -43,6 +43,23 @@ struct CallEachStreamFunctor {
     StorType _c;
 };
 
+//------- DummyVar
+
+struct DummyVar {
+
+    template <class T>
+    auto operator=(T&& rhs) const
+     -> decltype(std::forward<T>(rhs))
+    {
+        return std::forward<T>(rhs);
+    }
+};
+
+static auto dummyVar = DummyVar();
+
+// no unused variable warning for dummyVar
+DummyVar getDummy() { return dummyVar; }
+
 }
 }
 
