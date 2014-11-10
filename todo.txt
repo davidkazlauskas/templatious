@@ -54,7 +54,7 @@ features:
 #51. create one time traversable structure, so that begin would be advancing
 #53. encapsulate functor which calls pack
 54. quadro return times traversed
-55. dummy var which can be assigned anything
+#55. dummy var which can be assigned anything
 
 compatibility:
 
