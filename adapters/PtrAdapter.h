@@ -503,11 +503,11 @@ struct CollectionAdapter<T&&> {
         return Inner::iter_at(c,i);
     }
 
-    static const_iterator cbegin(RCol c) {
+    static const_iterator cbegin(CRCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator cend(RCol c) {
+    static const_iterator cend(CRCol c) {
         return Inner::cend(c);
     }
 

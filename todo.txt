@@ -52,7 +52,7 @@ features:
 #49. set ignore return val
 50. static vector splitter from bigger array
 #51. create one time traversable structure, so that begin would be advancing
-53. encapsulate functor which calls pack
+#53. encapsulate functor which calls pack
 54. quadro return times traversed
 
 compatibility:

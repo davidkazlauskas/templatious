@@ -31,6 +31,7 @@
 #include <templatious/detail/ChainFunctor.h>
 #include <templatious/detail/OnceTraversable.h>
 #include <templatious/detail/PackFunctor.h>
+#include <templatious/detail/CollectionRepeater.h>
 
 namespace templatious {
 
@@ -119,23 +120,30 @@ struct StaticFactory {
     }
 
     template <class T = int>
-    static templatious::SeqL<T> seqL(const T& end) {
+    static auto seqL(const T& end)
+     -> templatious::SeqL<T>
+    {
         return templatious::SeqL<T>(0,end,1);
     }
 
     template <class T = int>
-    static templatious::SeqL<T> seqL(const T& start,const T& end) {
+    static auto seqL(const T& start,const T& end)
+     -> templatious::SeqL<T>
+    {
         return templatious::SeqL<T>(start,end,1);
     }
 
     template <class T = int>
-    static templatious::SeqL<T> seqL(const T& start,const T& end,const T& step) {
+    static auto seqL(const T& start,const T& end,const T& step)
+     -> templatious::SeqL<T>
+    {
         return templatious::SeqL<T>(start,end,step);
     }
 
-
     template <class T = int>
-    static templatious::SeqL<T> seqI(const T& end) {
+    static auto seqI(const T& end)
+     -> templatious::SeqL<T>
+    {
         if (0 <= end) {
             return templatious::SeqL<T>(0,end + 1,1);
         } else {
@@ -144,7 +152,9 @@ struct StaticFactory {
     }
 
     template <class T = int>
-    static templatious::SeqL<T> seqI(const T& start,const T& end) {
+    static auto seqI(const T& start,const T& end)
+     -> templatious::SeqL<T>
+    {
         if (start <= end) {
             return templatious::SeqL<T>(start,end + 1,1);
         } else {
@@ -153,13 +163,55 @@ struct StaticFactory {
     }
 
     template <class T = int>
-    static templatious::SeqL<T> seqI(const T& start,const T& end,const T& step) {
+    static auto seqI(const T& start,const T& end,const T& step)
+     -> templatious::SeqL<T>
+    {
         assert((end - start) % step == 0 && "Ending of loop is not included with this step.");
         if (start <= end) {
             return templatious::SeqL<T>(start,end + step,step);
         } else {
             return templatious::SeqL<T>(start,end - step,step);
         }
+    }
+
+    // Repeater absolute
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto repA(size_t n,T&& c)
+     -> detail::Repeater<
+            false,
+            StoragePolicy,
+            decltype(std::forward<T>(c))
+     >
+    {
+        return detail::Repeater<
+           false,
+           StoragePolicy,
+           decltype(std::forward<T>(c))
+        >(n,std::forward<T>(c));
+    }
+
+    // Repeater multiply
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto repM(size_t n,T&& c)
+     -> detail::Repeater<
+            true,
+            StoragePolicy,
+            decltype(std::forward<T>(c))
+     >
+    {
+        return detail::Repeater<
+           true,
+           StoragePolicy,
+           decltype(std::forward<T>(c))
+        >(n,std::forward<T>(c));
     }
 
     template <class T>
