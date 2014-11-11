@@ -320,7 +320,7 @@ public:
     }
 
     template <bool passIndex = false, class U, class... Args>
-    static void quadro(U&& fn, Args&&... args) {
+    static size_t quadro(U&& fn, Args&&... args) {
         typedef typename templatious::recursive::IteratorMaker ItMk;
         namespace ut = templatious::util;
 
@@ -328,10 +328,7 @@ public:
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        size_t idx;
-        if (passIndex) {
-            idx = 0;
-        }
+        size_t idx = 0;
 
         do {
             typedef typename ut::RetValSelector<
@@ -340,12 +337,12 @@ public:
                 ) > Sel;
             if (!Sel::callAndEval(
                 ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it)))
-            { return; }
+            { return ++idx; }
 
-            if (passIndex) {
-                ++idx;
-            }
+            ++idx;
         } while (!it.inc());
+
+        return idx;
     }
 
     template <class T,class U,class Comp = templatious::util::ComparatorEq<U,U,templatious::util::Default> >
