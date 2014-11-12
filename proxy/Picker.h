@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/StaticAdapter.h>
 
 namespace templatious {
 
@@ -210,31 +211,30 @@ void clearRoutine(C&& c) {
     ICol& ic = ProxUtil::unwrap(c);
 
     if (floating_iterator) {
-        auto vi = CAd::instantiate(SA::getSize(ic));
+        auto i = SA::begin(ic);
+        auto j = i;
+        auto next = SA::begin(c);
+        auto end = SA::end(c);
+        bool endReached = false;
 
-        for (auto i = SA::begin(c);
-             i != SA::end(c);
-             ++i)
-        {
-            SA::add(vi,ProxUtil::iter_unwrap(i));
-        }
-
-        auto res = IAd::instantiate(
-            SA::getSize(ic) - SA::getSize(vi));
-
-        auto beg = SA::begin(vi);
-        for (auto i = SA::begin(ic);
-            i != SA::end(ic);
-            ++i)
-        {
-            if ((*beg) != i) {
-                SA::add(res,std::move(*i));
-            } else {
-                ++beg;
+        while (i != SA::end(ic)) {
+            if (i != j) {
+                *j = *i;
             }
-        }
+            if (ProxUtil::iter_unwrap(next) != i
+                || endReached)
+            {
+                ++j;
+            } else if (end != next) {
+                ++next;
+                if (end == next) {
+                    endReached = true;
+                }
+            }
 
-        ic = std::move(res);
+            ++i;
+        }
+        SA::erase(ic,j,SA::end(ic));
     } else {
         bool flag;
         auto beg = SA::begin(c);

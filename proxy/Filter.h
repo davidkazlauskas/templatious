@@ -102,9 +102,6 @@ struct Filter {
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
 
-        //template <class V>
-        //PIterator(V&& i) : _i(std::forward<V>(i)) {}
-
         template <class V>
         PIterator(const I& i,const I& e,V&& fn) :
             _i(i), _e(e), _fn(std::forward<V>(fn)) {}
