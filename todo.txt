@@ -38,7 +38,7 @@ features:
 #30. extend SM::set to set simple vars as well
 #31. convenience insert function
 #32. insert within (in between existing packs one level)
-33. repeaters (repeat collections)
+#33. repeaters (repeat collections)
 #34. distribute from pack to collection and vice versa
 #36. pack repeat
 37. add pack to collection (SA::add)
@@ -71,4 +71,4 @@ perfection:
 23. replace asserts with thrown exceptions
 #26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
 28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
-51. rewrite erase function for filter to simply replace iterator instead of new collection
+#51. rewrite erase function for filter to simply replace iterator instead of new collection
