@@ -72,5 +72,5 @@ perfection:
 9. add const qualifiers to comparators
 23. replace asserts with thrown exceptions
 #26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
-28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
+#28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
 #51. rewrite erase function for filter to simply replace iterator instead of new collection
