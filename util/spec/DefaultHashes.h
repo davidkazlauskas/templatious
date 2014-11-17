@@ -89,7 +89,7 @@ struct Hasher<std::string> {
     size_t operator()(const std::string& t) {
         // DUMMY, BAD FUNCTION
         size_t res = 0;
-        for (int i = 0; i < t.size(); ++i) {
+        for (size_t i = 0; i < t.size(); ++i) {
             res += t[i];
         }
         return res;

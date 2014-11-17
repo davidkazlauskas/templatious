@@ -87,7 +87,7 @@ template <
 struct OnceTraversableWCol {
     typedef typename StoragePolicy<T>::Container Cont;
     typedef templatious::adapters::CollectionAdapter<T> Ad;
-    typedef typename Ad::iterator ColIterator;
+    typedef typename Ad::Iterator ColIterator;
     typedef OnceTraversable< ColIterator > ThisTraversable;
     typedef typename ThisTraversable::Iterator IntIterator;
 
@@ -119,13 +119,13 @@ struct OnceTraversableMakerLval {
     static auto make(T&& t)
      -> OnceTraversable<
         typename ::templatious::adapters::
-            CollectionAdapter<T>::iterator
+            CollectionAdapter<T>::Iterator
      >
     {
         typedef ::templatious::adapters::
             CollectionAdapter<T> Ad;
         typedef OnceTraversable<
-            typename Ad::iterator
+            typename Ad::Iterator
         > Res;
 
         return Res(
@@ -199,14 +199,14 @@ struct CollectionAdapter<
 
     typedef ::templatious::detail::OnceTraversable<T> ThisCol;
     typedef ::templatious::detail::OnceTraversable<const T> ConstCol;
-    typedef typename ThisCol::Iterator iterator;
-    typedef typename ConstCol::Iterator const_iterator;
+    typedef typename ThisCol::Iterator Iterator;
+    typedef typename ConstCol::Iterator ConstIterator;
     typedef decltype(
         *(std::declval<ThisCol>().begin())
-    ) value_type;
+    ) ValueType;
     typedef decltype(
         *(std::declval<ConstCol>().begin())
-    ) const_value_type;
+    ) ConstValueType;
 
     template <class V,class U = int>
     static void add(ThisCol c, V&& i) {
@@ -223,35 +223,36 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static size_t getSize(ConstCol& c) {
+    static size_t size(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+        return -1;
+    }
+
+    template <class U = int>
+    static void erase(ThisCol& c, Iterator i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static void erase(ThisCol& c, iterator i) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable is not full fledged collection"
-                " and can be traversed with iterators only.");
-    }
-
-    template <class U = int>
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
@@ -285,74 +286,74 @@ struct CollectionAdapter<
                 " out of another collection.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static iterator iter_at(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
-    static iterator begin(ConstCol& c) {
+    static Iterator begin(ConstCol& c) {
         return c.begin();
     }
 
-    static iterator end(ConstCol& c) {
+    static Iterator end(ConstCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static iterator iter_at(ConstCol& c, size_t i) {
+    static Iterator iterAt(ConstCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.begin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
     template <class U = int>
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
     }
 
     template <class U = int>
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
     }
 
     template <class U = int>
-    static value_type& last(ThisCol& c) {
+    static ValueType& last(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
     }
 
     template <class U = int>
-    static const_value_type& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
@@ -385,14 +386,14 @@ struct CollectionAdapter<
         StoragePolicy, T > ThisCol;
     typedef ::templatious::detail::OnceTraversableWCol<
         StoragePolicy, const T > ConstCol;
-    typedef typename ThisCol::IntIterator iterator;
-    typedef typename ConstCol::IntIterator const_iterator;
+    typedef typename ThisCol::IntIterator Iterator;
+    typedef typename ConstCol::IntIterator ConstIterator;
     typedef decltype(
         *(std::declval<ThisCol>().begin())
-    ) value_type;
+    ) ValueType;
     typedef decltype(
         *(std::declval<ConstCol>().begin())
-    ) const_value_type;
+    ) ConstValueType;
 
     template <class V,class U = int>
     static void add(ThisCol& c, V&& i) {
@@ -409,28 +410,29 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static size_t getSize(ConstCol& c) {
+    static size_t size(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+        return -1;
+    }
+
+    template <class U = int>
+    static void erase(ThisCol& c, Iterator i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static void erase(ThisCol& c, iterator i) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable is not full fledged collection"
-                " and can be traversed with iterators only.");
-    }
-
-    template <class U = int>
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
@@ -464,49 +466,49 @@ struct CollectionAdapter<
                 " out of another collection.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static iterator iter_at(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
     template <class U = int>
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Not yet implemented...");
     }
 
     template <class U = int>
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Not yet implemented...");
     }
 
     template <class U = int>
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
     template <class U = int>
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
     }
 
     template <class U = int>
-    static value_type& last(ThisCol& c) {
+    static ValueType& last(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
@@ -539,14 +541,14 @@ struct CollectionAdapter<
         StoragePolicy, const T > ThisCol;
     typedef ::templatious::detail::OnceTraversableWCol<
         StoragePolicy, const T > ConstCol;
-    typedef typename ThisCol::IntIterator iterator;
-    typedef typename ConstCol::IntIterator const_iterator;
+    typedef typename ThisCol::IntIterator Iterator;
+    typedef typename ConstCol::IntIterator ConstIterator;
     typedef decltype(
         *(std::declval<ThisCol>().begin())
-    ) value_type;
+    ) ValueType;
     typedef decltype(
         *(std::declval<ConstCol>().begin())
-    ) const_value_type;
+    ) ConstValueType;
 
     template <class V,class U = int>
     static void add(ThisCol& c, V&& i) {
@@ -563,28 +565,29 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static size_t getSize(ConstCol& c) {
+    static size_t size(ConstCol& c) {
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "OnceTraversable is not full fledged collection"
+                " and can be traversed with iterators only.");
+        return -1;
+    }
+
+    template <class U = int>
+    static void erase(ThisCol& c, Iterator i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
     }
 
     template <class U = int>
-    static void erase(ThisCol& c, iterator i) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable is not full fledged collection"
-                " and can be traversed with iterators only.");
-    }
-
-    template <class U = int>
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
@@ -618,45 +621,45 @@ struct CollectionAdapter<
                 " out of another collection.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static iterator iter_at(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.begin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.end();
     }
 
     template <class U = int>
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable can only be iterated "
                 "from begin to end.");
     }
 
     template <class U = int>
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");
     }
 
     template <class U = int>
-    static value_type& last(ThisCol& c) {
+    static ValueType& last(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable collection elements "
                 "can only be accessed through iterators.");

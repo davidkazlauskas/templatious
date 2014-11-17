@@ -54,10 +54,10 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
 
     typedef typename ::templatious::vmodular::Tail<T> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef typename Inner::iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::Iterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -65,27 +65,27 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i) {
+    static void insertAt(ThisCol& c, Iterator at, V&& i) {
         c.insert(at,i);
     }
 
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         return c.getByIndex(i);
     }
 
-    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
         return c.cgetByIndex(i);
     }
 
-    static size_t getSize(ConstCol& c) {
+    static size_t size(ConstCol& c) {
         return c.size();
     }
 
-    static void erase(ThisCol& c,const iterator& i) {
+    static void erase(ThisCol& c,const Iterator& i) {
         return c.erase(i);
     }
 
-    static void erase(ThisCol& c,const iterator& beg,const iterator& end) {
+    static void erase(ThisCol& c,const Iterator& beg,const Iterator& end) {
         return c.erase(beg,end);
     }
 
@@ -117,55 +117,55 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
                 "not instantiated on its own.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
-    static iterator iter_at(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, size_t i) {
         return c.iterAt(i);
     }
 
-    static const_iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator iter_at(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         return c.first();
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.cfirst();
     }
 
-    static value_type& last(ThisCol& c) {
+    static ValueType& last(ThisCol& c) {
         return c.last();
     }
 
-    static const_value_type& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         return c.clast();
     }
 
@@ -187,10 +187,10 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
 
     typedef const ::templatious::vmodular::Tail<T> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef typename Inner::const_iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::const_value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::ConstIterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ConstValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -198,23 +198,23 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i) {
+    static void insertAt(ThisCol& c, Iterator at, V&& i) {
         c.insert(at,i);
     }
 
-    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
         return c.cgetByIndex(i);
     }
 
-    static size_t getSize(ConstCol& c) {
+    static size_t size(ConstCol& c) {
         return c.size();
     }
 
-    static void erase(ThisCol& c,const iterator& i) {
+    static void erase(ThisCol& c,const Iterator& i) {
         return c.erase(i);
     }
 
-    static void erase(ThisCol& c,const iterator& beg,const iterator& end) {
+    static void erase(ThisCol& c,const Iterator& beg,const Iterator& end) {
         return c.erase(beg,end);
     }
 
@@ -246,35 +246,35 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
                 "not instantiated on its own.");
     }
 
-    static const_iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator iter_at(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.cfirst();
     }
 
-    static const_value_type& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         return c.clast();
     }
 

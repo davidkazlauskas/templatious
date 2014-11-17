@@ -33,10 +33,10 @@ struct CollectionAdapter<T*> {
 
     typedef T* ThisCol;
     typedef const T* ConstCol;
-    typedef typename Inner::iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::Iterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(ThisCol c, V&& i) {
@@ -44,27 +44,27 @@ struct CollectionAdapter<T*> {
     }
 
     template <class V>
-    static void insert_at(ThisCol c,iterator at,V&& i) {
-        Inner::insert_at(*c,at,i);
+    static void insertAt(ThisCol c,Iterator at,V&& i) {
+        Inner::insertAt(*c,at,i);
     }
 
-    static value_type& getByIndex(ThisCol c,size_t i) {
+    static ValueType& getByIndex(ThisCol c,size_t i) {
         return Inner::getByIndex(*c,i);
     }
 
-    static const_value_type& getByIndex(ConstCol c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol c, size_t i) {
         return Inner::getByIndex(*c,i);
     }
 
-    static size_t getSize(ThisCol c) {
-        return Inner::getSize(*c);
+    static size_t size(ThisCol c) {
+        return Inner::size(*c);
     }
 
-    static void erase(ThisCol c, iterator beg) {
+    static void erase(ThisCol c, Iterator beg) {
         Inner::erase(*c,beg);
     }
 
-    static void erase(ThisCol c, iterator beg, iterator end) {
+    static void erase(ThisCol c, Iterator beg, Iterator end) {
         Inner::erase(*c,beg,end);
     }
 
@@ -75,43 +75,43 @@ struct CollectionAdapter<T*> {
         return Inner::instHeap(size);
     }
 
-    static iterator begin(ThisCol c) {
+    static Iterator begin(ThisCol c) {
         return Inner::begin(*c);
     }
 
-    static iterator end(ThisCol c) {
+    static Iterator end(ThisCol c) {
         return Inner::end(*c);
     }
 
-    static iterator iter_at(ThisCol c,size_t i) {
-        return Inner::iter_at(*c,i);
+    static Iterator iterAt(ThisCol c,size_t i) {
+        return Inner::iterAt(*c,i);
     }
 
-    static const_iterator cbegin(ThisCol c) {
+    static ConstIterator cbegin(ThisCol c) {
         return Inner::cbegin(*c);
     }
 
-    static const_iterator cend(ThisCol c) {
+    static ConstIterator cend(ThisCol c) {
         return Inner::cend(*c);
     }
 
-    static const_iterator citer_at(ThisCol c,size_t i) {
-        return Inner::citer_at(*c,i);
+    static ConstIterator citerAt(ThisCol c,size_t i) {
+        return Inner::citerAt(*c,i);
     }
 
-    static value_type& first(ThisCol c) {
+    static ValueType& first(ThisCol c) {
         return Inner::first(*c);
     }
 
-    static const value_type& first(ConstCol c) {
+    static const ValueType& first(ConstCol c) {
         return Inner::first(*c);
     }
 
-    static value_type& last(ThisCol c) {
+    static ValueType& last(ThisCol c) {
         return Inner::last(*c);
     }
 
-    static const value_type& last(ConstCol c) {
+    static const ValueType& last(ConstCol c) {
         return Inner::last(*c);
     }
 
@@ -133,10 +133,10 @@ struct CollectionAdapter<const T*> {
 
     typedef const T* ThisCol;
     typedef const T* ConstCol;
-    typedef typename Inner::const_iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::const_value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::ConstIterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ConstValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V,class U = int>
     static void add(ThisCol c, V&& i) {
@@ -145,27 +145,27 @@ struct CollectionAdapter<const T*> {
     }
 
     template <class V,class U = int>
-    static void insert_at(ThisCol c,iterator at,V&& i) {
+    static void insertAt(ThisCol c,Iterator at,V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
-    static const_value_type& getByIndex(ConstCol c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol c, size_t i) {
         return Inner::getByIndex(*c,i);
     }
 
-    static size_t getSize(ConstCol c) {
-        return Inner::getSize(*c);
+    static size_t size(ConstCol c) {
+        return Inner::size(*c);
     }
 
     template <class U = int>
-    static void erase(ThisCol c, iterator beg) {
+    static void erase(ThisCol c, Iterator beg) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U = int>
-    static void erase(ThisCol c, iterator beg, iterator end) {
+    static void erase(ThisCol c, Iterator beg, Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -177,35 +177,35 @@ struct CollectionAdapter<const T*> {
         return Inner::instHeap(size);
     }
 
-    static iterator begin(ThisCol c) {
+    static Iterator begin(ThisCol c) {
         return Inner::begin(*c);
     }
 
-    static iterator end(ThisCol c) {
+    static Iterator end(ThisCol c) {
         return Inner::end(*c);
     }
 
-    static iterator iter_at(ThisCol c,size_t i) {
-        return Inner::iter_at(*c,i);
+    static Iterator iterAt(ThisCol c,size_t i) {
+        return Inner::iterAt(*c,i);
     }
 
-    static const_iterator cbegin(ThisCol c) {
+    static ConstIterator cbegin(ThisCol c) {
         return Inner::cbegin(*c);
     }
 
-    static const_iterator cend(ThisCol c) {
+    static ConstIterator cend(ThisCol c) {
         return Inner::cend(*c);
     }
 
-    static const_iterator citer_at(ThisCol c,size_t i) {
-        return Inner::citer_at(*c,i);
+    static ConstIterator citerAt(ThisCol c,size_t i) {
+        return Inner::citerAt(*c,i);
     }
 
-    static const_value_type& first(ConstCol c) {
+    static ConstValueType& first(ConstCol c) {
         return Inner::first(*c);
     }
 
-    static const_value_type& last(ConstCol c) {
+    static ConstValueType& last(ConstCol c) {
         return Inner::last(*c);
     }
 
@@ -231,10 +231,10 @@ struct CollectionAdapter<T&> {
     typedef const T ConstCol;
     typedef ThisCol& RCol;
     typedef ConstCol& CRCol;
-    typedef typename Inner::iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::Iterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(RCol c, V&& i) {
@@ -242,31 +242,31 @@ struct CollectionAdapter<T&> {
     }
 
     template <class V>
-    static void insert_at(RCol c,iterator at,V&& i) {
-        Inner::insert_at(c,at,i);
+    static void insertAt(RCol c,Iterator at,V&& i) {
+        Inner::insertAt(c,at,i);
     }
 
-    static value_type& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static const_value_type& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t getSize(RCol c) {
-        return Inner::getSize(c);
+    static size_t size(RCol c) {
+        return Inner::size(c);
     }
 
-    static size_t getSize(CRCol c) {
-        return Inner::getSize(c);
+    static size_t size(CRCol c) {
+        return Inner::size(c);
     }
 
-    static void erase(RCol c, iterator beg) {
+    static void erase(RCol c, Iterator beg) {
         Inner::erase(c,beg);
     }
 
-    static void erase(RCol c, iterator beg, iterator end) {
+    static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
     }
 
@@ -282,43 +282,43 @@ struct CollectionAdapter<T&> {
         return Inner::instantiate(size);
     }
 
-    static iterator begin(RCol c) {
+    static Iterator begin(RCol c) {
         return Inner::begin(c);
     }
 
-    static iterator end(RCol c) {
+    static Iterator end(RCol c) {
         return Inner::end(c);
     }
 
-    static iterator iter_at(RCol c,size_t i) {
-        return Inner::iter_at(c,i);
+    static Iterator iterAt(RCol c,size_t i) {
+        return Inner::iterAt(c,i);
     }
 
-    static const_iterator cbegin(RCol c) {
+    static ConstIterator cbegin(RCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator cend(RCol c) {
+    static ConstIterator cend(RCol c) {
         return Inner::cend(c);
     }
 
-    static const_iterator citer_at(RCol c,size_t i) {
-        return Inner::citer_at(c,i);
+    static ConstIterator citerAt(RCol c,size_t i) {
+        return Inner::citerAt(c,i);
     }
 
-    static value_type& first(RCol c) {
+    static ValueType& first(RCol c) {
         return Inner::first(c);
     }
 
-    static const value_type& first(CRCol c) {
+    static const ValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
-    static value_type& last(RCol c) {
+    static ValueType& last(RCol c) {
         return Inner::last(c);
     }
 
-    static const value_type& last(CRCol c) {
+    static const ValueType& last(CRCol c) {
         return Inner::last(c);
     }
 
@@ -342,10 +342,10 @@ struct CollectionAdapter<const T&> {
     typedef ThisCol ConstCol;
     typedef ThisCol& RCol;
     typedef ConstCol& CRCol;
-    typedef typename Inner::const_iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::const_value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::ConstIterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ConstValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V,class U = int>
     static void add(CRCol c, V&& i) {
@@ -354,27 +354,27 @@ struct CollectionAdapter<const T&> {
     }
 
     template <class V,class U = int>
-    static void insert_at(CRCol c,iterator at,V&& i) {
+    static void insertAt(CRCol c,Iterator at,V&& i) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
-    static const_value_type& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t getSize(CRCol c) {
-        return Inner::getSize(c);
+    static size_t size(CRCol c) {
+        return Inner::size(c);
     }
 
     template <class U = int>
-    static void erase(CRCol c, iterator beg) {
+    static void erase(CRCol c, Iterator beg) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U = int>
-    static void erase(CRCol c, iterator beg, iterator end) {
+    static void erase(CRCol c, Iterator beg, Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -386,35 +386,35 @@ struct CollectionAdapter<const T&> {
         return Inner::instHeap(size);
     }
 
-    static const_iterator begin(CRCol c) {
+    static ConstIterator begin(CRCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator end(CRCol c) {
+    static ConstIterator end(CRCol c) {
         return Inner::cend(c);
     }
 
-    static const_iterator iter_at(CRCol c,size_t i) {
-        return Inner::citer_at(c,i);
+    static ConstIterator iterAt(CRCol c,size_t i) {
+        return Inner::citerAt(c,i);
     }
 
-    static const_iterator cbegin(CRCol c) {
+    static ConstIterator cbegin(CRCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator cend(CRCol c) {
+    static ConstIterator cend(CRCol c) {
         return Inner::cend(c);
     }
 
-    static const_iterator citer_at(CRCol c,size_t i) {
-        return Inner::citer_at(c,i);
+    static ConstIterator citerAt(CRCol c,size_t i) {
+        return Inner::citerAt(c,i);
     }
 
-    static const_value_type& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
-    static const_value_type& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         return Inner::last(c);
     }
 
@@ -440,10 +440,10 @@ struct CollectionAdapter<T&&> {
     typedef const T ConstCol;
     typedef ThisCol& RCol;
     typedef ConstCol& CRCol;
-    typedef typename Inner::iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::Iterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(RCol c, V&& i) {
@@ -451,31 +451,31 @@ struct CollectionAdapter<T&&> {
     }
 
     template <class V>
-    static void insert_at(RCol c,iterator at,V&& i) {
-        Inner::insert_at(c,at,i);
+    static void insertAt(RCol c,Iterator at,V&& i) {
+        Inner::insertAt(c,at,i);
     }
 
-    static value_type& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static const_value_type& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t getSize(RCol c) {
-        return Inner::getSize(c);
+    static size_t size(RCol c) {
+        return Inner::size(c);
     }
 
-    static size_t getSize(CRCol c) {
-        return Inner::getSize(c);
+    static size_t size(CRCol c) {
+        return Inner::size(c);
     }
 
-    static void erase(RCol c, iterator beg) {
+    static void erase(RCol c, Iterator beg) {
         Inner::erase(c,beg);
     }
 
-    static void erase(RCol c, iterator beg, iterator end) {
+    static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
     }
 
@@ -491,43 +491,43 @@ struct CollectionAdapter<T&&> {
         return Inner::instantiate(size);
     }
 
-    static iterator begin(RCol c) {
+    static Iterator begin(RCol c) {
         return Inner::begin(c);
     }
 
-    static iterator end(RCol c) {
+    static Iterator end(RCol c) {
         return Inner::end(c);
     }
 
-    static iterator iter_at(RCol c,size_t i) {
-        return Inner::iter_at(c,i);
+    static Iterator iterAt(RCol c,size_t i) {
+        return Inner::iterAt(c,i);
     }
 
-    static const_iterator cbegin(CRCol c) {
+    static ConstIterator cbegin(CRCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator cend(CRCol c) {
+    static ConstIterator cend(CRCol c) {
         return Inner::cend(c);
     }
 
-    static const_iterator citer_at(RCol c,size_t i) {
-        return Inner::citer_at(c,i);
+    static ConstIterator citerAt(RCol c,size_t i) {
+        return Inner::citerAt(c,i);
     }
 
-    static value_type& first(RCol c) {
+    static ValueType& first(RCol c) {
         return Inner::first(c);
     }
 
-    static const value_type& first(CRCol c) {
+    static const ValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
-    static value_type& last(RCol c) {
+    static ValueType& last(RCol c) {
         return Inner::last(c);
     }
 
-    static const value_type& last(CRCol c) {
+    static const ValueType& last(CRCol c) {
         return Inner::last(c);
     }
 
@@ -551,10 +551,10 @@ struct CollectionAdapter<const T&&> {
     typedef const T ConstCol;
     typedef ThisCol& RCol;
     typedef ConstCol& CRCol;
-    typedef typename Inner::iterator iterator;
-    typedef typename Inner::const_iterator const_iterator;
-    typedef typename Inner::value_type value_type;
-    typedef typename Inner::const_value_type const_value_type;
+    typedef typename Inner::Iterator Iterator;
+    typedef typename Inner::ConstIterator ConstIterator;
+    typedef typename Inner::ValueType ValueType;
+    typedef typename Inner::ConstValueType ConstValueType;
 
     template <class V>
     static void add(RCol c, V&& i) {
@@ -562,31 +562,31 @@ struct CollectionAdapter<const T&&> {
     }
 
     template <class V>
-    static void insert_at(RCol c,iterator at,V&& i) {
-        Inner::insert_at(c,at,i);
+    static void insertAt(RCol c,Iterator at,V&& i) {
+        Inner::insertAt(c,at,i);
     }
 
-    static value_type& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static const_value_type& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, size_t i) {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t getSize(RCol c) {
-        return Inner::getSize(c);
+    static size_t size(RCol c) {
+        return Inner::size(c);
     }
 
-    static size_t getSize(CRCol c) {
-        return Inner::getSize(c);
+    static size_t size(CRCol c) {
+        return Inner::size(c);
     }
 
-    static void erase(RCol c, iterator beg) {
+    static void erase(RCol c, Iterator beg) {
         Inner::erase(c,beg);
     }
 
-    static void erase(RCol c, iterator beg, iterator end) {
+    static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
     }
 
@@ -602,43 +602,43 @@ struct CollectionAdapter<const T&&> {
         return Inner::instantiate(size);
     }
 
-    static iterator begin(RCol c) {
+    static Iterator begin(RCol c) {
         return Inner::begin(c);
     }
 
-    static iterator end(RCol c) {
+    static Iterator end(RCol c) {
         return Inner::end(c);
     }
 
-    static iterator iter_at(RCol c,size_t i) {
-        return Inner::iter_at(c,i);
+    static Iterator iterAt(RCol c,size_t i) {
+        return Inner::iterAt(c,i);
     }
 
-    static const_iterator cbegin(RCol c) {
+    static ConstIterator cbegin(RCol c) {
         return Inner::cbegin(c);
     }
 
-    static const_iterator cend(RCol c) {
+    static ConstIterator cend(RCol c) {
         return Inner::cend(c);
     }
 
-    static const_iterator citer_at(RCol c,size_t i) {
-        return Inner::citer_at(c,i);
+    static ConstIterator citerAt(RCol c,size_t i) {
+        return Inner::citerAt(c,i);
     }
 
-    static value_type& first(RCol c) {
+    static ValueType& first(RCol c) {
         return Inner::first(c);
     }
 
-    static const value_type& first(CRCol c) {
+    static const ValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
-    static value_type& last(RCol c) {
+    static ValueType& last(RCol c) {
         return Inner::last(c);
     }
 
-    static const value_type& last(CRCol c) {
+    static const ValueType& last(CRCol c) {
         return Inner::last(c);
     }
 

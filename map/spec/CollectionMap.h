@@ -36,7 +36,6 @@ template <
     template <class> class Alloc = std::allocator
 >
 struct CollectionMap {
-    typedef templatious::StaticFactory SF;
     typedef templatious::StaticAdapter SA;
 
     typedef Key KeyType;
@@ -104,8 +103,8 @@ struct CollectionMap {
         SA::clear(_col);
     }
 
-    size_t getSize() const {
-        return SA::getSize(_col);
+    size_t size() const {
+        return SA::size(_col);
     }
 };
 
@@ -115,7 +114,7 @@ template <
     class Key,class Value,
     template <class...> class Coll,
     class Comparator,
-    template <class> class Alloc 
+    template <class> class Alloc
 >
 struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> > {
 
@@ -124,11 +123,10 @@ struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> >
 
     typedef Key KeyType;
     typedef Value ValueType;
-    typedef templatious::StaticFactory SF;
     typedef templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> ThisMap;
     typedef typename templatious::StaticAdapter SA;
 
-    static_assert( templatious::adapters::CollectionAdapter< 
+    static_assert( templatious::adapters::CollectionAdapter<
             typename ThisMap::CollectionType >::is_valid, "Map is invalid." );
 
     bool keyExists(const ThisMap& h,const KeyType& k) {
@@ -151,8 +149,8 @@ struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> >
         h.clear();
     }
 
-    static size_t getSize(const ThisMap& h) {
-        return h.getSize();
+    static size_t size(const ThisMap& h) {
+        return h.size();
     }
 
 };

@@ -42,7 +42,7 @@ struct MapAdapter {
     static bool get(const ThisMap& h,const KeyType& k,ValueType& v);
     static ValueType& get(const ThisMap& h,const KeyType& k);
     static bool put(ThisMap& h,const KeyType& k,const ValueType& v);
-    static size_t getSize(const ThisMap& h);
+    static size_t size(const ThisMap& h);
 
 };
 

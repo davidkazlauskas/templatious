@@ -216,8 +216,8 @@ struct StaticFactory {
 
     template <class T>
     static auto range(T&& t,
-        typename adapters::CollectionAdapter<T>::iterator b,
-        typename adapters::CollectionAdapter<T>::iterator e)
+        typename adapters::CollectionAdapter<T>::Iterator b,
+        typename adapters::CollectionAdapter<T>::Iterator e)
             -> templatious::Range<T>
     {
         return Range<T>(std::forward<T>(t),b,e);
@@ -225,7 +225,7 @@ struct StaticFactory {
 
     template <class T>
     static auto range(T&& t,
-        typename adapters::CollectionAdapter<T>::iterator b)
+        typename adapters::CollectionAdapter<T>::Iterator b)
             -> templatious::Range<T>
     {
         return Range<T>(std::forward<T>(t),b);
@@ -238,8 +238,8 @@ struct StaticFactory {
     {
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<T>(std::forward<T>(t),
-                Ad::iter_at(std::forward<T>(t),b),
-                Ad::iter_at(std::forward<T>(t),e));
+                Ad::iterAt(std::forward<T>(t),b),
+                Ad::iterAt(std::forward<T>(t),e));
     }
 
     template <class T>
@@ -249,7 +249,7 @@ struct StaticFactory {
     {
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<T>(std::forward<T>(t),
-                Ad::iter_at(std::forward<T>(t),b));
+                Ad::iterAt(std::forward<T>(t),b));
     }
 
     template <class T,class Fun>
@@ -279,11 +279,11 @@ struct StaticFactory {
 
     template <class T>
     static auto vcollection(T& t)
-     -> VCollection< typename adapters::CollectionAdapter<T>::value_type >
+     -> VCollection< typename adapters::CollectionAdapter<T>::ValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        typedef typename Ad::value_type ValType;
+        typedef typename Ad::ValueType ValType;
 
         typedef VCollectionImpl<T> VImpl;
         VImpl *v = new VImpl( t );

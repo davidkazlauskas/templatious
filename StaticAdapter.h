@@ -113,7 +113,7 @@ struct StaticAdapter {
 
     template <class T>
     static auto cbegin(const T& c)
-        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        -> typename adapters::CollectionAdapter<T>::ConstIterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::cbegin(c);
@@ -121,7 +121,7 @@ struct StaticAdapter {
 
     template <class T>
     static auto cend(const T& c)
-        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        -> typename adapters::CollectionAdapter<T>::ConstIterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::cend(c);
@@ -187,15 +187,15 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static size_t getSize(const T& c) {
+    static size_t size(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::getSize(c);
+        return Ad::size(c);
     }
 
     template <class T>
     static auto getByIndex(T& c, int i)
-        -> typename adapters::CollectionAdapter<T>::value_type {
+        -> typename adapters::CollectionAdapter<T>::ValueType {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::getByIndex(c, i);
@@ -203,8 +203,8 @@ struct StaticAdapter {
 
     template <class T>
     static void erase(T& c,
-                      typename adapters::CollectionAdapter<T>::iterator beg,
-                      typename adapters::CollectionAdapter<T>::iterator end) 
+                      typename adapters::CollectionAdapter<T>::Iterator beg,
+                      typename adapters::CollectionAdapter<T>::Iterator end)
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -213,7 +213,7 @@ struct StaticAdapter {
 
     template <class T>
     static void erase(T& c,
-                      typename adapters::CollectionAdapter<T>::iterator pos) {
+                      typename adapters::CollectionAdapter<T>::Iterator pos) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         Ad::erase(c, pos);
@@ -221,7 +221,7 @@ struct StaticAdapter {
 
     template <class T>
     static void eraseTillEnd(T& c,
-         typename adapters::CollectionAdapter<T>::iterator pos)
+         typename adapters::CollectionAdapter<T>::Iterator pos)
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -230,28 +230,28 @@ struct StaticAdapter {
 
     template <class T>
     static auto iterAt(T& c,size_t i)
-        -> typename adapters::CollectionAdapter<T>::iterator {
+        -> typename adapters::CollectionAdapter<T>::Iterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::iter_at(c, i);
+        return Ad::iterAt(c, i);
     }
 
     template <class T>
     static auto citerAt(T& c,size_t i)
-        -> typename adapters::CollectionAdapter<T>::const_iterator {
+        -> typename adapters::CollectionAdapter<T>::ConstIterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::citer_at(c, i);
+        return Ad::citerAt(c, i);
     }
 
     template <class T>
     static void insert(
-        T& c, typename adapters::CollectionAdapter<T>::iterator at,
-        const typename adapters::CollectionAdapter<T>::value_type& val) 
+        T& c, typename adapters::CollectionAdapter<T>::Iterator at,
+        const typename adapters::CollectionAdapter<T>::ValueType& val)
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        Ad::insert_at(c,at,val);
+        Ad::insertAt(c,at,val);
     }
 
     template <class T>
@@ -263,10 +263,10 @@ struct StaticAdapter {
 
     template <class T>
     static auto vbegin(T& c)
-    -> VIterator< typename adapters::CollectionAdapter<T>::value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        typedef typename Ad::value_type ValType;
+        typedef typename Ad::ValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
@@ -276,10 +276,10 @@ struct StaticAdapter {
 
     template <class T>
     static auto vend(T& c)
-    -> VIterator< typename adapters::CollectionAdapter<T>::value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        typedef typename Ad::value_type ValType;
+        typedef typename Ad::ValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
@@ -289,10 +289,10 @@ struct StaticAdapter {
 
     template <class T>
     static auto vcbegin(const T& c)
-    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
     {
         typedef adapters::CollectionAdapter<const T> Ad;
-        typedef typename Ad::const_value_type ValType;
+        typedef typename Ad::ConstValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
@@ -302,10 +302,10 @@ struct StaticAdapter {
 
     template <class T>
     static auto vcend(const T& c)
-    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
     {
         typedef adapters::CollectionAdapter<const T> Ad;
-        typedef typename Ad::const_value_type ValType;
+        typedef typename Ad::ConstValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
@@ -315,41 +315,41 @@ struct StaticAdapter {
 
     template <class T>
     static auto viterAt(T& c,size_t s)
-    -> VIterator< typename adapters::CollectionAdapter<T>::value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        typedef typename Ad::value_type ValType;
+        typedef typename Ad::ValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
-        VImpl *v = new VImpl( Ad::iter_at(c,s) );
+        VImpl *v = new VImpl( Ad::iterAt(c,s) );
         return VIterator< ValType >(v);
     }
 
     template <class T>
     static auto vciterAt(const T& c,size_t s)
-    -> VIterator< typename adapters::CollectionAdapter<T>::const_value_type >
+    -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        typedef typename Ad::const_value_type ValType;
+        typedef typename Ad::ConstValueType ValType;
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
-        VImpl *v = new VImpl( Ad::citer_at(c,s) );
+        VImpl *v = new VImpl( Ad::citerAt(c,s) );
         return VIterator< ValType >(v);
     }
 
     // will be removed in the future.
     template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
-    static void sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::value_type& val) {
+    static void sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::ValueType& val) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        typedef typename Ad::value_type ValType;
+        typedef typename Ad::ValueType ValType;
 
         typedef typename templatious::util::ComparatorDiff<ValType,ValType,Comp> Comparator;
         auto comp = templatious::util::rev<reverse>(Comparator());
 
-        if (0 == Ad::getSize(c)) {
+        if (0 == Ad::size(c)) {
             Ad::add(c,val);
         }
 
@@ -358,12 +358,12 @@ struct StaticAdapter {
         }
 
         if (0 <= comp(Ad::first(c),val)) {
-            Ad::insert_at(c,Ad::begin(c),val);
+            Ad::insertAt(c,Ad::begin(c),val);
         }
 
         for (auto i = Ad::begin(c); i != Ad::end(c); ++i) {
             if (0 <= comp(*i,val)) {
-                Ad::insert_at(c,i,val);
+                Ad::insertAt(c,i,val);
             }
         }
 

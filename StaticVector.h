@@ -38,14 +38,14 @@ struct StaticVector {
     typedef SvIterator<false> Iterator;
     typedef SvIterator<true> ConstIter;
 
-    static const ulong size = sz;
-    static_assert(size > 0,"Static vector cannot be of negative size.");
+    static const ulong size_const = sz;
+    static_assert(size_const > 0,"Static vector cannot be of negative size.");
 
-    StaticVector(T (&vct)[size]) : _vct(vct), _cnt(0) { }
-    StaticVector(T (&vct)[size],ulong currCnt) :
+    StaticVector(T (&vct)[size_const]) : _vct(vct), _cnt(0) { }
+    StaticVector(T (&vct)[size_const],ulong currCnt) :
         _vct(vct), _cnt(currCnt)
     {
-        assert(currCnt <= size
+        assert(currCnt <= size_const
             && "Initial static array size cannot be larger than a capacity.");
     }
 
@@ -162,20 +162,20 @@ struct StaticVector {
     }
 
     T& at(ulong pos) const {
-        assert(pos >= 0 && pos < _cnt && pos < size
+        assert(pos >= 0 && pos < _cnt && pos < size_const
                 && "Requested position out of bounds.");
         return _vct[pos];
     }
 
     bool isFull() const {
-        return _cnt >= size;
+        return _cnt >= size_const;
     }
 
     bool isEmpty() const {
         return _cnt == 0;
     }
 
-    ulong getSize() const {
+    ulong size() const {
         return _cnt;
     }
 
@@ -309,10 +309,10 @@ struct CollectionAdapter< StaticVector<T,sz> > {
 
     typedef StaticVector<T,sz> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef typename ThisCol::Iterator iterator;
-    typedef typename ThisCol::ConstIter const_iterator;
-    typedef T value_type;
-    typedef const T const_value_type;
+    typedef typename ThisCol::Iterator Iterator;
+    typedef typename ThisCol::ConstIter ConstIterator;
+    typedef T ValueType;
+    typedef const T ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -320,27 +320,27 @@ struct CollectionAdapter< StaticVector<T,sz> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at,V&& i) {
+    static void insertAt(ThisCol& c, Iterator at,V&& i) {
         c.insert(at,std::forward<V>(i));
     }
 
-    static value_type& getByIndex(ThisCol& c, int i) {
+    static ValueType& getByIndex(ThisCol& c, int i) {
         return c.at(i);
     }
 
-    static const_value_type& getByIndex(ConstCol& c, int i) {
+    static ConstValueType& getByIndex(ConstCol& c, int i) {
         return c.at(i);
     }
 
-    static size_t getSize(const ThisCol& c) {
-        return c.getSize();
+    static size_t size(const ThisCol& c) {
+        return c.size();
     }
 
-    static void erase(ThisCol& c, iterator pos) {
+    static void erase(ThisCol& c, Iterator pos) {
         c.erase(pos);
     }
 
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         c.erase(beg,end);
     }
 
@@ -376,60 +376,60 @@ struct CollectionAdapter< StaticVector<T,sz> > {
                        because it uses static array memory.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
-    static iterator begin(ConstCol& c) {
+    static Iterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static iterator end(ConstCol& c) {
+    static Iterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static iterator iter_at(ThisCol& c,size_t i) {
+    static Iterator iterAt(ThisCol& c,size_t i) {
         return c.iterAt(i);
     }
 
-    static iterator iter_at(ConstCol& c,size_t i) {
+    static Iterator iterAt(ConstCol& c,size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator citer_at(ConstCol& c,size_t i) {
+    static ConstIterator citerAt(ConstCol& c,size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator citer_at(ThisCol& c,size_t i) {
+    static ConstIterator citerAt(ThisCol& c,size_t i) {
         return c.citerAt(i);
     }
 
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         return c.at(0);
     }
 
-    static const value_type& first(ConstCol& c) {
+    static const ValueType& first(ConstCol& c) {
         return c.at(0);
     }
 
-    static value_type& last(ThisCol& c) {
-        return c.at(c.getSize() - 1);
+    static ValueType& last(ThisCol& c) {
+        return c.at(c.size() - 1);
     }
 
-    static const value_type& last(ConstCol& c) {
-        return c.at(c.getSize() - 1);
+    static const ValueType& last(ConstCol& c) {
+        return c.at(c.size() - 1);
     }
 
     static void clear(ThisCol& c) {
@@ -448,10 +448,10 @@ struct CollectionAdapter< const StaticVector<T,sz> > {
 
     typedef const StaticVector<T,sz> ThisCol;
     typedef ThisCol ConstCol;
-    typedef typename ThisCol::ConstIter iterator;
-    typedef typename ThisCol::ConstIter const_iterator;
-    typedef const T value_type;
-    typedef const T const_value_type;
+    typedef typename ThisCol::ConstIter Iterator;
+    typedef typename ThisCol::ConstIter ConstIterator;
+    typedef const T ValueType;
+    typedef const T ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -459,23 +459,23 @@ struct CollectionAdapter< const StaticVector<T,sz> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at,V&& i) {
+    static void insertAt(ThisCol& c, Iterator at,V&& i) {
         c.insert(at,std::forward<V>(i));
     }
 
-    static value_type& getByIndex(ThisCol& c, int i) {
+    static ValueType& getByIndex(ThisCol& c, int i) {
         return c.at(i);
     }
 
-    static size_t getSize(const ThisCol& c) {
-        return c.getSize();
+    static size_t size(const ThisCol& c) {
+        return c.size();
     }
 
-    static void erase(ThisCol& c, iterator pos) {
+    static void erase(ThisCol& c, Iterator pos) {
         c.erase(pos);
     }
 
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         c.erase(beg,end);
     }
 
@@ -511,36 +511,36 @@ struct CollectionAdapter< const StaticVector<T,sz> > {
                        because it uses static array memory.");
     }
 
-    static iterator begin(ConstCol& c) {
+    static Iterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static iterator end(ConstCol& c) {
+    static Iterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator iter_at(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator citer_at(ConstCol& c,size_t i) {
+    static ConstIterator citerAt(ConstCol& c,size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_value_type& first(ThisCol& c) {
+    static ConstValueType& first(ThisCol& c) {
         return c.at(0);
     }
 
-    static const_value_type& last(ConstCol& c) {
-        return c.at(c.getSize() - 1);
+    static ConstValueType& last(ConstCol& c) {
+        return c.at(c.size() - 1);
     }
 
     static void clear(ThisCol& c) {

@@ -29,10 +29,10 @@ template <class T>
 struct Addable: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
-    typedef typename Ad::value_type ValType;
-    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
+    typedef typename Ad::ValueType ValType;
+    typedef typename Ad::ConstValueType CValType;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -43,7 +43,7 @@ struct Addable: public T {
     }
 
     void insert(const Iter& at,const ValType& i) {
-        Ad::insert_at(getRef(),at,i);
+        Ad::insertAt(getRef(),at,i);
     }
 
     bool canAdd() const {
@@ -64,10 +64,10 @@ template <class T>
 struct AddableFake: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
-    typedef typename Ad::value_type ValType;
-    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
+    typedef typename Ad::ValueType ValType;
+    typedef typename Ad::ConstValueType CValType;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -91,10 +91,10 @@ template <class T>
 struct AddableThrow: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
-    typedef typename Ad::value_type ValType;
-    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
+    typedef typename Ad::ValueType ValType;
+    typedef typename Ad::ConstValueType CValType;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -129,10 +129,10 @@ template <class T>
 struct AddablePrevent: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
-    typedef typename Ad::value_type ValType;
-    typedef typename Ad::const_value_type CValType;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
+    typedef typename Ad::ValueType ValType;
+    typedef typename Ad::ConstValueType CValType;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 

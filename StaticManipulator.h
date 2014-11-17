@@ -86,24 +86,24 @@ private:
         }
     };
 
-    template 
+    template
     <
         bool stopAtFirst,
         class T,
         class Out = std::vector<
-            typename templatious::adapters::CollectionAdapter<T>::iterator
+            typename templatious::adapters::CollectionAdapter<T>::Iterator
         >
     >
     static Out findIterInternal(
             T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
             )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
         typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::value_type ValType;
+        typedef typename AD::ValueType ValType;
         ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
@@ -127,14 +127,14 @@ private:
     >
     static Out findIdxInternal(
             T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
             )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
         typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::value_type ValType;
+        typedef typename AD::ValueType ValType;
         ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
@@ -159,20 +159,20 @@ private:
         class Out = std::vector<
             std::pair<
                 int,
-                typename templatious::adapters::CollectionAdapter<T>::iterator
+                typename templatious::adapters::CollectionAdapter<T>::Iterator
             >
         >
     >
     static Out findIdxIterInternal(
             T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::value_type& v
+            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
             )
     {
         namespace ut = templatious::util;
         namespace ad = templatious::adapters;
         typedef typename templatious::StaticAdapter SA;
         typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::value_type ValType;
+        typedef typename AD::ValueType ValType;
         ut::ComparatorEq<ValType,ValType> comp;
 
         auto res =
@@ -263,7 +263,7 @@ public:
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        size_t size = SA::getSize(ut::getFirst(std::forward<Args>(args)...));
+        size_t size = SA::size(ut::getFirst(std::forward<Args>(args)...));
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
         auto result = CA::instantiate(size);
 

@@ -35,10 +35,10 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 
 	typedef typename std::vector<T, Alloc<T> > ThisCol;
 	typedef typename std::vector<T, Alloc<T> > const ConstCol;
-	typedef typename ThisCol::iterator iterator;
-	typedef typename ThisCol::const_iterator const_iterator;
-	typedef T value_type;
-	typedef const T const_value_type;
+	typedef typename ThisCol::iterator Iterator;
+	typedef typename ThisCol::const_iterator ConstIterator;
+	typedef T ValueType;
+	typedef const T ConstValueType;
 
     template <class V>
 	static void add(ThisCol& c,V&& i) {
@@ -46,7 +46,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	}
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& v) {
+    static void insertAt(ThisCol& c, Iterator at, V&& v) {
         assert(at >= begin(c) && at < end(c));
 
         c.insert(at,std::forward<V>(v));
@@ -73,78 +73,78 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return r;
 	}
 
-	static iterator begin(ThisCol& c) {
+	static Iterator begin(ThisCol& c) {
 		return c.begin();
 	}
 
-	static iterator end(ThisCol& c) {
+	static Iterator end(ThisCol& c) {
 		return c.end();
 	}
 
-    static iterator iter_at(ThisCol& c,size_t pos) {
+    static Iterator iterAt(ThisCol& c,size_t pos) {
         assert(c.size() >= pos && "Array index out of bounds.");
         return c.begin() + pos;
     }
 
-    static const_iterator iter_at(ConstCol& c,size_t pos) {
+    static ConstIterator iterAt(ConstCol& c,size_t pos) {
         assert(c.size() >= pos && "Array index out of bounds.");
         return c.cbegin() + pos;
     }
 
-    static const_iterator citer_at(ConstCol& c,size_t pos) {
+    static ConstIterator citerAt(ConstCol& c,size_t pos) {
         assert(c.size() >= pos && "Array index out of bounds.");
         return c.cbegin() + pos;
     }
 
-	static const_iterator begin(ConstCol& c) {
+	static ConstIterator begin(ConstCol& c) {
 		return c.cbegin();
 	}
 
-	static const_iterator end(ConstCol& c) {
+	static ConstIterator end(ConstCol& c) {
 		return c.cend();
 	}
 
-	static const_iterator cbegin(ConstCol& c) {
+	static ConstIterator cbegin(ConstCol& c) {
 		return c.cbegin();
 	}
 
-	static const_iterator cend(ConstCol& c) {
+	static ConstIterator cend(ConstCol& c) {
 		return c.cend();
 	}
 
-	static size_t getSize(ConstCol& c) {
+	static size_t size(ConstCol& c) {
 		return c.size();
 	}
 
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         return c[i];
     }
 
-    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
         return c[i];
     }
 
-    static void erase(ThisCol& c,iterator pos) {
+    static void erase(ThisCol& c,Iterator pos) {
         c.erase(pos);
     }
 
-    static void erase(ThisCol& c,iterator beg,iterator end) {
+    static void erase(ThisCol& c,Iterator beg,Iterator end) {
         c.erase(beg,end);
     }
 
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         return c.front();
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.front();
     }
 
-    static value_type& last(ThisCol& c) {
+    static ValueType& last(ThisCol& c) {
         return c.back();
     }
 
-    static const_value_type& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         return c.back();
     }
 
@@ -166,10 +166,10 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 
 	typedef typename std::vector<T, Alloc<T> > const ThisCol;
 	typedef typename std::vector<T, Alloc<T> > const ConstCol;
-	typedef typename ThisCol::const_iterator iterator;
-	typedef typename ThisCol::const_iterator const_iterator;
-	typedef const T value_type;
-	typedef const T const_value_type;
+	typedef typename ThisCol::const_iterator Iterator;
+	typedef typename ThisCol::const_iterator ConstIterator;
+	typedef const T ValueType;
+	typedef const T ConstValueType;
 
     template <class V,class U = int>
 	static void add(ThisCol& c,V&& i) {
@@ -178,7 +178,7 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 	}
 
     template <class V,class U = int>
-    static void insert_at(ThisCol& c, iterator at, V&& v) {
+    static void insertAt(ThisCol& c, Iterator at, V&& v) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
@@ -204,57 +204,57 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 		return r;
 	}
 
-	static const_iterator begin(ConstCol& c) {
+	static ConstIterator begin(ConstCol& c) {
 		return c.cbegin();
 	}
 
-	static const_iterator end(ConstCol& c) {
+	static ConstIterator end(ConstCol& c) {
 		return c.cend();
 	}
 
-	static const_iterator cbegin(ConstCol& c) {
+	static ConstIterator cbegin(ConstCol& c) {
 		return c.cbegin();
 	}
 
-	static const_iterator cend(ConstCol& c) {
+	static ConstIterator cend(ConstCol& c) {
 		return c.cend();
 	}
 
-	static size_t getSize(ConstCol& c) {
+	static size_t size(ConstCol& c) {
 		return c.size();
 	}
 
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         return c[i];
     }
 
-    static iterator iter_at(ConstCol& c,size_t pos) {
+    static Iterator iterAt(ConstCol& c,size_t pos) {
         assert(c.size() >= pos && "Array index out of bounds.");
         return c.cbegin() + pos;
     }
 
-    static iterator citer_at(ConstCol& c,size_t pos) {
+    static Iterator citerAt(ConstCol& c,size_t pos) {
         assert(c.size() >= pos && "Array index out of bounds.");
         return c.cbegin() + pos;
     }
 
     template <class U = int>
-    static void erase(ThisCol& c,iterator pos) {
+    static void erase(ThisCol& c,Iterator pos) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
     template <class U = int>
-    static void erase(ThisCol& c,iterator beg,iterator end) {
+    static void erase(ThisCol& c,Iterator beg,Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.front();
     }
 
-    static const_value_type& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         return c.back();
     }
 

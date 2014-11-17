@@ -108,7 +108,7 @@ struct MapAdapter<
         return true;
     }
 
-    static size_t getSize(const ThisMap& h) {
+    static size_t size(const ThisMap& h) {
         return h.size();
     }
 

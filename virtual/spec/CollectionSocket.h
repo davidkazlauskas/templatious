@@ -27,12 +27,12 @@ namespace templatious {
 
 template <class T>
 struct CollectionSocket:
-    public Socket< typename adapters::CollectionAdapter<T>::value_type >
+    public Socket< typename adapters::CollectionAdapter<T>::ValueType >
 {
 private:
     T& _c;
     typedef adapters::CollectionAdapter<T> Ad;
-    typedef typename Ad::value_type ValueType;
+    typedef typename Ad::ValueType ValueType;
     static_assert(Ad::is_valid,
             "Collection passed to CollectionSocket has invalid adapter.");
 

@@ -37,7 +37,7 @@ struct Sizable: public T {
     Sizable(ThisCol& t) : T(t) {}
 
     size_t size() const {
-        return Ad::getSize(static_cast<ConstCol&>(cgetRef()));
+        return Ad::size(static_cast<ConstCol&>(cgetRef()));
     }
 
 protected:

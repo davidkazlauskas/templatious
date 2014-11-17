@@ -34,8 +34,8 @@ struct Range {
     struct PIterator;
 
     typedef typename adapters::CollectionAdapter<T> Ad;
-    typedef PIterator<typename Ad::iterator> iterator;
-    typedef PIterator<typename Ad::const_iterator> const_iterator;
+    typedef PIterator<typename Ad::Iterator> Iterator;
+    typedef PIterator<typename Ad::ConstIterator> ConstIterator;
     typedef IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
 
@@ -47,39 +47,39 @@ struct Range {
 
     typedef typename templatious::util::RefMaker<T>::val Ref;
     Ref _c;
-    iterator _b;
-    iterator _e;
+    Iterator _b;
+    Iterator _e;
 
     template <class V>
-    Range(V&& v,const iterator& b,const iterator& e) :
+    Range(V&& v,const Iterator& b,const Iterator& e) :
         _c(v), _b(b), _e(e)
     { }
 
     template <class V>
-    Range(V&& v,const iterator& b) :
+    Range(V&& v,const Iterator& b) :
         _c(v), _b(b),
         _e(Ad::end(std::forward<V>(v))) {}
 
 
-    iterator begin() {
+    Iterator begin() {
         return _b;
     }
 
-    iterator end() {
+    Iterator end() {
         return _e;
     }
 
-    const_iterator cbegin() {
+    ConstIterator cbegin() {
         return _b;
     }
 
-    const_iterator cend() {
+    ConstIterator cend() {
         return _e;
     }
 
-    iterator iterAt(size_t n) {
+    Iterator iterAt(size_t n) {
         if (!random_access_iterator) {
-            iterator res(_b);
+            Iterator res(_b);
             naiveIterAdvance(res,_e,n);
             return res;
         } else {
@@ -88,7 +88,7 @@ struct Range {
             typedef AdvancePicker<random_access_iterator> A;
             int mul = ProxUtil::get_mul(_c);
             A::adv(i,e,mul * n);
-            return iterator(i);
+            return Iterator(i);
         }
     }
 
@@ -141,7 +141,7 @@ struct Range {
             return &(this->_i);
         }
 
-        auto getInternal() 
+        auto getInternal()
             -> decltype(ProxUtil::iter_unwrap(_i))
         {
             return ProxUtil::iter_unwrap(_i);
@@ -216,48 +216,48 @@ struct CollectionAdapter< Range<T> > {
 
     typedef Range<T> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef typename ThisCol::iterator iterator;
-    typedef typename ThisCol::const_iterator const_iterator;
-    typedef typename ThisCol::Ad::value_type value_type;
-    typedef typename ThisCol::Ad::const_value_type const_value_type;
+    typedef typename ThisCol::Iterator Iterator;
+    typedef typename ThisCol::ConstIterator ConstIterator;
+    typedef typename ThisCol::Ad::ValueType ValueType;
+    typedef typename ThisCol::Ad::ConstValueType ConstValueType;
 
     static const bool floating_iterator = ThisCol::Ad::floating_iterator;
 
     template <class C>
-    static iterator begin(C&& c) {
+    static Iterator begin(C&& c) {
         return c.begin();
     }
 
     template <class C>
-    static iterator end(C&& c) {
+    static Iterator end(C&& c) {
         return c.end();
     }
 
-    static iterator cbegin(ThisCol& c) {
+    static Iterator cbegin(ThisCol& c) {
         return c.cbegin();
     }
 
-    static iterator cend(ThisCol& c) {
+    static Iterator cend(ThisCol& c) {
         return c.cend();
     }
 
     template <class C>
-    static iterator iter_at(C&& c,size_t i) {
+    static Iterator iterAt(C&& c,size_t i) {
         return c.iterAt(i);
     }
 
     template <class C,class V>
-    static void insert_at(C&& c,iterator i,V&& v) {
+    static void insertAt(C&& c,Iterator i,V&& v) {
         c.insert(i,std::forward<V>(v));
     }
 
     template <class C>
-    static void erase(C&& c, iterator i) {
+    static void erase(C&& c, Iterator i) {
         c.erase(i);
     }
 
     template <class C>
-    static void erase(C&& c, iterator beg, iterator end) {
+    static void erase(C&& c, Iterator beg, Iterator end) {
         c.erase(beg,end);
     }
 

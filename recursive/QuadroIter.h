@@ -32,9 +32,9 @@ struct QuadroIterator;
 template <class A>
 struct QuadroIterator<A> {
     typedef QuadroIterator<A> ThisIter;
-    typedef col::CollectionAdapter<A> Adapter;
-    typedef typename Adapter::iterator Iterator;
-    typedef typename Adapter::value_type ValType;
+    typedef templatious::adapters::CollectionAdapter<A> Adapter;
+    typedef typename Adapter::Iterator Iterator;
+    typedef typename Adapter::ValueType ValType;
 
     A& _c;
     Iterator _i;
@@ -85,9 +85,9 @@ template <class A, class... Tail>
 struct QuadroIterator<A, Tail...> {
     typedef QuadroIterator<A, Tail...> ThisIter;
     typedef QuadroIterator<Tail...> TailIter;
-    typedef col::CollectionAdapter<A> Adapter;
-    typedef typename Adapter::iterator Iterator;
-    typedef typename Adapter::value_type ValType;
+    typedef templatious::adapters::CollectionAdapter<A> Adapter;
+    typedef typename Adapter::Iterator Iterator;
+    typedef typename Adapter::ValueType ValType;
 
     A& _c;
     Iterator _i;

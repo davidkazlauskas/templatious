@@ -44,13 +44,13 @@ struct VIteratorBase {
 
 template <class T>
 struct VIteratorImpl:
-    public VIteratorBase< typename adapters::CollectionAdapter<T>::value_type >
+    public VIteratorBase< typename adapters::CollectionAdapter<T>::ValueType >
 {
     typedef typename adapters::CollectionAdapter<T> Ad;
-    typedef typename Ad::iterator iterator;
+    typedef typename Ad::Iterator Iterator;
 
     typedef VIteratorImpl<T> ThisIter;
-    typedef typename Ad::value_type ValType;
+    typedef typename Ad::ValueType ValType;
     typedef VIteratorBase<ValType> Base;
 
     template <class V>
@@ -88,15 +88,15 @@ struct VIteratorImpl:
 
     virtual ThisIter* clone() const {
         return new ThisIter(
-            static_cast<const iterator>(_i));
+            static_cast<const Iterator>(_i));
     }
 
-    iterator& internal() {
+    Iterator& internal() {
         return _i;
     }
 
 private:
-    iterator _i;
+    Iterator _i;
 };
 
 template <class T>

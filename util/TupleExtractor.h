@@ -30,7 +30,7 @@ struct TupleExtractor;
 
 template <class A,class ...Args>
 struct TupleExtractor<A,Args...> {
-    typedef typename templatious::adapters::CollectionAdapter<A>::value_type
+    typedef typename templatious::adapters::CollectionAdapter<A>::ValueType
         ValueType;
     typedef std::tuple<ValueType> ThisTuple;
 
@@ -46,7 +46,7 @@ struct TupleExtractor<A,Args...> {
 
 template <class A>
 struct TupleExtractor<A> {
-    typedef typename templatious::adapters::CollectionAdapter<A>::value_type
+    typedef typename templatious::adapters::CollectionAdapter<A>::ValueType
         ValueType;
     typedef std::tuple<ValueType> ThisTuple;
 

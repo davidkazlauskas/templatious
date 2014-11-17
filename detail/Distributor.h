@@ -226,7 +226,7 @@ namespace detail {
             typedef templatious::adapters::CollectionAdapter<T> Ad;
             namespace U = templatious::util;
             namespace UD = U::detail;
-            typedef U::IteratorPair<typename Ad::iterator> Pair;
+            typedef U::IteratorPair<typename Ad::Iterator> Pair;
 
             Pair pair(Ad::begin(std::forward<T>(p)),Ad::end(std::forward<T>(p)));
             auto cTer = UD::makeCompteratorV2( std::forward<Tail>(t)... );

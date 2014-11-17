@@ -31,8 +31,8 @@ template <class T>
 struct Traversable: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -47,7 +47,7 @@ struct Traversable: public T {
     }
 
     Iter iterAt(size_t idx) {
-        return Ad::iter_at(getRef(),idx);
+        return Ad::iterAt(getRef(),idx);
     }
 
     CIter cbegin() const {
@@ -59,7 +59,7 @@ struct Traversable: public T {
     }
 
     CIter citerAt(size_t idx) const {
-        return Ad::iter_at(
+        return Ad::iterAt(
             static_cast<ConstCol&>(getRef()),idx);
     }
 
@@ -78,8 +78,8 @@ template <class T>
 struct TraversableFake: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -124,8 +124,8 @@ template <class T>
 struct TraversableThrow: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 
@@ -175,8 +175,8 @@ template <class T>
 struct TraversablePrevent: public T {
     typedef typename T::Ad Ad;
 
-    typedef typename Ad::iterator Iter;
-    typedef typename Ad::const_iterator CIter;
+    typedef typename Ad::Iterator Iter;
+    typedef typename Ad::ConstIterator CIter;
     typedef typename Ad::ThisCol ThisCol;
     typedef typename Ad::ConstCol ConstCol;
 

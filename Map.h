@@ -61,8 +61,8 @@ struct Map {
         return Ad::put(_m,k,v);
     }
 
-    size_t getSize() {
-        return Ad::getSize(_m);
+    size_t size() {
+        return Ad::size(_m);
     }
 
 

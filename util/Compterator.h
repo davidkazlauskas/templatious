@@ -79,10 +79,10 @@ struct AdapterPairMaker {
     template <class T>
     static auto make(T&& t)
      -> IteratorPair<
-     typename templatious::adapters::CollectionAdapter<T>::iterator >
+     typename templatious::adapters::CollectionAdapter<T>::Iterator >
     {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
-        typedef typename Ad::iterator Iter;
+        typedef typename Ad::Iterator Iter;
         return IteratorPair<Iter>(
                 Ad::begin(std::forward<T>(t)),
                 Ad::end(std::forward<T>(t)) );
@@ -105,7 +105,7 @@ template <class T>
 auto begEndPair(T&& t)
  -> typename TypeSelector<
         templatious::adapters::CollectionAdapter<T>::is_valid,
-        IteratorPair< typename templatious::adapters::CollectionAdapter<T>::iterator >,
+        IteratorPair< typename templatious::adapters::CollectionAdapter<T>::Iterator >,
         T
     >::val
 {

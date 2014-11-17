@@ -80,14 +80,14 @@ struct HybridVector {
         }
 
         if (at < static_size) {
-            Ad::insert_at(
+            Ad::insertAt(
                     extra(),
                     Ad::begin(extra()),
                     _s.pop());
             _s.insert(at,e);
         } else {
-            auto i = Ad::iter_at(extra(),at - static_size);
-            Ad::insert_at(extra(),i,e);
+            auto i = Ad::iterAt(extra(),at - static_size);
+            Ad::insertAt(extra(),i,e);
         }
     }
 
@@ -97,47 +97,47 @@ struct HybridVector {
     }
 
     Iterator iterAt(ulong i) {
-        assert(i <= getSize());
+        assert(i <= size());
         return Iterator(*this,i);
     }
 
     ConstIterator citerAt(ulong i) {
-        assert(i <= getSize());
+        assert(i <= size());
         return ConstIterator(*this,i);
     }
 
     ValType& getByIndex(ulong i) {
-        if (i < _s.getSize()) {
+        if (i < _s.size()) {
             return _s.getByIndex(i);
         }
 
         return Ad::getByIndex(extra(),
-                i - _s.getSize());
+                i - _s.size());
     }
 
     void erase(const Iterator& beg,const Iterator& end) {
         assert(beg._pos < end._pos
                 && "Beggining iterator is greater than end.");
-        assert(end._pos <= getSize()
+        assert(end._pos <= size()
                 && "End iterator is out of bounds.");
 
         bool statTrimmed = false;
-        if (end._pos < _s.getSize()) {
+        if (end._pos < _s.size()) {
             _s.erase(_s.iterAt(beg._pos),_s.iterAt(end._pos));
 
             statTrimmed = true;
-        } else if (beg._pos < _s.getSize()) {
+        } else if (beg._pos < _s.size()) {
             assert(extraSize() > 0
                 && "Dynamic collection has to contain something.");
             _s.erase(_s.iterAt(beg._pos),_s.end());
             Ad::erase(extra(), Ad::begin(extra()),
-                    Ad::iter_at(extra(),end._pos - static_size));
+                    Ad::iterAt(extra(),end._pos - static_size));
 
             statTrimmed = true;
         } else {
             Ad::erase(extra(),
-                      Ad::iter_at(extra(), beg._pos - static_size),
-                      Ad::iter_at(extra(), end._pos - static_size));
+                      Ad::iterAt(extra(), beg._pos - static_size),
+                      Ad::iterAt(extra(), end._pos - static_size));
         }
 
         if (statTrimmed && extraSize() > 0) {
@@ -161,11 +161,11 @@ struct HybridVector {
     }
 
     Iterator end() {
-        return Iterator(*this,getSize());
+        return Iterator(*this,size());
     }
 
-    ulong getSize() const {
-        return _s.getSize() + extraSize();
+    ulong size() const {
+        return _s.size() + extraSize();
     }
 
     void clear() {
@@ -187,18 +187,18 @@ struct HybridVector {
             _v = &v;
             _pos = pos;
             if (nullptr != _v->_a) {
-                if (_pos <= _v->_s.getSize()) {
+                if (_pos <= _v->_s.size()) {
                     _i = Ad::begin(_v->_a);
                 } else {
-                    Ad::iter_at(_v->_a,
-                        _pos - _v->_s.getSize());
+                    Ad::iterAt(_v->_a,
+                        _pos - _v->_s.size());
                 }
             }
         }
 
         HvIterator& operator++() {
             ++_pos;
-            if (_pos > _v->_s.getSize()) {
+            if (_pos > _v->_s.size()) {
                 ++_i;
             }
 
@@ -214,7 +214,7 @@ struct HybridVector {
         }
 
         ValType& operator*() const {
-            if (_pos < _v->_s.getSize()) {
+            if (_pos < _v->_s.size()) {
                 return _v->_s.at(_pos);
             }
 
@@ -222,7 +222,7 @@ struct HybridVector {
         }
 
         ValType* operator->() const {
-            if (_pos < _v->_s.getSize()) {
+            if (_pos < _v->_s.size()) {
                 return &(_v->_s.at(_pos));
             }
 
@@ -232,7 +232,7 @@ struct HybridVector {
     private:
         ThisVector* _v;
         ulong _pos;
-        typename Ad::iterator _i;
+        typename Ad::Iterator _i;
 
     };
 
@@ -256,7 +256,7 @@ private:
             return 0;
         }
 
-        return Ad::getSize(_a);
+        return Ad::size(_a);
     }
 
 };
@@ -285,10 +285,10 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
 
     typedef HybridVector<T,sz,Additional,Alloc> ThisCol;
     typedef const ThisCol ConstCol;
-    typedef typename ThisCol::Iterator iterator;
-    typedef typename ThisCol::ConstIterator const_iterator;
-    typedef T value_type;
-    typedef const value_type const_value_type;
+    typedef typename ThisCol::Iterator Iterator;
+    typedef typename ThisCol::ConstIterator ConstIterator;
+    typedef T ValueType;
+    typedef const ValueType ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -296,28 +296,28 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i) {
+    static void insertAt(ThisCol& c, Iterator at, V&& i) {
         c.insert(at,std::forward<V>(i));
     }
 
-    static value_type& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, size_t i) {
         return c.getByIndex(i);
     }
 
-    static const_value_type& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
         return c.getByIndex(i);
     }
 
-    static size_t getSize(ConstCol& c) {
-        return c.getSize();
+    static size_t size(ConstCol& c) {
+        return c.size();
     }
 
-    static void erase(ThisCol& c,const iterator& pos) {
+    static void erase(ThisCol& c,const Iterator& pos) {
         c.erase(pos);
     }
 
-    static void erase(ThisCol& c, const iterator& beg,
-            const iterator& end)
+    static void erase(ThisCol& c, const Iterator& beg,
+            const Iterator& end)
     {
         c.erase(beg,end);
     }
@@ -354,56 +354,56 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
                        because it uses static array memory.");
     }
 
-    static iterator begin(ThisCol& c) {
+    static Iterator begin(ThisCol& c) {
         return c.begin();
     }
 
-    static iterator end(ThisCol& c) {
+    static Iterator end(ThisCol& c) {
         return c.end();
     }
 
-    static iterator iter_at(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, size_t i) {
         return c.iterAt(i);
     }
 
-    static const_iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator iter_at(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static value_type& first(ThisCol& c) {
+    static ValueType& first(ThisCol& c) {
         return c.getByIndex(0);
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.getByIndex(0);
     }
 
-    static value_type& last(ThisCol& c) {
-        return c.getByIndex(c.getSize() - 1);
+    static ValueType& last(ThisCol& c) {
+        return c.getByIndex(c.size() - 1);
     }
 
-    static const_value_type& last(ConstCol& c) {
-        return c.getByIndex(c.getSize() - 1);
+    static ConstValueType& last(ConstCol& c) {
+        return c.getByIndex(c.size() - 1);
     }
 
     static void clear(ThisCol& c) {
@@ -426,10 +426,10 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
 
     typedef const HybridVector<T,sz,Additional,Alloc> ThisCol;
     typedef ThisCol ConstCol;
-    typedef typename ThisCol::ConstIterator iterator;
-    typedef typename ThisCol::ConstIterator const_iterator;
-    typedef const T value_type;
-    typedef const T const_value_type;
+    typedef typename ThisCol::ConstIterator Iterator;
+    typedef typename ThisCol::ConstIterator ConstIterator;
+    typedef const T ValueType;
+    typedef const T ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
@@ -439,30 +439,30 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     }
 
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i) {
+    static void insertAt(ThisCol& c, Iterator at, V&& i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<V, false>::val,
                       "Const collection doesn't support insert.");
     }
 
     template <class U = int>
-    static const_value_type& getByIndex(ThisCol& c, size_t i) {
+    static ConstValueType& getByIndex(ThisCol& c, size_t i) {
         return c.getByIndex(i);
     }
 
-    static size_t getSize(ConstCol& c) {
-        return c.getSize();
+    static size_t size(ConstCol& c) {
+        return c.size();
     }
 
     template <class U = int>
-    static void erase(ThisCol& c, iterator pos) {
+    static void erase(ThisCol& c, Iterator pos) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
     }
 
     template <class U = int>
-    static void erase(ThisCol& c, iterator beg, iterator end) {
+    static void erase(ThisCol& c, Iterator beg, Iterator end) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
@@ -500,35 +500,35 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
                        because it uses static array memory.");
     }
 
-    static const_iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
-    static const_iterator iter_at(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_iterator cbegin(ConstCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static const_iterator cend(ConstCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
-    static const_iterator citer_at(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
-    static const_value_type& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.getByIndex(0);
     }
 
-    static const_value_type& last(ConstCol& c) {
-        return c.getByIndex(c.getSize() - 1);
+    static ConstValueType& last(ConstCol& c) {
+        return c.getByIndex(c.size() - 1);
     }
 
     template <class U = int>

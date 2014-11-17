@@ -41,7 +41,7 @@ struct SizeVerifier<A,Args...> {
         return false;
     }
 
-    SizeVerifier(A& a, Args&... args) : _size(SA::getSize(a)), _next(args...) {}
+    SizeVerifier(A& a, Args&... args) : _size(SA::size(a)), _next(args...) {}
 };
 
 template <class A>
@@ -50,7 +50,7 @@ struct SizeVerifier<A> {
 
     int _size;
 
-    SizeVerifier(A& a) : _size(SA::getSize(a)) {}
+    SizeVerifier(A& a) : _size(SA::size(a)) {}
 
     bool areAllEqual() {
         return true;

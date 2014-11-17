@@ -20,45 +20,45 @@ struct CollectionAdapter {
 
     typedef void* ThisCol;
     typedef const void* ConstCol;
-    typedef void* iterator;
-    typedef const void* const_iterator;
-    typedef void* value_type;
-    typedef const void* const_value_type;
+    typedef void* Iterator;
+    typedef const void* ConstIterator;
+    typedef void* ValueType;
+    typedef const void* ConstValueType;
 
     template <class V>
     static void add(ThisCol& c, V&& i);
     template <class V>
-    static void insert_at(ThisCol& c, iterator at, V&& i);
+    static void insertAt(ThisCol& c, Iterator at, V&& i);
 
-    static value_type& getByIndex(ThisCol& c, size_t i);
-    static const_value_type& getByIndex(ConstCol& c, size_t i);
+    static ValueType& getByIndex(ThisCol& c, size_t i);
+    static ConstValueType& getByIndex(ConstCol& c, size_t i);
 
-    static size_t getSize(ConstCol& c);
+    static size_t size(ConstCol& c);
 
-    static void erase(ThisCol& c, iterator i);
-    static void erase(ThisCol& c, iterator beg, iterator end);
+    static void erase(ThisCol& c, Iterator i);
+    static void erase(ThisCol& c, Iterator beg, Iterator end);
 
     static ThisCol instantiate();
     static ThisCol instantiate(size_t size);
     static ThisCol* instHeap();
     static ThisCol* instHeap(size_t size);
 
-    static iterator begin(ThisCol& c);
-    static iterator end(ThisCol& c);
-    static iterator iter_at(ThisCol& c, size_t i);
+    static Iterator begin(ThisCol& c);
+    static Iterator end(ThisCol& c);
+    static Iterator iterAt(ThisCol& c, size_t i);
 
-    static iterator begin(ConstCol& c);
-    static iterator end(ConstCol& c);
-    static iterator iter_at(ConstCol& c, size_t i);
+    static ConstIterator begin(ConstCol& c);
+    static ConstIterator end(ConstCol& c);
+    static ConstIterator iterAt(ConstCol& c, size_t i);
 
-    static const_iterator cbegin(ConstCol& c);
-    static const_iterator cend(ConstCol& c);
-    static const_iterator citer_at(ConstCol& c, size_t i);
+    static ConstIterator cbegin(ConstCol& c);
+    static ConstIterator cend(ConstCol& c);
+    static ConstIterator citerAt(ConstCol& c, size_t i);
 
-    static value_type& first(ThisCol& c);
-    static const_value_type& first(ConstCol& c);
-    static value_type& last(ThisCol& c);
-    static const_value_type& last(ConstCol& c);
+    static ValueType& first(ThisCol& c);
+    static ConstValueType& first(ConstCol& c);
+    static ValueType& last(ThisCol& c);
+    static ConstValueType& last(ConstCol& c);
 
     static void clear(ThisCol& c);
     static bool canAdd(ConstCol& c);
