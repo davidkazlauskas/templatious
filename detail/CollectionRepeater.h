@@ -346,7 +346,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static const ValueType& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -360,7 +360,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static const ValueType& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -513,7 +513,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static const ValueType& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -527,7 +527,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static const ValueType& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");

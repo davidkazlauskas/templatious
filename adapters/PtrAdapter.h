@@ -103,7 +103,7 @@ struct CollectionAdapter<T*> {
         return Inner::first(*c);
     }
 
-    static const ValueType& first(ConstCol c) {
+    static ConstValueType& first(ConstCol c) {
         return Inner::first(*c);
     }
 
@@ -111,7 +111,7 @@ struct CollectionAdapter<T*> {
         return Inner::last(*c);
     }
 
-    static const ValueType& last(ConstCol c) {
+    static ConstValueType& last(ConstCol c) {
         return Inner::last(*c);
     }
 
@@ -310,7 +310,7 @@ struct CollectionAdapter<T&> {
         return Inner::first(c);
     }
 
-    static const ValueType& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
@@ -318,7 +318,7 @@ struct CollectionAdapter<T&> {
         return Inner::last(c);
     }
 
-    static const ValueType& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         return Inner::last(c);
     }
 
@@ -519,7 +519,7 @@ struct CollectionAdapter<T&&> {
         return Inner::first(c);
     }
 
-    static const ValueType& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
@@ -527,7 +527,7 @@ struct CollectionAdapter<T&&> {
         return Inner::last(c);
     }
 
-    static const ValueType& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         return Inner::last(c);
     }
 
@@ -630,7 +630,7 @@ struct CollectionAdapter<const T&&> {
         return Inner::first(c);
     }
 
-    static const ValueType& first(CRCol c) {
+    static ConstValueType& first(CRCol c) {
         return Inner::first(c);
     }
 
@@ -638,7 +638,7 @@ struct CollectionAdapter<const T&&> {
         return Inner::last(c);
     }
 
-    static const ValueType& last(CRCol c) {
+    static ConstValueType& last(CRCol c) {
         return Inner::last(c);
     }
 

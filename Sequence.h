@@ -402,7 +402,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static const ValueType& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
@@ -418,7 +418,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static const ValueType& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \

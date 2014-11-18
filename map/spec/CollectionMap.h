@@ -76,14 +76,14 @@ struct CollectionMap {
         }
         return false;
     }
-    
+
     ValueType& get(const KeyType& k) {
         for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
             if (_comp((*i).first,k)) {
                 return (*i).second;
             }
         }
-        
+
         assert(false);
     }
 
@@ -94,7 +94,7 @@ struct CollectionMap {
                 return false;
             }
         }
-        
+
         SA::add(_col,std::make_pair(k,v));
         return true;
     }

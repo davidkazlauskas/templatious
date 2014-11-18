@@ -112,7 +112,6 @@ struct MapAdapter<
         return h.size();
     }
 
-    
 };
 
 

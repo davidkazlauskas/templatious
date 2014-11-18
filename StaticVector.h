@@ -420,7 +420,7 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.at(0);
     }
 
-    static const ValueType& first(ConstCol& c) {
+    static ConstValueType& first(ConstCol& c) {
         return c.at(0);
     }
 
@@ -428,7 +428,7 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.at(c.size() - 1);
     }
 
-    static const ValueType& last(ConstCol& c) {
+    static ConstValueType& last(ConstCol& c) {
         return c.at(c.size() - 1);
     }
 

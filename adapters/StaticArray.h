@@ -42,7 +42,7 @@ struct CollectionAdapter< T[sz] > {
 	typedef const ValueType ConstValueType;
 
     template <class U = int>
-    static bool add(T c[size_const], const ValueType& i) {
+    static bool add(T c[size_const], ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
@@ -119,7 +119,7 @@ struct CollectionAdapter< T[sz] > {
         return c[0];
     }
 
-    static const ValueType& first(const T c[size_const]) {
+    static ConstValueType& first(const T c[size_const]) {
         return c[0];
     }
 
@@ -127,12 +127,12 @@ struct CollectionAdapter< T[sz] > {
         return c[size_const - 1];
     }
 
-    static const ValueType& last(const T c[size_const]) {
+    static ConstValueType& last(const T c[size_const]) {
         return c[size_const - 1];
     }
 
     template <class U = int>
-    static bool insertAt(T c, Iterator at, const ValueType& i) {
+    static bool insertAt(T c, Iterator at, ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Insert not supported as static array doesn't hold any state.");
@@ -163,7 +163,7 @@ struct CollectionAdapter< const T[sz] > {
 	typedef ValueType ConstValueType;
 
     template <class U = int>
-    static bool add(T c[size_const], const ValueType& i) {
+    static bool add(T c[size_const], ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
@@ -241,7 +241,7 @@ struct CollectionAdapter< const T[sz] > {
     }
 
     template <class U = int>
-    static bool insertAt(T c, Iterator at, const ValueType& i) {
+    static bool insertAt(T c, Iterator at, ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Insert not supported as static array doesn't hold any state.");
