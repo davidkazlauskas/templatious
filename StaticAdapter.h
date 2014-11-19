@@ -77,7 +77,11 @@ struct add_custom< AdditionVariant::Collection > {
         typedef templatious::adapters::CollectionAdapter<const U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
         static_assert(AdU::is_valid, "Adapter not supported.");
-        for (auto i = AdU::begin(u); i != AdU::end(u); ++i) {
+        // cache end because compiler doesn't
+        // seem to optimize out adapter end calls
+        // on rvalue case.
+        auto e = AdU::end(u);
+        for (auto i = AdU::begin(u); i != e; ++i) {
             AdT::add(t, f(*i));
         }
     }
