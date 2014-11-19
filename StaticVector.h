@@ -201,7 +201,7 @@ struct StaticVector {
 
     template <bool isConst>
     struct SvIterator {
-        typedef typename templatious::util::TypeSelector<isConst,const T,T>::val ValType;
+        typedef typename std::conditional<isConst,const T,T>::type ValType;
         typedef SvIterator<isConst> Iterator;
 
         SvIterator(ValType* vct,ulong size) :

@@ -177,8 +177,8 @@ struct HybridVector {
 
     template <bool isConst>
     struct HvIterator {
-        typedef typename templatious::util::TypeSelector<
-            isConst,const T,T>::val ValType;
+        typedef typename std::conditional<
+            isConst,const T,T>::type ValType;
         typedef HvIterator<isConst> Iterator;
 
         friend class HybridVector<T,sz,Additional,Alloc>;

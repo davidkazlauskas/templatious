@@ -47,23 +47,6 @@ namespace util {
         enum { val = falseVal };
     };
 
-    template <
-        bool isTrue,
-        class TrueType,
-        class FalseType
-    >
-    struct TypeSelector;
-
-    template <class TrueType,class FalseType>
-    struct TypeSelector<true,TrueType,FalseType> {
-        typedef TrueType val;
-    };
-
-    template <class TrueType,class FalseType>
-    struct TypeSelector<false,TrueType,FalseType> {
-        typedef FalseType val;
-    };
-
     // IS VOID
     template <class T>
     struct IsVoid {

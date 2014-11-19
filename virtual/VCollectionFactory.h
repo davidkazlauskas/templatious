@@ -71,13 +71,13 @@ struct VCollectionFactory {
     typedef T ThisCol;
     typedef const T ConstCol;
 
-    typedef typename templatious::util::TypeSelector<
+    typedef typename std::conditional<
         copy,
         templatious::vmodular::Root<
             ThisCol,templatious::util::CopyContainer>,
         templatious::vmodular::Root<
             ThisCol,templatious::util::RefContainer>
-    >::val Root;
+    >::type Root;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(SP_ENABLED,templatious::vmodular::Sizable<Root>),

@@ -74,28 +74,28 @@ namespace detail {
         >
         static CountType step(Func&& f,P&& p,C& compterator) {
             typedef typename std::decay<decltype(p)>::type PType;
-            typedef typename templatious::util::TypeSelector<
+            typedef typename std::conditional<
                 C::last || i == PType::size - 1,
                 CatchAllStepper,
                 TailStepper
-            >::val TailStepper;
+            >::type TailStepper;
 
-            typedef typename templatious::util::TypeSelector<
+            typedef typename std::conditional<
                 i == PType::size - 1,
                 CatchAllStepper,
                 ForwardStepper
-            >::val FwdStepper;
+            >::type FwdStepper;
 
             namespace U = templatious::util;
             typedef decltype(compterator._p) ValType;
 
             static const bool isIterPair = U::IsIteratorPair<ValType>::value;
 
-            typedef typename templatious::util::TypeSelector<
+            typedef typename std::conditional<
                 isIterPair,
                 IterActions,
                 ValActions
-            >::val Actions;
+            >::type Actions;
 
             bool res = Actions::template assign<i>(
                     std::forward<Func>(f),

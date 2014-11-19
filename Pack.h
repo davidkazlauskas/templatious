@@ -280,40 +280,44 @@ struct Pack<StoragePolicy,A,Tail...> {
     template <int i>
     auto get()
      -> decltype(
-         templatious::util::TypeSelector<!IsP::val && i == 0,
+         std::conditional<!IsP::val && i == 0,
              ThisValGetter,
-             typename templatious::util::TypeSelector<
+             typename std::conditional<
                  i < IsP::size,
                  ThisValGetterRec,
                  TailValGetter
-             >::val
-         >::val::template get<i>( std::declval<ThisPack&>() )
+             >::type
+         >::type::template get<i>( std::declval<ThisPack&>() )
              )
     {
         static_assert(i >= 0,"Pack access index cannot be less than zero.");
 
-        typedef typename templatious::util::TypeSelector<!IsP::val && i == 0,
+        typedef typename std::conditional<!IsP::val && i == 0,
             ThisValGetter,
-            typename templatious::util::TypeSelector<
+            typename std::conditional<
                 i < IsP::size,
                 ThisValGetterRec,
                 TailValGetter
-            >::val
-        >::val Getter;
+            >::type
+        >::type Getter;
         return Getter::template get<i>(*this);
     }
 
     template <int i>
     auto flatGet()
-     -> decltype( templatious::util::TypeSelector< i == 0,
+     -> decltype(
+     std::conditional<
+        i == 0,
         ThisValGetter,
-        TailValGetterFlat>::val::template get<i>( std::declval<ThisPack&>() ) )
+        TailValGetterFlat
+     >::type::template get<i>( std::declval<ThisPack&>() ) )
     {
         static_assert(i >= 0,"Pack access index cannot be less than zero.");
-        typedef typename templatious::util::TypeSelector<
+        typedef typename std::conditional<
             i == 0,
             ThisValGetter,
-            TailValGetterFlat>::val Getter;
+            TailValGetterFlat
+        >::type Getter;
         return Getter::template get<i>(*this);
     }
 
@@ -453,16 +457,16 @@ struct Pack<StoragePolicy,A> {
     template <int i>
     auto get()
      -> decltype(
-         templatious::util::TypeSelector<IsP::val,
+         std::conditional<IsP::val,
              ThisValGetterRec,ThisValGetter
-         >::val::template get<i>( std::declval<ThisPack&>() )
+         >::type::template get<i>( std::declval<ThisPack&>() )
          )
     {
         static_assert(i >= 0,"Pack access index cannot be less than zero.");
         static_assert(i < IsP::size,"Trying get element past size of a Pack.");
 
-        typedef typename templatious::util::TypeSelector<IsP::val,
-            ThisValGetterRec,ThisValGetter>::val Getter;
+        typedef typename std::conditional<IsP::val,
+            ThisValGetterRec,ThisValGetter>::type Getter;
         return Getter::template get<i>(*this);
     }
 

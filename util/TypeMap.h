@@ -44,10 +44,10 @@ struct NumTypeMap< NumTypeKeyValue<K,V>, Other... >
 
     template <int i,class FalseType>
     struct getType {
-        typedef typename TypeSelector< i == Node::Key,
+        typedef typename std::conditional< i == Node::Key,
             typename Node::Value,
             typename Child::template getType<i,FalseType>::val
-        >::val val;
+        >::type val;
     };
 };
 
@@ -58,10 +58,10 @@ struct NumTypeMap< NumTypeKeyValue<K,V> >
 
     template <int i,class FalseType>
     struct getType {
-        typedef typename TypeSelector< i == Node::Key,
+        typedef typename std::conditional< i == Node::Key,
             typename Node::Value,
             FalseType
-        >::val val;
+        >::type val;
     };
 };
 
@@ -88,10 +88,10 @@ struct TypeToTypeMap< TypeToTypeKeyValue<K,V>, Other... >
 
     template <class i,class FalseType>
     struct getType {
-        typedef typename TypeSelector< std::is_same<i,typename Node::Key>::value,
+        typedef typename std::conditional< std::is_same<i,typename Node::Key>::value,
             typename Node::Value,
             typename Child::template getType<i,FalseType>::val
-        >::val val;
+        >::type val;
     };
 };
 
@@ -102,10 +102,10 @@ struct TypeToTypeMap< TypeToTypeKeyValue<K,V> >
 
     template <class i,class FalseType>
     struct getType {
-        typedef typename TypeSelector< std::is_same<i,typename Node::Key>::value,
+        typedef typename std::conditional< std::is_same<i,typename Node::Key>::value,
             typename Node::Value,
             FalseType
-        >::val val;
+        >::type val;
     };
 };
 

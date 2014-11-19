@@ -103,18 +103,18 @@ struct ValCopyMaker {
 
 template <class T>
 auto begEndPair(T&& t)
- -> typename TypeSelector<
+ -> typename std::conditional<
         templatious::adapters::CollectionAdapter<T>::is_valid,
         IteratorPair< typename templatious::adapters::CollectionAdapter<T>::Iterator >,
         T
-    >::val
+    >::type
 {
     typedef templatious::adapters::CollectionAdapter<T> Ad;
 
-    typedef typename TypeSelector< Ad::is_valid,
+    typedef typename std::conditional< Ad::is_valid,
             AdapterPairMaker,
             ValCopyMaker
-        >::val Maker;
+        >::type Maker;
     return Maker::make(std::forward<T>(t));
 }
 
@@ -207,25 +207,25 @@ namespace detail {
         static const int passI = (isP && isNotLast? thisI + 1 : -1);
         static const bool moveForward = isLast || !isP;
 
-        typedef typename templatious::util::TypeSelector<
+        typedef typename std::conditional<
                 isP,
                 PackGetAlg,
-                typename templatious::util::TypeSelector<
+                typename std::conditional<
                     isC,
                     IterPairGetAlg,
                     ValGetAlg
-                >::val
-            >::val GetType;
+                >::type
+            >::type GetType;
 
-        typedef typename templatious::util::TypeSelector<
+        typedef typename std::conditional<
                 terminate,
                 TerminateStepper,
-                typename templatious::util::TypeSelector<
+                typename std::conditional<
                     moveForward,
                     FwdStepper,
                     SameStepper
-                >::val
-            >::val Stepper;
+                >::type
+            >::type Stepper;
 
         template <class Cn,class... Tn>
         static auto dispatch(Cn&& c,Tn&&... t)

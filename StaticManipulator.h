@@ -368,12 +368,13 @@ public:
     template <class T,class V>
     static void set(T&& t,V& col) {
         typedef typename templatious::adapters::CollectionAdapter<V> Ad;
-        typedef typename templatious::util::TypeSelector< Ad::is_valid,
+        typedef typename std::conditional< Ad::is_valid,
                 detail::SetImplCollection,
-                typename templatious::util::TypeSelector< detail::IsPack<V>::val,
+                typename std::conditional< detail::IsPack<V>::val,
                 detail::SetImplPack,
-                detail::SetImplVariable>::val
-            >::val Impl;
+                detail::SetImplVariable
+            >::type
+        >::type Impl;
 
         Impl::impl(std::forward<T>(t),col);
     }

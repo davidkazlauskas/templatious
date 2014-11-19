@@ -100,25 +100,26 @@ struct SeqL : public SeqBase<T> {
     typedef T Unit;
     typedef SeqL<T> ThisLoop;
     typedef SeqBase<T> Base;
-    typedef typename templatious::util::TypeSelector<
+    typedef typename std::conditional<
             Base::is_signed,ThisLoop,
-                typename templatious::util::TypeSelector<
+                typename std::conditional<
                     !isReversed,SeqL<T,true>,SeqL<T,false>
-                >::val
-        >::val RevType;
-    typedef typename templatious::util::TypeSelector<
-        Base::is_signed,SeqIter<T>,
-                typename templatious::util::TypeSelector<
-                    !isReversed,SeqIter<T>,SeqIter<T,false>
-                >::val
-        >::val ThisIter;
+                >::type
+        >::type RevType;
 
-    typedef typename templatious::util::TypeSelector<
+    typedef typename std::conditional<
+        Base::is_signed,SeqIter<T>,
+                typename std::conditional<
+                    !isReversed,SeqIter<T>,SeqIter<T,false>
+                >::type
+        >::type ThisIter;
+
+    typedef typename std::conditional<
         Base::is_signed,SeqIter<const T>,
-                typename templatious::util::TypeSelector<
+                typename std::conditional<
                     !isReversed,SeqIter<const T>,SeqIter<const T,false>
-                >::val
-        >::val ConstIter;
+                >::type
+        >::type ConstIter;
 
     SeqL(Unit end) {
         _beg = 0;
