@@ -22,10 +22,14 @@
 #include <utility>
 
 #include <templatious/util/RefMaker.h>
+#include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
 namespace templatious {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( FilterPastEndIterationException,
+    "Trying to iterate past end of filter.");
 
 template <class T,class Fn>
 struct Filter {
@@ -113,7 +117,10 @@ struct Filter {
         }
 
         ThisIter& operator++() {
-            assert(_e != _i && "Trying to iterate past end of filter.");
+            if (_e == _i) {
+                throw FilterPastEndIterationException();
+            }
+
             do {
                 ++_i;
             } while (_e != _i && !_fn(*_i));

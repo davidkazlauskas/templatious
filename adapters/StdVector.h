@@ -47,7 +47,9 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 
     template <class V>
     static void insertAt(ThisCol& c, Iterator at, V&& v) {
-        assert(at >= begin(c) && at < end(c));
+        if (at < begin(c) || at >= end(c)) {
+            throw CollectionAdapterIteratorOutOfBoundsException();
+        }
 
         c.insert(at,std::forward<V>(v));
     }
@@ -82,17 +84,23 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	}
 
     static Iterator iterAt(ThisCol& c,size_t pos) {
-        assert(c.size() >= pos && "Array index out of bounds.");
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
         return c.begin() + pos;
     }
 
     static ConstIterator iterAt(ConstCol& c,size_t pos) {
-        assert(c.size() >= pos && "Array index out of bounds.");
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
         return c.cbegin() + pos;
     }
 
     static ConstIterator citerAt(ConstCol& c,size_t pos) {
-        assert(c.size() >= pos && "Array index out of bounds.");
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
         return c.cbegin() + pos;
     }
 
@@ -229,12 +237,16 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
     }
 
     static Iterator iterAt(ConstCol& c,size_t pos) {
-        assert(c.size() >= pos && "Array index out of bounds.");
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
         return c.cbegin() + pos;
     }
 
     static Iterator citerAt(ConstCol& c,size_t pos) {
-        assert(c.size() >= pos && "Array index out of bounds.");
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
         return c.cbegin() + pos;
     }
 

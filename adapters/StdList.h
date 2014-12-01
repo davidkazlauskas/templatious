@@ -87,7 +87,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 	}
 
 	static ValueType& getByIndex(ThisCol& c,int i) {
-        assert(size(c) > i);
+        if (size(c) <= i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
 
         int count = 0;
         auto iter = begin(c);
@@ -100,7 +102,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
 	static ConstValueType& getByIndex(ConstCol& c,int i) {
-        assert(size(c) > i);
+        if (size(c) <= i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
 
         int count = 0;
         auto iter = cbegin(c);
@@ -121,7 +125,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static Iterator iterAt(ThisCol& c,size_t i) {
-        assert(size(c) >= i);
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
 
         int count = 0;
         auto iter = begin(c);
@@ -134,7 +140,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static ConstIterator iterAt(ConstCol& c,size_t i) {
-        assert(size(c) >= i);
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
 
         int count = 0;
         auto iter = cbegin(c);
@@ -147,7 +155,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static ConstIterator citerAt(ConstCol& c,size_t i) {
-        assert(size(c) >= i);
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
 
         int count = 0;
         auto iter = cbegin(c);
@@ -250,7 +260,9 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 	}
 
     static ConstValueType& getByIndex(ThisCol& c, size_t i) {
-        assert(size(c) > i);
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
 
         int count = 0;
         auto iter = begin(c);
@@ -287,7 +299,9 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
     }
 
     static ConstIterator citerAt(ConstCol& c,size_t i) {
-        assert(size(c) > i);
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
 
         int count = 0;
         auto iter = cbegin(c);

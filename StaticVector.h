@@ -23,8 +23,20 @@
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/Sugar.h>
+#include <templatious/util/Exceptions.h>
 
 namespace templatious {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorSpaceException,
+    "Initial static array size cannot be larger than a capacity.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorFullAddException,
+    "Trying to add to a full vector.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorOutOfBoundsException,
+    "Operation goes out of bounds of vector.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEmptyPopException,
+    "Trying to pop an empty vector.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEraseException,
+    "Element erase exception.");
 
 template <class T,size_t sz>
 struct StaticVector {
@@ -45,13 +57,16 @@ struct StaticVector {
     StaticVector(T (&vct)[size_const],ulong currCnt) :
         _vct(vct), _cnt(currCnt)
     {
-        assert(currCnt <= size_const
-            && "Initial static array size cannot be larger than a capacity.");
+        if (currCnt > size_const) {
+            throw StaticVectorSpaceException();
+        }
     }
 
     template <class V>
     void push(V&& e) {
-        assert(!isFull() && "Trying to push to a full vector.");
+        if (isFull()) {
+            throw StaticVectorFullAddException();
+        }
 
         _vct[_cnt++] = std::forward<V>(e);
     }
@@ -63,8 +78,12 @@ struct StaticVector {
 
     template <class V>
     void insert(ulong at,V&& e) {
-        assert(!isFull() && "Trying to insert to a full vector.");
-        assert(at <= _cnt && "Insertion point cannot be past the end of the vector.");
+        if (isFull()) {
+            throw StaticVectorFullAddException();
+        }
+        if (at > _cnt) {
+            throw StaticVectorOutOfBoundsException();
+        }
 
         ++_cnt;
         TEMPLATIOUS_FOREACH(auto i,
@@ -90,12 +109,16 @@ struct StaticVector {
     }
 
     T&& pop() {
-        assert(_cnt > 0 && "Trying to pop an empty vector.");
+        if (_cnt <= 0) {
+            throw StaticVectorEmptyPopException();
+        }
         return std::move(_vct[--_cnt]);
     }
 
     T&& pop_first() {
-        assert(_cnt > 0 && "Trying to pop an empty vector.");
+        if (_cnt <= 0) {
+            throw StaticVectorEmptyPopException();
+        }
         T res = std::move(_vct[0]);
         --_cnt;
         TEMPLATIOUS_FOREACH(auto i,templatious::SeqL<ulong>(_cnt)) {
@@ -119,26 +142,21 @@ struct StaticVector {
     }
 
     Iterator iterAt(ulong pos) const {
-        assert(pos <= _cnt && "Position cannot be greater than size");
+        if (pos > _cnt) {
+            throw StaticVectorOutOfBoundsException();
+        }
         return Iterator(_vct,_cnt,pos);
     }
 
     ConstIter citerAt(ulong pos) const {
-        assert(pos <= _cnt && "Position cannot be greater than size");
+        if (pos > _cnt) {
+            throw StaticVectorOutOfBoundsException();
+        }
         return ConstIter(_vct,_cnt,pos);
     }
 
     void erase(const Iterator& beg,const Iterator& end) {
-        assert(_vct == beg._vct && _cnt == beg._size
-                && "Begginning iterator does not belong to this vector.");
-        assert(_vct == end._vct && _cnt == end._size
-                && "End iterator does not belong to this vector.");
-        assert(beg._iter < end._iter
-                && "Beggining is greater than end.");
-        assert(beg._iter < _cnt
-                && "Beginning does not belong in the vector.");
-        assert(end._iter <= _cnt
-                && "End goes past end of the vector.");
+        eraseAssertions(beg,end);
 
         Iterator j = beg;
         for (auto i = end; i != this->end(); ++i) {
@@ -162,8 +180,9 @@ struct StaticVector {
     }
 
     T& at(ulong pos) const {
-        assert(pos >= 0 && pos < _cnt && pos < size_const
-                && "Requested position out of bounds.");
+        if (!(pos >= 0 && pos < _cnt && pos < size_const)) {
+            StaticVectorOutOfBoundsException();
+        }
         return _vct[pos];
     }
 
@@ -258,12 +277,16 @@ struct StaticVector {
         }
 
         ValType& operator*() const {
-            assert(_iter < _size && "Iterator out of bounds.");
+            if (_iter >= _size) {
+                StaticVectorOutOfBoundsException();
+            }
             return _vct[_iter];
         }
 
         ValType* operator->() const {
-            assert(_iter < _size && "Iterator out of bounds.");
+            if (_iter >= _size) {
+                StaticVectorOutOfBoundsException();
+            }
             return &_vct[_iter];
         }
 
@@ -292,6 +315,32 @@ private:
     T* _vct;
     ulong _cnt;
 
+    void eraseAssertions(const Iterator& beg,const Iterator& end) {
+        if (!(_vct == beg._vct && _cnt == beg._size)) {
+            throw StaticVectorEraseException(
+            "Begginning iterator does not belong to this vector.");
+        }
+
+        if (!(_vct == end._vct && _cnt == end._size)) {
+            throw StaticVectorEraseException(
+            "End iterator does not belong to this vector.");
+        }
+
+        if (beg._iter >= end._iter) {
+            throw StaticVectorEraseException(
+            "Beggining is greater than end.");
+        }
+
+        if (beg._iter >= _cnt) {
+            throw StaticVectorEraseException(
+            "Beginning does not belong in the vector.");
+        }
+
+        if (end._iter > _cnt) {
+            throw StaticVectorEraseException(
+            "End goes past end of the vector.");
+        }
+    }
 
 };
 

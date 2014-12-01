@@ -25,16 +25,26 @@ namespace templatious {
 namespace util {
 
 struct FeatureDisabled: public std::exception {
-
     FeatureDisabled() : _w("Feature disabled.") {}
-
     FeatureDisabled(const char* msg) : _w(msg) {}
-
-    virtual const char* what() const throw() {
+    virtual const char* what() const noexcept override {
         return _w;
     }
 private:
     const char* _w;
+};
+
+
+#define TEMPLATIOUS_BOILERPLATE_EXCEPTION(name,message) \
+struct name : public std::exception {                   \
+    name() : _w(message) {}                             \
+    name(const char* customMsg) : _w(customMsg) {}      \
+    virtual ~name() {}                                  \
+    const char* what() const noexcept override {        \
+        return _w;                                      \
+    }                                                   \
+private:                                                \
+    const char* _w;                                     \
 };
 
 }

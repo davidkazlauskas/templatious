@@ -32,6 +32,7 @@
 #include <templatious/detail/OnceTraversable.h>
 #include <templatious/detail/PackFunctor.h>
 #include <templatious/detail/CollectionRepeater.h>
+#include <templatious/util/Functions.h>
 
 namespace templatious {
 
@@ -42,8 +43,8 @@ struct StaticFactory {
         template <class...> class Collection,
         template <class> class Allocator = std::allocator
     >
-    static auto makeCollection() 
-    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make()) 
+    static auto makeCollection()
+    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make())
     {
         typedef typename templatious::adapters::CollectionMaker<Val,Collection,Allocator> Maker;
         static_assert(Maker::is_maker_valid,"Collection maker is invalid.");
@@ -56,8 +57,8 @@ struct StaticFactory {
         template <class...> class Collection,
         template <class> class Allocator = std::allocator
     >
-    static auto makeCollection(size_t size) 
-    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make(size)) 
+    static auto makeCollection(size_t size)
+    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make(size))
     {
         templatious::adapters::CollectionMaker<Val,Collection,Allocator> mk;
         return mk.make(size);
@@ -71,7 +72,7 @@ struct StaticFactory {
         template <class> class Allocator = std::allocator
     >
     static auto makeMap()
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make()) 
+    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make())
     {
         templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk;
         return mk.make();
@@ -84,8 +85,8 @@ struct StaticFactory {
         class Hash = templatious::util::Hasher<Key>,
         template <class> class Allocator = std::allocator
     >
-    static auto makeMap(const Hash& h) 
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make()) 
+    static auto makeMap(const Hash& h)
+    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make())
     {
         templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make();
@@ -98,8 +99,8 @@ struct StaticFactory {
         class Hash = templatious::util::Hasher<Key>,
         template <class> class Allocator = std::allocator
     >
-    static auto makeMap(size_t size) 
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make(size)) 
+    static auto makeMap(size_t size)
+    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make(size))
     {
         templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk;
         return mk.make(size);
@@ -112,8 +113,8 @@ struct StaticFactory {
         class Hash = templatious::util::Hasher<Key>,
         template <class> class Allocator = std::allocator
     >
-    static auto makeMap(const Hash& h,size_t size) 
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make(size)) 
+    static auto makeMap(const Hash& h,size_t size)
+    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make(size))
     {
         templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make(size);
@@ -166,7 +167,10 @@ struct StaticFactory {
     static auto seqI(const T& start,const T& end,const T& step)
      -> templatious::SeqL<T>
     {
-        assert((end - start) % step == 0 && "Ending of loop is not included with this step.");
+        if ((end - start) % step != 0) {
+            throw IncorrectBoundsException();
+        }
+
         if (start <= end) {
             return templatious::SeqL<T>(start,end + step,step);
         } else {

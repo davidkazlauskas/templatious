@@ -22,7 +22,12 @@
 namespace templatious {
 namespace adapters {
 
+#include <cstddef>
 #include <templatious/util/Comparator.h>
+#include <templatious/util/Exceptions.h>
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( MapAdapterNoSuchElementException,
+    "Element doesn't exist in a map.");
 
 template <class T>
 struct MapAdapter {

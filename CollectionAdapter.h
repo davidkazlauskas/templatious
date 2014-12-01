@@ -8,10 +8,18 @@
 #include <initializer_list>
 
 #include <templatious/util/Selectors.h>
+#include <templatious/util/Exceptions.h>
 #include <templatious/util/Comparator.h>
 
 namespace templatious {
 namespace adapters {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( CollectionAdapterNoSuchElementException,
+    "Trying to get non-existing element in a collection.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( CollectionAdapterNoSuchIteratorException,
+    "Trying to get non-existing iterator in a collection.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( CollectionAdapterIteratorOutOfBoundsException,
+    "Iterator passed doesn't belong to collection.");
 
 template <class T>
 struct CollectionAdapter {

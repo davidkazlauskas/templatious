@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/StaticAdapter.h>
 
@@ -281,7 +282,7 @@ struct AdvancePicker<false> {
         if (i > end) {
             i = end;
         }
-        assert(i <= end && "Advanced past end.");
+        assert(i <= end && "What the flock?..");
     }
 
 };

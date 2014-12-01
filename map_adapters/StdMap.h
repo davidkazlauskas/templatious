@@ -98,7 +98,9 @@ struct MapAdapter<
     }
 
     static ValueType& get(ThisMap& h,const KeyType& k) {
-        assert(keyExists(h,k));
+        if (!keyExists(h,k)) {
+            throw MapAdapterNoSuchElementException();
+        }
 
         return h[k];
     }

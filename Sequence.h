@@ -20,8 +20,7 @@
 #define LOOP_U82GY31R
 
 #include <limits>
-#include <assert.h>
-#include <templatious/Utilities.h>
+#include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {
@@ -37,6 +36,17 @@ template <class T = int,bool isReversed = false>
 struct SeqL;
 
 typedef SeqL<int> Loop;
+
+// Sequence exceptions
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(IllogicalSequenceException,
+    "Sequence is illogical.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(IncorrectBoundsException,
+    "Include sequence doesn't include last element.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(IteratorPastEndException,
+    "Iterator goes past end of a sequence.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(UnsignedSequenceException,
+    "Unsigned loop can only move forward."
+    " (if you want unsigned loop to go backwards reverse forward loop)");
 // ----------------------------------- FORWARD
 
 template <class T,bool addOnIncrement>
@@ -186,8 +196,6 @@ struct SeqL : public SeqBase<T> {
 
     template <class U = int>
     RevType rev() const {
-        //static_assert(templatious::util::DummyResolver<U, Base::is_signed >::val,
-                      //"Unsigned loop cannot be reversed.");
         if (!Base::is_signed) {
             return RevType(_beg,_end,_step);
         }
@@ -205,12 +213,16 @@ struct SeqL : public SeqBase<T> {
 
     ThisIter iterAt(Unit i) const {
         ThisIter res(_beg + i * _step,_step);
-        assert(res <= end() && "Iterator goes past end of loop.");
+        if (res > end()) {
+            throw IteratorPastEndException();
+        }
     }
 
     ConstIter citerAt(Unit i) const {
         ConstIter res(_beg + i * _step,_step);
-        assert(res <= end() && "Iterator goes past end of loop.");
+        if (res > end()) {
+            throw IteratorPastEndException();
+        }
     }
 
 private:
@@ -240,13 +252,15 @@ private:
 
     void loopAssert() const {
         if (!Base::is_signed) {
-            assert(_beg <= _end
-                && "Unsigned loop can only move forward."
-                " (if you want unsigned loop to go backwards reverse forward loop)");
+            if (_beg > _end) {
+                throw UnsignedSequenceException();
+            }
         } else {
-            assert( ((_beg <= _end && _step > 0)
-                 || (_beg >= _end && _step < 0))
-                 && "Loop is illogical.");
+            bool cond = (_beg <= _end && _step > 0)
+                 || (_beg >= _end && _step < 0);
+            if (!cond) {
+                throw IllogicalSequenceException();
+            }
         }
 
     }

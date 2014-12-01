@@ -22,10 +22,14 @@
 #include <utility>
 
 #include <templatious/util/RefMaker.h>
+#include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
 namespace templatious {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( SkipperInvalidAssignmentException,
+    "Skipper iterator can only be assigned iterator from same original collection.");
 
 template <class T>
 struct Skipper {
@@ -119,7 +123,9 @@ struct Skipper {
             _i = rhs._i;
             _sk = rhs._sk;
 
-            assert(&_p == &rhs._p);
+            if (std::addressof(_p) != std::addressof(rhs._p)) {
+                throw SkipperInvalidAssignmentException();
+            }
             return *this;
         }
 
