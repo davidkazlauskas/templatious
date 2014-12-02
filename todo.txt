@@ -55,7 +55,7 @@ features:
 #53. encapsulate functor which calls pack
 #54. quadro return times traversed
 #55. dummy var which can be assigned anything
-56. proxy classes should use storage policy for functions and collections
+#56. proxy classes should use storage policy for functions and collections
 57. MULTIRATOR!!
 
 compatibility:
