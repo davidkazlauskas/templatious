@@ -218,58 +218,69 @@ struct StaticFactory {
         >(n,std::forward<T>(c));
     }
 
-    template <class T>
+    template <class T,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::Iterator b,
         typename adapters::CollectionAdapter<T>::Iterator e)
-            -> templatious::Range<T>
+            -> templatious::Range<T,StoragePolicy>
     {
-        return Range<T>(std::forward<T>(t),b,e);
+        return Range<T,StoragePolicy>(std::forward<T>(t),b,e);
     }
 
-    template <class T>
+    template <class T,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::Iterator b)
-            -> templatious::Range<T>
+            -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
-        return Range<T>(std::forward<T>(t),b);
+        return Range<decltype(std::forward<T>(t)),StoragePolicy>(
+            std::forward<T>(t),b);
     }
 
-    template <class T>
+    template <class T,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto range(T&& t,
         size_t b, size_t e)
-            -> templatious::Range<T>
+            -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        return Range<T>(std::forward<T>(t),
-                Ad::iterAt(std::forward<T>(t),b),
-                Ad::iterAt(std::forward<T>(t),e));
+        return Range<decltype(std::forward<T>(t)),StoragePolicy>(
+            std::forward<T>(t),
+            Ad::iterAt(std::forward<T>(t),b),
+            Ad::iterAt(std::forward<T>(t),e));
     }
 
-    template <class T>
+    template <class T,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto range(T&& t,
         size_t b)
-            -> Range<T>
+            -> Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
-        return Range<T>(std::forward<T>(t),
-                Ad::iterAt(std::forward<T>(t),b));
+        return Range<decltype(std::forward<T>(t)),StoragePolicy>(
+            std::forward<T>(t),
+            Ad::iterAt(std::forward<T>(t),b));
     }
 
-    template <class T,class Fun>
+    template <class T,class Fun,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto filter(T&& t,Fun&& f)
-        -> Filter<T,Fun>
+        -> Filter<decltype(std::forward<T>(t)),Fun,StoragePolicy>
     {
-        return Filter<T,Fun>(
-                std::forward<T>(t),
-                std::forward<Fun>(f));
+        return Filter<
+                decltype(std::forward<T>(t)),
+                Fun,StoragePolicy
+        >(  std::forward<T>(t),
+            std::forward<Fun>(f));
     }
 
-    template <class T>
+    template <class T,template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy>
     static auto skip(T&& t,size_t sz)
-        -> Skipper<T>
+        -> Skipper<decltype(std::forward<T>(t)),StoragePolicy>
     {
-        return Skipper<T>(
+        return Skipper<decltype(std::forward<T>(t)),StoragePolicy>(
                 std::forward<T>(t),
                 sz);
     }

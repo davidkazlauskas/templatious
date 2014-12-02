@@ -154,6 +154,21 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return iter;
     }
 
+    static Iterator iterAt(ThisCol&& c,size_t i) {
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
+        int count = 0;
+        auto iter = begin(c);
+        while (count < i) {
+            ++iter;
+            ++count;
+        }
+
+        return iter;
+    }
+
     static ConstIterator citerAt(ConstCol& c,size_t i) {
         if (size(c) < i) {
             throw CollectionAdapterNoSuchIteratorException();

@@ -97,6 +97,13 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
         return c.cbegin() + pos;
     }
 
+    static Iterator iterAt(ThisCol&& c,size_t pos) {
+        if (c.size() < pos) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+        return c.begin() + pos;
+    }
+
     static ConstIterator citerAt(ConstCol& c,size_t pos) {
         if (c.size() < pos) {
             throw CollectionAdapterNoSuchIteratorException();

@@ -440,6 +440,8 @@ struct CollectionAdapter<T&&> {
     typedef const T ConstCol;
     typedef ThisCol& RCol;
     typedef ConstCol& CRCol;
+    typedef ThisCol&& RVCol;
+    typedef ConstCol&& CRVCol;
     typedef typename Inner::Iterator Iterator;
     typedef typename Inner::ConstIterator ConstIterator;
     typedef typename Inner::ValueType ValueType;
@@ -499,7 +501,19 @@ struct CollectionAdapter<T&&> {
         return Inner::end(c);
     }
 
+    static Iterator begin(RVCol c) {
+        return Inner::begin(c);
+    }
+
+    static Iterator end(RVCol c) {
+        return Inner::end(c);
+    }
+
     static Iterator iterAt(RCol c,size_t i) {
+        return Inner::iterAt(c,i);
+    }
+
+    static Iterator iterAt(RVCol c,size_t i) {
         return Inner::iterAt(c,i);
     }
 

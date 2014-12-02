@@ -21,7 +21,6 @@
 
 #include <utility>
 
-#include <templatious/util/RefMaker.h>
 #include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
@@ -31,7 +30,7 @@ namespace templatious {
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( FilterPastEndIterationException,
     "Trying to iterate past end of filter.");
 
-template <class T,class Fn>
+template <class T,class Fn,template <class> class StoragePolicy>
 struct Filter {
 
     template <class I,class Fun>
@@ -49,7 +48,7 @@ struct Filter {
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
 
-    typedef typename templatious::util::RefMaker<T>::val Ref;
+    typedef typename StoragePolicy<T>::Container Ref;
     Ref _c;
     Fn _fn;
     Iterator _b;
@@ -57,13 +56,13 @@ struct Filter {
 
     template <class V,class FnRef>
     Filter(V&& v,FnRef&& fn) :
-        _c(v),
+        _c(std::forward<V>(v)),
         _fn(std::forward<FnRef>(fn)),
-        _b(Ad::begin(std::forward<V>(v)),
-            Ad::end(std::forward<V>(v)),
+        _b(Ad::begin(_c.getRef()),
+            Ad::end(_c.getRef()),
             std::forward<FnRef>(fn)),
-        _e(Ad::end(std::forward<V>(v)),
-            Ad::end(std::forward<V>(v)),
+        _e(Ad::end(_c.getRef()),
+            Ad::end(_c.getRef()),
             std::forward<FnRef>(fn))
      {
          if (!fn(*_b)) {
@@ -101,7 +100,7 @@ struct Filter {
         Fun _fn;
 
     public:
-        friend struct Filter<T,Fun>;
+        friend struct Filter<T,Fun,StoragePolicy>;
 
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
@@ -160,9 +159,9 @@ struct Filter {
     }
 
     auto getInternal()
-        -> decltype(ProxUtil::unwrap(_c))&
+        -> decltype(ProxUtil::unwrap(_c.getRef()))&
     {
-        return ProxUtil::unwrap(_c);
+        return ProxUtil::unwrap(_c.getRef());
     }
 
     template <class V>
@@ -177,8 +176,8 @@ struct Filter {
 
 };
 
-template <class T,class Fn>
-struct IsProxy< Filter< T,Fn > > {
+template <class T,class Fn,template <class> class StoragePolicy>
+struct IsProxy< Filter< T,Fn,StoragePolicy > > {
     static const bool val = true;
     static const bool random_access_iterator = false;
 
@@ -213,12 +212,12 @@ struct IsProxy< Filter< T,Fn > > {
 };
 
 namespace adapters {
-template <class T,class Fn>
-struct CollectionAdapter< Filter<T,Fn> > {
+template <class T,class Fn,template <class> class StoragePolicy>
+struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
 
     static const bool is_valid = true;
 
-    typedef Filter<T,Fn> ThisCol;
+    typedef Filter<T,Fn,StoragePolicy> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::Iterator Iterator;
     typedef typename ThisCol::ConstIterator ConstIterator;

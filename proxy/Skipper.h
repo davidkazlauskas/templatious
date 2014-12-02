@@ -21,7 +21,6 @@
 
 #include <utility>
 
-#include <templatious/util/RefMaker.h>
 #include <templatious/util/Exceptions.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
@@ -31,7 +30,7 @@ namespace templatious {
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( SkipperInvalidAssignmentException,
     "Skipper iterator can only be assigned iterator from same original collection.");
 
-template <class T>
+template <class T,template <class> class StoragePolicy>
 struct Skipper {
 
     template <class I>
@@ -51,7 +50,7 @@ struct Skipper {
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
 
-    typedef typename templatious::util::RefMaker<T>::val Ref;
+    typedef typename StoragePolicy<T>::Container Ref;
     Ref _c;
     Iterator _b;
     Iterator _e;
@@ -59,9 +58,9 @@ struct Skipper {
 
     template <class V>
     Skipper(V&& v,size_t sz) :
-        _c(v),
-        _b(*this,SA::begin(v),sz),
-        _e(*this,SA::end(v),sz),
+        _c(std::forward<V>(v)),
+        _b(*this,SA::begin(_c.getRef()),sz),
+        _e(*this,SA::end(_c.getRef()),sz),
         _sk(sz)
     { }
 
@@ -90,7 +89,7 @@ struct Skipper {
             auto i = _b._i;
             auto e = _e._i;
             typedef AdvancePicker<!random_access_iterator> A;
-            int mul = _sk * ProxUtil::get_mul(_c);
+            int mul = _sk * ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(*this,i,_sk);
         }
@@ -99,9 +98,9 @@ struct Skipper {
     template <class I>
     struct PIterator {
     private:
-        typedef Skipper<T> Parent;
+        typedef Skipper<T,StoragePolicy> Parent;
         typedef Parent::ProxUtil ProxUtil;
-        friend struct Skipper<T>;
+        friend struct Skipper<T,StoragePolicy>;
 
         Parent& _p;
         I _i;
@@ -145,11 +144,6 @@ struct Skipper {
             return *this;
         }
 
-        //ThisIter& operator--() {
-            //--_i;
-            //return *this;
-        //}
-
         bool operator==(const ThisIter& rhs) const {
             return _i == rhs._i;
         }
@@ -183,13 +177,13 @@ struct Skipper {
     }
 
     auto getInternal()
-        -> decltype(ProxUtil::unwrap(_c))
+        -> decltype(ProxUtil::unwrap(_c.getRef()))
     {
-        return ProxUtil::unwrap(_c);
+        return ProxUtil::unwrap(_c.getRef());
     }
 
     int getMul() {
-        return ProxUtil::get_mul(_c);
+        return ProxUtil::get_mul(_c.getRef());
     }
 
     template <class V>
@@ -203,8 +197,8 @@ struct Skipper {
     }
 };
 
-template <class T>
-struct IsProxy< Skipper< T > > {
+template <class T,template <class> class StoragePolicy>
+struct IsProxy< Skipper< T,StoragePolicy > > {
     typedef IsProxy<T> Internal;
     static const bool val = true;
 
@@ -239,12 +233,12 @@ struct IsProxy< Skipper< T > > {
 
 namespace adapters {
 
-template <class T>
-struct CollectionAdapter< Skipper<T> > {
+template <class T,template <class> class StoragePolicy>
+struct CollectionAdapter< Skipper<T,StoragePolicy> > {
 
     static const bool is_valid = true;
 
-    typedef Skipper<T> ThisCol;
+    typedef Skipper<T,StoragePolicy> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::Iterator Iterator;
     typedef typename ThisCol::ConstIterator ConstIterator;
@@ -270,10 +264,6 @@ struct CollectionAdapter< Skipper<T> > {
     static Iterator cend(ThisCol& c) {
         return c.cend();
     }
-
-    //static Iterator iterAt(ThisCol& c,size_t i) {
-        //return c.iterAt(i);
-    //}
 
     template <class V>
     static Iterator iterAt(V&& c,size_t i) {

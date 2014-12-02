@@ -21,13 +21,12 @@
 
 #include <utility>
 
-#include <templatious/util/RefMaker.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
 namespace templatious {
 
-template <class T>
+template <class T, template <class> class StoragePolicy>
 struct Range {
 
     template <class I>
@@ -45,20 +44,20 @@ struct Range {
 
     static_assert(Ad::is_valid,"Adapter is invalid.");
 
-    typedef typename templatious::util::RefMaker<T>::val Ref;
+    typedef typename StoragePolicy<T>::Container Ref;
     Ref _c;
     Iterator _b;
     Iterator _e;
 
     template <class V>
     Range(V&& v,const Iterator& b,const Iterator& e) :
-        _c(v), _b(b), _e(e)
+        _c(std::forward<V>(v)), _b(b), _e(e)
     { }
 
     template <class V>
     Range(V&& v,const Iterator& b) :
-        _c(v), _b(b),
-        _e(Ad::end(std::forward<V>(v))) {}
+        _c(std::forward<V>(v)), _b(b),
+        _e(_c.getRef()) {}
 
 
     Iterator begin() {
@@ -86,7 +85,7 @@ struct Range {
             auto i = iterUnwrap(_b);
             auto e = iterUnwrap(_e);
             typedef AdvancePicker<random_access_iterator> A;
-            int mul = ProxUtil::get_mul(_c);
+            int mul = ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(i);
         }
@@ -155,13 +154,13 @@ struct Range {
     }
 
     auto getInternal()
-        -> decltype(ProxUtil::unwrap(_c))
+        -> decltype(ProxUtil::unwrap(_c.getRef()))
     {
-        return ProxUtil::unwrap(_c);
+        return ProxUtil::unwrap(_c.getRef());
     }
 
     int getMul() {
-        return ProxUtil::get_mul(_c);
+        return ProxUtil::get_mul(_c.getRef());
     }
 
     template <class V>
@@ -175,8 +174,8 @@ struct Range {
     }
 };
 
-template <class T>
-struct IsProxy< Range< T > > {
+template <class T, template <class> class StoragePolicy>
+struct IsProxy< Range< T, StoragePolicy > > {
     static const bool val = true;
     static const bool random_access_iterator =
         IsProxy< T >::random_access_iterator;
@@ -209,12 +208,12 @@ struct IsProxy< Range< T > > {
 
 namespace adapters {
 
-template <class T>
-struct CollectionAdapter< Range<T> > {
+template <class T, template <class> class StoragePolicy>
+struct CollectionAdapter< Range<T, StoragePolicy> > {
 
     static const bool is_valid = true;
 
-    typedef Range<T> ThisCol;
+    typedef Range<T, StoragePolicy> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::Iterator Iterator;
     typedef typename ThisCol::ConstIterator ConstIterator;
