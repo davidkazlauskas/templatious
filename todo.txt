@@ -57,6 +57,8 @@ features:
 #55. dummy var which can be assigned anything
 #56. proxy classes should use storage policy for functions and collections
 57. MULTIRATOR!!
+58. select - type exchange collection
+59. make static array looser (eliminate constant only size knowledge)
 
 compatibility:
 

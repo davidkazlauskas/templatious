@@ -92,6 +92,10 @@ struct Filter {
         return res;
     }
 
+    int size() const {
+        return -1;
+    }
+
     template <class I,class Fun>
     struct PIterator {
     private:
@@ -267,6 +271,11 @@ struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
     template <class C>
     static void clear(C&& c) {
         c.clear();
+    }
+
+    template <class C>
+    static int size(C&& c) {
+        return c.size();
     }
 
     template <class V = int>

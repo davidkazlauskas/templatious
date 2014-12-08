@@ -41,7 +41,7 @@ struct CollectionAdapter {
     static ValueType& getByIndex(ThisCol& c, size_t i);
     static ConstValueType& getByIndex(ConstCol& c, size_t i);
 
-    static size_t size(ConstCol& c);
+    static int size(ConstCol& c);
 
     static void erase(ThisCol& c, Iterator i);
     static void erase(ThisCol& c, Iterator beg, Iterator end);

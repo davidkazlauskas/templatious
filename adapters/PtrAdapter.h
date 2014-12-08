@@ -56,7 +56,7 @@ struct CollectionAdapter<T*> {
         return Inner::getByIndex(*c,i);
     }
 
-    static size_t size(ThisCol c) {
+    static int size(ThisCol c) {
         return Inner::size(*c);
     }
 
@@ -154,7 +154,7 @@ struct CollectionAdapter<const T*> {
         return Inner::getByIndex(*c,i);
     }
 
-    static size_t size(ConstCol c) {
+    static int size(ConstCol c) {
         return Inner::size(*c);
     }
 
@@ -254,11 +254,11 @@ struct CollectionAdapter<T&> {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t size(RCol c) {
+    static int size(RCol c) {
         return Inner::size(c);
     }
 
-    static size_t size(CRCol c) {
+    static int size(CRCol c) {
         return Inner::size(c);
     }
 
@@ -363,7 +363,7 @@ struct CollectionAdapter<const T&> {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t size(CRCol c) {
+    static int size(CRCol c) {
         return Inner::size(c);
     }
 
@@ -465,11 +465,11 @@ struct CollectionAdapter<T&&> {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t size(RCol c) {
+    static int size(RCol c) {
         return Inner::size(c);
     }
 
-    static size_t size(CRCol c) {
+    static int size(CRCol c) {
         return Inner::size(c);
     }
 
@@ -588,11 +588,11 @@ struct CollectionAdapter<const T&&> {
         return Inner::getByIndex(c,i);
     }
 
-    static size_t size(RCol c) {
+    static int size(RCol c) {
         return Inner::size(c);
     }
 
-    static size_t size(CRCol c) {
+    static int size(CRCol c) {
         return Inner::size(c);
     }
 

@@ -74,7 +74,7 @@ struct CollectionAdapter< Socket<T> > {
     }
 
     template <class U = int>
-    static size_t size(ConstCol& c) {
+    static int size(ConstCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Socket class can only be added to.");

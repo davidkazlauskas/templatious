@@ -77,7 +77,7 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.cgetByIndex(i);
     }
 
-    static size_t size(ConstCol& c) {
+    static int size(ConstCol& c) {
         return c.size();
     }
 
@@ -206,7 +206,7 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
         return c.cgetByIndex(i);
     }
 
-    static size_t size(ConstCol& c) {
+    static int size(ConstCol& c) {
         return c.size();
     }
 

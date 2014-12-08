@@ -103,7 +103,7 @@ struct CollectionMap {
         SA::clear(_col);
     }
 
-    size_t size() const {
+    int size() const {
         return SA::size(_col);
     }
 };
@@ -149,7 +149,7 @@ struct MapAdapter< templatious::CollectionMap<Key,Value,Coll,Comparator,Alloc> >
         h.clear();
     }
 
-    static size_t size(const ThisMap& h) {
+    static int size(const ThisMap& h) {
         return h.size();
     }
 

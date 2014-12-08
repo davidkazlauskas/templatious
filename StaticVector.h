@@ -381,7 +381,7 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.at(i);
     }
 
-    static size_t size(const ThisCol& c) {
+    static int size(const ThisCol& c) {
         return c.size();
     }
 
@@ -516,7 +516,7 @@ struct CollectionAdapter< const StaticVector<T,sz> > {
         return c.at(i);
     }
 
-    static size_t size(const ThisCol& c) {
+    static int size(const ThisCol& c) {
         return c.size();
     }
 

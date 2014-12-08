@@ -61,7 +61,7 @@ struct Map {
         return Ad::put(_m,k,v);
     }
 
-    size_t size() {
+    int size() {
         return Ad::size(_m);
     }
 

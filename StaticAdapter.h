@@ -191,7 +191,7 @@ struct StaticAdapter {
     }
 
     template <class T>
-    static size_t size(const T& c) {
+    static int size(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::size(c);

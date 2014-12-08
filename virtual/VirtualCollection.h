@@ -58,7 +58,7 @@ struct VCollectionBase {
     virtual const T& clast() const = 0;
 
     virtual bool canAdd() const = 0;
-    virtual size_t size() const = 0;
+    virtual int size() const = 0;
 
     virtual bool equals(ThisCol& c) const = 0;
     virtual bool equals(ThisCol* c) const = 0;
@@ -171,7 +171,7 @@ struct VCollectionImpl:
         return Ad::canAdd(_ref);
     }
 
-    virtual size_t size() const {
+    virtual int size() const {
         return Ad::size(_ref);
     }
 
@@ -298,7 +298,7 @@ struct VCollection {
         return _b->canAdd();
     }
 
-    size_t size() const {
+    int size() const {
         return _b->size();
     }
 
@@ -347,7 +347,7 @@ struct CollectionAdapter< VCollection<T> > {
         return c.getByIndex(i);
     }
 
-    static size_t size(ConstCol& c) {
+    static int size(ConstCol& c) {
         return c.size();
     }
 

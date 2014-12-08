@@ -263,7 +263,7 @@ public:
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
-        size_t size = SA::size(ut::getFirst(std::forward<Args>(args)...));
+        int size = SA::size(ut::getFirst(std::forward<Args>(args)...));
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
         auto result = CA::instantiate(size);
 

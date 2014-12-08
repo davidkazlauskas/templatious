@@ -57,7 +57,7 @@ struct CollectionAdapter< T[sz] > {
         return c[i];
     }
 
-    static size_t size(const T c[size_const]) {
+    static int size(const T c[size_const]) {
         return size_const;
     }
 
@@ -174,7 +174,7 @@ struct CollectionAdapter< const T[sz] > {
         return c[i];
     }
 
-    static size_t size(const T c[size_const]) {
+    static int size(const T c[size_const]) {
         return size_const;
     }
 
