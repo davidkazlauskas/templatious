@@ -28,11 +28,15 @@
 
 namespace templatious {
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( ProxyClearedUsageException,
+    "Cleared proxy cannot be traversed anymore." );
+
 template <class T>
 struct IsProxy {
     static const bool val = false;
 
     typedef adapters::CollectionAdapter<T> Ad;
+    typedef typename Ad::ConstIterator ConstIterator;
     typedef T ICollection;
     typedef Ad IAdapter;
 
@@ -52,6 +56,15 @@ struct IsProxy {
     template <class U>
     static Dist get_mul(U&& u) {
         return 1;
+    }
+
+    template <class U>
+    static void tag_cleared(U&& u) { }
+
+    template <class Iter>
+    static ConstIterator const_iter_cast(Iter&& i)
+    {
+        return ConstIterator(std::forward<Iter>(i));
     }
 };
 
@@ -89,6 +102,18 @@ struct IsProxy<T&&> {
         return Internal::get_mul(
                 std::forward<U>(u));
     }
+
+    template <class U>
+    static void tag_cleared(U&& u) {
+        Internal::tag_cleared(std::forward<U>(u));
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(Internal::const_iter_cast(std::forward<Iter>(i)))
+    {
+        return Internal::const_iter_cast(std::forward<Iter>(i));
+    }
 };
 
 template <class T>
@@ -124,6 +149,18 @@ struct IsProxy<const T&&> {
     static Dist get_mul(U&& u) {
         return Internal::get_mul(
                 std::forward<U>(u));
+    }
+
+    template <class U>
+    static void tag_cleared(U&& u) {
+        Internal::tag_cleared(std::forward<U>(u));
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(Internal::const_iter_cast(std::forward<Iter>(i)))
+    {
+        return Internal::const_iter_cast(std::forward<Iter>(i));
     }
 };
 
@@ -161,6 +198,18 @@ struct IsProxy<T&> {
         return Internal::get_mul(
                 std::forward<U>(u));
     }
+
+    template <class U>
+    static void tag_cleared(U&& u) {
+        Internal::tag_cleared(std::forward<U>(u));
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(Internal::const_iter_cast(std::forward<Iter>(i)))
+    {
+        return Internal::const_iter_cast(std::forward<Iter>(i));
+    }
 };
 
 template <class T>
@@ -196,6 +245,18 @@ struct IsProxy<const T&> {
     static Dist get_mul(U&& u) {
         return Internal::get_mul(
                 std::forward<U>(u));
+    }
+
+    template <class U>
+    static void tag_cleared(U&& u) {
+        Internal::tag_cleared(std::forward<U>(u));
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(Internal::const_iter_cast(std::forward<Iter>(i)))
+    {
+        return Internal::const_iter_cast(std::forward<Iter>(i));
     }
 };
 
@@ -278,6 +339,9 @@ struct AdvancePicker<false> {
 
     template <class T>
     static void adv(T& i,const T& end,size_t t) {
+        // std::advance could be used but
+        // assumption is made that ONLY
+        // random access iterator will be used here
         i += t;
         if (i > end) {
             i = end;

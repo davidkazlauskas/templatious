@@ -35,4 +35,5 @@
 #include <templatious/util/ArgumentMultiplier.h>
 #include <templatious/util/DefaultStoragePolicy.h>
 #include <templatious/util/CallCountFunctor.h>
+#include <templatious/util/IteratorTagExtractor.h>
 

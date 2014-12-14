@@ -41,6 +41,7 @@ struct Filter {
     typedef PIterator<typename Ad::ConstIterator,Fn> ConstIterator;
     typedef IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
+    typedef Filter<T,Fn,StoragePolicy> ThisFilter;
 
     static const bool proxy_inside = ProxUtil::val;
     static const bool floating_iterator = Ad::floating_iterator;
@@ -49,10 +50,31 @@ struct Filter {
     static_assert(Ad::is_valid,"Adapter is invalid.");
 
     typedef typename StoragePolicy<T>::Container Ref;
+    typedef typename StoragePolicy<Fn>::Container Fun;
+
+#ifndef TEMPLATIOUS_TESTING
+private:
+#endif
+
     Ref _c;
-    Fn _fn;
+    Fun _fn;
     Iterator _b;
     Iterator _e;
+    bool _cleared;
+
+    void assertUncleared() const {
+        if (_cleared) {
+            throw ProxyClearedUsageException();
+        }
+    }
+
+    void tagCleared() {
+        _cleared = true;
+    }
+
+#ifndef TEMPLATIOUS_TESTING
+public:
+#endif
 
     template <class V,class FnRef>
     Filter(V&& v,FnRef&& fn) :
@@ -63,37 +85,71 @@ struct Filter {
             std::forward<FnRef>(fn)),
         _e(Ad::end(_c.getRef()),
             Ad::end(_c.getRef()),
-            std::forward<FnRef>(fn))
-     {
-         if (!fn(*_b)) {
-             ++_b;
-         }
-     }
+            std::forward<FnRef>(fn)),
+        _cleared(false)
+    {
+        if (!_fn.getRef()(*_b)) {
+            ++_b;
+        }
+    }
+
+    Filter(ThisFilter&& other)
+        : _c(other._c.cpy()),
+          _fn(other._fn.cpy()),
+          _b(Ad::begin(_c.getRef()),
+              Ad::end(_c.getRef()),
+              _fn.getRef()),
+          _e(Ad::end(_c.getRef()),
+              Ad::end(_c.getRef()),
+              _fn.cpy()),
+          _cleared(other._cleared)
+    {
+        if (!_fn.getRef()(*_b)) {
+            ++_b;
+        }
+    }
 
     Iterator begin() {
+        assertUncleared();
         return _b;
     }
 
     Iterator end() {
+        assertUncleared();
         return _e;
     }
 
-    ConstIterator cbegin() {
-        return _b;
+    ConstIterator cbegin() const {
+        assertUncleared();
+        return ConstIterator(
+            ProxUtil::const_iter_cast(_b._i),
+            ProxUtil::const_iter_cast(_b._e),
+            _b._fn
+        );
     }
 
-    ConstIterator cend() {
-        return _e;
+    ConstIterator cend() const {
+        assertUncleared();
+        return ConstIterator(
+            ProxUtil::const_iter_cast(_e._i),
+            ProxUtil::const_iter_cast(_e._e),
+            _e._fn
+        );
     }
 
     Iterator iterAt(size_t i) {
+        assertUncleared();
         auto res(_b);
         naiveIterAdvance(res,_e,i);
         return res;
     }
 
     int size() const {
-        return -1;
+        if (!_cleared) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
     template <class I,class Fun>
@@ -101,10 +157,14 @@ struct Filter {
     private:
         I _i;
         I _e;
-        Fun _fn;
+        typedef typename StoragePolicy<Fn>::Container Func;
+        Func _fn;
 
-    public:
         friend struct Filter<T,Fun,StoragePolicy>;
+
+        template <class V>
+        friend struct IsProxy;
+    public:
 
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
@@ -126,7 +186,7 @@ struct Filter {
 
             do {
                 ++_i;
-            } while (_e != _i && !_fn(*_i));
+            } while (_e != _i && !_fn.getRef()(*_i));
             return *this;
         }
 
@@ -159,6 +219,8 @@ struct Filter {
 
     void clear() {
         clearRoutine<floating_iterator>(*this);
+        tagCleared();
+        ProxUtil::tag_cleared(_c.getRef());
         _b._i = _e._i;
     }
 
@@ -182,6 +244,9 @@ struct Filter {
 
 template <class T,class Fn,template <class> class StoragePolicy>
 struct IsProxy< Filter< T,Fn,StoragePolicy > > {
+    typedef IsProxy<T> Internal;
+    typedef Filter<T,Fn,StoragePolicy> ThisCol;
+    typedef typename ThisCol::ConstIterator ConstIterator;
     static const bool val = true;
     static const bool random_access_iterator = false;
 
@@ -213,6 +278,28 @@ struct IsProxy< Filter< T,Fn,StoragePolicy > > {
     static int get_mul(C&& a) {
         return -1;
     }
+
+    template <class U>
+    static void tag_cleared(U& u) {
+        u.tagCleared();
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(
+        ConstIterator(
+            Internal::const_iter_cast(i._i),
+            Internal::const_iter_cast(i._e),
+            i._fn
+        )
+     )
+    {
+        return ConstIterator(
+            Internal::const_iter_cast(i._i),
+            Internal::const_iter_cast(i._e),
+            i._fn
+        );
+    }
 };
 
 namespace adapters {
@@ -240,11 +327,11 @@ struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
         return c.end();
     }
 
-    static Iterator cbegin(ThisCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static Iterator cend(ThisCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 

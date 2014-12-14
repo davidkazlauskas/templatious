@@ -22,6 +22,7 @@
 #include <utility>
 
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/IteratorTagExtractor.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/proxy/Picker.h>
 
@@ -33,12 +34,15 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION( SkipperInvalidAssignmentException,
 template <class T,template <class> class StoragePolicy>
 struct Skipper {
 
-    template <class I>
+    template <class I,class Parent>
     struct PIterator;
 
     typedef typename adapters::CollectionAdapter<T> Ad;
-    typedef PIterator<typename Ad::Iterator> Iterator;
-    typedef PIterator<typename Ad::ConstIterator> ConstIterator;
+    typedef Skipper<T,StoragePolicy> ThisSkipper;
+    typedef const ThisSkipper ConstSkipper;
+
+    typedef PIterator<typename Ad::Iterator,ThisSkipper> Iterator;
+    typedef PIterator<typename Ad::ConstIterator,ConstSkipper> ConstIterator;
     typedef IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
 
@@ -51,36 +55,76 @@ struct Skipper {
     static_assert(Ad::is_valid,"Adapter is invalid.");
 
     typedef typename StoragePolicy<T>::Container Ref;
+
+#ifndef TEMPLATIOUS_TESTING
+private:
+#endif
+
     Ref _c;
     Iterator _b;
     Iterator _e;
     size_t _sk; // - skip size
+    bool _cleared;
+
+    void assertUncleared() const {
+        if (_cleared) {
+            throw ProxyClearedUsageException();
+        }
+    }
+
+    void tagCleared() {
+        _cleared = true;
+    }
+
+#ifndef TEMPLATIOUS_TESTING
+public:
+#endif
 
     template <class V>
     Skipper(V&& v,size_t sz) :
         _c(std::forward<V>(v)),
         _b(*this,SA::begin(_c.getRef()),sz),
         _e(*this,SA::end(_c.getRef()),sz),
-        _sk(sz)
+        _sk(sz), _cleared(false)
+    { }
+
+    Skipper(ThisSkipper&& s) :
+        _c(s._c.cpy()),
+        _b(*this,SA::begin(_c.getRef()),s._sk),
+        _e(*this,SA::end(_c.getRef()),s._sk),
+        _sk(s._sk), _cleared(s._cleared)
     { }
 
     Iterator begin() {
+        assertUncleared();
         return _b;
     }
 
     Iterator end() {
+        assertUncleared();
         return _e;
     }
 
-    ConstIterator cbegin() {
-        return _b;
+    ConstIterator cbegin() const {
+        assertUncleared();
+        return ConstIterator(
+            _b._p,
+            ProxUtil::const_iter_cast(_b._i),
+            _b._sk
+        );
     }
 
-    ConstIterator cend() {
-        return _e;
+    ConstIterator cend() const {
+        assertUncleared();
+        return ConstIterator(
+            _e._p,
+            ProxUtil::const_iter_cast(_e._i),
+            _e._sk
+        );
     }
 
     Iterator iterAt(size_t n) {
+        assertUncleared();
         if (!random_access_iterator) {
             Iterator res(_b);
             naiveIterAdvance(res,_e,n);
@@ -88,19 +132,27 @@ struct Skipper {
         } else {
             auto i = _b._i;
             auto e = _e._i;
-            typedef AdvancePicker<!random_access_iterator> A;
+            static const bool isNaiveAdvance =
+                !util::IsRandomAccessIteratorTagged<decltype(i)>::value;
+            typedef AdvancePicker<isNaiveAdvance> A;
             int mul = _sk * ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(*this,i,_sk);
         }
     }
 
-    template <class I>
+    int size() const {
+        if (!_cleared) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    template <class I,class Parent>
     struct PIterator {
     private:
-        typedef Skipper<T,StoragePolicy> Parent;
-        typedef Parent::ProxUtil ProxUtil;
-        friend struct Skipper<T,StoragePolicy>;
+        typedef typename Parent::ProxUtil ProxUtil;
 
         Parent& _p;
         I _i;
@@ -108,8 +160,13 @@ struct Skipper {
 
         static const bool random_access_iterator =
             Parent::random_access_iterator;
+
+        friend struct Skipper<T,StoragePolicy>;
+
+        template <class V>
+        friend struct IsProxy;
     public:
-        typedef PIterator<I> ThisIter;
+        typedef PIterator<I,Parent> ThisIter;
         typedef decltype(*_i) IVal;
 
         PIterator(Parent& p,const I& i,size_t sz) :
@@ -173,6 +230,8 @@ struct Skipper {
 
     void clear() {
         clearRoutine<floating_iterator>(*this);
+        tagCleared();
+        ProxUtil::tag_cleared(_c.getRef());
         _b = _e;
     }
 
@@ -182,8 +241,8 @@ struct Skipper {
         return ProxUtil::unwrap(_c.getRef());
     }
 
-    int getMul() {
-        return ProxUtil::get_mul(_c.getRef());
+    int getMul() const {
+        return ProxUtil::get_mul(_c.cgetRef());
     }
 
     template <class V>
@@ -207,6 +266,9 @@ struct IsProxy< Skipper< T,StoragePolicy > > {
     typedef typename
         adapters::CollectionAdapter<ICollection> IAdapter;
 
+    typedef Skipper<T,StoragePolicy> ThisCol;
+    typedef typename ThisCol::ConstIterator ConstIterator;
+
     static const bool random_access_iterator
         = Internal::random_access_iterator;
 
@@ -228,6 +290,28 @@ struct IsProxy< Skipper< T,StoragePolicy > > {
     template <class U>
     static Dist get_mul(U&& u) {
         return u.getMul();
+    }
+
+    template <class U>
+    static void tag_cleared(U& u) {
+        u.tagCleared();
+    }
+
+    template <class Iter>
+    static auto const_iter_cast(Iter&& i)
+     -> decltype(
+        ConstIterator(
+            i._p,
+            Internal::const_iter_cast(i._i),
+            i._sk
+        )
+     )
+    {
+        return ConstIterator(
+            i._p,
+            Internal::const_iter_cast(i._i),
+            i._sk
+        );
     }
 };
 
@@ -257,11 +341,11 @@ struct CollectionAdapter< Skipper<T,StoragePolicy> > {
         return c.end();
     }
 
-    static Iterator cbegin(ThisCol& c) {
+    static ConstIterator cbegin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static Iterator cend(ThisCol& c) {
+    static ConstIterator cend(ConstCol& c) {
         return c.cend();
     }
 
@@ -288,6 +372,11 @@ struct CollectionAdapter< Skipper<T,StoragePolicy> > {
     template <class C>
     static void clear(C&& c) {
         c.clear();
+    }
+
+    template <class C>
+    static int size(C&& c) {
+        return c.size();
     }
 
     template <class V = int>

@@ -456,6 +456,122 @@ struct CollectionAdapter< VCollection<T> > {
     }
 };
 
+template <class T>
+struct CollectionAdapter< const VCollection<T> > {
+
+    static const bool is_valid = true;
+    static const bool floating_iterator = true;
+
+    typedef const VCollection<T> ThisCol;
+    typedef ThisCol ConstCol;
+    typedef typename ThisCol::CIter Iterator;
+    typedef Iterator ConstIterator;
+    typedef const T ValueType;
+    typedef ValueType ConstValueType;
+
+    template <class V>
+    static void add(ThisCol& c, V&& i) {
+        c.add(i);
+    }
+
+    template <class V>
+    static void insertAt(ThisCol& c, const Iterator& at, V&& i) {
+        c.insert(at,std::forward<V>(i));
+    }
+
+    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+        return c.getByIndex(i);
+    }
+
+    static int size(ConstCol& c) {
+        return c.size();
+    }
+
+    static void erase(ThisCol& c, const Iterator& i) {
+        c.erase(i);
+    }
+
+    static void erase(ThisCol& c, const Iterator& beg, const Iterator& end) {
+        c.erase(beg,end);
+    }
+
+    template <class U = int>
+    static ThisCol instantiate() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol instantiate(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap() {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    template <class U = int>
+    static ThisCol* instHeap(size_t size) {
+        // suppress static assert until method is actually called
+        static_assert(templatious::util::DummyResolver<U, false>::val,
+                      "Virtual collection should be wrapper \
+                      around actual collection, therefore, \
+                      cannot be instantiated.");
+    }
+
+    static Iterator begin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static Iterator end(ConstCol& c) {
+        return c.cend();
+    }
+
+    static Iterator iterAt(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static ConstIterator cbegin(ConstCol& c) {
+        return c.cbegin();
+    }
+
+    static ConstIterator cend(ConstCol& c) {
+        return c.cend();
+    }
+
+    static ConstIterator citerAt(ConstCol& c, size_t i) {
+        return c.citerAt(i);
+    }
+
+    static ConstValueType& first(ConstCol& c) {
+        return c.cfirst();
+    }
+
+    static ConstValueType& last(ConstCol& c) {
+        return c.clast();
+    }
+
+    static void clear(ThisCol& c) {
+        c.clear();
+    }
+
+    static bool canAdd(ConstCol& c) {
+        return c.canAdd();
+    }
+};
+
 }
 }
 

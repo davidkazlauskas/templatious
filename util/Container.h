@@ -121,8 +121,8 @@ struct RvalueCopyContainer {
         return _r;
     }
 
-    const T cpy() const {
-        return T(_r);
+    T&& cpy() {
+        return std::move(_r);
     }
 
 private:

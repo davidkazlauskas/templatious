@@ -222,6 +222,16 @@ struct StaticVector {
     struct SvIterator {
         typedef typename std::conditional<isConst,const T,T>::type ValType;
         typedef SvIterator<isConst> Iterator;
+        typedef SvIterator<false> NConstIter;
+
+        // SFINAE used first time in this library. Right here.
+        template <
+            bool defaultBool = isConst,
+            class Dummy = typename std::enable_if<defaultBool,void>::type
+        >
+        SvIterator(const NConstIter& it):
+            _vct(it._vct), _size(it._size), _iter(it._iter)
+        { }
 
         SvIterator(ValType* vct,ulong size) :
             _vct(vct), _size(size), _iter(0) {}
