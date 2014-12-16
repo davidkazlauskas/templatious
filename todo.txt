@@ -59,6 +59,7 @@ features:
 57. MULTIRATOR!!
 58. select - type exchange collection
 59. make static array looser (eliminate constant only size knowledge)
+60. seqR - sequence repeat same value
 
 compatibility:
 

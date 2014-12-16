@@ -32,6 +32,7 @@
 #include <templatious/detail/OnceTraversable.h>
 #include <templatious/detail/PackFunctor.h>
 #include <templatious/detail/CollectionRepeater.h>
+#include <templatious/detail/SelectCollection.h>
 #include <templatious/util/Functions.h>
 
 namespace templatious {
@@ -283,6 +284,28 @@ struct StaticFactory {
         return Skipper<decltype(std::forward<T>(t)),StoragePolicy>(
                 std::forward<T>(t),
                 sz);
+    }
+
+    template <
+        class ColType = void,
+        template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy,
+        class T,class F
+    >
+    static auto select(T&& t,F&& f)
+     -> decltype(
+         SelectCollectionMaker<
+            std::is_same<ColType,void>::value,
+            ColType,
+            StoragePolicy
+         >::Alg::make(std::forward<T>(t),std::forward<F>(f))
+     )
+    {
+        return SelectCollectionMaker<
+           std::is_same<ColType,void>::value,
+           ColType,
+           StoragePolicy
+        >::Alg::make(std::forward<T>(t),std::forward<F>(f));
     }
 
     template <class T>

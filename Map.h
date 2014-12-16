@@ -39,7 +39,7 @@ struct Map {
 
     Map() : _m(std::move(Ad::instantiate())) {}
 
-    Map(MapType&& m) : _m(std::move(Ad::instantiate())) { 
+    Map(MapType&& m) : _m(std::move(Ad::instantiate())) {
         std::swap(_m,m);
     }
 
