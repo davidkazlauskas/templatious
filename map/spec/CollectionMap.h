@@ -58,7 +58,8 @@ struct CollectionMap {
     { }
 
     bool keyExists(const KeyType& k) const {
-        for (auto i = SA::cbegin(_col); i != SA::cend(_col); ++i) {
+        auto end = SA::cend(_col);
+        for (auto i = SA::cbegin(_col); i != end; ++i) {
             if (_comp((*i).first,k)) {
                 return true;
             }
@@ -68,7 +69,8 @@ struct CollectionMap {
     }
 
     bool get(const KeyType& k,ValueType& v) const {
-        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+        auto end = SA::end(_col);
+        for (auto i = SA::begin(_col); i != end; ++i) {
             if (_comp((*i).first,k)) {
                 v = (*i).second;
                 return true;
@@ -78,7 +80,8 @@ struct CollectionMap {
     }
 
     ValueType& get(const KeyType& k) {
-        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+        auto end = SA::end(_col);
+        for (auto i = SA::begin(_col); i != end; ++i) {
             if (_comp((*i).first,k)) {
                 return (*i).second;
             }
@@ -88,7 +91,8 @@ struct CollectionMap {
     }
 
     bool put(const KeyType& k,const ValueType& v) {
-        for (auto i = SA::begin(_col); i != SA::end(_col); ++i) {
+        auto end = SA::end(_col);
+        for (auto i = SA::begin(_col); i != end; ++i) {
             if (_comp((*i).first,k)) {
                 i->second = v;
                 return false;

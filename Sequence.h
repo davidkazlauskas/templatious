@@ -365,13 +365,8 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
                 collection, therefore, doesn't support this method.");
     }
 
-    template <class U = int>
     static int size(const ThisCol& c) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-        return -1;
+        return c.size();
     }
 
     template <class U = int>
@@ -519,13 +514,8 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
                 collection, therefore, doesn't support this method.");
     }
 
-    template <class U = int>
     static int size(const ThisCol& c) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-        return -1;
+        return c.size();
     }
 
     template <class U = int>

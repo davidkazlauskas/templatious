@@ -35,7 +35,7 @@ template <class T,size_t sz,
 struct HybridVector {
 
     typedef HybridVector<T,sz,Additional,Alloc> ThisVector;
-    typedef typename templatious::StaticVector<T,sz> StatVector;
+    typedef typename templatious::StaticVector<T> StatVector;
     typedef typename templatious::adapters::CollectionMaker<T,Additional,Alloc> ColMaker;
     typedef typename ColMaker::Collection Collection;
     typedef typename templatious::adapters::CollectionAdapter<Collection*> Ad;
@@ -57,7 +57,7 @@ struct HybridVector {
 
     StatVector _s;
 
-    HybridVector(T (&c)[static_size]) : _s(c), _a(nullptr) { }
+    HybridVector(T (&c)[static_size]) : _s(c,static_size), _a(nullptr) { }
 
     ~HybridVector() {
         delete _a;

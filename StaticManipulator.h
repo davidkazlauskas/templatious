@@ -108,7 +108,9 @@ private:
 
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
-        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+
+        auto end = SA::end(col);
+        for (auto i = SA::begin(col); i != end; ++i) {
             if (comp(*i,v)) {
                 SA::add(res,i);
                 if (stopAtFirst) {
@@ -140,7 +142,8 @@ private:
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
         int idx = 0;
-        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+        auto end = SA::end(col);
+        for (auto i = SA::begin(col); i != end; ++i) {
             if (comp(*i,v)) {
                 SA::add(res,idx);
                 if (stopAtFirst) {
@@ -178,7 +181,8 @@ private:
         auto res =
             stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
         int idx = 0;
-        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+        auto end = SA::end(col);
+        for (auto i = SA::begin(col); i != end; ++i) {
             if (comp(*i,v)) {
                 SA::add(res,std::make_pair(idx,i));
                 if (stopAtFirst) {
@@ -350,7 +354,8 @@ public:
         typedef typename templatious::StaticAdapter SA;
         Comp c;
 
-        for (auto i = SA::begin(col); i != SA::end(col); ++i) {
+        auto end = SA::end(col);
+        for (auto i = SA::begin(col); i != end; ++i) {
             if (c(v,*i)) {
                 return true;
             }
@@ -520,8 +525,9 @@ namespace detail {
                 decltype(f(*std::declval<It>())),
                 true> Sel;
 
+            auto end = Ad::end(std::forward<T>(t));
             for (auto i = Ad::begin(std::forward<T>(t));
-                    i != Ad::end(std::forward<T>(t));
+                    i != end;
                     ++i)
             {
                 bool res = Sel::callAndEval(std::forward<F>(f),*i);
@@ -573,8 +579,9 @@ namespace detail {
         static void impl(T&& t,V& c) {
             typedef typename templatious::adapters::CollectionAdapter<V> Ad;
 
+            auto end = Ad::end(c);
             for (auto i = Ad::begin(c);
-                      i != Ad::end(c);
+                      i != end;
                       ++i)
             {
                 *i = t;

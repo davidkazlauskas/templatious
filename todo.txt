@@ -41,7 +41,7 @@ features:
 #33. repeaters (repeat collections)
 #34. distribute from pack to collection and vice versa
 #36. pack repeat
-37. add pack to collection (SA::add)
+#37. add pack to collection (SA::add)
 #38. callEach should process collections too (optionally)
 #41. transform packs within one by one
 #42. transformation on add methods
@@ -50,16 +50,17 @@ features:
 47. make recursive sequence generator from lamba
 #48. pair functors - do/undo stuff
 #49. set ignore return val
-50. static vector splitter from bigger array
+#50. static vector splitter from bigger array
 #51. create one time traversable structure, so that begin would be advancing
 #53. encapsulate functor which calls pack
 #54. quadro return times traversed
 #55. dummy var which can be assigned anything
 #56. proxy classes should use storage policy for functions and collections
 57. MULTIRATOR!!
-58. select - type exchange collection
-59. make static array looser (eliminate constant only size knowledge)
+#58. select - type exchange collection
+#59. make static array looser (eliminate constant only size knowledge)
 60. seqR - sequence repeat same value
+61. storage policy for match functor. partial - should be customized
 
 compatibility:
 

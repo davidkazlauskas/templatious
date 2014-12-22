@@ -19,7 +19,7 @@
 #ifndef STATICVECTOR_IIC8KCSO
 #define STATICVECTOR_IIC8KCSO
 
-#include <assert.h>
+#include <new>
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/Sugar.h>
@@ -38,28 +38,32 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEmptyPopException,
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEraseException,
     "Element erase exception.");
 
-template <class T,size_t sz>
+template <class T>
 struct StaticVector {
 
     typedef size_t ulong;
-    typedef StaticVector<T,sz> ThisVector;
+    typedef StaticVector<T> ThisVector;
+    typedef typename std::remove_const<T>::type ValTrue;
 
     template <bool isConst = false>
     struct SvIterator;
 
-    typedef SvIterator<false> Iterator;
+    static const bool is_const = std::is_const<T>::value;
+
+    typedef SvIterator<is_const> Iterator;
     typedef SvIterator<true> ConstIter;
 
-    static const ulong size_const = sz;
-    static_assert(size_const > 0,"Static vector cannot be of negative size.");
-
-    StaticVector(T (&vct)[size_const]) : _vct(vct), _cnt(0) { }
-    StaticVector(T (&vct)[size_const],ulong currCnt) :
-        _vct(vct), _cnt(currCnt)
+    StaticVector(ValTrue* vct,ulong size) : _vct(vct), _cnt(0), _sz(size) { }
+    StaticVector(ValTrue* vct,ulong size,ulong currCnt) :
+        _vct(vct), _cnt(currCnt), _sz(size)
     {
-        if (currCnt > size_const) {
+        if (currCnt > _sz) {
             throw StaticVectorSpaceException();
         }
+    }
+
+    ~StaticVector() {
+        destroyAll();
     }
 
     template <class V>
@@ -68,11 +72,12 @@ struct StaticVector {
             throw StaticVectorFullAddException();
         }
 
-        _vct[_cnt++] = std::forward<V>(e);
+        new(&_vct[_cnt]) T(std::forward<V>(e));
+        ++_cnt;
     }
 
     template <class V>
-    void push_first(V&& e) {
+    void pushFirst(V&& e) {
         insert(0,std::forward<V>(e));
     }
 
@@ -85,9 +90,9 @@ struct StaticVector {
             throw StaticVectorOutOfBoundsException();
         }
 
+        new (&_vct[_cnt]) T();
         ++_cnt;
-        TEMPLATIOUS_FOREACH(auto i,
-            templatious::SeqL<ulong>(at+1,_cnt).rev())
+        for (size_t i = _cnt - 1; i >= at + 1; --i)
         {
             _vct[i] = std::move(_vct[i - 1]);
         }
@@ -104,38 +109,44 @@ struct StaticVector {
             return false;
         }
 
-        out = _vct[--_cnt];
+        out = std::move(_vct[_cnt-1]);
+        _vct[_cnt-1].~T();
+        --_cnt;
         return true;
     }
 
-    T&& pop() {
+    T pop() {
         if (_cnt <= 0) {
             throw StaticVectorEmptyPopException();
         }
-        return std::move(_vct[--_cnt]);
+        auto v = std::move(_vct[_cnt-1]);
+        _vct[_cnt-1].~T();
+        --_cnt;
+        return std::move(v);
     }
 
-    T&& pop_first() {
+    T popFirst() {
         if (_cnt <= 0) {
             throw StaticVectorEmptyPopException();
         }
         T res = std::move(_vct[0]);
+        _vct[0].~T();
         --_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::SeqL<ulong>(_cnt)) {
+        for (size_t i = 0; i < _cnt; ++i) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return std::move(res);
     }
 
     // xchg
-    bool pop_first(T& out) {
+    bool popFirst(T& out) {
         if (isEmpty()) {
             return false;
         }
 
         out = std::move(_vct[0]);
         --_cnt;
-        TEMPLATIOUS_FOREACH(auto i,templatious::SeqL<ulong>(_cnt)) {
+        for (size_t i = 0; i < _cnt; ++i) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return true;
@@ -160,15 +171,8 @@ struct StaticVector {
 
         Iterator j = beg;
         for (auto i = end; i != this->end(); ++i) {
-            if (std::is_destructible<T>::value) {
-                (*j).~T();
-            }
-
             *j = std::move(*i);
-
-            if (std::is_destructible<T>::value) {
-                (*i).~T();
-            }
+            (*i).~T();
             ++j;
         }
 
@@ -180,14 +184,14 @@ struct StaticVector {
     }
 
     T& at(ulong pos) const {
-        if (!(pos >= 0 && pos < _cnt && pos < size_const)) {
+        if (!(pos >= 0 && pos < _cnt && pos < _sz)) {
             StaticVectorOutOfBoundsException();
         }
         return _vct[pos];
     }
 
     bool isFull() const {
-        return _cnt >= size_const;
+        return _cnt >= _sz;
     }
 
     bool isEmpty() const {
@@ -215,7 +219,45 @@ struct StaticVector {
     }
 
     void clear() {
+        destroyAll();
         _cnt = 0;
+    }
+
+    // added purely for exception
+    // correctness if you're the 1 in the million
+    // whose class might throw on copy
+    T& top() {
+        if (isEmpty()) {
+            throw StaticVectorOutOfBoundsException();
+        }
+        return _vct[_cnt - 1];
+    }
+
+    template <class V = T>
+    typename std::enable_if< !std::is_const<V>::value, const T& >::type
+    top() const {
+        if (isEmpty()) {
+            throw StaticVectorOutOfBoundsException();
+        }
+        return _vct[_cnt - 1];
+    }
+
+    void popState() {
+        if (isEmpty()) {
+            throw StaticVectorEmptyPopException();
+        }
+        _vct[_cnt - 1].~T();
+        --_cnt;
+    }
+
+    template <class... Args>
+    void emplaceBack(Args&&... args) {
+        if (isFull()) {
+            throw StaticVectorFullAddException();
+        }
+
+        new(&_vct[_cnt]) T(std::forward<Args>(args)...);
+        ++_cnt;
     }
 
     template <bool isConst>
@@ -312,7 +354,7 @@ struct StaticVector {
             return res;
         }
 
-        friend struct StaticVector<T,sz>;
+        friend struct StaticVector<T>;
 
     private:
         ValType* _vct;
@@ -322,8 +364,15 @@ struct StaticVector {
     };
 
 private:
-    T* _vct;
+    ValTrue* _vct;
     ulong _cnt;
+    ulong _sz;
+
+    void destroyAll() {
+        for (size_t i = 0; i < _cnt; ++i) {
+            _vct[i].~T();
+        }
+    }
 
     void eraseAssertions(const Iterator& beg,const Iterator& end) {
         if (!(_vct == beg._vct && _cnt == beg._size)) {
@@ -355,18 +404,77 @@ private:
 };
 
 template <class T,size_t sz>
-StaticVector<T,sz> makeStaticVector(T (&arr)[sz]) {
-    return StaticVector<T,sz>(arr);
+StaticVector<T> makeStaticVector(char (&arr)[sz]) {
+    static_assert(sz % sizeof(T) == 0,
+        "Array size in bytes must be properly aligned.");
+    return StaticVector<T>(reinterpret_cast<T*>(arr),sz / sizeof(T));
 }
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticBufferExceedException,
+    "Remaining capacity of this buffer is too low for required vector.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticBufferWrongSize,
+    "StaticVector has to contain at least one element.");
+
+template <class T,size_t sz>
+struct StaticBuffer {
+
+    static const int total_size = sz;
+
+    StaticBuffer() : _currSize(0) {}
+
+    // int in capacity because user is more likely to pass
+    // a negative value than a very large number.
+    // this is not meant for huge collections anyway
+    // and shall be contained on the stack
+    auto getStaticVector(int capacity)
+     -> StaticVector<T>
+    {
+        if (capacity <= 0) {
+            throw StaticBufferWrongSize();
+        }
+
+        if (remainingSize() < capacity) {
+            throw StaticBufferExceedException();
+        }
+
+        return StaticVector<T>(
+            nextPtr(capacity),capacity);
+    }
+
+    auto getStaticVector()
+     -> StaticVector<T>
+    {
+        return getStaticVector(remainingSize());
+    }
+
+private:
+    typedef typename std::remove_const<T>::type ValTrue;
+    size_t remainingSize() const {
+        return total_size - _currSize;
+    }
+
+    ValTrue* nextPtr(size_t bump) {
+        ValTrue* res = basePtr() + _currSize;
+        _currSize += bump;
+        return res;
+    }
+
+    ValTrue* basePtr() {
+        return reinterpret_cast<ValTrue*>(_buf);
+    }
+
+    size_t _currSize;
+    char _buf[total_size * sizeof(T)];
+};
 
 namespace adapters {
 
-template <class T,size_t sz>
-struct CollectionAdapter< StaticVector<T,sz> > {
+template <class T>
+struct CollectionAdapter< StaticVector<T> > {
     static const bool is_valid = true;
     static const bool floating_iterator = true;
 
-    typedef StaticVector<T,sz> ThisCol;
+    typedef StaticVector<T> ThisCol;
     typedef const ThisCol ConstCol;
     typedef typename ThisCol::Iterator Iterator;
     typedef typename ThisCol::ConstIter ConstIterator;
@@ -495,17 +603,17 @@ struct CollectionAdapter< StaticVector<T,sz> > {
         return c.clear();
     }
 
-    static bool canAdd(ThisCol& c) {
+    static bool canAdd(ConstCol& c) {
         return !(c.isFull());
     }
 };
 
-template <class T,size_t sz>
-struct CollectionAdapter< const StaticVector<T,sz> > {
+template <class T>
+struct CollectionAdapter< const StaticVector<T> > {
     static const bool is_valid = true;
     static const bool floating_iterator = true;
 
-    typedef const StaticVector<T,sz> ThisCol;
+    typedef const StaticVector<T> ThisCol;
     typedef ThisCol ConstCol;
     typedef typename ThisCol::ConstIter Iterator;
     typedef typename ThisCol::ConstIter ConstIterator;
@@ -606,7 +714,7 @@ struct CollectionAdapter< const StaticVector<T,sz> > {
         return c.clear();
     }
 
-    static bool canAdd(ThisCol& c) {
+    static bool canAdd(ConstCol& c) {
         return !(c.isFull());
     }
 };

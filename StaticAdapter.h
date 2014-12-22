@@ -23,11 +23,12 @@
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/virtual/Iterator.h>
+#include <templatious/Pack.h>
 
 namespace templatious {
 namespace sa_spec {
 
-enum AdditionVariant { Data, Collection, StaticArrays };
+enum AdditionVariant { Data, Collection, StaticArrays, Pack };
 
 template <class T, class U>
 struct AdditionSelector {
@@ -39,9 +40,13 @@ struct AdditionSelector {
             areAdaptable,
             AdditionVariant::Collection,
             templatious::util::IntSelector<
-                std::is_array<U>::value,
-                AdditionVariant::StaticArrays,
-                AdditionVariant::Data
+                templatious::detail::IsPack<U>::val,
+                AdditionVariant::Pack,
+                templatious::util::IntSelector<
+                    std::is_array<U>::value,
+                    AdditionVariant::StaticArrays,
+                    AdditionVariant::Data
+                >::val
             >::val
         >::val
     };
@@ -97,6 +102,63 @@ struct add_custom< AdditionVariant::StaticArrays > {
         }
     }
 };
+
+template <>  // add static arrays
+struct add_custom< AdditionVariant::Pack > {
+    typedef add_custom< AdditionVariant::Pack > ThisAddition;
+
+    template <
+         int which = 0,
+         class T, class F,class P
+    >
+    static void add(
+        T& c, F&& f,
+        P&& p)
+    {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        typedef typename std::conditional<
+            which < std::decay<P>::type::size,
+            AddNextVar,
+            EmptyVar
+        >::type Var;
+
+        Var::template addInternal<
+            which
+        >(
+            c,
+            std::forward<F>(f),
+            std::forward<P>(p)
+        );
+    }
+
+private:
+    struct AddNextVar {
+        template <
+            int which,
+            class T, class F,
+            class P
+        >
+        static void addInternal(
+            T& c,F&& f,
+            P&& p)
+        {
+            typedef templatious::adapters::CollectionAdapter<T> Ad;
+            Ad::add(c,f(p.template get<which>()));
+            ThisAddition::add< which + 1 >(
+                c,
+                std::forward<F>(f),
+                std::forward<P>(p)
+            );
+        }
+    };
+
+    struct EmptyVar {
+        // do nothing
+        template <int which,class... Args>
+        static void addInternal(Args&&... args) { }
+    };
+};
+
 }
 
 struct StaticAdapter {
@@ -136,7 +198,8 @@ struct StaticAdapter {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         sa_spec::ForwardFunctor fwd;
-        for (auto i = o.begin(); i != o.end(); ++i) {
+        auto end = o.end();
+        for (auto i = o.begin(); i != end; ++i) {
             Ad::add(c,fwd(*i));
         }
     }
@@ -195,6 +258,13 @@ struct StaticAdapter {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::size(c);
+    }
+
+    template <class T>
+    static bool canAdd(const T& c) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        return Ad::canAdd(c);
     }
 
     template <class T>
@@ -365,7 +435,8 @@ struct StaticAdapter {
             Ad::insertAt(c,Ad::begin(c),val);
         }
 
-        for (auto i = Ad::begin(c); i != Ad::end(c); ++i) {
+        auto end = Ad::end(c);
+        for (auto i = Ad::begin(c); i != end; ++i) {
             if (0 <= comp(*i,val)) {
                 Ad::insertAt(c,i,val);
             }
