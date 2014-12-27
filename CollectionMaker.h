@@ -19,11 +19,11 @@
 #ifndef COLLECTIONMAKER_OL3AS5ML
 #define COLLECTIONMAKER_OL3AS5ML
 
-namespace templatious {
-namespace adapters {
-
 #include <cstddef>
 #include <utility>
+
+namespace templatious {
+namespace adapters {
 
 template <
     class Val,

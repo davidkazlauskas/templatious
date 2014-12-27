@@ -491,6 +491,7 @@ struct StaticFactory {
      -> detail::Match<
         templatious::TypeList<T...>,
         Func,
+        util::DefaultStoragePolicy,
         detail::TightRecursiveComparison,
         templatious::detail::TypelistsEqual
      >
@@ -498,6 +499,7 @@ struct StaticFactory {
         typedef detail::Match<
             templatious::TypeList<T...>,
             Func,
+            util::DefaultStoragePolicy,
             detail::TightRecursiveComparison,
             templatious::detail::TypelistsEqual
         > TheMatch;
@@ -505,11 +507,38 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    template <
+        template <class> class StoragePolicy,
+        class... T,
+        class Func
+    >
+    static auto matchTight(Func&& f)
+     -> detail::Match<
+        templatious::TypeList<T...>,
+        Func,
+        StoragePolicy,
+        detail::TightRecursiveComparison,
+        templatious::detail::TypelistsEqual
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList<T...>,
+            Func,
+            StoragePolicy,
+            detail::TightRecursiveComparison,
+            templatious::detail::TypelistsEqual
+        > TheMatch;
+
+        return TheMatch(std::forward<Func>(f));
+    }
+
+
     template <class... T,class Func>
     static auto matchLoose(Func&& f)
      -> detail::Match<
         templatious::TypeList<T...>,
         Func,
+        util::DefaultStoragePolicy,
         detail::LooseRecursiveComparison,
         templatious::detail::TypelistContains
      >
@@ -517,6 +546,7 @@ struct StaticFactory {
         typedef detail::Match<
             templatious::TypeList<T...>,
             Func,
+            util::DefaultStoragePolicy,
             detail::LooseRecursiveComparison,
             templatious::detail::TypelistContains
         > TheMatch;
@@ -524,11 +554,41 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
-    template <class Func>
+    template <
+        template <class> class StoragePolicy,
+        class... T,
+        class Func
+    >
+    static auto matchLoose(Func&& f)
+     -> detail::Match<
+        templatious::TypeList<T...>,
+        Func,
+        StoragePolicy,
+        detail::LooseRecursiveComparison,
+        templatious::detail::TypelistContains
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList<T...>,
+            Func,
+            StoragePolicy,
+            detail::LooseRecursiveComparison,
+            templatious::detail::TypelistContains
+        > TheMatch;
+
+        return TheMatch(std::forward<Func>(f));
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class Func
+    >
     static auto matchAny(Func&& f)
      -> detail::Match<
         templatious::TypeList< AnyType >,
         Func,
+        StoragePolicy,
         detail::LooseRecursiveComparison,
         templatious::detail::TypelistContains
      >
@@ -536,6 +596,7 @@ struct StaticFactory {
         typedef detail::Match<
             templatious::TypeList< AnyType >,
             Func,
+            StoragePolicy,
             detail::LooseRecursiveComparison,
             templatious::detail::TypelistContains
         > TheMatch;
@@ -546,6 +607,7 @@ struct StaticFactory {
      -> detail::Match<
         templatious::TypeList< AnyType >,
         templatious::util::DoNothingFunctor,
+        templatious::util::DefaultStoragePolicy,
         detail::LooseRecursiveComparison,
         templatious::detail::TypelistContains
      >
@@ -553,17 +615,22 @@ struct StaticFactory {
         typedef detail::Match<
             templatious::TypeList< AnyType >,
             templatious::util::DoNothingFunctor,
+            templatious::util::DefaultStoragePolicy,
             detail::LooseRecursiveComparison,
             templatious::detail::TypelistContains
         > TheMatch;
         return TheMatch(templatious::util::DoNothingFunctor());
     }
 
-    template <class... T>
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class... T
+    >
     static auto matchFunctor(T&&... t)
-     -> detail::MatchFunctor<T...>
+     -> detail::MatchFunctor<StoragePolicy,T...>
     {
-        typedef detail::MatchFunctor<T...> Fctor;
+        typedef detail::MatchFunctor<StoragePolicy,T...> Fctor;
         return Fctor(std::forward<T>(t)...);
     }
 

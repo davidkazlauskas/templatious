@@ -10,13 +10,17 @@
 #include <templatious/IterMaker.h>
 #include <templatious/Pack.h>
 #include <templatious/detail/Distributor.h>
+#include <templatious/detail/UserUtil.h>
 
 namespace templatious {
 namespace detail{ 
 
     enum Variant { Item, Pack, Collection };
 
-    template <int variant>
+    template <
+        int variant,
+        template <class> class Decider
+    >
     struct CallHandler;
 
 
@@ -53,6 +57,19 @@ namespace detail{
         >::val;
     };
 
+    template <class T>
+    struct DeciderAllUniform {
+        static const int TheVar = templatious::util::IntSelector<
+            templatious::adapters::CollectionAdapter<T>::is_valid,
+            Variant::Collection,
+            templatious::util::IntSelector<
+                IsPack<T>::val,
+                Variant::Pack,
+                Variant::Item
+            >::val
+        >::val;
+    };
+
     struct SetImplCollection;
     struct SetImplVariable;
     struct SetImplPack;
@@ -61,7 +78,10 @@ namespace detail{
 
 struct StaticManipulator {
 private:
-    template <int var>
+    template <
+        int var,
+        template <class> class Decider
+    >
     friend struct detail::CallHandler;
 
     template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
@@ -228,7 +248,7 @@ private:
         bool ignoreBooleanReturn = false,
         class T,class U,class... V>
     static bool genericCallAll(T&& f,U&& arg,V&&... args) {
-        bool res = detail::CallHandler< DeciderAlg<U>::TheVar >
+        bool res = detail::CallHandler< DeciderAlg<U>::TheVar, DeciderAlg >
             ::template call<ignoreBooleanReturn>(
                     std::forward<T>(f),std::forward<U>(arg));
         if (!ignoreBooleanReturn && !res) {
@@ -244,7 +264,7 @@ private:
         bool ignoreBooleanReturn = false,
         class T,class U>
     static bool genericCallAll(T&& f,U&& arg) {
-        return detail::CallHandler< DeciderAlg<U>::TheVar >
+        return detail::CallHandler< DeciderAlg<U>::TheVar, DeciderAlg >
             ::template call<ignoreBooleanReturn>(
                     std::forward<T>(f),
                     std::forward<U>(arg));
@@ -401,17 +421,46 @@ public:
 
     template <
         bool ignoreBooleanReturn = false,
-        class T,class U,class... V
+        class T,class... V
     >
-    static size_t forEach(T&& f,U&& arg,V&&... args) {
+    static size_t forEach(T&& f,V&&... args) {
         templatious::util::CallCountFunctor<T>
             func(std::forward<T>(f));
 
         genericCallAll< detail::DeciderForEach, ignoreBooleanReturn >(
-            func,std::forward<U>(arg),std::forward<V>(args)...
+            func,std::forward<V>(args)...
         );
 
         return func.getCount();
+    }
+
+    template <class RetVal = double,class... V>
+    static RetVal sum(V&&... args) {
+        RetVal r(0);
+        templatious::detail::SumFunctor<RetVal> func(r);
+
+        // since we make an assumption that
+        // we're dealing with numeric values
+        // we can treat values, packs and collections.
+        genericCallAll< detail::DeciderAllUniform, true >(
+            func,std::forward<V>(args)...
+        );
+
+        return r;
+    }
+
+    template <class RetVal = double,class... V>
+    static RetVal avg(V&&... args) {
+        RetVal r(0);
+        templatious::detail::SumFunctor<RetVal,true> func(r);
+        func._cnt = 0;
+
+        // again, assumption about numeric values
+        genericCallAll< detail::DeciderAllUniform, true >(
+            func,std::forward<V>(args)...
+        );
+
+        return r / func._cnt;
     }
 
     template <
@@ -492,8 +541,10 @@ public:
 };
 
 namespace detail {
-    template <>
-    struct CallHandler< Variant::Item > {
+    template <
+        template <class> class Decider
+    >
+    struct CallHandler< Variant::Item, Decider > {
         template <
             bool ignoreBooleanReturn = false,
             class F,class T
@@ -512,8 +563,10 @@ namespace detail {
         }
     };
 
-    template <>
-    struct CallHandler< Variant::Collection > {
+    template <
+        template <class> class Decider
+    >
+    struct CallHandler< Variant::Collection, Decider > {
         template <
             bool ignoreBooleanReturn = false,
             class F,class T
@@ -541,8 +594,10 @@ namespace detail {
         }
     };
 
-    template <>
-    struct CallHandler< Variant::Pack > {
+    template <
+        template <class> class Decider
+    >
+    struct CallHandler< Variant::Pack, Decider > {
 
         template <bool ignoreBooleanReturn, class Func>
         struct PackCaller {
@@ -551,7 +606,7 @@ namespace detail {
             template <class... T>
             bool operator()(T&&... t) {
                 return templatious::StaticManipulator::
-                    genericCallAll< detail::DeciderCallEach, ignoreBooleanReturn >(
+                    genericCallAll< Decider, ignoreBooleanReturn >(
                         _r.getRef(),std::forward<T>(t)...);
             }
 

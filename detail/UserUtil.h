@@ -19,6 +19,7 @@
 #ifndef USERUTIL_2646KXF5
 #define USERUTIL_2646KXF5
 
+#include <cstddef>
 #include <utility>
 
 namespace templatious {
@@ -26,12 +27,11 @@ namespace detail {
 
 template <class StorType>
 struct CallEachStreamFunctor {
-    CallEachStreamFunctor(const StorType& t) : _c(t) {}
-    CallEachStreamFunctor() {}
+    CallEachStreamFunctor(StorType& t) : _c(t) {}
 
     template <class T>
     void operator()(T&& i) {
-        _c << i;
+        _c << std::forward<T>(i);
     }
 
     template <class T,class... Args>
@@ -40,7 +40,26 @@ struct CallEachStreamFunctor {
         (*this)(std::forward<Args>(args)...);
     }
 
-    StorType _c;
+    // we're modifying value so we know
+    // we need non-const lvalue reference
+    StorType& _c;
+};
+
+//------- Sum Functor
+template <class StorType,bool countAlso = false>
+struct SumFunctor {
+    SumFunctor(StorType& s) : _c(s) {}
+
+    template <class T>
+    void operator()(T&& i) {
+        _c += std::forward<T>(i);
+        if (countAlso) {
+            ++_cnt;
+        }
+    }
+
+    StorType& _c;
+    size_t _cnt;
 };
 
 //------- DummyVar

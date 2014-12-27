@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include <templatious/detail/TypeList.h>
-#include <templatious/util/DefaultStoragePolicy.h>
 
 namespace templatious {
 
@@ -43,10 +42,18 @@ struct TightComparison<AnyType,A> : std::true_type {};
 
 template <class A,class B>
 struct LooseComparison {
-    static const bool value = std::is_same<
-        typename std::decay<A>::type,
-        typename std::decay<B>::type
+    typedef typename std::decay<A>::type DecayA;
+    typedef typename std::decay<B>::type DecayB;
+
+    static const bool decay_same = std::is_same<
+        DecayA, DecayB
     >::value;
+
+    static const bool subtype_of = std::is_base_of<
+        DecayA, DecayB
+    >::value;
+
+    static const bool value = decay_same || subtype_of;
 };
 
 template <class A>
@@ -118,6 +125,7 @@ struct LooseRecursiveComparison<
 };
 
 template <class T,class Func,
+    template <class> class StoragePolicy,
     template <class,class> class ComparisonPolicy = TightComparison,
     template <class,class,
         template <class,class> class
@@ -129,6 +137,7 @@ struct Match {
 };
 
 template <class... Args,class Func,
+    template <class> class StoragePolicy,
     template <class,class> class ComparisonPolicy,
     template <class,class,
         template <class,class> class
@@ -137,12 +146,12 @@ template <class... Args,class Func,
 struct Match<
     templatious::TypeList<Args...>,
     Func,
+    StoragePolicy,
     ComparisonPolicy,
     TypelistComparisonPolicy
 >
 {
-    typedef typename templatious::util::
-        DefaultStoragePolicy<Func> RefMaker;
+    typedef StoragePolicy<Func> RefMaker;
 
     typedef typename RefMaker::Container Container;
 

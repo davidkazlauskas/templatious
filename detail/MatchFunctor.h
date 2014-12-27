@@ -28,7 +28,10 @@
 namespace templatious {
 namespace detail {
 
-template <class... T>
+template <
+    template <class> class StoragePolicy,
+    class... T
+>
 struct MatchFunctor {
 
     typedef typename templatious::util::GetFrist<T...>::type First;
@@ -45,15 +48,27 @@ template <
     template <class,class,
        template <class,class> class
     > class TypelistComparisonPolicy,
-    class... Tail
+    class... Tail,
+    template <class> class StoragePolicy,
+    template <class> class MatchStoragePolicy
 >
 struct MatchFunctor<
-    Match<T,Func,ComparisonPolicy,TypelistComparisonPolicy>,
+    StoragePolicy,
+    Match<
+        T,Func,
+        MatchStoragePolicy,
+        ComparisonPolicy,
+        TypelistComparisonPolicy
+    >,
     Tail...
 >
 {
-    typedef Match<T,Func,ComparisonPolicy,TypelistComparisonPolicy> ThisMatch;
-    typedef MatchFunctor<Tail...> TailMatch;
+    typedef Match<T,Func,
+        MatchStoragePolicy,
+        ComparisonPolicy,
+        TypelistComparisonPolicy> ThisMatch;
+    typedef MatchFunctor<StoragePolicy,Tail...> TailMatch;
+    typedef typename StoragePolicy<ThisMatch>::Container Container;
 
     template <class... TailArgs>
     MatchFunctor(const ThisMatch& m,TailArgs&&... args) :
@@ -71,7 +86,7 @@ struct MatchFunctor<
         )
     {
         return Resolver<Args...>::call(
-                _m,_t,
+                _m.getRef(),_t,
                 std::forward<Args>(args)...);
     }
 
@@ -111,7 +126,7 @@ struct MatchFunctor<
     };
 
 private:
-    ThisMatch _m;
+    Container _m;
     TailMatch _t;
 };
 
@@ -120,11 +135,20 @@ template <
     template <class,class> class ComparisonPolicy,
     template <class,class,
        template <class,class> class
-    > class TypelistComparisonPolicy
+    > class TypelistComparisonPolicy,
+    template <class> class StoragePolicy,
+    template <class> class MatchStoragePolicy
 >
-struct MatchFunctor< Match<T,Func,ComparisonPolicy,TypelistComparisonPolicy> >
+struct MatchFunctor< StoragePolicy, Match<T,Func,
+    MatchStoragePolicy, ComparisonPolicy,
+    TypelistComparisonPolicy>
+>
 {
-    typedef Match<T,Func,ComparisonPolicy,TypelistComparisonPolicy> ThisMatch;
+    typedef Match<T,Func,
+        MatchStoragePolicy,
+        ComparisonPolicy,
+        TypelistComparisonPolicy> ThisMatch;
+    typedef typename StoragePolicy<ThisMatch>::Container Container;
 
     MatchFunctor(const ThisMatch& m) :
         _m(m) {}
@@ -150,11 +174,13 @@ struct MatchFunctor< Match<T,Func,ComparisonPolicy,TypelistComparisonPolicy> >
          std::forward<Args>(args)...)
         )
     {
-        return ThisCall<Args...>::call(_m,std::forward<Args>(args)...);
+        return ThisCall<Args...>::call(
+            _m.getRef(),
+            std::forward<Args>(args)...);
     }
 
 private:
-    ThisMatch _m;
+    Container _m;
 };
 
 }

@@ -16,15 +16,15 @@
  * =====================================================================================
  */
 
+#ifndef HYBRIDVECTOR_5CFAJMGM
+#define HYBRIDVECTOR_5CFAJMGM
+
 #include <cstddef>
 #include <vector>
 
 #include <templatious/CollectionMaker.h>
 #include <templatious/CollectionAdapter.h>
 #include <templatious/StaticVector.h>
-
-#ifndef HYBRIDVECTOR_5CFAJMGM
-#define HYBRIDVECTOR_5CFAJMGM
 
 namespace templatious {
 
@@ -58,6 +58,12 @@ struct HybridVector {
     StatVector _s;
 
     HybridVector(T (&c)[static_size]) : _s(c,static_size), _a(nullptr) { }
+    HybridVector(const ThisVector& other) = delete;
+    HybridVector(ThisVector&& other) :
+        _s(std::move(other._s)), _a(other._a)
+    {
+        other._a = nullptr;
+    }
 
     ~HybridVector() {
         delete _a;

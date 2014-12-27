@@ -31,6 +31,8 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorSpaceException,
     "Initial static array size cannot be larger than a capacity.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorFullAddException,
     "Trying to add to a full vector.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorMovedOperationException,
+    "Vector was moved out and can no longer be operated on.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorOutOfBoundsException,
     "Operation goes out of bounds of vector.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEmptyPopException,
@@ -62,6 +64,15 @@ struct StaticVector {
         }
     }
 
+    StaticVector(const ThisVector& other) = delete;
+    StaticVector(ThisVector&& other) :
+        _vct(other._vct), _cnt(other._cnt), _sz(other._sz)
+    {
+        other._vct = nullptr;
+        other._cnt = 0;
+        other._sz = 0;
+    }
+
     ~StaticVector() {
         destroyAll();
     }
@@ -69,6 +80,9 @@ struct StaticVector {
     template <class V>
     void push(V&& e) {
         if (isFull()) {
+            if (isMoved()) {
+                throw StaticVectorMovedOperationException();
+            }
             throw StaticVectorFullAddException();
         }
 
@@ -84,6 +98,9 @@ struct StaticVector {
     template <class V>
     void insert(ulong at,V&& e) {
         if (isFull()) {
+            if (isMoved()) {
+                throw StaticVectorMovedOperationException();
+            }
             throw StaticVectorFullAddException();
         }
         if (at > _cnt) {
@@ -194,6 +211,10 @@ struct StaticVector {
         return _cnt >= _sz;
     }
 
+    bool isMoved() const {
+        return _vct == nullptr;
+    }
+
     bool isEmpty() const {
         return _cnt == 0;
     }
@@ -253,6 +274,9 @@ struct StaticVector {
     template <class... Args>
     void emplaceBack(Args&&... args) {
         if (isFull()) {
+            if (isMoved()) {
+                throw StaticVectorMovedOperationException();
+            }
             throw StaticVectorFullAddException();
         }
 
@@ -437,14 +461,20 @@ struct StaticBuffer {
             throw StaticBufferExceedException();
         }
 
-        return StaticVector<T>(
-            nextPtr(capacity),capacity);
+        // being explicit never hurts
+        return std::move(
+            StaticVector<T>(
+                nextPtr(capacity),capacity)
+        );
     }
 
     auto getStaticVector()
      -> StaticVector<T>
     {
-        return getStaticVector(remainingSize());
+        // being explicit never hurts
+        return std::move(
+            getStaticVector(remainingSize())
+        );
     }
 
 private:
