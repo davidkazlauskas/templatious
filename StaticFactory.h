@@ -32,6 +32,7 @@
 #include <templatious/detail/OnceTraversable.h>
 #include <templatious/detail/PackFunctor.h>
 #include <templatious/detail/CollectionRepeater.h>
+#include <templatious/detail/ItemRepeater.h>
 #include <templatious/detail/SelectCollection.h>
 #include <templatious/util/Functions.h>
 
@@ -219,8 +220,29 @@ struct StaticFactory {
         >(n,std::forward<T>(c));
     }
 
-    template <class T,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
+    // Repeater same item
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto repS(long n,T&& t)
+     -> detail::ItemRepeater<
+        decltype(std::forward<T>(t)),
+        StoragePolicy
+     >
+    {
+        return detail::ItemRepeater<
+           decltype(std::forward<T>(t)),
+           StoragePolicy
+        >(std::forward<T>(t),n);
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
     static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::Iterator b,
         typename adapters::CollectionAdapter<T>::Iterator e)
@@ -229,8 +251,11 @@ struct StaticFactory {
         return Range<T,StoragePolicy>(std::forward<T>(t),b,e);
     }
 
-    template <class T,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
     static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::Iterator b)
             -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
@@ -239,11 +264,13 @@ struct StaticFactory {
             std::forward<T>(t),b);
     }
 
-    template <class T,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
-    static auto range(T&& t,
-        size_t b, size_t e)
-            -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto range(T&& t, size_t b, size_t e)
+        -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<decltype(std::forward<T>(t)),StoragePolicy>(
@@ -252,11 +279,13 @@ struct StaticFactory {
             Ad::iterAt(std::forward<T>(t),e));
     }
 
-    template <class T,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
-    static auto range(T&& t,
-        size_t b)
-            -> Range<decltype(std::forward<T>(t)),StoragePolicy>
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto range(T&& t, size_t b)
+        -> Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<decltype(std::forward<T>(t)),StoragePolicy>(
@@ -264,8 +293,38 @@ struct StaticFactory {
             Ad::iterAt(std::forward<T>(t),b));
     }
 
-    template <class T,class Fun,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
+    template <
+        template <class...> class Collection = std::vector,
+        template <class> class Allocator = std::allocator,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T,
+        class... Args
+    >
+    static auto rangeC(T&& t,Args&&... args) ->
+        typename templatious::adapters::CollectionMaker<
+            typename templatious::adapters::
+                CollectionAdapter<T>::ValueType,
+            Collection, Allocator
+        >::Collection
+    {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        auto rTemp = StaticFactory::range(
+            std::forward<T>(t),
+            std::forward<Args>(args)...
+        );
+        typedef templatious::adapters::CollectionMaker<
+            typename Ad::ValueType, Collection, Allocator > Mk;
+        auto res = Mk::make();
+        templatious::StaticAdapter::add(res,rTemp);
+        return std::move(res);
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T, class Fun
+    >
     static auto filter(T&& t,Fun&& f)
         -> Filter<decltype(std::forward<T>(t)),Fun,StoragePolicy>
     {
@@ -276,8 +335,38 @@ struct StaticFactory {
             std::forward<Fun>(f));
     }
 
-    template <class T,template <class> class StoragePolicy =
-        templatious::util::DefaultStoragePolicy>
+    template <
+        template <class...> class Collection = std::vector,
+        template <class> class Allocator = std::allocator,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T,
+        class... Args
+    >
+    static auto filterC(T&& t,Args&&... args) ->
+        typename templatious::adapters::CollectionMaker<
+            typename templatious::adapters::
+                CollectionAdapter<T>::ValueType,
+            Collection, Allocator
+        >::Collection
+    {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        auto fTemp = StaticFactory::filter(
+            std::forward<T>(t),
+            std::forward<Args>(args)...
+        );
+        typedef templatious::adapters::CollectionMaker<
+            typename Ad::ValueType, Collection, Allocator > Mk;
+        auto res = Mk::make();
+        templatious::StaticAdapter::add(res,fTemp);
+        return std::move(res);
+    }
+
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
     static auto skip(T&& t,size_t sz)
         -> Skipper<decltype(std::forward<T>(t)),StoragePolicy>
     {
@@ -287,7 +376,35 @@ struct StaticFactory {
     }
 
     template <
-        class ColType = void,
+        template <class...> class Collection = std::vector,
+        template <class> class Allocator = std::allocator,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T,
+        class... Args
+    >
+    static auto skipC(T&& t,Args&&... args) ->
+        typename templatious::adapters::CollectionMaker<
+            typename templatious::adapters::
+                CollectionAdapter<T>::ValueType,
+            Collection, Allocator
+        >::Collection
+    {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        auto fTemp = StaticFactory::skip(
+            std::forward<T>(t),
+            std::forward<Args>(args)...
+        );
+        typedef templatious::adapters::CollectionMaker<
+            typename Ad::ValueType, Collection, Allocator > Mk;
+        auto res = Mk::make();
+        templatious::StaticAdapter::add(res,fTemp);
+        return std::move(res);
+    }
+
+
+    template <
+        class ColType = void, // infer from function if void
         template <class> class StoragePolicy =
         templatious::util::DefaultStoragePolicy,
         class T,class F
@@ -620,6 +737,25 @@ struct StaticFactory {
             templatious::detail::TypelistContains
         > TheMatch;
         return TheMatch(templatious::util::DoNothingFunctor());
+    }
+
+    static auto matchAnyForward()
+     -> detail::Match<
+        templatious::TypeList< AnyType >,
+        templatious::util::ForwardFunctor,
+        templatious::util::DefaultStoragePolicy,
+        detail::LooseRecursiveComparison,
+        templatious::detail::TypelistContains
+     >
+    {
+        typedef detail::Match<
+            templatious::TypeList< AnyType >,
+            templatious::util::ForwardFunctor,
+            templatious::util::DefaultStoragePolicy,
+            detail::LooseRecursiveComparison,
+            templatious::detail::TypelistContains
+        > TheMatch;
+        return TheMatch(templatious::util::ForwardFunctor());
     }
 
     template <

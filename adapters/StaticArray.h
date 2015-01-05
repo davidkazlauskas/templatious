@@ -77,20 +77,6 @@ struct CollectionAdapter< T[sz] > {
         return false;
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert unless method is actually used
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-            "Instantiate not supported as static arrays are allocated on the stack.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(int size) {
-        // suppress static assert unless method is actually used
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-            "Instantiate not supported as static arrays are allocated on the stack.");
-    }
-
     static Iterator begin(T c[size_const]) {
         return &c[0];
     }
@@ -194,20 +180,6 @@ struct CollectionAdapter< const T[sz] > {
         return false;
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert unless method is actually used
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-            "Instantiate not supported as static arrays are allocated on the stack.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(int size) {
-        // suppress static assert unless method is actually used
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-            "Instantiate not supported as static arrays are allocated on the stack.");
-    }
-
     static Iterator begin(const T c[size_const]) {
         return &c[0];
     }
@@ -255,6 +227,14 @@ struct CollectionAdapter< const T[sz] > {
             "Clear not supported as static array doesn't hold any state.");
     }
 
+};
+
+template <size_t sz>
+struct CollectionAdapter< const char(&)[sz] > {
+    // const char array with reference is considered
+    // a string, not a collection of chars.
+    static const bool is_valid = false;
+    static const bool floating_iterator = true;
 };
 
 }

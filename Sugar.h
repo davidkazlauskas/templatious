@@ -20,6 +20,7 @@
 #define SUGAR_RISZR4GH
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/adapters/PtrAdapter.h>
 #include <templatious/StaticFactory.h>
 #include <templatious/StaticManipulator.h>
 

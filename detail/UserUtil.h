@@ -62,6 +62,26 @@ struct SumFunctor {
     size_t _cnt;
 };
 
+template <class StorType,class FStorType,bool countAlso = false>
+struct SumFunctorCustom {
+
+    template <class V>
+    SumFunctorCustom(StorType& s,V&& v) :
+        _c(s), _fn(std::forward<V>(v)) {}
+
+    template <class T>
+    void operator()(T&& i) {
+        _c += _fn(std::forward<T>(i));
+        if (countAlso) {
+            ++_cnt;
+        }
+    }
+
+    StorType& _c;
+    FStorType _fn;
+    size_t _cnt;
+};
+
 //------- DummyVar
 
 struct DummyVar {
@@ -75,9 +95,6 @@ struct DummyVar {
 };
 
 static DummyVar dummyVar = DummyVar();
-
-// no unused variable warning for dummyVar
-DummyVar getDummy() { return dummyVar; }
 
 }
 }

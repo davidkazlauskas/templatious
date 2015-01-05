@@ -17,7 +17,6 @@
  */
 
 #include <templatious/CollectionAdapter.h>
-#include <templatious/StaticAdapter.h>
 
 #include <templatious/adapters/PtrAdapter.h>
 #include <templatious/adapters/StdVector.h>

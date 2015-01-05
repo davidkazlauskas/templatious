@@ -328,38 +328,6 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         c.erase(beg,end);
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -472,38 +440,6 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Const collection doesn't support erase.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "HybridVector cannot be just instantiated \
-                       because it uses static array memory.");
     }
 
     static ConstIterator begin(ConstCol& c) {

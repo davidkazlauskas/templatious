@@ -88,7 +88,8 @@ public:
             std::forward<FnRef>(fn)),
         _cleared(false)
     {
-        if (!_fn.getRef()(*_b)) {
+        bool begEqEnd = _b == _e;
+        if (!begEqEnd && !_fn.getRef()(*_b)) {
             ++_b;
         }
     }
@@ -104,7 +105,8 @@ public:
               _fn.cpy()),
           _cleared(other._cleared)
     {
-        if (!_fn.getRef()(*_b)) {
+        bool begEqEnd = _b == _e;
+        if (!begEqEnd && !_fn.getRef()(*_b)) {
             ++_b;
         }
     }
@@ -198,7 +200,7 @@ public:
             return !(*this == rhs);
         }
 
-        IVal& operator*()
+        auto operator*() -> decltype(*(this->_i))
         {
             return *(this->_i);
         }
@@ -363,22 +365,6 @@ struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
     template <class C>
     static int size(C&& c) {
         return c.size();
-    }
-
-    template <class V = int>
-    static void instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<V, false>::val,
-                      "loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class V = int>
-    static void instantiate(size_t sz) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<V, false>::val,
-                      "loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
     }
 
 };

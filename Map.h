@@ -23,6 +23,7 @@
 #include <templatious/util/spec/DefaultHashes.h>
 #include <templatious/map/MapAdapter.h>
 
+// IS THIS NEEDED?
 namespace templatious {
 
 template <class T>
@@ -39,7 +40,8 @@ struct Map {
 
     Map() : _m(std::move(Ad::instantiate())) {}
 
-    Map(MapType&& m) : _m(std::move(Ad::instantiate())) {
+    // WORKAROUND
+    Map(MapType&& m) : _m(std::move(T())) {
         std::swap(_m,m);
     }
 

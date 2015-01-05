@@ -68,13 +68,6 @@ struct CollectionAdapter<T*> {
         Inner::erase(*c,beg,end);
     }
 
-    static ThisCol instantiate() {
-        return Inner::instHeap();
-    }
-    static ThisCol instantiate(size_t size) {
-        return Inner::instHeap(size);
-    }
-
     static Iterator begin(ThisCol c) {
         return Inner::begin(*c);
     }
@@ -170,13 +163,6 @@ struct CollectionAdapter<const T*> {
                 "Const version of a collection doesn't support this method");
     }
 
-    static ThisCol instantiate() {
-        return Inner::instHeap();
-    }
-    static ThisCol instantiate(size_t size) {
-        return Inner::instHeap(size);
-    }
-
     static Iterator begin(ThisCol c) {
         return Inner::begin(*c);
     }
@@ -268,18 +254,6 @@ struct CollectionAdapter<T&> {
 
     static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
-    }
-
-    static auto instantiate()
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate();
-    }
-
-    static auto instantiate(size_t size)
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate(size);
     }
 
     static Iterator begin(RCol c) {
@@ -379,13 +353,6 @@ struct CollectionAdapter<const T&> {
                 "Const version of a collection doesn't support this method");
     }
 
-    static ThisCol instantiate() {
-        return Inner::instHeap();
-    }
-    static ThisCol instantiate(size_t size) {
-        return Inner::instHeap(size);
-    }
-
     static ConstIterator begin(CRCol c) {
         return Inner::cbegin(c);
     }
@@ -479,18 +446,6 @@ struct CollectionAdapter<T&&> {
 
     static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
-    }
-
-    static auto instantiate()
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate();
-    }
-
-    static auto instantiate(size_t size)
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate(size);
     }
 
     static Iterator begin(RCol c) {
@@ -602,18 +557,6 @@ struct CollectionAdapter<const T&&> {
 
     static void erase(RCol c, Iterator beg, Iterator end) {
         Inner::erase(c,beg,end);
-    }
-
-    static auto instantiate()
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate();
-    }
-
-    static auto instantiate(size_t size)
-        -> decltype(Inner::instantiate())
-    {
-        return Inner::instantiate(size);
     }
 
     static Iterator begin(RCol c) {

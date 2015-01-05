@@ -280,26 +280,6 @@ struct CollectionAdapter<
             "Collection repeater can be traversed only.");
     }
 
-    template <class U = int>
-    static bool instantiate()
-    {
-        static_assert(templatious::util::
-            DummyResolver<U,false>::val,
-            "Collection repeater can be instantiated"
-            " from other collection only.");
-        return false;
-    }
-
-    template <class U = int>
-    static bool instantiate(size_t size)
-    {
-        static_assert(templatious::util::
-            DummyResolver<U,false>::val,
-            "Collection repeater can be instantiated"
-            " from other collection only.");
-        return false;
-    }
-
     static Iterator begin(RCol c) {
         return c.begin();
     }
@@ -453,26 +433,6 @@ struct CollectionAdapter<
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
-    }
-
-    template <class U = int>
-    static bool instantiate()
-    {
-        static_assert(templatious::util::
-            DummyResolver<U,false>::val,
-            "Collection repeater can be instantiated"
-            " from other collection only.");
-        return false;
-    }
-
-    template <class U = int>
-    static bool instantiate(size_t size)
-    {
-        static_assert(templatious::util::
-            DummyResolver<U,false>::val,
-            "Collection repeater can be instantiated"
-            " from other collection only.");
-        return false;
     }
 
     static Iterator begin(RCol c) {

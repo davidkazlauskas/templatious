@@ -34,14 +34,18 @@ struct SizeVerifier<A,Args...> {
     SizeVerifier<Args...> _next;
 
     bool areAllEqual() {
-        if (_size == _next._size) {
+        // if size is -1 adapter is saying that
+        // size of collection is not known currently
+        if (_size != -1 && _size == _next._size) {
             return _next.areAllEqual();
         }
 
         return false;
     }
 
-    SizeVerifier(A& a, Args&... args) : _size(SA::size(a)), _next(args...) {}
+    SizeVerifier(A&& a, Args&&... args) :
+        _size(SA::size(std::forward<A>(a))),
+        _next(std::forward<Args>(args)...) {}
 };
 
 template <class A>

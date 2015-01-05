@@ -255,34 +255,6 @@ struct CollectionAdapter<
                 "SelectCollection doesn't support erase operations.");
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -408,34 +380,6 @@ struct CollectionAdapter<
         // suppress static assert unless method is actually called
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "SelectCollection doesn't support erase operations.");
-    }
-
-    template <class U = int>
-    static ConstCol instantiate() {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ConstCol instantiate(size_t size) {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ConstCol* instHeap() {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
-    }
-
-    template <class U = int>
-    static ConstCol* instHeap(size_t size) {
-        // suppress static assert unless method is actually called
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "SelectCollection must be instantiated with another collection.");
     }
 
     static ConstIterator begin(ConstCol& c) {

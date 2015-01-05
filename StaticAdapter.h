@@ -28,24 +28,57 @@
 namespace templatious {
 namespace sa_spec {
 
-enum AdditionVariant { Data, Collection, StaticArrays, Pack };
+enum AdditionVariant { Data, Collection, Pack, Invalid };
 
-template <class T, class U>
+template <class T, class U, class Function>
 struct AdditionSelector {
+    typedef templatious::adapters::CollectionAdapter<T> AdT;
+    typedef templatious::adapters::CollectionAdapter<U> AdU;
+
+    typedef templatious::util::IsCallableWith< Function, U > ICval;
+    typedef typename ICval::type FwdType;
+
     static const bool areAdaptable =
-        templatious::adapters::CollectionAdapter<T>::is_valid
-        && templatious::adapters::CollectionAdapter<U>::is_valid;
+        AdT::is_valid && AdU::is_valid;
+
+    static const bool isConvertable =
+        std::is_convertible<
+            FwdType, typename AdT::ValueType
+        >::value;
+
+    template <bool validAdapter,class ValType>
+    struct IsInnerConvertable {
+        typedef templatious::adapters::CollectionAdapter<ValType> Ad;
+        typedef typename Ad::ValueType VType;
+        typedef templatious::util::IsCallableWith<
+            Function, VType > ICInner;
+        typedef typename ICInner::type FwdType;
+    };
+
+    template <class ValType>
+    struct IsInnerConvertable<false,ValType> {
+        typedef templatious::util::InvalidType FwdType;
+    };
+
+    typedef IsInnerConvertable<
+        AdU::is_valid,U> InnerConv;
+
+    static const bool innerConv =
+        std::is_convertible<
+            typename InnerConv::FwdType, typename AdT::ValueType
+        >::value;
+
     enum {
         val = templatious::util::IntSelector<
-            areAdaptable,
-            AdditionVariant::Collection,
+            isConvertable,
+            AdditionVariant::Data,
             templatious::util::IntSelector<
-                templatious::detail::IsPack<U>::val,
-                AdditionVariant::Pack,
+                innerConv,
+                AdditionVariant::Collection,
                 templatious::util::IntSelector<
-                    std::is_array<U>::value,
-                    AdditionVariant::StaticArrays,
-                    AdditionVariant::Data
+                    templatious::detail::IsPack<U>::val,
+                    AdditionVariant::Pack,
+                    AdditionVariant::Invalid
                 >::val
             >::val
         >::val
@@ -77,7 +110,7 @@ struct add_custom< AdditionVariant::Data > {
 template <>  // add collections
 struct add_custom< AdditionVariant::Collection > {
     template <class T, class F, class U>
-    static void add(T& t, F&& f, const U& u) {
+    static void add(T& t, F&& f, U&& u) {
         typedef templatious::adapters::CollectionAdapter<T> AdT;
         typedef templatious::adapters::CollectionAdapter<const U> AdU;
         static_assert(AdT::is_valid, "Adapter not supported.");
@@ -92,14 +125,12 @@ struct add_custom< AdditionVariant::Collection > {
     }
 };
 
-template <>  // add static arrays
-struct add_custom< AdditionVariant::StaticArrays > {
-    template <class T, class F, class Arr, unsigned long count>
-    static void add(T& c, F&& f, const Arr (&arr)[count]) {
-        typedef templatious::adapters::CollectionAdapter<T> Ad;
-        for (int i = 0; i < count; ++i) {
-            Ad::add(c, f(arr[i]));
-        }
+template <>  // add invalid overload for friendly user message
+struct add_custom< AdditionVariant::Invalid > {
+    template <class T, class F, class... Any>
+    static void add(T& c, F&& f, Any&&... anything) {
+        static_assert(templatious::util::DummyResolver<T,false>::val,
+            "Type could not be added to collection.");
     }
 };
 
@@ -115,7 +146,6 @@ struct add_custom< AdditionVariant::Pack > {
         T& c, F&& f,
         P&& p)
     {
-        typedef templatious::adapters::CollectionAdapter<T> Ad;
         typedef typename std::conditional<
             which < std::decay<P>::type::size,
             AddNextVar,
@@ -208,10 +238,12 @@ struct StaticAdapter {
     static void add(T& c, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        sa_spec::ForwardFunctor fwd;
+        typedef sa_spec::ForwardFunctor Fwd;
+        Fwd fwd;
+        typedef decltype(std::forward<U>(o)) UTrue;
         sa_spec::add_custom<
-                sa_spec::AdditionSelector<T, U>::val
-            >::add(c,fwd,std::forward<U>(o));
+            sa_spec::AdditionSelector<T, UTrue, Fwd>::val
+        >::add(c,fwd,std::forward<U>(o));
     }
 
     template <class T, class U, class... Args>
@@ -226,9 +258,11 @@ struct StaticAdapter {
     static void addCustom(T& c, F&& f, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef decltype(std::forward<F>(f)) Fwd;
+        typedef decltype(std::forward<U>(o)) UTrue;
         sa_spec::add_custom<
-                sa_spec::AdditionSelector<T, U>::val
-            >::add(c, std::forward<F>(f), std::forward<U>(o));
+            sa_spec::AdditionSelector<T, UTrue, Fwd>::val
+        >::add(c, std::forward<F>(f), std::forward<U>(o));
     }
 
     template <class T, class F, class U, class... Args>
@@ -238,26 +272,29 @@ struct StaticAdapter {
         addCustom(c, std::forward<F>(f), std::forward<Args>(args)...);
     }
 
-
-    template <class T>
-    static T instantiate() {
-        typedef adapters::CollectionAdapter<T> Ad;
-        static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::instantiate();
-    }
-
-    template <class T>
-    static T instantiate(int size) {
-        typedef adapters::CollectionAdapter<T> Ad;
-        static_assert(Ad::is_valid, "Adapter not supported.");
-        return Ad::instantiate(size);
-    }
-
     template <class T>
     static int size(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::size(c);
+    }
+
+    template <class T>
+    static int trueSize(const T& c) {
+        typedef adapters::CollectionAdapter<T> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        int initial = size(c);
+        if (initial != -1) {
+            return initial;
+        }
+
+        int count = 0;
+        auto e = cend(c);
+        for (auto i = cbegin(c); i != e; ++i) {
+            ++count;
+        }
+
+        return count;
     }
 
     template <class T>
@@ -411,38 +448,6 @@ struct StaticAdapter {
         typedef VIteratorImpl<const T> VImpl;
         VImpl *v = new VImpl( Ad::citerAt(c,s) );
         return VIterator< ValType >(v);
-    }
-
-    // will be removed in the future.
-    template <bool reverse = false,class T,class Comp = typename templatious::util::Default>
-    static void sortedAdd(T& c, const typename adapters::CollectionAdapter<T>::ValueType& val) {
-        typedef adapters::CollectionAdapter<T> Ad;
-        static_assert(Ad::is_valid, "Adapter not supported.");
-        typedef typename Ad::ValueType ValType;
-
-        typedef typename templatious::util::ComparatorDiff<ValType,ValType,Comp> Comparator;
-        auto comp = templatious::util::rev<reverse>(Comparator());
-
-        if (0 == Ad::size(c)) {
-            Ad::add(c,val);
-        }
-
-        if (0 >= comp(Ad::last(c),val)) {
-            Ad::add(c,val);
-        }
-
-        if (0 <= comp(Ad::first(c),val)) {
-            Ad::insertAt(c,Ad::begin(c),val);
-        }
-
-        auto end = Ad::end(c);
-        for (auto i = Ad::begin(c); i != end; ++i) {
-            if (0 <= comp(*i,val)) {
-                Ad::insertAt(c,i,val);
-            }
-        }
-
-        assert(false);
     }
 
 };

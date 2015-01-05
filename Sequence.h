@@ -388,22 +388,6 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class U = int>
     static ValueType& first(ThisCol& c) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
@@ -534,22 +518,6 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
         return false;
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Loop class is not meant to be a full fledged \
-                collection, therefore, doesn't support this method.");
     }
 
     template <class U = int>

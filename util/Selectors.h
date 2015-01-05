@@ -101,6 +101,44 @@ namespace util {
         static const bool val = expected;
     };
 
+    // copied from stack overflow
+    // http://stackoverflow.com/questions/22882170/
+    // c-compile-time-predicate-to-test-if-a-callable-object-of-type-f-can-be-called
+    // tests if we can call function with a specific type
+    struct IsCallableWithHelper
+    {
+        template<typename F, typename... A>
+        static decltype(std::declval<F>()(std::declval<A>()...), std::true_type())
+        f(int);
+    
+        template<typename F, typename... A>
+        static std::false_type
+        f(...);
+    };
+
+    struct InvalidType;
+
+    template<typename F, typename... A>
+    struct IsCallableWith {
+
+        typedef decltype(IsCallableWithHelper::f<F, A...>(0)) Helper;
+
+        // true overload
+        template <bool isValid,class Func,class... Args>
+        struct Decider {
+            typedef decltype(
+                std::declval<Func>()(std::declval<Args>()...)
+            ) type;
+        };
+
+        template <class Func,class... Args>
+        struct Decider<false,Func,Args...> {
+            typedef InvalidType type;
+        };
+
+        typedef typename Decider< Helper::value, F, A... >::type type;
+        static const bool value = Helper::value;
+    };
 }
 }
 

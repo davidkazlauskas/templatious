@@ -11,11 +11,11 @@ BUG LOG:
 defects:
 
 #8. fix std::move semantics on instantiate collection
-20. when range/proxy get's clobbered it should throw an error trying to reiterate
+#20. when range/proxy get's clobbered it should throw an error trying to reiterate
 #25. move CollectionManipulator to templatious instead of templatious::manip namespace
-~35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
-45. SF::seq when used as rvalue only receives const iterator... maybe it should receive copies of normal iterator?
-46. tweak seq to only return one type of iterator
+#~35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
+#45. SF::seq when used as rvalue only receives const iterator... maybe it should receive copies of normal iterator?
+#46. tweak seq to only return one type of iterator
 
 features:
 
@@ -59,8 +59,10 @@ features:
 57. MULTIRATOR!!
 #58. select - type exchange collection
 #59. make static array looser (eliminate constant only size knowledge)
-60. seqR - sequence repeat same value
-61. storage policy for match functor. partial - should be customized
+#60. seqR - sequence repeat same value // - repS
+#61. storage policy for match functor. partial - should be customized
+62. iterator dump - useful for proxies
+#63. cversions of proxy methods - copy instead of proxy
 
 compatibility:
 
@@ -70,11 +72,11 @@ compatibility:
 #27. compile in clang
 #39. drop TypeSelector and use std::conditional
 #40. give packs policies to decide how to store variables
-52. rvalue storage policy is never used unless we call it with decltype, not template parameter
+#52. rvalue storage policy is never used unless we call it with decltype, not template parameter
 
 perfection:
 9. add const qualifiers to comparators
-23. replace asserts with thrown exceptions
+#23. replace asserts with thrown exceptions
 #26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
 #28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
 #51. rewrite erase function for filter to simply replace iterator instead of new collection

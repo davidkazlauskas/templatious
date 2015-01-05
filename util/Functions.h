@@ -34,6 +34,15 @@ struct DoNothingFunctor {
     void operator()(T&&... t) {}
 };
 
+struct ForwardFunctor {
+    template <class T>
+    auto operator()(T&& t)
+     -> decltype(std::forward<T>(t))
+    {
+        return std::forward<T>(t);
+    }
+};
+
 }
 }
 

@@ -3,17 +3,22 @@
 
 #include <utility>
 #include <type_traits>
-#include <assert.h>
+#include <vector>
 
-#include <templatious/adapters/All.h>
-#include <templatious/Utilities.h>
+#include <templatious/CollectionAdapter.h>
+#include <templatious/CollectionMaker.h>
+
+#include <templatious/util/SizeVerifier.h>
+#include <templatious/util/CallCountFunctor.h>
+#include <templatious/util/Exceptions.h>
+
 #include <templatious/IterMaker.h>
 #include <templatious/Pack.h>
 #include <templatious/detail/Distributor.h>
 #include <templatious/detail/UserUtil.h>
 
 namespace templatious {
-namespace detail{ 
+namespace detail {
 
     enum Variant { Item, Pack, Collection };
 
@@ -76,6 +81,11 @@ namespace detail{
 
 }
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( MapFunctionNotEqualException,
+    "Collections passed to map are not all equal in size.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( TraverseFunctionNotEqualException,
+    "Collections passed to traverse are not all equal in size.");
+
 struct StaticManipulator {
 private:
     template <
@@ -105,114 +115,6 @@ private:
             return i.callFunction(std::forward<F>(f),idx);
         }
     };
-
-    template
-    <
-        bool stopAtFirst,
-        class T,
-        class Out = std::vector<
-            typename templatious::adapters::CollectionAdapter<T>::Iterator
-        >
-    >
-    static Out findIterInternal(
-            T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
-            )
-    {
-        namespace ut = templatious::util;
-        namespace ad = templatious::adapters;
-        typedef typename templatious::StaticAdapter SA;
-        typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::ValueType ValType;
-        ut::ComparatorEq<ValType,ValType> comp;
-
-        auto res =
-            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
-
-        auto end = SA::end(col);
-        for (auto i = SA::begin(col); i != end; ++i) {
-            if (comp(*i,v)) {
-                SA::add(res,i);
-                if (stopAtFirst) {
-                    break;
-                }
-            }
-        }
-        return std::move(res);
-    }
-
-    template
-    <
-        bool stopAtFirst,
-        class T,
-        class Out = std::vector<int>
-    >
-    static Out findIdxInternal(
-            T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
-            )
-    {
-        namespace ut = templatious::util;
-        namespace ad = templatious::adapters;
-        typedef typename templatious::StaticAdapter SA;
-        typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::ValueType ValType;
-        ut::ComparatorEq<ValType,ValType> comp;
-
-        auto res =
-            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
-        int idx = 0;
-        auto end = SA::end(col);
-        for (auto i = SA::begin(col); i != end; ++i) {
-            if (comp(*i,v)) {
-                SA::add(res,idx);
-                if (stopAtFirst) {
-                    break;
-                }
-            }
-            ++idx;
-        }
-        return std::move(res);
-    }
-
-    template
-    <
-        bool stopAtFirst,
-        class T,
-        class Out = std::vector<
-            std::pair<
-                int,
-                typename templatious::adapters::CollectionAdapter<T>::Iterator
-            >
-        >
-    >
-    static Out findIdxIterInternal(
-            T& col,
-            const typename templatious::adapters::CollectionAdapter<T>::ValueType& v
-            )
-    {
-        namespace ut = templatious::util;
-        namespace ad = templatious::adapters;
-        typedef typename templatious::StaticAdapter SA;
-        typedef typename ad::CollectionAdapter<T> AD;
-        typedef typename AD::ValueType ValType;
-        ut::ComparatorEq<ValType,ValType> comp;
-
-        auto res =
-            stopAtFirst ? SA::instantiate<Out>(1) : SA::instantiate<Out>();
-        int idx = 0;
-        auto end = SA::end(col);
-        for (auto i = SA::begin(col); i != end; ++i) {
-            if (comp(*i,v)) {
-                SA::add(res,std::make_pair(idx,i));
-                if (stopAtFirst) {
-                    break;
-                }
-            }
-            ++idx;
-        }
-        return std::move(res);
-    }
 
     template <
         bool ignoreBooleanReturn = false,
@@ -273,31 +175,49 @@ private:
 public:
 
     // T - return col, U - functor, Args - collections
-    template <class T,bool passIndex = false,class U,class... Args>
-    static T moldToOne(U&& fn,Args&&... args) {
-        assert(templatious::util::SizeVerifier<Args...>(std::forward<Args>(args)...).areAllEqual());
+    template <
+        class T,bool passIndex = false,
+        template <class...> class ResCollection = std::vector,
+        template <class> class Allocator = std::allocator,
+        class U,class... Args>
+    static auto map(U&& fn,Args&&... args)
+     -> decltype(
+         templatious::adapters::CollectionMaker<
+             T,ResCollection,Allocator>::
+             make(0)
+     )
+    {
+        if (!templatious::util::SizeVerifier<Args...>(
+            std::forward<Args>(args)...).areAllEqual())
+        {
+            throw MapFunctionNotEqualException();
+        }
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::StaticAdapter SA;
-        namespace tup = templatious::tuple;
         namespace ut = templatious::util;
 
-        typedef typename templatious::adapters::CollectionAdapter<T> CA;
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
 
         int size = SA::size(ut::getFirst(std::forward<Args>(args)...));
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
-        auto result = CA::instantiate(size);
+        typedef templatious::adapters::CollectionMaker<
+            T,ResCollection,Allocator> Mk;
 
-        size_t idx;
-        if (passIndex) {
-            idx = 0;
-        }
+        auto result = Mk::make(size);
+        size_t idx = 0;
+
+        // hopefully, static_assert is more readable
+        typedef decltype(ICall::call(
+            std::forward<U>(fn),idx,std::forward<Iter>(it))) RetType;
+        static const bool is_void = std::is_same< void, RetType >::value;
+        static_assert( !is_void,
+            "Function passed to map has to return non-void value." );
 
         for (; it._a != e; it.inc()) {
-            CA::add(result,
+            SA::add(result,
                     ICall::call(std::forward<U>(fn),
                     idx,std::forward<Iter>(it)));
 
@@ -311,7 +231,11 @@ public:
 
     template <bool passIndex = false, class U, class... Args>
     static void traverse(U&& fn, Args&&... args) {
-        assert(templatious::util::SizeVerifier<Args...>(args...).areAllEqual());
+        if (!templatious::util::SizeVerifier<Args...>(
+            args...).areAllEqual())
+        {
+            throw TraverseFunctionNotEqualException();
+        }
 
         typedef typename templatious::recursive::IteratorMaker ItMk;
         typedef typename templatious::StaticAdapter SA;
@@ -449,10 +373,42 @@ public:
         return r;
     }
 
+    template <class RetVal = double,class Fn,class... V>
+    static RetVal sumS(Fn&& f,V&&... args) {
+        RetVal r(0);
+        templatious::detail::SumFunctorCustom<
+            RetVal,decltype(std::forward<Fn>(f))>
+            func(r,std::forward<Fn>(f));
+        func._cnt = 0;
+
+        // again, assumption about numeric values
+        genericCallAll< detail::DeciderAllUniform >(
+            func,std::forward<V>(args)...
+        );
+
+        return r;
+    }
+
     template <class RetVal = double,class... V>
     static RetVal avg(V&&... args) {
         RetVal r(0);
         templatious::detail::SumFunctor<RetVal,true> func(r);
+        func._cnt = 0;
+
+        // again, assumption about numeric values
+        genericCallAll< detail::DeciderAllUniform, true >(
+            func,std::forward<V>(args)...
+        );
+
+        return r / func._cnt;
+    }
+
+    template <class RetVal = double,class Fn,class... V>
+    static RetVal avgS(Fn&& f,V&&... args) {
+        RetVal r(0);
+        templatious::detail::SumFunctorCustom<
+            RetVal,decltype(std::forward<Fn>(f)),true>
+            func(r,std::forward<Fn>(f));
         func._cnt = 0;
 
         // again, assumption about numeric values
@@ -494,48 +450,6 @@ public:
             std::forward<Func>(f),
             std::forward<T>(t),
             std::forward<Args>(args)...);
-    }
-
-    template <class T,class U>
-    static auto findFirstIter(T& col,const U& v)
-        -> decltype(findIterInternal<true>(col,v))
-    {
-        return findIterInternal<true>(col,v);
-    }
-
-    template <class T,class U>
-    static auto findIter(T& col,const U& v)
-        -> decltype(findIterInternal<false>(col,v))
-    {
-        return findIterInternal<false>(col,v);
-    }
-
-    template <class T,class U>
-    static auto findFirstIdx(T& col,const U& v)
-        -> decltype(findIdxInternal<true>(col,v))
-    {
-        return findIdxInternal<true>(col,v);
-    }
-
-    template <class T,class U>
-    static auto findIdx(T& col,const U& v)
-        -> decltype(findIdxInternal<false>(col,v))
-    {
-        return findIdxInternal<false>(col,v);
-    }
-
-    template <class T,class U>
-    static auto findIdxIter(T& col,const U& v)
-        -> decltype(findIdxIterInternal<false>(col,v))
-    {
-        return findIdxIterInternal<false>(col,v);
-    }
-
-    template <class T,class U>
-    static auto findFirstIdxIter(T& col,const U& v)
-        -> decltype(findIdxIterInternal<true>(col,v))
-    {
-        return findIdxIterInternal<true>(col,v);
     }
 
 };

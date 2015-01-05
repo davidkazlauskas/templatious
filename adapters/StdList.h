@@ -50,14 +50,6 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         c.insert(at,std::forward<V>(v));
     }
 
-	static ThisCol instantiate() {
-		return std::move(ThisCol()); }
-
-	static ThisCol instantiate(int size) {
-		ThisCol r;
-		return std::move(r);
-	}
-
 	static Iterator begin(ThisCol& c) {
 		return c.begin();
 	}
@@ -234,25 +226,6 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
-
-
-	static ThisCol instantiate() {
-		return std::move(ThisCol());
-	}
-
-	static ThisCol instantiate(size_t size) {
-		ThisCol r;
-		return std::move(r);
-	}
-
-	static ThisCol* instHeap() {
-		return new ThisCol();
-	}
-
-	static ThisCol* instHeap(size_t size) {
-		ThisCol* r = new ThisCol();
-		return r;
-	}
 
 	static ConstIterator begin(ConstCol& c) {
 		return c.cbegin();

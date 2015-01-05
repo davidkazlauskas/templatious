@@ -541,38 +541,6 @@ struct CollectionAdapter< StaticVector<T> > {
         c.erase(beg,end);
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(int size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(int size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -674,38 +642,6 @@ struct CollectionAdapter< const StaticVector<T> > {
 
     static void erase(ThisCol& c, Iterator beg, Iterator end) {
         c.erase(beg,end);
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(int size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(int size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "StaticVector cannot be just instantiated \
-                       because it uses static array memory.");
     }
 
     static Iterator begin(ConstCol& c) {

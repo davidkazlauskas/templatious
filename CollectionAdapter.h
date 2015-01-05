@@ -46,11 +46,6 @@ struct CollectionAdapter {
     static void erase(ThisCol& c, Iterator i);
     static void erase(ThisCol& c, Iterator beg, Iterator end);
 
-    static ThisCol instantiate();
-    static ThisCol instantiate(size_t size);
-    static ThisCol* instHeap();
-    static ThisCol* instHeap(size_t size);
-
     static Iterator begin(ThisCol& c);
     static Iterator end(ThisCol& c);
     static Iterator iterAt(ThisCol& c, size_t i);

@@ -76,14 +76,6 @@ struct MapAdapter<
             > ThisMap;
     typedef Comp Comparator;
 
-    static ThisMap instantiate() {
-        return std::move(ThisMap());
-    }
-
-    static ThisMap instantiate(size_t size) {
-        return std::move(ThisMap());
-    }
-
     static bool keyExists(const ThisMap& h,const KeyType& k) {
         return h.end() != h.find(k);
     }

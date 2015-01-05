@@ -89,34 +89,6 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.erase(beg,end);
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -216,34 +188,6 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
 
     static void erase(ThisCol& c,const Iterator& beg,const Iterator& end) {
         return c.erase(beg,end);
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "Virtual collection shall be wrapped around actual collection, "
-                "not instantiated on its own.");
     }
 
     static ConstIterator begin(ConstCol& c) {

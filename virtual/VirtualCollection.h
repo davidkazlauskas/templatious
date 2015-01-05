@@ -359,42 +359,6 @@ struct CollectionAdapter< VCollection<T> > {
         c.erase(beg,end);
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -493,42 +457,6 @@ struct CollectionAdapter< const VCollection<T> > {
 
     static void erase(ThisCol& c, const Iterator& beg, const Iterator& end) {
         c.erase(beg,end);
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        // suppress static assert until method is actually called
-        static_assert(templatious::util::DummyResolver<U, false>::val,
-                      "Virtual collection should be wrapper \
-                      around actual collection, therefore, \
-                      cannot be instantiated.");
     }
 
     static Iterator begin(ConstCol& c) {

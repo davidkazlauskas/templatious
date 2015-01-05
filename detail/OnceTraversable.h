@@ -258,34 +258,6 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -438,34 +410,6 @@ struct CollectionAdapter<
                 " and can be traversed with iterators only.");
     }
 
-    template <class U = int>
-    static ThisCol instantiate() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol* instHeap(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
     static Iterator begin(ThisCol& c) {
         return c.begin();
     }
@@ -591,20 +535,6 @@ struct CollectionAdapter<
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate() {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
-    }
-
-    template <class U = int>
-    static ThisCol instantiate(size_t size) {
-        static_assert(templatious::util::DummyResolver<U,false>::val,
-                "OnceTraversable can only be instantiated"
-                " out of another collection.");
     }
 
     template <class U = int>
