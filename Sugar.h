@@ -59,6 +59,9 @@ struct __ForeachCounter {
             ++__tmp_i)                                                                           \
         for (var = *__tmp_i._i; ; ({__tmp_i.flipGoing();break;}))
 
+#define TEMPLATIOUS_0_TO_N(var,to) TEMPLATIOUS_FOREACH(var,::templatious::StaticFactory          \
+        ::seqL(to))
+
 #define TEMPLATIOUS_REPEAT(n) \
     TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::seqL(n))
 

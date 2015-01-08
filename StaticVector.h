@@ -450,7 +450,7 @@ struct StaticBuffer {
     // a negative value than a very large number.
     // this is not meant for huge collections anyway
     // and shall be contained on the stack
-    auto getStaticVector(int capacity)
+    auto getStaticVector(size_t capacity)
      -> StaticVector<T>
     {
         if (capacity <= 0) {
