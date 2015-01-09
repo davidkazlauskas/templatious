@@ -117,11 +117,11 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static Iterator iterAt(ThisCol& c,size_t i) {
-        if (size(c) < i) {
+        if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        int count = 0;
+        size_t count = 0;
         auto iter = begin(c);
         while (count < i) {
             ++iter;
@@ -132,11 +132,11 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static ConstIterator iterAt(ConstCol& c,size_t i) {
-        if (size(c) < i) {
+        if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        int count = 0;
+        size_t count = 0;
         auto iter = cbegin(c);
         while (count < i) {
             ++iter;
@@ -147,11 +147,11 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static Iterator iterAt(ThisCol&& c,size_t i) {
-        if (size(c) < i) {
+        if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        int count = 0;
+        size_t count = 0;
         auto iter = begin(c);
         while (count < i) {
             ++iter;
@@ -162,11 +162,11 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static ConstIterator citerAt(ConstCol& c,size_t i) {
-        if (size(c) < i) {
+        if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        int count = 0;
+        size_t count = 0;
         auto iter = cbegin(c);
         while (count < i) {
             ++iter;
