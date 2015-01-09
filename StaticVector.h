@@ -239,6 +239,22 @@ struct StaticVector {
         return ConstIter(_vct,_cnt,_cnt);
     }
 
+    ValTrue* rawBegin() {
+        return _vct;
+    }
+
+    ValTrue* rawEnd() {
+        return _vct + _cnt;
+    }
+
+    const ValTrue* rawCBegin() const {
+        return _vct;
+    }
+
+    const ValTrue* rawCEnd() const {
+        return _vct + _cnt;
+    }
+
     void clear() {
         destroyAll();
         _cnt = 0;
@@ -384,7 +400,6 @@ struct StaticVector {
         ValType* _vct;
         ulong _size;
         ulong _iter;
-
     };
 
 private:
@@ -450,7 +465,7 @@ struct StaticBuffer {
     // a negative value than a very large number.
     // this is not meant for huge collections anyway
     // and shall be contained on the stack
-    auto getStaticVector(size_t capacity)
+    auto getStaticVector(int capacity)
      -> StaticVector<T>
     {
         if (capacity <= 0) {
