@@ -494,7 +494,7 @@ struct StaticBuffer {
 
 private:
     typedef typename std::remove_const<T>::type ValTrue;
-    size_t remainingSize() const {
+    int remainingSize() const {
         return total_size - _currSize;
     }
 
