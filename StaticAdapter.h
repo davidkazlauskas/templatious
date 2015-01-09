@@ -372,6 +372,12 @@ struct StaticAdapter {
         Ad::clear(c);
     }
 
+    template <class T,class... Tail>
+    static void clear(T& c,Tail&... t) {
+        clear(c);
+        clear(t...);
+    }
+
     template <class T>
     static auto vbegin(T& c)
     -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
