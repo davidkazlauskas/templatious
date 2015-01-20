@@ -22,6 +22,7 @@
 #include <type_traits>
 
 #include <templatious/CollectionAdapter.h>
+#include <templatious/util/DefaultStoragePolicy.h>
 
 namespace templatious {
 namespace recursive {
@@ -34,9 +35,11 @@ struct QuadroIterator<A> {
     typedef QuadroIterator<A> ThisIter;
     typedef templatious::adapters::CollectionAdapter<A> Adapter;
     typedef typename Adapter::Iterator Iterator;
-    typedef typename Adapter::ValueType ValType;
 
-    A& _c;
+    typedef typename templatious::util::
+        DefaultStoragePolicy< A >::Container Container;
+
+    Container _c;
     Iterator _i;
     Iterator _e;
 
@@ -61,21 +64,21 @@ struct QuadroIterator<A> {
     }
 
     void reset() {
-        _i = Adapter::begin(_c);
+        _i = Adapter::begin(_c.getRef());
     }
 
     template <class F>
     auto callFunction(F&& f)
-        -> decltype(f(std::forward<ValType>(*_i)))
+        -> decltype(f(*_i))
     {
-        return f(std::forward<ValType>(*_i));
+        return f(*_i);
     }
 
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args) ->
-    decltype(f(std::forward<Args>(args)..., std::forward<ValType>(*_i)))
+    decltype(f(std::forward<Args>(args)..., *_i))
     {
-        return f(std::forward<Args>(args)..., std::forward<ValType>(*_i));
+        return f(std::forward<Args>(args)..., *_i);
     }
 
 
@@ -87,9 +90,11 @@ struct QuadroIterator<A, Tail...> {
     typedef QuadroIterator<Tail...> TailIter;
     typedef templatious::adapters::CollectionAdapter<A> Adapter;
     typedef typename Adapter::Iterator Iterator;
-    typedef typename Adapter::ValueType ValType;
 
-    A& _c;
+    typedef typename templatious::util::
+        DefaultStoragePolicy< A >::Container Container;
+
+    Container _c;
     Iterator _i;
     Iterator _e;
     TailIter _t;
@@ -118,26 +123,26 @@ struct QuadroIterator<A, Tail...> {
     }
 
     void reset() {
-        _i = Adapter::begin(_c);
+        _i = Adapter::begin(_c.getRef());
         _t.reset();
     }
 
     template <class F>
     auto callFunction(F&& f) -> decltype(
-        _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_i)))
+        _t.callFunction(std::forward<F>(f), *_i))
     {
-        return _t.callFunction(std::forward<F>(f), std::forward<ValType>(*_i));
+        return _t.callFunction(std::forward<F>(f), *_i);
     }
 
     template <class F, class... Args>
     auto callFunction(F&& f, Args&&... args)
         -> decltype(_t.callFunction(
-        std::forward<F>(f), std::forward<Args>(args)..., std::forward<ValType>(*_i)))
+        std::forward<F>(f), std::forward<Args>(args)..., *_i))
     {
         return _t.callFunction(
                 std::forward<F>(f),
                 std::forward<Args>(args)...,
-                std::forward<ValType>(*_i));
+                *_i);
     }
 
 

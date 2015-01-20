@@ -99,20 +99,24 @@ private:
 
     template <class F,class ITER,class Index>
     struct IteratorCaller<F, ITER, false, Index> {
-        static auto call(F&& f, Index idx, ITER&& i)
-            -> decltype(i.callFunction(std::forward<F>(f)))
+
+        template <class FInt,class IterInt>
+        auto operator()(FInt&& f, Index idx, IterInt&& i)
+            -> decltype(i.callFunction(std::forward<FInt>(f)))
         {
-            return i.callFunction(std::forward<F>(f));
+            return i.callFunction(std::forward<FInt>(f));
         }
     };
 
     template <class F,class ITER,class Index>
     struct IteratorCaller<F, ITER, true, Index> {
-        static auto call(F&& f, Index idx, ITER&& i)
-            -> decltype(i.callFunction(std::forward<F>(f),
+
+        template <class FInt,class IterInt>
+        auto operator()(FInt&& f, Index idx, IterInt&& i)
+            -> decltype(i.callFunction(std::forward<FInt>(f),
                         idx))
         {
-            return i.callFunction(std::forward<F>(f),idx);
+            return i.callFunction(std::forward<FInt>(f),idx);
         }
     };
 
@@ -200,6 +204,7 @@ public:
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        ICall call;
 
         int size = SA::size(ut::getFirst(std::forward<Args>(args)...));
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
@@ -210,16 +215,18 @@ public:
         size_t idx = 0;
 
         // hopefully, static_assert is more readable
-        typedef decltype(ICall::call(
-            std::forward<U>(fn),idx,std::forward<Iter>(it))) RetType;
-        static const bool is_void = std::is_same< void, RetType >::value;
+        typedef decltype(call(
+            std::forward<U>(fn),
+            idx,it)) RetType;
+        static const bool is_void =
+            std::is_same< void, RetType >::value;
         static_assert( !is_void,
             "Function passed to map has to return non-void value." );
 
         for (; it._a != e; it.inc()) {
             SA::add(result,
-                    ICall::call(std::forward<U>(fn),
-                    idx,std::forward<Iter>(it)));
+                call(std::forward<U>(fn),
+                idx,it));
 
             if (passIndex) {
                 ++idx;
@@ -244,6 +251,7 @@ public:
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        ICall call;
 
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
         size_t idx;
@@ -254,11 +262,14 @@ public:
         for (; it._a != e; it.inc()) {
             typedef typename ut::RetValSelector<
                 decltype(
-                    ICall::call(std::forward<U>(fn),idx,std::forward<Iter>(it))
+                    call(std::forward<U>(fn),
+                    idx,it)
                 ) > Sel;
 
             if (!Sel::callAndEval(
-                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it)))
+                call,
+                std::forward<U>(fn),
+                idx,it))
             { return; }
 
             if (passIndex) {
@@ -275,16 +286,19 @@ public:
         auto it = ItMk::makeQuadro(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        ICall call;
 
         size_t idx = 0;
 
         do {
             typedef typename ut::RetValSelector<
                 decltype(
-                    ICall::call(std::forward<U>(fn),idx,std::forward<Iter>(it))
+                    call(std::forward<U>(fn),idx,it)
                 ) > Sel;
             if (!Sel::callAndEval(
-                ICall::call,std::forward<U>(fn),idx,std::forward<Iter>(it)))
+                call,
+                std::forward<U>(fn),
+                idx,it))
             { return ++idx; }
 
             ++idx;

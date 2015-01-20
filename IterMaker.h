@@ -35,9 +35,14 @@ struct IteratorMaker {
     }
 
     template <class... Args>
-    static auto makeQuadro(Args&&... args) -> QuadroIterator<Args...>
+    static auto makeQuadro(Args&&... args)
+        -> QuadroIterator<
+            decltype(std::forward<Args>(args))...
+        >
     {
-        return QuadroIterator<Args...>(std::forward<Args>(args)...);
+        return QuadroIterator<
+            decltype(std::forward<Args>(args))...
+        >(std::forward<Args>(args)...);
     }
 };
 

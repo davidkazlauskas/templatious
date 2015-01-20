@@ -63,6 +63,8 @@ features:
 #61. storage policy for match functor. partial - should be customized
 62. iterator dump - useful for proxies
 #63. cversions of proxy methods - copy instead of proxy
+64. fold
+65. inspect
 
 compatibility:
 

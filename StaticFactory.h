@@ -739,10 +739,11 @@ struct StaticFactory {
         return TheMatch(templatious::util::DoNothingFunctor());
     }
 
+    template <class T = void>
     static auto matchAnyForward()
      -> detail::Match<
         templatious::TypeList< AnyType >,
-        templatious::util::ForwardFunctor,
+        templatious::util::ForwardFunctor<T>,
         templatious::util::DefaultStoragePolicy,
         detail::LooseRecursiveComparison,
         templatious::detail::TypelistContains
@@ -750,12 +751,12 @@ struct StaticFactory {
     {
         typedef detail::Match<
             templatious::TypeList< AnyType >,
-            templatious::util::ForwardFunctor,
+            templatious::util::ForwardFunctor<T>,
             templatious::util::DefaultStoragePolicy,
             detail::LooseRecursiveComparison,
             templatious::detail::TypelistContains
         > TheMatch;
-        return TheMatch(templatious::util::ForwardFunctor());
+        return TheMatch(templatious::util::ForwardFunctor<T>());
     }
 
     template <
