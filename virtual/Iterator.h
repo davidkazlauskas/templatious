@@ -120,9 +120,7 @@ struct VIterator {
     }
 
     ~VIterator() {
-        if (nullptr != _i) {
-            delete _i;
-        }
+        freePtr();
     }
 
     ThisIter& operator++() {
@@ -163,12 +161,14 @@ struct VIterator {
         return *this;
     }
 
-    // temporary workaround
+private:
+    template <class Tm>
+    friend struct VCollectionImpl;
+
     Base* getBase() const {
         return _i;
     }
 
-private:
     void freePtr() { delete _i; }
 
     Base* _i;

@@ -27,6 +27,7 @@
 #include <templatious/StaticAdapter.h>
 
 namespace templatious {
+namespace detail {
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( ProxyClearedUsageException,
     "Cleared proxy cannot be traversed anymore." );
@@ -351,6 +352,7 @@ struct AdvancePicker<false> {
 
 };
 
+}
 }
 
 #endif /* end of include guard: PICKER_RLHXNUK4 */

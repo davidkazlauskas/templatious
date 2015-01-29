@@ -79,6 +79,23 @@ namespace detail {
     struct SetImplVariable;
     struct SetImplPack;
 
+    template <class T,class F>
+    struct FoldFunctor {
+        template <class Func>
+        FoldFunctor(T& t,Func&& f)
+            : _c(t), _f(std::forward<Func>(f)) {}
+
+        template <class V>
+        void operator()(V&& arg) {
+            _c = _f.getRef()(_c,std::forward<V>(arg));
+        }
+
+        typedef typename templatious::util::
+            DefaultStoragePolicy<F>::Container Container;
+    private:
+        T& _c;
+        Container _f;
+    };
 }
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( MapFunctionNotEqualException,
@@ -178,7 +195,27 @@ private:
 
 public:
 
-    // T - return col, U - functor, Args - collections
+    /**
+     * Map function. Accepts function which takes n amount of
+     * args from n collections which are traversed linearly and
+     * new collection is made containing elements which are
+     * results of specified function.
+     * @param[in] fn Function to use when mapping
+     * @param[in] args Arguments, collections to traverse
+     * in linear way. Assertion is made that they all
+     * contain same amount of elements.
+     * @param[out] T the collection element type to be returned.
+     * Inferred by default
+     * @param[in] passIndex Flag wether to pass current iteration
+     * index while traversing. Index is passed first to function.
+     * Defaults to false.
+     * @param[out] ResCollection Collection type to return from
+     * this function. Defaults to std::vector. Needed amount of
+     * memory for collection is preallocated if applicable.
+     * @param[out] Allocator Allocator to use for new collection
+     * if applicable. Is ignored if collection is allocator
+     * indifferent.
+     */
     template <
         class T,bool passIndex = false,
         template <class...> class ResCollection = std::vector,
@@ -236,6 +273,16 @@ public:
         return std::move(result);
     }
 
+    /**
+     * Linear traversal function
+     * @param[in] fn Function to be used on traversal.
+     * Should take arguments from args collection value types.
+     * @param[in] args Collection arguments to be traversed
+     * linearly. Must all have the same count of elements.
+     * @param[in] passIndex Boolean value wether to pass index
+     * of current traversal (from 0) to a function. If passed,
+     * index is passed first. Defaults to false.
+     */
     template <bool passIndex = false, class U, class... Args>
     static void traverse(U&& fn, Args&&... args) {
         if (!templatious::util::SizeVerifier<Args...>(
@@ -278,6 +325,16 @@ public:
         }
     }
 
+    /**
+     * Quadratic traversal function.
+     * @param[in] fn Function to be used on each iteration.
+     * Should take in args collection value types.
+     * @param[in] args Collection arguments to be traversed
+     * in quadratic manner.
+     * @param[in] passIndex Sets whether to pass traversal
+     * index (starting with 0) to function. If passed
+     * it is passed first. Defaults to false.
+     */
     template <bool passIndex = false, class U, class... Args>
     static size_t quadro(U&& fn, Args&&... args) {
         typedef typename templatious::recursive::IteratorMaker ItMk;
@@ -307,6 +364,9 @@ public:
         return idx;
     }
 
+    /**
+     * probably will be removed
+     */
     template <class T,class U,class Comp = templatious::util::ComparatorEq<U,U,templatious::util::Default> >
     static bool valExists(const T& col,const U& v) {
         typedef typename templatious::StaticAdapter SA;
@@ -322,12 +382,27 @@ public:
         return false;
     }
 
+    /**
+     * Variadic set function overload.
+     * @param[in] t Value used for setting.
+     * @param[in,out] v One entity to set.
+     * Can be collection, pack or a single
+     * variable.
+     * @param[in,out] args Rest of the entities
+     * to use set function on.
+     */
     template <class T,class V,class... Col>
     static void set(T&& t,V& v,Col&... args) {
         set(std::forward<T>(t),v);
         set(std::forward<T>(t),args...);
     }
 
+    /**
+     * Value set function.
+     * @param[in] t Value used for setting
+     * @param[in,out] v Entity to set. Can be collection,
+     * pack or a single variable.
+     */
     template <class T,class V>
     static void set(T&& t,V& col) {
         typedef typename templatious::adapters::CollectionAdapter<V> Ad;
@@ -342,6 +417,22 @@ public:
         Impl::impl(std::forward<T>(t),col);
     }
 
+    /**
+     * Generic call each function for multiple elements
+     * (packs are considered composite)
+     * @param[in] f Function to call on each argument.
+     * Function may return false to stop traversal
+     * (will work if ignoreBooleanReturn is set to false).
+     * @param[in,out] args Arguments to call function on.
+     * Can be variables or packs. Packs are processed
+     * recursively calling function on each element
+     * of the pack.
+     * @param[in] ignoreBooleanReturn Value which determines
+     * whether to interpret function return value (if it
+     * happens to be boolean) as a signal to stop traversal.
+     * If set to true boolean return value is ignored and
+     * traversal always iterates through every element.
+     */
     template <
         bool ignoreBooleanReturn = false,
         class T,class... V
@@ -357,6 +448,21 @@ public:
         return func.getCount();
     }
 
+    /**
+     * Generic foreach function for multiple elements
+     * (collections are considered composite)
+     * @param[in] f Function to call on each argument.
+     * Function may return false to stop traversal
+     * (will work if ignoreBooleanReturn is set to false).
+     * @param[in,out] args Arguments to call function on.
+     * Can be variables or collections. Collections are
+     * processed element by element.
+     * @param[in] ignoreBooleanReturn Value which determines
+     * whether to interpret function return value (if it
+     * happens to be boolean) as a signal to stop traversal.
+     * If set to true boolean return value is ignored and
+     * traversal always iterates through every element.
+     */
     template <
         bool ignoreBooleanReturn = false,
         class T,class... V
@@ -372,6 +478,14 @@ public:
         return func.getCount();
     }
 
+    /**
+     * Sum utility function. Returns numeric sum of
+     * all elements.
+     * @param[in] args Elements to sum. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double.
+     */
     template <class RetVal = double,class... V>
     static RetVal sum(V&&... args) {
         RetVal r(0);
@@ -387,6 +501,16 @@ public:
         return r;
     }
 
+    /**
+     * Sum using special function. Returns numeric sum of
+     * all elements.
+     * @param[in] f Function to be used on every element
+     * before summing an element to the result.
+     * @param[in] args Elements to sum. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double.
+     */
     template <class RetVal = double,class Fn,class... V>
     static RetVal sumS(Fn&& f,V&&... args) {
         RetVal r(0);
@@ -403,6 +527,14 @@ public:
         return r;
     }
 
+    /**
+     * Average of values. Returns numeric average
+     * of elements passed.
+     * @param[in] args Elements to sum. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double.
+     */
     template <class RetVal = double,class... V>
     static RetVal avg(V&&... args) {
         RetVal r(0);
@@ -417,6 +549,16 @@ public:
         return r / func._cnt;
     }
 
+    /**
+     * Average of values using special function.
+     * Returns numeric average of elements passed.
+     * @param[in] f Function to be used on every element
+     * before summing an element to the result.
+     * @param[in] args Elements to sum. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double.
+     */
     template <class RetVal = double,class Fn,class... V>
     static RetVal avgS(Fn&& f,V&&... args) {
         RetVal r(0);
@@ -433,28 +575,91 @@ public:
         return r / func._cnt;
     }
 
+    /**
+     * Fold function. Folds multiple values to single.
+     * @param[in] start Starting value. Should be copy
+     * constructable.
+     * @param[in] f Function to apply in every iteration.
+     * Should take in two values as arguments,
+     * the accumulator value and the value processed
+     * through every iteration of a sequence.
+     * Should return newly calculated value.
+     * @param[in] args Arguments to traverse. Can process
+     * packs, collections and single variables.
+     */
+    template <class T,class F,class... Args>
+    static T fold(T&& start,F&& f,Args&&... args) {
+        auto var = start;
+        detail::FoldFunctor<
+            decltype(std::forward<T>(start)),
+            decltype(std::forward<F>(f))
+        > ff(var,std::forward<F>(f));
+
+        genericCallAll< detail::DeciderAllUniform, true >(
+                ff,std::forward<Args>(args)...
+        );
+
+        return std::move(var);
+    }
+
+    /**
+     * Distribute function. Distributes from pack
+     * or collection over other collections/packs/variables
+     * in a linear fashion. Returns how many
+     * distributions were made.
+     * @param[in] t Entity to distribute from.
+     * Can be pack or collection.
+     * @param[out] args Arguments to distribute over.
+     * Can be packs, collections or single variables.
+     */
     template <
-        bool ignoreBooleanReturn = false,
         class T,class... Args
     >
     static size_t distribute(T&& t,Args&&... args) {
-        return distributeInternal<ignoreBooleanReturn>(
+        return distributeInternal<false>(
             templatious::detail::AssignDispatcher(),
             std::forward<T>(t),
             std::forward<Args>(args)...);
     }
 
+    /**
+     * Reverse distribute function. Distributes
+     * over pack or collection from other
+     * collections/packs/variables in a linear fashion.
+     * Returns how many distributions were made.
+     * @param[out] t Entity to distribute to.
+     * Can be pack or collection.
+     * @param[in] args Arguments to distribute from.
+     * Can be packs, collections or single variables.
+     */
     template <
-        bool ignoreBooleanReturn = false,
         class T,class... Args
     >
     static size_t distributeR(T&& t,Args&&... args) {
-        return distributeInternal<ignoreBooleanReturn>(
+        return distributeInternal<false>(
             templatious::detail::RevAssignDispatcher(),
             std::forward<T>(t),
             std::forward<Args>(args)...);
     }
 
+    /**
+     * Distribute using special function. Returns how
+     * many distributions were made.
+     * @param[in] f Function for use in distribution.
+     * should take two arguments. May return boolean
+     * value false to stop distribution at any time
+     * (ignoreBooleanReturn has to be set to false).
+     * @param[in,out] t First part distribution entity,
+     * first argument for the function f.
+     * Can be pack or collection.
+     * @param[in,out] args Second part of distribution
+     * entity. Second argument for the function f.
+     * Can be packs, collections or single variables.
+     * @param[in] ignoreBooleanReturn Value to determine
+     * whether function return value (if it happens to
+     * be boolean) should stop traversal if it returns
+     * false. Defaults to false.
+     */
     template <
         bool ignoreBooleanReturn = false,
         class Func,class T,class... Args

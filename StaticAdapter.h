@@ -192,6 +192,10 @@ private:
 }
 
 struct StaticAdapter {
+    /**
+     * Returns begin iterator for any collection.
+     * @param[in] c Collection
+     */
     template <class T>
     static auto begin(T&& c)
         -> decltype(adapters::CollectionAdapter<T>::begin(c)) {
@@ -200,6 +204,10 @@ struct StaticAdapter {
         return Ad::begin(c);
     }
 
+    /**
+     * Returns end iterator for any collection.
+     * @param[in] c Collection
+     */
     template <class T>
     static auto end(T&& c) -> decltype(adapters::CollectionAdapter<T>::end(c)) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -207,6 +215,10 @@ struct StaticAdapter {
         return Ad::end(c);
     }
 
+    /**
+     * Returns const begin iterator for any collection.
+     * @param[in] c Collection
+     */
     template <class T>
     static auto cbegin(const T& c)
         -> typename adapters::CollectionAdapter<T>::ConstIterator {
@@ -215,6 +227,10 @@ struct StaticAdapter {
         return Ad::cbegin(c);
     }
 
+    /**
+     * Returns const end iterator for any collection.
+     * @param[in] c Collection
+     */
     template <class T>
     static auto cend(const T& c)
         -> typename adapters::CollectionAdapter<T>::ConstIterator {
@@ -223,6 +239,11 @@ struct StaticAdapter {
         return Ad::cend(c);
     }
 
+    /**
+     * Adds element to any collection with initializer list.
+     * @param[in,out] c Collection to be added to.
+     * @param[in] o Initializer list.
+     */
     template <class T, class U>
     static void add(T& c, const std::initializer_list<U>& o) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -234,6 +255,14 @@ struct StaticAdapter {
         }
     }
 
+    /**
+     * Adds elements to any collection.
+     * @param[in,out] c Collection to be added to.
+     * @param[in] o Value to be added.
+     * Can be pack, collection or a simple variable.
+     * Individual elements in packs or collections
+     * are added.
+     */
     template <class T, class U>
     static void add(T& c, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -246,14 +275,32 @@ struct StaticAdapter {
         >::add(c,fwd,std::forward<U>(o));
     }
 
+    /**
+     * Variadic add method overload.
+     * @param[in,out] c Collection to be added to.
+     * @param[in] o Value to be added.
+     * Can be pack, collection or a simple variable.
+     * Individual elements in packs or collections
+     * are added.
+     * @param[in] args The rest of the values to be processed.
+     */
     template <class T, class U, class... Args>
     static void add(T& c, U&& o, Args&&... args) {
         sa_spec::ForwardFunctor fwd;
         addCustom(c, fwd, std::forward<U>(o));
-
         addCustom(c, fwd, std::forward<Args>(args)...);
     }
 
+    /**
+     * Custom add function.
+     * @param[in,out] c Collection to be added to.
+     * @param[in] f Function to be applied for each added
+     * element. Should return final addable type.
+     * @param[in] o Value to be added.
+     * Can be pack, collection or a simple variable.
+     * Individual elements in packs or collections
+     * are added.
+     */
     template <class T, class F, class U>
     static void addCustom(T& c, F&& f, U&& o) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -265,13 +312,28 @@ struct StaticAdapter {
         >::add(c, std::forward<F>(f), std::forward<U>(o));
     }
 
+    /**
+     * Custom add function.
+     * @param[in,out] c Collection to be added to.
+     * @param[in] f Function to be applied for each added
+     * element. Should return final addable type.
+     * @param[in] o Value to be added.
+     * Can be pack, collection or a simple variable.
+     * Individual elements in packs or collections
+     * are added.
+     * @param[in] args The rest of the values to be processed.
+     */
     template <class T, class F, class U, class... Args>
     static void addCustom(T& c, F&& f, U&& o, Args&&... args) {
         addCustom(c, std::forward<F>(f), std::forward<U>(o));
-
         addCustom(c, std::forward<F>(f), std::forward<Args>(args)...);
     }
 
+    /**
+     * Size getter for collection. Returns size
+     * or -1 if size cannot be determined.
+     * @param[in] c Collection to lookup size for.
+     */
     template <class T>
     static int size(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -279,6 +341,13 @@ struct StaticAdapter {
         return Ad::size(c);
     }
 
+    /**
+     * Size getter for collection. Returns what
+     * would simple size function return, but if
+     * simple size function returns -1 collection
+     * is traversed to find it's final size.
+     * @param[in] c Collection to lookup size for.
+     */
     template <class T>
     static int trueSize(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -297,6 +366,11 @@ struct StaticAdapter {
         return count;
     }
 
+    /**
+     * Determines if collection is eligible for
+     * element addition.
+     * @param[in] c Collection to query.
+     */
     template <class T>
     static bool canAdd(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -304,14 +378,26 @@ struct StaticAdapter {
         return Ad::canAdd(c);
     }
 
+    /**
+     * Get element from collection by index.
+     * @param[in,out] c Collection to get element from.
+     * @param[in] i Element index to get.
+     */
     template <class T>
-    static auto getByIndex(T& c, int i)
+    static auto getByIndex(T& c,long i)
         -> typename adapters::CollectionAdapter<T>::ValueType {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::getByIndex(c, i);
     }
 
+    /**
+     * Erase elements from collection by beginning
+     * and end iterators.
+     * @param[in,out] c Collection to erase from.
+     * @param[in] beg Beginning iterator.
+     * @param[in] end End iterator.
+     */
     template <class T>
     static void erase(T& c,
                       typename adapters::CollectionAdapter<T>::Iterator beg,
@@ -322,6 +408,11 @@ struct StaticAdapter {
         Ad::erase(c, beg, end);
     }
 
+    /**
+     * Erase single element from a collection.
+     * @param[in,out] c Collection to erase from.
+     * @param[in] pos Iterator to erase.
+     */
     template <class T>
     static void erase(T& c,
                       typename adapters::CollectionAdapter<T>::Iterator pos) {
@@ -330,6 +421,12 @@ struct StaticAdapter {
         Ad::erase(c, pos);
     }
 
+    /**
+     * Erase elements from a collection from
+     * position until end.
+     * @param[in,out] c Collection to erase from.
+     * @param[in] pos Iterator to start erasing from.
+     */
     template <class T>
     static void eraseTillEnd(T& c,
          typename adapters::CollectionAdapter<T>::Iterator pos)
@@ -339,6 +436,11 @@ struct StaticAdapter {
         Ad::erase(c, pos, Ad::end(c));
     }
 
+    /**
+     * Get iterator from a collection by index.
+     * @param[in] c Collection to get iterator from.
+     * @param[in] i Index of iterator to get.
+     */
     template <class T>
     static auto iterAt(T& c,size_t i)
         -> typename adapters::CollectionAdapter<T>::Iterator {
@@ -347,6 +449,11 @@ struct StaticAdapter {
         return Ad::iterAt(c, i);
     }
 
+    /**
+     * Get constant iterator from a collection by index.
+     * @param[in] c Collection to get iterator from.
+     * @param[in] i Index of iterator to get.
+     */
     template <class T>
     static auto citerAt(T& c,size_t i)
         -> typename adapters::CollectionAdapter<T>::ConstIterator {
@@ -355,6 +462,13 @@ struct StaticAdapter {
         return Ad::citerAt(c, i);
     }
 
+    /**
+     * Insert element to collection.
+     * @param[in,out] c Collection to insert to.
+     * @param[in] at Position iterator where to insert.
+     * Inserted element replaces element pointed to this iterator.
+     * @param[in] val Value to insert.
+     */
     template <class T>
     static void insert(
         T& c, typename adapters::CollectionAdapter<T>::Iterator at,
@@ -365,6 +479,10 @@ struct StaticAdapter {
         Ad::insertAt(c,at,val);
     }
 
+    /**
+     * Clear collection.
+     * @param[out] c Collection to clear.
+     */
     template <class T>
     static void clear(T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -372,12 +490,23 @@ struct StaticAdapter {
         Ad::clear(c);
     }
 
+    /**
+     * Clear multiple collections.
+     * @param[out] c Collection to clear.
+     * @param[out] t Rest of collections to clear.
+     */
     template <class T,class... Tail>
     static void clear(T& c,Tail&... t) {
         clear(c);
         clear(t...);
     }
 
+    /**
+     * Virtual begin iterator. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto vbegin(T& c)
     -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
@@ -387,10 +516,17 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::begin(c) );
         return VIterator< ValType >(v);
     }
 
+    /**
+     * Virtual end iterator. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto vend(T& c)
     -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
@@ -400,10 +536,17 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::end(c) );
         return VIterator< ValType >(v);
     }
 
+    /**
+     * Virtual const begin iterator. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto vcbegin(const T& c)
     -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
@@ -413,10 +556,17 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::cbegin(c) );
         return VIterator< ValType >(v);
     }
 
+    /**
+     * Virtual const end iterator. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto vcend(const T& c)
     -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
@@ -426,10 +576,17 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::cend(c) );
         return VIterator< ValType >(v);
     }
 
+    /**
+     * Virtual iterator by index. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto viterAt(T& c,size_t s)
     -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
@@ -439,10 +596,17 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::iterAt(c,s) );
         return VIterator< ValType >(v);
     }
 
+    /**
+     * Virtual const iterator by index. Can be used
+     * for exposing elements across
+     * translation units.
+     * @param[in,out] c Collection to expose.
+     */
     template <class T>
     static auto vciterAt(const T& c,size_t s)
     -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
@@ -452,6 +616,7 @@ struct StaticAdapter {
         static_assert(Ad::is_valid, "Adapter not supported.");
 
         typedef VIteratorImpl<const T> VImpl;
+        // creation of VImpl should never throw
         VImpl *v = new VImpl( Ad::citerAt(c,s) );
         return VIterator< ValType >(v);
     }

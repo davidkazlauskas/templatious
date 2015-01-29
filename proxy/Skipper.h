@@ -43,7 +43,7 @@ struct Skipper {
 
     typedef PIterator<typename Ad::Iterator,ThisSkipper> Iterator;
     typedef PIterator<typename Ad::ConstIterator,ConstSkipper> ConstIterator;
-    typedef IsProxy<T> ProxUtil;
+    typedef detail::IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
 
     typedef StaticAdapter SA;
@@ -68,7 +68,7 @@ private:
 
     void assertUncleared() const {
         if (_cleared) {
-            throw ProxyClearedUsageException();
+            throw detail::ProxyClearedUsageException();
         }
     }
 
@@ -127,14 +127,14 @@ public:
         assertUncleared();
         if (!random_access_iterator) {
             Iterator res(_b);
-            naiveIterAdvance(res,_e,n);
+            detail::naiveIterAdvance(res,_e,n);
             return res;
         } else {
             auto i = _b._i;
             auto e = _e._i;
             static const bool isNaiveAdvance =
                 !util::IsRandomAccessIteratorTagged<decltype(i)>::value;
-            typedef AdvancePicker<isNaiveAdvance> A;
+            typedef detail::AdvancePicker<isNaiveAdvance> A;
             int mul = _sk * ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(*this,i,_sk);
@@ -164,7 +164,7 @@ public:
         friend struct Skipper<T,StoragePolicy>;
 
         template <class V>
-        friend struct IsProxy;
+        friend struct detail::IsProxy;
     public:
         typedef PIterator<I,Parent> ThisIter;
         typedef decltype(*_i) IVal;
@@ -187,13 +187,13 @@ public:
 
         ThisIter& operator++() {
             if (!random_access_iterator) {
-                naiveIterAdvance(_i,
+                detail::naiveIterAdvance(_i,
                     SA::end(_p)._i,
                     _sk);
             } else {
                 auto i = iterUnwrap(_i);
                 auto e = SA::end(_p).getInternal();
-                typedef AdvancePicker<!random_access_iterator> A;
+                typedef detail::AdvancePicker<!random_access_iterator> A;
                 size_t mul = ProxUtil::get_mul(_p);
                 A::adv(i,e,mul * _sk);
                 ProxUtil::iter_unwrap(_i) = i;
@@ -229,7 +229,7 @@ public:
     };
 
     void clear() {
-        clearRoutine<floating_iterator>(*this);
+        detail::clearRoutine<floating_iterator>(*this);
         tagCleared();
         ProxUtil::tag_cleared(_c.getRef());
         _b = _e;
@@ -255,6 +255,8 @@ public:
         );
     }
 };
+
+namespace detail {
 
 template <class T,template <class> class StoragePolicy>
 struct IsProxy< Skipper< T,StoragePolicy > > {
@@ -314,6 +316,8 @@ struct IsProxy< Skipper< T,StoragePolicy > > {
         );
     }
 };
+
+}
 
 namespace adapters {
 

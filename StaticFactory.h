@@ -40,32 +40,57 @@ namespace templatious {
 
 struct StaticFactory {
 
+    /**
+     * Uniform function to make collection of any type.
+     * @param[in] Val Value type for collection.
+     * @param[in] Collection Collection template.
+     * @param[in] Collection allocator template, defaults
+     * to std::allocator (ignored if collection doesn't
+     * use allocators).
+     */
     template <
         class Val,
         template <class...> class Collection,
         template <class> class Allocator = std::allocator
     >
     static auto makeCollection()
-    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make())
+    -> decltype(templatious::adapters::CollectionMaker<
+            Val,Collection,Allocator>().make())
     {
-        typedef typename templatious::adapters::CollectionMaker<Val,Collection,Allocator> Maker;
-        static_assert(Maker::is_maker_valid,"Collection maker is invalid.");
+        typedef typename templatious::adapters::
+            CollectionMaker<Val,Collection,Allocator> Maker;
+        static_assert(Maker::is_maker_valid,
+                "Collection maker is invalid.");
         Maker mk;
         return mk.make();
     }
 
+    /**
+     * Uniform function to make collection of any type with size hint.
+     * @param[in] size Size hint for collection.
+     * @param[in] Val Value type for collection.
+     * @param[in] Collection Collection template.
+     * @param[in] Collection allocator template, defaults
+     * to std::allocator (ignored if collection doesn't
+     * use allocators).
+     */
     template <
         class Val,
         template <class...> class Collection,
         template <class> class Allocator = std::allocator
     >
     static auto makeCollection(size_t size)
-    -> decltype(templatious::adapters::CollectionMaker<Val,Collection,Allocator>().make(size))
+    -> decltype(templatious::adapters::CollectionMaker<
+            Val,Collection,Allocator>().make(size))
     {
-        templatious::adapters::CollectionMaker<Val,Collection,Allocator> mk;
+        templatious::adapters::CollectionMaker<
+            Val,Collection,Allocator> mk;
         return mk.make(size);
     }
 
+    /**
+     * Will be removed
+     */
     template <
         class Key,
         class Value,
@@ -74,12 +99,17 @@ struct StaticFactory {
         template <class> class Allocator = std::allocator
     >
     static auto makeMap()
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make())
+    -> decltype(templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator>().make())
     {
-        templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk;
+        templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator> mk;
         return mk.make();
     }
 
+    /**
+     * Will be removed
+     */
     template <
         class Key,
         class Value,
@@ -88,12 +118,17 @@ struct StaticFactory {
         template <class> class Allocator = std::allocator
     >
     static auto makeMap(const Hash& h)
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make())
+    -> decltype(templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator>(h).make())
     {
-        templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
+        templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make();
     }
 
+    /**
+     * Will be removed
+     */
     template <
         class Key,
         class Value,
@@ -102,12 +137,17 @@ struct StaticFactory {
         template <class> class Allocator = std::allocator
     >
     static auto makeMap(size_t size)
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>().make(size))
+    -> decltype(templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator>().make(size))
     {
-        templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk;
+        templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator> mk;
         return mk.make(size);
     }
 
+    /**
+     * Will be removed
+     */
     template <
         class Key,
         class Value,
@@ -116,34 +156,70 @@ struct StaticFactory {
         template <class> class Allocator = std::allocator
     >
     static auto makeMap(const Hash& h,size_t size)
-    -> decltype(templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator>(h).make(size))
+    -> decltype(templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator>(h).make(size))
     {
-        templatious::adapters::MapMaker<Key,Value,Map,Hash,Allocator> mk(h);
+        templatious::adapters::MapMaker<
+            Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make(size);
     }
 
-    template <class T = int>
+    /**
+     * Sequence Less.
+     * Create numeric sequence from
+     * 0 until end by step of 1.
+     * @param[in] end Value to specify end
+     * of collection.
+     */
+    template <class T>
     static auto seqL(const T& end)
      -> templatious::SeqL<T>
     {
         return templatious::SeqL<T>(0,end,1);
     }
 
-    template <class T = int>
+    /**
+     * Sequence Less.
+     * Create numeric sequence from
+     * start until end by step of 1.
+     * @param[in] start Value to specify start
+     * of collection.
+     * @param[in] end Value to specify end
+     * of collection.
+     */
+    template <class T>
     static auto seqL(const T& start,const T& end)
      -> templatious::SeqL<T>
     {
         return templatious::SeqL<T>(start,end,1);
     }
 
-    template <class T = int>
+    /**
+     * Sequence Less.
+     * Create numeric sequence from
+     * start until end by step of step.
+     * @param[in] start Value to specify start
+     * of collection.
+     * @param[in] end Value to specify end
+     * of collection.
+     * @param[in] step Value to specify step
+     * of collection.
+     */
+    template <class T>
     static auto seqL(const T& start,const T& end,const T& step)
      -> templatious::SeqL<T>
     {
         return templatious::SeqL<T>(start,end,step);
     }
 
-    template <class T = int>
+    /**
+     * Sequence Include.
+     * Create numeric sequence from
+     * 0 to end by step of 1.
+     * @param[in] start Value to specify start
+     * of collection.
+     */
+    template <class T>
     static auto seqI(const T& end)
      -> templatious::SeqL<T>
     {
@@ -154,7 +230,16 @@ struct StaticFactory {
         }
     }
 
-    template <class T = int>
+    /**
+     * Sequence Include.
+     * Create numeric sequence from
+     * start to end by step of 1.
+     * @param[in] start Value to specify start
+     * of collection.
+     * @param[in] end Value to specify end
+     * of collection.
+     */
+    template <class T>
     static auto seqI(const T& start,const T& end)
      -> templatious::SeqL<T>
     {
@@ -165,7 +250,19 @@ struct StaticFactory {
         }
     }
 
-    template <class T = int>
+    /**
+     * Sequence Include.
+     * Create numeric sequence from
+     * start to end by step of step.
+     * Throws in case (end - start) % step != 0.
+     * @param[in] start Value to specify start
+     * of collection.
+     * @param[in] end Value to specify end
+     * of collection.
+     * @param[in] step Value to specify step
+     * of collection.
+     */
+    template <class T>
     static auto seqI(const T& start,const T& end,const T& step)
      -> templatious::SeqL<T>
     {
@@ -180,13 +277,28 @@ struct StaticFactory {
         }
     }
 
-    // Repeater absolute
+    /**
+     * Repeater Absolute.
+     * Returns reapeater to repeat
+     * collection specified amount
+     * of times using absolute repeating.
+     * For instance, if collection {1,2,3}
+     * is repeated 7 times result is collection
+     * {1,2,3,1,2,3,1}.
+     * @param[in] n Times to repeat.
+     * @param[in] c Collection to repeat.
+     * @param[in] StoragePolicy
+     * Storage policy to specify how to
+     * store collection c in itself.
+     * Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
-    static auto repA(size_t n,T&& c)
+    static auto repA(long n,T&& c)
      -> detail::Repeater<
             false,
             StoragePolicy,
@@ -200,13 +312,28 @@ struct StaticFactory {
         >(n,std::forward<T>(c));
     }
 
-    // Repeater multiply
+    /**
+     * Repeater Multiply.
+     * Returns reapeater to repeat
+     * collection specified amount
+     * of times using multiple repeating.
+     * For instance, if collection {1,2}
+     * is repeated 3 times result is collection
+     * {1,2,1,2,1,2}.
+     * @param[in] n Times to repeat.
+     * @param[in] c Collection to repeat.
+     * @param[in] StoragePolicy
+     * Storage policy to specify how to
+     * store collection c in itself.
+     * Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
-    static auto repM(size_t n,T&& c)
+    static auto repM(long n,T&& c)
      -> detail::Repeater<
             true,
             StoragePolicy,
@@ -220,7 +347,22 @@ struct StaticFactory {
         >(n,std::forward<T>(c));
     }
 
-    // Repeater same item
+    /**
+     * Repeater Same.
+     * Collection which repeats same
+     * element specified amount
+     * of times.
+     * For instance, if element 55
+     * is repeated 7 times result collection
+     * is {55,55,55,55,55,55,55}.
+     * @param[in] n Times to repeat.
+     * @param[in] t Element to repeat.
+     * @param[in] StoragePolicy
+     * Storage policy to specify how to
+     * store element t in itself.
+     * Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -238,6 +380,16 @@ struct StaticFactory {
         >(std::forward<T>(t),n);
     }
 
+    /**
+     * Return range from existing collection
+     * specifying begin and end iterators.
+     * @param[in] t Collection to return range from.
+     * @param[in] b Collection begin iterator.
+     * @param[in] e Collection end iterator.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store t. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -251,6 +403,15 @@ struct StaticFactory {
         return Range<T,StoragePolicy>(std::forward<T>(t),b,e);
     }
 
+    /**
+     * Return range from existing collection from
+     * begin to end only begin iterator.
+     * @param[in] t Collection to return range from.
+     * @param[in] b Collection begin iterator.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store t. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -258,18 +419,29 @@ struct StaticFactory {
     >
     static auto range(T&& t,
         typename adapters::CollectionAdapter<T>::Iterator b)
-            -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
+            -> templatious::Range<decltype(
+                    std::forward<T>(t)),StoragePolicy>
     {
         return Range<decltype(std::forward<T>(t)),StoragePolicy>(
             std::forward<T>(t),b);
     }
 
+    /**
+     * Return range from existing collection from
+     * begin index to end index.
+     * @param[in] t Collection to return range from.
+     * @param[in] b Collection begin index.
+     * @param[in] e Collection end index.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store t. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
-    static auto range(T&& t, size_t b, size_t e)
+    static auto range(T&& t, long b, long e)
         -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -279,12 +451,21 @@ struct StaticFactory {
             Ad::iterAt(std::forward<T>(t),e));
     }
 
+    /**
+     * Return range from existing collection from
+     * begin index until end.
+     * @param[in] t Collection to return range from.
+     * @param[in] b Collection begin index.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store t. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
-    static auto range(T&& t, size_t b)
+    static auto range(T&& t, long b)
         -> Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -293,11 +474,21 @@ struct StaticFactory {
             Ad::iterAt(std::forward<T>(t),b));
     }
 
+    /**
+     * Copy range from existing collection from
+     * begin iterator until end iterator.
+     * @param[in] t Collection to return range from.
+     * @param[in] args Arguments which would be passed
+     * to simple range function (iterators or indexes).
+     * @param[in] Collection Collection type to return.
+     * Defaults to std::vector.
+     * @param[in] Allocator Collection allocator.
+     * Defaults to std::allocator (is ignored
+     * if collection doesn't use allocators).
+     */
     template <
         template <class...> class Collection = std::vector,
         template <class> class Allocator = std::allocator,
-        template <class> class StoragePolicy =
-            templatious::util::DefaultStoragePolicy,
         class T,
         class... Args
     >
@@ -320,6 +511,19 @@ struct StaticFactory {
         return std::move(res);
     }
 
+    /**
+     * Filter collection using predicate.
+     * @param[in] t Collection to return range from.
+     * @param[in] f Predicate function which decides
+     * what elements to expose in collection.
+     * Should take in one element of collection
+     * and return true if element should be kept
+     * in the filter, false if element should be ignored.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store the t collection
+     * in the filter. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -335,11 +539,20 @@ struct StaticFactory {
             std::forward<Fun>(f));
     }
 
+    /**
+     * Copy filter collection using predicate.
+     * @param[in] t Collection to return range from.
+     * @param[in] args Arguments which would be
+     * passed to normal filter function.
+     * @param[in] Collection Collection type to return.
+     * Defaults to std::vector.
+     * @param[in] Allocator Collection allocator.
+     * Defaults to std::allocator (is ignored
+     * if collection doesn't use allocators).
+     */
     template <
         template <class...> class Collection = std::vector,
         template <class> class Allocator = std::allocator,
-        template <class> class StoragePolicy =
-            templatious::util::DefaultStoragePolicy,
         class T,
         class... Args
     >
@@ -362,12 +575,20 @@ struct StaticFactory {
         return std::move(res);
     }
 
+    /**
+     * Skip collection each sz elements.
+     * @param[in] t Collection to return range from.
+     * @param[in] sz Skip size.
+     * @param[in] StoragePolicy Storage policy
+     * to specify how to store t. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
-    static auto skip(T&& t,size_t sz)
+    static auto skip(T&& t,long sz)
         -> Skipper<decltype(std::forward<T>(t)),StoragePolicy>
     {
         return Skipper<decltype(std::forward<T>(t)),StoragePolicy>(
@@ -375,11 +596,21 @@ struct StaticFactory {
                 sz);
     }
 
+    /**
+     * Copy skip collection each sz elements.
+     * @param[in] t Collection to return range from.
+     * @param[in] sz Skip size.
+     * @param[in] args Arguments which would be passed
+     * to simple range function (iterators or indexes).
+     * @param[in] Collection Collection type to return.
+     * Defaults to std::vector.
+     * @param[in] Allocator Collection allocator.
+     * Defaults to std::allocator (is ignored
+     * if collection doesn't use allocators).
+     */
     template <
         template <class...> class Collection = std::vector,
         template <class> class Allocator = std::allocator,
-        template <class> class StoragePolicy =
-            templatious::util::DefaultStoragePolicy,
         class T,
         class... Args
     >
@@ -403,6 +634,17 @@ struct StaticFactory {
     }
 
 
+    /**
+     * Select something from collection
+     * according to predicate function.
+     * Returns handle with elements selected.
+     * @param[in] t Collection to select from.
+     * @param[in] f Function to use on one
+     * collection element when selecting.
+     * @param[in] ColType Type of the resulting
+     * collection. If void it is inferred from
+     * predicate function passed. Defaults to void.
+     */
     template <
         class ColType = void, // infer from function if void
         template <class> class StoragePolicy =
@@ -425,6 +667,9 @@ struct StaticFactory {
         >::Alg::make(std::forward<T>(t),std::forward<F>(f));
     }
 
+    /**
+     * Will be removed.
+     */
     template <class T>
     static auto socket(T& t)
      -> CollectionSocket<T>
@@ -432,6 +677,18 @@ struct StaticFactory {
         return CollectionSocket<T>(t);
     }
 
+    /**
+     * Get virtual collection handle with all
+     * access to collection while hiding the
+     * original collection type.
+     * This is useful for exposing collection
+     * across translation units.
+     * Handle doesn't take ownership of it's
+     * collection nor is responsible of
+     * freeing it. Handle assumes that collection
+     * is always valid and not freed.
+     * @param[in] Collection to virtualize.
+     */
     template <class T>
     static auto vcollection(T& t)
      -> VCollection< typename adapters::CollectionAdapter<T>::ValueType >
@@ -445,6 +702,28 @@ struct StaticFactory {
         return VCollection< ValType >(v);
     }
 
+    /**
+     * Get handle to collection with selected
+     * permissions. Everything is allowed
+     * unless specified otherwise. If action
+     * is disallowed on the handle code will
+     * not compile. Useful to assert that
+     * collection is operated only on
+     * the ways intended.
+     * @param[in] t Collection to get handle to.
+     * @param[in] add Pass true to prevent
+     * addition to collection. Defaults to false.
+     * @param[in] clear Pass true to prevent
+     * clearing of collection. Defaults to false.
+     * @param[in] traverse Pass true to prevent
+     * traversals in collection. Defaults to false.
+     * @param[in] access Pass true to prevent
+     * indexed element access in collection.
+     * Defaults to false.
+     * @param[in] size Pass true to prevent
+     * finding out size of this collection.
+     * Defaults to false.
+     */
     template <
         bool add = false,
         bool clear = false,
@@ -476,6 +755,28 @@ struct StaticFactory {
         return Maker::make(std::forward<T>(t));
     }
 
+    /**
+     * Get handle to collection with selected
+     * permissions. Everything is disallowed
+     * unless specified otherwise. If action
+     * is disallowed on the handle code will
+     * not compile. Useful to assert that
+     * collection is operated only on
+     * the ways intended.
+     * @param[in] t Collection to get handle to.
+     * @param[in] add Pass true to allow
+     * addition to collection. Defaults to false.
+     * @param[in] clear Pass true to allow
+     * clearing of collection. Defaults to false.
+     * @param[in] traverse Pass true to allow
+     * traversals in collection. Defaults to false.
+     * @param[in] access Pass true to allow
+     * indexed element access in collection.
+     * Defaults to false.
+     * @param[in] size Pass true to allow
+     * finding out size of this collection.
+     * Defaults to false.
+     */
     template <
         bool add = false,
         bool clear = false,
@@ -507,6 +808,19 @@ struct StaticFactory {
         return Maker::make(std::forward<T>(t));
     }
 
+    /**
+     * Create a pack structure. Pack is like a
+     * tuple but with more features. By default
+     * pack stores references to objects if
+     * they are lvalues and copies objects
+     * using rvalue constructor if they are
+     * rvalues.
+     * @param[in] t Variables to save in pack.
+     * Can contain other packs.
+     * @param[in] StoragePolicy Pack storage
+     * policy for saving elements. Defaults
+     * to DefaultPackStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             DefaultPackStoragePolicy,
@@ -522,6 +836,33 @@ struct StaticFactory {
                 std::forward<T>(t)...);
     }
 
+    /**
+     * Create a new pack inserting passed
+     * element between elements of the pack.
+     * Does not insert into all packs contained
+     * within pack recursively. Returns new pack
+     * created.
+     * For instance, if pack contains elements
+     * ~~~~~~
+     * [7,'7',55]
+     * ~~~~~~
+     * and pack insert is called with
+     * ' ' (space symbol), then the created pack
+     * will contain
+     * ~~~~~~
+     * [7,' ','7',' ',55]
+     * ~~~~~~
+     * *BUT NOT*
+     * ~~~~~~
+     * [7,' ','7',' ',55,' ']
+     * ~~~~~~
+     * *OR*
+     * ~~~~~~
+     * [' ',7,' ','7',' ',55,' ']
+     * ~~~~~~
+     * @param[in] p Pack to use for creating new one.
+     * @param[in] t Element to insert. Can be another pack.
+     */
     template <
         template <class> class StoragePolicy =
             DefaultPackStoragePolicy,
@@ -535,6 +876,41 @@ struct StaticFactory {
             std::forward<P>(p),std::forward<T>(t));
     }
 
+    /**
+     * Create a new pack inserting element t
+     * into top level packs (if there are any).
+     * Returns new pack.
+     * For instance, if there is a pack of packs
+     * ~~~~~~
+     *     [
+     *       ['a','b'],
+     *       "some string",
+     *       ['c','d']
+     *     ]
+     * ~~~~~~
+     * And if ' ' (space) is inserted, then
+     * the resulting pack is
+     * ~~~~~~
+     *     [
+     *       ['a',' ','b'],
+     *       "some string",
+     *       ['c',' ','d']
+     *     ]
+     * ~~~~~~
+     *
+     * *BUT NOT*
+     * ~~~~~~
+     *     [
+     *       ['a',' ','b'],
+     *       ' ',
+     *       "some string",
+     *       ' ',
+     *       ['c',' ','d']
+     *     ]
+     * ~~~~~~
+     * @param[in] p Pack to use for creating new one.
+     * @param[in] t Element to insert.
+     */
     template <class P,class T>
     static auto packInsertWithin(P&& p,T&& t)
      -> decltype(detail::PackAccess::packInsertWithin(
@@ -544,6 +920,45 @@ struct StaticFactory {
                 std::forward<P>(p),std::forward<T>(t));
     }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    /**
+     * Transform pack with a predicate function
+     * (usually this is a match functor which
+     * selects appropriate types and forwards
+     * the rest). Returns the transformed
+     * pack.
+     * This is useful for breaking down POD
+     * types into smaller chunks, for instance,
+     * if there is a struct
+     * ~~~~~~
+     * struct Person {
+     *   std::string _firstName;
+     *   std::string _lastName;
+     * };
+     * ~~~~~~
+     * And a pack
+     * ~~~~~~
+     * [
+     *   "Person is: ",
+     *   Person("Abraham","Isaac")
+     * ]
+     * ~~~~~~
+     * Pack transform function can be used
+     * to break this down to
+     * ~~~~~~
+     * [
+     *   "Person is: ",
+     *   [ // <- another pack created
+     *     "Abraham",
+     *     ' ',
+     *     "Isaaac"
+     *   ]
+     * ]
+     * ~~~~~~
+     * Thus eliminating the POD type.
+     * @param[in] p Pack to transform
+     *
+     */
     template <class TrPol,class P,class... T>
     static auto packTransformWithin(P&& p,T&&... t)
      -> decltype(
@@ -557,7 +972,29 @@ struct StaticFactory {
             std::forward<T>(t)...
         );
     }
+#endif
 
+    /**
+     * Make a pack of repeated element(s).
+     * For instance
+     * ~~~~~~~
+     * auto p = StaticFactory::packRepeat<7>(55);
+     * ~~~~~~~
+     * Will result into pack:
+     * ~~~~~~~
+     * [55,55,55,55,55,55,55]
+     * ~~~~~~~
+     * And
+     * ~~~~~~~
+     * auto p = StaticFactory::packRepeat<3>(2,2);
+     * ~~~~~~~
+     * Will result into:
+     * ~~~~~~~
+     * [2,2,2,2,2,2]
+     * ~~~~~~~
+     * @param[in] args Arguments to make pack from
+     * @param[in] n Times to repeat pack.
+     */
     template <int n,class... Args>
     static auto packRepeat(Args&&... args)
      -> decltype(
@@ -569,6 +1006,19 @@ struct StaticFactory {
              std::forward<Args>(args)...);
     }
 
+    /**
+     * Use packRepeat function with dummy variable.
+     * The variable returned is a pack full of
+     * dummy object that overloads = operator
+     * and can be assigned to from any class.
+     * It does nothing. This is useful with
+     * distribute function to skip iterators
+     * when assigning to this variable.
+     * Since = operator for this class does
+     * nothing it generates 0 instructions
+     * and only advances iterator.
+     * @param[in] n Amount of dummy variables to create.
+     */
     template <int n = 1>
     static auto dummyVar()
      -> decltype(
@@ -582,6 +1032,19 @@ struct StaticFactory {
         );
     }
 
+    /**
+     * Pack passed variables to a pack
+     * to be used as arguments to a
+     * function. Does not have all the features of
+     * std::bind, but rather maps exact amount
+     * of variables contained in a pack to a
+     * function. Returns a functor.
+     * @param[in] f Function to execute.
+     * @param[in] args arguments to pack.
+     * @param[in] StoragePolicy storage policy
+     * to store arguments. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             ::templatious::util::DefaultStoragePolicy,
@@ -603,6 +1066,22 @@ struct StaticFactory {
         );
     };
 
+    /**
+     * Tight match to be used in matchFunctor.
+     * Tight match matches
+     * ~~~~~~~
+     *       int& and       int& // OK
+     * const int& and       int& // Doesn't match
+     * const int& and const int& // OK
+     *       int& and       int  // Doesn't match
+     * ~~~~~~~
+     * Tight match has to have exact number
+     * of arguments to match.
+     * Tight match will always
+     * match templatious::AnyType.
+     * @param[in] f Predicate function to hold.
+     * @param[in] T... Type arguments to match.
+     */
     template <class... T,class Func>
     static auto matchTight(Func&& f)
      -> detail::Match<
@@ -624,6 +1103,14 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    /**
+     * Same as tight match but with special
+     * storage policy.
+     * @param[in] f Function to use.
+     * @param[in] T... Typelist to match.
+     * @param[in] StoragePolicy Storage
+     * policy used for saving function.
+     */
     template <
         template <class> class StoragePolicy,
         class... T,
@@ -650,6 +1137,26 @@ struct StaticFactory {
     }
 
 
+    /**
+     * Loose match to be used in matchFunctor.
+     * This match applied std::decay on both
+     * types when comparing.
+     * Loose match matches
+     * ~~~~~~~
+     *       int& and       int& // OK
+     * const int& and       int& // OK
+     * const int& and const int& // OK
+     *       int& and       int  // OK
+     * ~~~~~~~
+     * Loose match only matches at the start
+     * of arguments in typelist to match,
+     * therefore, it may match having less
+     * types in typelist than actual arguments.
+     * Loose match will always
+     * match templatious::AnyType.
+     * @param[in] f Predicate function to hold.
+     * @param[in] T... Type arguments to match.
+     */
     template <class... T,class Func>
     static auto matchLoose(Func&& f)
      -> detail::Match<
@@ -671,6 +1178,14 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    /**
+     * Same as loose match but with special
+     * storage policy.
+     * @param[in] f Function to use.
+     * @param[in] T... Typelist to match.
+     * @param[in] StoragePolicy Storage
+     * policy used for saving function.
+     */
     template <
         template <class> class StoragePolicy,
         class... T,
@@ -696,6 +1211,15 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    /**
+     * Match anything. This is usually
+     * the last match in match functor.
+     * @param[in] f Function to use when
+     * matched.
+     * @param[in] StoragePolicy
+     * Storage policy. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -720,6 +1244,11 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    /**
+     * Match anything and do nothing.
+     * This is usually the last match
+     * in match functor.
+     */
     static auto matchAnyDoNothing()
      -> detail::Match<
         templatious::TypeList< AnyType >,
@@ -739,6 +1268,15 @@ struct StaticFactory {
         return TheMatch(templatious::util::DoNothingFunctor());
     }
 
+    /**
+     * Match anything and forward the argument.
+     * Usually the last match in the match functor.
+     * @param[in] T Type to forward as. If
+     * void result forwarded will be returned as
+     * ~~~~~~~
+     * return std::forward<T>(arg);
+     * ~~~~~~~
+     */
     template <class T = void>
     static auto matchAnyForward()
      -> detail::Match<
@@ -759,6 +1297,17 @@ struct StaticFactory {
         return TheMatch(templatious::util::ForwardFunctor<T>());
     }
 
+    /**
+     * Function to create match functor.
+     * Intended to be composed of match
+     * methods in StaticFactory which
+     * start as "match".
+     * @param[in] t Match arguments to use.
+     * @param[in] StoragePolicy
+     * Storage policy to store matches.
+     * Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -771,6 +1320,18 @@ struct StaticFactory {
         return Fctor(std::forward<T>(t)...);
     }
 
+    /**
+     * Create a stream functor out of object.
+     * For instance
+     * ~~~~~~~
+     * auto sf = StaticFactory::streamFunctor(std::cout);
+     * sf("ashes","to","ashes","dust","to","dust");
+     * // upper expression is the same as:
+     * std::cout << "ashes" << "to" << "ashes"
+     *           << "dust"  << "to" << "dust";
+     * ~~~~~~~
+     * @param[in] t Object to create stream functor from.
+     */
     template <class T>
     static auto streamFunctor(T& t)
      -> detail::CallEachStreamFunctor<T&>
@@ -778,6 +1339,13 @@ struct StaticFactory {
         return detail::CallEachStreamFunctor<T&>(t);
     }
 
+    /**
+     * Storage functor to create from special clsses
+     * generated with TEMPLATIOUS_CALLEACH_FCTOR_WSTOR
+     * macro.
+     * @param[in] s Object to use.
+     * @param[in] T Template to use.
+     */
     template <
         template <class> class T,
         class Stor
@@ -789,6 +1357,58 @@ struct StaticFactory {
                 std::forward<Stor>(s));
     }
 
+    /**
+     * Chain functor encapsulates decorator
+     * design pattern. It saves functions
+     * to be called in a row (and in reverse
+     * if it is created using pairs) order.
+     *
+     * Functional example:
+     * ~~~~~~~
+     * int add(int n) { return n + 7; }
+     * int mul(int n) { return n * 7; }
+     *
+     * ..
+     *
+     * auto cf = StaticFactory::chainFunctor(
+     *     add,mul
+     * );
+     *
+     * // this
+     * int res1 = cf(7);
+     * // is same as
+     * int res2 = mul(add(7));
+     * ~~~~~~~
+     * Stateful example:
+     * ~~~~~~~
+     * void add(int& n) { n += 7; }
+     * void mul(int& n) { n *= 7; }
+     *
+     * ..
+     *
+     * auto cf = StaticFactory::chainFunctor<true>(
+     *     add,mul
+     * );
+     *
+     * // this
+     * int a = 7;
+     * int res1 = cf(a);
+     * // is same as
+     * int b = 7;
+     * add(b);
+     * mul(b);
+     * ~~~~~~~
+     * @param[in] args Functions to encapsulate.
+     * @param[in] statefulDefault
+     * whether to use stateful decorating
+     * (passing same exact arguments each iteration)
+     * or functional decorating
+     * (passing current function return value
+     * to the next function)
+     * @param[in] StoragePolicy
+     * Storage policy to use. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
     template <
         bool statefulDefault = false,
         template <class> class StoragePolicy =
@@ -811,6 +1431,37 @@ struct StaticFactory {
         );
     }
 
+    /**
+     * Create a functor pair consisting of
+     * do and undo action. Intented to be
+     * used with chainFunctor.
+     * @param[in] t Do action
+     * @param[in] u Undo action
+     * @param[in] StoragePolicy Storage
+     * policy to be used when saving actions.
+     *
+     * Example:
+     * ~~~~~~~
+     * int addNum(int n) { return n + 7; }
+     * int subNum(int n) { return n - 7; }
+     *
+     * int mulNum(int n) { return n * 7; }
+     * int divNum(int n) { return n / 7; }
+     *
+     * ..
+     * auto cf = StaticFactory::chainFunctor(
+     *     StaticFactory::functorPair(addNum,subNum),
+     *     StaticFactory::functorPair(mulNum,divNum)
+     * );
+     *
+     * int res = cf(7);          // res contains 98
+     * int back = cf.doBwd(res); // back contains 7
+     *
+     * // doBwd method is only applicable if
+     * // *EVERY* argument passed to chainFunctor
+     * // is functorPair with do and undo actions.
+     * ~~~~~~~
+     */
     template <
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
@@ -824,6 +1475,32 @@ struct StaticFactory {
         );
     }
 
+    /**
+     * Create once traversable collection
+     * handle. Whenever begin iterator
+     * of this collection advances, begin
+     * iterator in handle is also advanced,
+     * therefore, "consuming" collection.
+     * Useful when distributing same collection
+     * over local arguments.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * StaticAdapter::add(v,StaticFactory::seqL(100));
+     * // v now contains 0,1,2,..,99
+     * auto ot = StaticFactory::onceTraversable(v);
+     *
+     * int a,b,c;
+     * while (3 == StaticManipulator
+     *     ::distribute(ot,a,b,c))
+     * {
+     *     ..
+     *     // will be executed 33 times
+     * }
+     * ~~~~~~~
+     * @param[in] t Collection to create handle from.
+     */
     template <class T>
     static auto onceTraversable(T&& t)
      -> decltype(

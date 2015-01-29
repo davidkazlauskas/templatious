@@ -65,6 +65,8 @@ features:
 #63. cversions of proxy methods - copy instead of proxy
 64. fold
 65. inspect
+66. pack transform should take functor or shouldn't be left at all...
+67. matchFunctor checked composition?
 
 compatibility:
 
@@ -75,6 +77,7 @@ compatibility:
 #39. drop TypeSelector and use std::conditional
 #40. give packs policies to decide how to store variables
 #52. rvalue storage policy is never used unless we call it with decltype, not template parameter
+66. make size return long, not int
 
 perfection:
 9. add const qualifiers to comparators

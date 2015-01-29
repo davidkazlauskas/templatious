@@ -36,7 +36,7 @@ struct Range {
     typedef typename adapters::CollectionAdapter<T> Ad;
     typedef PIterator<typename Ad::Iterator> Iterator;
     typedef PIterator<typename Ad::ConstIterator> ConstIterator;
-    typedef IsProxy<T> ProxUtil;
+    typedef detail::IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
     typedef Range<T,StoragePolicy> ThisRange;
 
@@ -49,7 +49,7 @@ struct Range {
     typedef typename StoragePolicy<T>::Container Ref;
 
     template <class V>
-    friend struct IsProxy;
+    friend struct detail::IsProxy;
 
 #ifndef TEMPLATIOUS_TESTING
 private:
@@ -63,7 +63,7 @@ private:
 
     void assertUncleared() const {
         if (_cleared) {
-            throw ProxyClearedUsageException();
+            throw detail::ProxyClearedUsageException();
         }
     }
 
@@ -120,14 +120,14 @@ public:
         assertUncleared();
         if (!random_access_iterator) {
             Iterator res(_b);
-            naiveIterAdvance(res,_e,n);
+            detail::naiveIterAdvance(res,_e,n);
             return res;
         } else {
             auto i = iterUnwrap(_b);
             auto e = iterUnwrap(_e);
             static const bool isNaiveAdvance =
                 !util::IsRandomAccessIteratorTagged<decltype(i)>::value;
-            typedef AdvancePicker<isNaiveAdvance> A;
+            typedef detail::AdvancePicker<isNaiveAdvance> A;
             int mul = ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(i);
@@ -151,7 +151,7 @@ public:
         friend struct Range;
 
         template <class V>
-        friend struct IsProxy;
+        friend struct detail::IsProxy;
     public:
 
         typedef PIterator<I> ThisIter;
@@ -202,7 +202,7 @@ public:
     };
 
     void clear() {
-        clearRoutine<floating_iterator>(*this);
+        detail::clearRoutine<floating_iterator>(*this);
         tagCleared();
         ProxUtil::tag_cleared(_c.getRef());
         _b = _e;
@@ -228,6 +228,8 @@ public:
         );
     }
 };
+
+namespace detail {
 
 template <class T, template <class> class StoragePolicy>
 struct IsProxy< Range< T, StoragePolicy > > {
@@ -281,6 +283,8 @@ struct IsProxy< Range< T, StoragePolicy > > {
         );
     }
 };
+
+}
 
 namespace adapters {
 

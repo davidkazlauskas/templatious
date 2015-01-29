@@ -39,7 +39,7 @@ struct Filter {
     typedef typename adapters::CollectionAdapter<T> Ad;
     typedef PIterator<typename Ad::Iterator,Fn> Iterator;
     typedef PIterator<typename Ad::ConstIterator,Fn> ConstIterator;
-    typedef IsProxy<T> ProxUtil;
+    typedef detail::IsProxy<T> ProxUtil;
     typedef typename ProxUtil::ICollection ICollection;
     typedef Filter<T,Fn,StoragePolicy> ThisFilter;
 
@@ -64,7 +64,7 @@ private:
 
     void assertUncleared() const {
         if (_cleared) {
-            throw ProxyClearedUsageException();
+            throw detail::ProxyClearedUsageException();
         }
     }
 
@@ -142,7 +142,7 @@ public:
     Iterator iterAt(size_t i) {
         assertUncleared();
         auto res(_b);
-        naiveIterAdvance(res,_e,i);
+        detail::naiveIterAdvance(res,_e,i);
         return res;
     }
 
@@ -165,7 +165,7 @@ public:
         friend struct Filter<T,Fun,StoragePolicy>;
 
         template <class V>
-        friend struct IsProxy;
+        friend struct detail::IsProxy;
     public:
 
         typedef PIterator<I,Fun> ThisIter;
@@ -220,7 +220,7 @@ public:
     };
 
     void clear() {
-        clearRoutine<floating_iterator>(*this);
+        detail::clearRoutine<floating_iterator>(*this);
         tagCleared();
         ProxUtil::tag_cleared(_c.getRef());
         _b._i = _e._i;
@@ -243,6 +243,8 @@ public:
     }
 
 };
+
+namespace detail {
 
 template <class T,class Fn,template <class> class StoragePolicy>
 struct IsProxy< Filter< T,Fn,StoragePolicy > > {
@@ -303,6 +305,8 @@ struct IsProxy< Filter< T,Fn,StoragePolicy > > {
         );
     }
 };
+
+}
 
 namespace adapters {
 template <class T,class Fn,template <class> class StoragePolicy>
