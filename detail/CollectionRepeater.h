@@ -175,7 +175,7 @@ struct Repeater {
     }
 
     template <class Dummy = int>
-    int size() const {
+    long size() const {
         static_assert(templatious::util::
             DummyResolver<Dummy,!IsMultiply>::val,
             "Multiply collection repeater cannot"
@@ -258,11 +258,11 @@ struct CollectionAdapter<
             "Collection repeater can be traversed only.");
     }
 
-    static int size(RCol c) {
+    static long size(RCol c) {
         return c.size();
     }
 
-    static int size(CRCol c) {
+    static long size(CRCol c) {
         return c.size();
     }
 
@@ -417,7 +417,7 @@ struct CollectionAdapter<
             "Collection repeater can be traversed only.");
     }
 
-    static int size(RCol c) {
+    static long size(RCol c) {
         return c.size();
     }
 

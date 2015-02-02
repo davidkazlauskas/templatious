@@ -90,7 +90,7 @@ struct ItemRepeater {
         return Iterator(*this,_size);
     }
 
-    int size() const {
+    long size() const {
         return _size;
     }
 
@@ -172,7 +172,7 @@ struct CollectionAdapter<
         return c.theItem();
     }
 
-    static int size(CRCol c) {
+    static long size(CRCol c) {
         return c.size();
     }
 
@@ -288,7 +288,7 @@ struct CollectionAdapter<
         return c.theItem();
     }
 
-    static int size(CRCol c) {
+    static long size(CRCol c) {
         return c.size();
     }
 

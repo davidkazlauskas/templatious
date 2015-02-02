@@ -34,6 +34,10 @@ struct RefContainer {
         return _r;
     }
 
+    const T& getRef() const {
+        return _r;
+    }
+
     const T& cgetRef() const {
         return _r;
     }

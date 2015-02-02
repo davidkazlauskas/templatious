@@ -314,7 +314,7 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.getByIndex(i);
     }
 
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         return c.size();
     }
 
@@ -424,7 +424,7 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
         return c.getByIndex(i);
     }
 
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         return c.size();
     }
 

@@ -536,15 +536,15 @@ struct CollectionAdapter< StaticVector<T> > {
         c.insert(at,std::forward<V>(i));
     }
 
-    static ValueType& getByIndex(ThisCol& c, int i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c.at(i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, int i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.at(i);
     }
 
-    static int size(const ThisCol& c) {
+    static long size(const ThisCol& c) {
         return c.size();
     }
 
@@ -643,11 +643,11 @@ struct CollectionAdapter< const StaticVector<T> > {
         c.insert(at,std::forward<V>(i));
     }
 
-    static ValueType& getByIndex(ThisCol& c, int i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c.at(i);
     }
 
-    static int size(const ThisCol& c) {
+    static long size(const ThisCol& c) {
         return c.size();
     }
 

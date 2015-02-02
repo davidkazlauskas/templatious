@@ -74,16 +74,16 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int size(ConstCol& c) {
+	static long size(ConstCol& c) {
 		return c.size();
 	}
 
-	static ValueType& getByIndex(ThisCol& c,int i) {
+	static ValueType& getByIndex(ThisCol& c,long i) {
         if (size(c) <= i) {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        int count = 0;
+        long count = 0;
         auto iter = begin(c);
         while (count < i) {
             ++iter;
@@ -93,12 +93,12 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return *iter;
     }
 
-	static ConstValueType& getByIndex(ConstCol& c,int i) {
+	static ConstValueType& getByIndex(ConstCol& c,long i) {
         if (size(c) <= i) {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        int count = 0;
+        long count = 0;
         auto iter = cbegin(c);
         while (count < i) {
             ++iter;
@@ -243,16 +243,16 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int size(ConstCol& c) {
+	static long size(ConstCol& c) {
 		return c.size();
 	}
 
-    static ConstValueType& getByIndex(ThisCol& c, size_t i) {
+    static ConstValueType& getByIndex(ThisCol& c, long i) {
         if (size(c) < i) {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        int count = 0;
+        long count = 0;
         auto iter = begin(c);
         while (count < i) {
             ++iter;
@@ -286,12 +286,12 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
         return citerAt(c,i);
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t i) {
+    static ConstIterator citerAt(ConstCol& c,long i) {
         if (size(c) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        int count = 0;
+        long count = 0;
         auto iter = cbegin(c);
         while (count < i) {
             ++iter;

@@ -63,10 +63,18 @@ features:
 #61. storage policy for match functor. partial - should be customized
 62. iterator dump - useful for proxies
 #63. cversions of proxy methods - copy instead of proxy
-64. fold
+#64. fold
 65. inspect
 66. pack transform should take functor or shouldn't be left at all...
 67. matchFunctor checked composition?
+#70. are collections equal algorithm.
+71. forall function
+72. exists function
+
+remove:
+#68. logic functors - useless
+69. remove map adapter - maybe leave for future,
+    no need if it's half done
 
 compatibility:
 

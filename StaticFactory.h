@@ -668,6 +668,65 @@ struct StaticFactory {
     }
 
     /**
+     * Select something from collection
+     * according to predicate function.
+     * Returns copy of selected elements.
+     * @param[in] t Collection to select from.
+     * @param[in] f Function to use on one
+     * collection element when selecting.
+     * @param[in] ColType Type of the resulting
+     * collection. If void it is inferred from
+     * predicate function passed. Defaults to void.
+     */
+    template <
+        class ColType = void, // infer from function if void
+        template <class...> class Collection = std::vector,
+        template <class> class Allocator = std::allocator,
+        template <class> class StoragePolicy =
+        templatious::util::DefaultStoragePolicy,
+        class T,
+        class... Args
+    >
+    static auto selectC(T&& t,Args&&... args) ->
+        typename templatious::adapters::CollectionMaker<
+            typename templatious::adapters::
+                CollectionAdapter<
+                    decltype(
+                        StaticFactory::select<ColType>(
+                            std::forward<T>(t),
+                            std::forward<Args>(args)...
+                        )
+                    )
+                >::ValueType,
+            Collection, Allocator
+        >::Collection
+    {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        auto sTemp = StaticFactory::select<ColType>(
+            std::forward<T>(t),
+            std::forward<Args>(args)...
+        );
+
+        typedef typename templatious::adapters::CollectionAdapter<
+            decltype(sTemp)
+        >::ValueType OutType;
+
+        typedef templatious::adapters::CollectionMaker<
+            OutType, Collection, Allocator > Mk;
+        auto sz = sTemp.size();
+        // size unknown if -1
+        if (sz == -1) {
+            auto res = Mk::make();
+            templatious::StaticAdapter::add(res,sTemp);
+            return std::move(res);
+        } else {
+            auto res = Mk::make(sz);
+            templatious::StaticAdapter::add(res,sTemp);
+            return std::move(res);
+        }
+    }
+
+    /**
      * Will be removed.
      */
     template <class T>

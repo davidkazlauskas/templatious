@@ -335,7 +335,7 @@ struct StaticAdapter {
      * @param[in] c Collection to lookup size for.
      */
     template <class T>
-    static int size(const T& c) {
+    static long size(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::size(c);
@@ -349,15 +349,15 @@ struct StaticAdapter {
      * @param[in] c Collection to lookup size for.
      */
     template <class T>
-    static int trueSize(const T& c) {
+    static long trueSize(const T& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        int initial = size(c);
+        long initial = size(c);
         if (initial != -1) {
             return initial;
         }
 
-        int count = 0;
+        long count = 0;
         auto e = cend(c);
         for (auto i = cbegin(c); i != e; ++i) {
             ++count;

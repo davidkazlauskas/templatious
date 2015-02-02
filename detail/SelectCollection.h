@@ -32,7 +32,7 @@ namespace templatious {
 // StoragePolicy - well... Storage policy
 template <class T,class F,class TrType,template <class> class StoragePolicy>
 struct SelectCollection {
-    template <class InternalIter>
+    template <class InternalIter,class ColType>
     struct IntIterator;
 
     typedef typename StoragePolicy<T>::Container StorCol;
@@ -40,22 +40,23 @@ struct SelectCollection {
     typedef TrType ValueType;
     typedef const ValueType ConstValueType;
     typedef SelectCollection<T,F,TrType,StoragePolicy> ThisCol;
+    typedef const ThisCol ConstCol;
     typedef templatious::adapters::CollectionAdapter<T> Ad;
-    typedef IntIterator< typename Ad::Iterator > Iterator;
-    typedef IntIterator< typename Ad::ConstIterator > ConstIterator;
+    typedef IntIterator< typename Ad::Iterator, ThisCol > Iterator;
+    typedef IntIterator< typename Ad::ConstIterator, ConstCol > ConstIterator;
 
     template <class Tc,class Fc>
     SelectCollection(Tc&& c,Fc&& f):
         _c(std::forward<Tc>(c)),
         _f(std::forward<Fc>(f)) {}
 
-    template <class InternalIter>
+    template <class InternalIter,class ColType>
     struct IntIterator {
-        typedef IntIterator< InternalIter > ThisIter;
+        typedef IntIterator< InternalIter,ColType > ThisIter;
 
         // constructor using internal iterator
         template <class V>
-        IntIterator(ThisCol& c,V&& v):
+        IntIterator(ColType& c,V&& v):
             _ref(c),
             _it(std::forward<V>(v)) {}
 
@@ -78,16 +79,16 @@ struct SelectCollection {
             return std::addressof(_ref._f.getRef()(*_it));
         }
 
-        bool operator==(const Iterator& rhs) const {
+        bool operator==(const ThisIter& rhs) const {
             return _it == rhs._it;
         }
 
-        bool operator!=(const Iterator& rhs) const {
+        bool operator!=(const ThisIter& rhs) const {
             return !(*this == rhs);
         }
 
     private:
-        ThisCol& _ref;
+        ColType& _ref;
         InternalIter _it;
     };
 
@@ -108,14 +109,14 @@ struct SelectCollection {
     }
 
     ConstIterator cend() const {
-        return ConstIterator(*this,Ad::cbegin(_c.cgetRef()));
+        return ConstIterator(*this,Ad::cend(_c.cgetRef()));
     }
 
     Iterator citerAt(size_t i) const {
         return ConstIterator(*this,Ad::citerAt(_c.cgetRef(),i));
     }
 
-    int size() const {
+    long size() const {
         return Ad::size(_c.cgetRef());
     }
 
@@ -237,7 +238,7 @@ struct CollectionAdapter<
         return *c.citerAt(i);
     }
 
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         return c.size();
     }
 
@@ -364,7 +365,7 @@ struct CollectionAdapter<
         return *c.citerAt(i);
     }
 
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         return c.size();
     }
 

@@ -53,7 +53,7 @@ struct IsProxy {
         return std::forward<V>(i);
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return 1;
@@ -97,7 +97,7 @@ struct IsProxy<T&&> {
                 std::forward<C>(c));
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return Internal::get_mul(
@@ -145,7 +145,7 @@ struct IsProxy<const T&&> {
                 std::forward<C>(c));
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return Internal::get_mul(
@@ -193,7 +193,7 @@ struct IsProxy<T&> {
                 std::forward<C>(c));
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return Internal::get_mul(
@@ -241,7 +241,7 @@ struct IsProxy<const T&> {
                 std::forward<C>(c));
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return Internal::get_mul(

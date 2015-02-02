@@ -36,7 +36,7 @@ struct Sizable: public T {
 
     Sizable(ThisCol& t) : T(t) {}
 
-    int size() const {
+    long size() const {
         return Ad::size(static_cast<ConstCol&>(cgetRef()));
     }
 
@@ -59,7 +59,7 @@ struct SizableFake: public T {
 
     SizableFake(ThisCol& t) : T(t) {}
 
-    int size() const {
+    long size() const {
         return 0;
     }
 
@@ -82,7 +82,7 @@ struct SizableThrow: public T {
 
     SizableThrow(ThisCol& t) : T(t) {}
 
-    int size() const {
+    long size() const {
         throw templatious::util::FeatureDisabled(
             "Size info is disabled in current collection.");
     }
@@ -107,7 +107,7 @@ struct SizablePrevent: public T {
     SizablePrevent(ThisCol& t) : T(t) {}
 
     template <class U = int>
-    int size() const {
+    long size() const {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Sizable feature is disabled.");

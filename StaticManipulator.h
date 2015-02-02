@@ -243,7 +243,7 @@ public:
         typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
         ICall call;
 
-        int size = SA::size(ut::getFirst(std::forward<Args>(args)...));
+        long size = SA::size(ut::getFirst(std::forward<Args>(args)...));
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
         typedef templatious::adapters::CollectionMaker<
             T,ResCollection,Allocator> Mk;
@@ -669,6 +669,88 @@ public:
             std::forward<Func>(f),
             std::forward<T>(t),
             std::forward<Args>(args)...);
+    }
+
+    /**
+     * Function that checks whether collections
+     * passed contain identical elements.
+     * Functor specifies the way of comparison
+     * and should return true when elements are
+     * equal. This is intended to use for collections
+     * only.
+     * @param[in] f Function to be used when comparing.
+     * @param[in] a First collection to compare.
+     * @param[in] b Second collection to compare.
+     */
+    template <
+        class F,class A,class B
+    >
+    static bool areCollectionsEqualS(const F& f,const A& a,const B& b) {
+        typedef templatious::adapters::
+            CollectionAdapter<A> AdapterA;
+        typedef templatious::adapters::
+            CollectionAdapter<B> AdapterB;
+
+        long aSz = AdapterA::size(a);
+        long bSz = AdapterB::size(b);
+
+        bool anyUnknown = aSz == -1 || bSz == -1;
+
+        if (aSz != bSz && !anyUnknown) {
+            return false;
+        }
+
+        auto ba = AdapterA::cbegin(a);
+        auto bb = AdapterB::cbegin(b);
+
+        auto ea = AdapterA::cend(a);
+        auto eb = AdapterB::cend(b);
+
+        while (ba != ea && bb != eb) {
+            if (!f(*ba,*bb)) {
+                return false;
+            }
+
+            ++ba;
+            ++bb;
+        }
+
+        // make sure we traversed all
+        if (ba != ea || bb != eb) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Same as the two element version but for more collections.
+     * @param[in] f Function to be used when comparing.
+     * @param[in] a First collection to compare.
+     * @param[in] b Second collection to compare.
+     */
+    template <
+        class F,class A,class B,
+        class... Tail
+    >
+    static bool areCollectionsEqualS(const F& f,
+            const A& a,const B& b,const Tail&... tail)
+    {
+        if (!areCollectionsEqualS(f,a,b)) {
+            return false;
+        }
+        return areCollectionsEqualS(f,b,tail...);
+    }
+
+    /**
+     * Check if passed collections contain identical
+     * elements using the default '==' operator.
+     * @param[in] args Argument collections to check.
+     */
+    template <class... Args>
+    static bool areCollectionsEqual(const Args&... args) {
+        return areCollectionsEqualS(
+            detail::DefaultComparator(),args...);
     }
 
 };

@@ -146,7 +146,7 @@ public:
         return res;
     }
 
-    int size() const {
+    long size() const {
         if (!_cleared) {
             return -1;
         } else {
@@ -279,7 +279,7 @@ struct IsProxy< Filter< T,Fn,StoragePolicy > > {
     }
 
     template <class C>
-    static int get_mul(C&& a) {
+    static long get_mul(C&& a) {
         return -1;
     }
 
@@ -367,7 +367,7 @@ struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
     }
 
     template <class C>
-    static int size(C&& c) {
+    static long size(C&& c) {
         return c.size();
     }
 

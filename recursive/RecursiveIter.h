@@ -111,27 +111,11 @@ struct RecursiveIterator<A, Tail...> {
                 from the collection this iterator should take");
     }
 
-    //void print() {
-        //std::cout << *_a << std::endl;
-        //_t.print();
-    //}
-
-    //void print_enum() {
-        //std::cout << num << std::endl;
-        //_t.print_enum();
-    //}
-
     template <int i = 0, class T>
     void setTuple(T& c) const {
         std::get<i>(c) = *_a;
         _t.setTuple<i + 1>(c);
     }
-
-    //template <int i = 0, class T>
-    //void print_tuple(T& c) const {
-        //std::cout << std::get<i>(c) << std::endl;
-        //_t.print_tuple<i + 1>(c);
-    //}
 
     void inc() {
         ++_a;

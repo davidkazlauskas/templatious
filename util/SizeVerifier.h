@@ -30,7 +30,7 @@ struct SizeVerifier;
 template <class A,class ...Args>
 struct SizeVerifier<A,Args...> {
     typedef templatious::StaticAdapter SA;
-    int _size;
+    long _size;
     SizeVerifier<Args...> _next;
 
     bool areAllEqual() {
@@ -52,7 +52,7 @@ template <class A>
 struct SizeVerifier<A> {
     typedef templatious::StaticAdapter SA;
 
-    int _size;
+    long _size;
 
     SizeVerifier(A& a) : _size(SA::size(a)) {}
 

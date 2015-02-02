@@ -26,7 +26,7 @@
 namespace templatious {
 namespace detail {
 
-    typedef unsigned int CountType;
+    typedef unsigned long CountType;
 
     struct AssignDispatcher {
         template <class T,class U>

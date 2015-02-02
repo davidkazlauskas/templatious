@@ -128,13 +128,13 @@ public:
             static const bool isNaiveAdvance =
                 !util::IsRandomAccessIteratorTagged<decltype(i)>::value;
             typedef detail::AdvancePicker<isNaiveAdvance> A;
-            int mul = ProxUtil::get_mul(_c.getRef());
+            long mul = ProxUtil::get_mul(_c.getRef());
             A::adv(i,e,mul * n);
             return Iterator(i);
         }
     }
 
-    int size() const {
+    long size() const {
         if (!_cleared) {
             return -1;
         } else {
@@ -214,7 +214,7 @@ public:
         return ProxUtil::unwrap(_c.getRef());
     }
 
-    int getMul() const {
+    long getMul() const {
         return ProxUtil::get_mul(_c.cgetRef());
     }
 
@@ -259,7 +259,7 @@ struct IsProxy< Range< T, StoragePolicy > > {
         return c.getInternal();
     }
 
-    typedef int Dist;
+    typedef long Dist;
     template <class U>
     static Dist get_mul(U&& u) {
         return u.getMul();
@@ -346,7 +346,7 @@ struct CollectionAdapter< Range<T, StoragePolicy> > {
     }
 
     template <class C>
-    static int size(C&& c) {
+    static long size(C&& c) {
         return c.size();
     }
 

@@ -102,7 +102,7 @@ struct MapAdapter<
         return true;
     }
 
-    static int size(const ThisMap& h) {
+    static long size(const ThisMap& h) {
         return h.size();
     }
 

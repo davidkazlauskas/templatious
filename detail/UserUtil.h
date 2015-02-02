@@ -82,6 +82,13 @@ struct SumFunctorCustom {
     size_t _cnt;
 };
 
+struct DefaultComparator {
+    template <class A,class B>
+    bool operator()(A&& a,B&& b) const {
+        return a == b;
+    }
+};
+
 //------- DummyVar
 
 struct DummyVar {

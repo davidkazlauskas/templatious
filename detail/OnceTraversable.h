@@ -237,7 +237,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
@@ -389,7 +389,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");
@@ -516,7 +516,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static int size(ConstCol& c) {
+    static long size(ConstCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "OnceTraversable is not full fledged collection"
                 " and can be traversed with iterators only.");

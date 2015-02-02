@@ -106,7 +106,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int size(ConstCol& c) {
+	static long size(ConstCol& c) {
 		return c.size();
 	}
 
@@ -193,7 +193,7 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 		return c.cend();
 	}
 
-	static int size(ConstCol& c) {
+	static long size(ConstCol& c) {
 		return c.size();
 	}
 

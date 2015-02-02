@@ -350,7 +350,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ValueType& getByIndex(ThisCol& c, int i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
@@ -358,14 +358,14 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ConstValueType& getByIndex(ConstCol& c, int i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
     }
 
-    static int size(const ThisCol& c) {
+    static long size(const ThisCol& c) {
         return c.size();
     }
 
@@ -491,14 +491,14 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ConstValueType& getByIndex(ConstCol& c, int i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
     }
 
-    static int size(const ThisCol& c) {
+    static long size(const ThisCol& c) {
         return c.size();
     }
 
