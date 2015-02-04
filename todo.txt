@@ -65,11 +65,11 @@ features:
 #63. cversions of proxy methods - copy instead of proxy
 #64. fold
 65. inspect
-66. pack transform should take functor or shouldn't be left at all...
+#66. pack transform should take functor or shouldn't be left at all...
 67. matchFunctor checked composition?
 #70. are collections equal algorithm.
-71. forall function
-72. exists function
+#71. forall function
+#72. exists function
 
 remove:
 #68. logic functors - useless
