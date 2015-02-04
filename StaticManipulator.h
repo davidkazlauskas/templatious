@@ -365,24 +365,6 @@ public:
     }
 
     /**
-     * probably will be removed
-     */
-    template <class T,class U,class Comp = templatious::util::ComparatorEq<U,U,templatious::util::Default> >
-    static bool valExists(const T& col,const U& v) {
-        typedef typename templatious::StaticAdapter SA;
-        Comp c;
-
-        auto end = SA::end(col);
-        for (auto i = SA::begin(col); i != end; ++i) {
-            if (c(v,*i)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Variadic set function overload.
      * @param[in] t Value used for setting.
      * @param[in,out] v One entity to set.
@@ -751,6 +733,94 @@ public:
     static bool areCollectionsEqual(const Args&... args) {
         return areCollectionsEqualS(
             detail::DefaultComparator(),args...);
+    }
+
+    /**
+     * Check if all elements match given predicate
+     * function. Works with collections or single variables.
+     * Collections are treated as composite.
+     * @param[in] f Function that should return true
+     * if element satisfies condition.
+     * @param[in] args Argument collections/variables to check.
+     */
+    template <class F,class... Args>
+    static bool forAll(F&& f,Args&&... args) {
+        templatious::detail::ForallFunctor<
+            decltype(std::forward<F>(f)),
+            templatious::util::DefaultStoragePolicy
+        > fctor(std::forward<F>(f));
+
+        genericCallAll< detail::DeciderForEach, false >(
+            fctor,std::forward<Args>(args)...
+        );
+
+        return fctor._state;
+    }
+
+    /**
+     * Check if all elements match given predicate
+     * function. Works with packs or single variables.
+     * Packs are treated as composite.
+     * @param[in] f Function that should return true
+     * if element satisfies condition.
+     * @param[in] args Argument collections/variables to check.
+     */
+    template <class F,class... Args>
+    static bool forAllP(F&& f,Args&&... args) {
+        templatious::detail::ForallFunctor<
+            decltype(std::forward<F>(f)),
+            templatious::util::DefaultStoragePolicy
+        > fctor(std::forward<F>(f));
+
+        genericCallAll< detail::DeciderCallEach, false >(
+            fctor,std::forward<Args>(args)...
+        );
+
+        return fctor._state;
+    }
+
+    /**
+     * Check if at least one element matches given predicate
+     * function. Works with collections or single variables.
+     * Collections are treated as composite.
+     * @param[in] f Function that should return true
+     * if element satisfies condition.
+     * @param[in] args Argument collections/variables to check.
+     */
+    template <class F,class... Args>
+    static bool exists(F&& f,Args&&... args) {
+        templatious::detail::ExistsFunctor<
+            decltype(std::forward<F>(f)),
+            templatious::util::DefaultStoragePolicy
+        > fctor(std::forward<F>(f));
+
+        genericCallAll< detail::DeciderForEach, false >(
+            fctor,std::forward<Args>(args)...
+        );
+
+        return fctor._state;
+    }
+
+    /**
+     * Check if at least one element matches given predicate
+     * function. Works with packs or single variables.
+     * Packs are treated as composite.
+     * @param[in] f Function that should return true
+     * if element satisfies condition.
+     * @param[in] args Argument collections/variables to check.
+     */
+    template <class F,class... Args>
+    static bool existsP(F&& f,Args&&... args) {
+        templatious::detail::ExistsFunctor<
+            decltype(std::forward<F>(f)),
+            templatious::util::DefaultStoragePolicy
+        > fctor(std::forward<F>(f));
+
+        genericCallAll< detail::DeciderCallEach, false >(
+            fctor,std::forward<Args>(args)...
+        );
+
+        return fctor._state;
     }
 
 };

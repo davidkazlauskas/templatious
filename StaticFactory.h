@@ -19,7 +19,6 @@
 #ifndef STATICFACTORY_ABQ8DGTQ
 #define STATICFACTORY_ABQ8DGTQ
 
-#include <templatious/map/MapMaker.h>
 #include <templatious/CollectionMaker.h>
 #include <templatious/Sequence.h>
 #include <templatious/Pack.h>
@@ -85,82 +84,6 @@ struct StaticFactory {
     {
         templatious::adapters::CollectionMaker<
             Val,Collection,Allocator> mk;
-        return mk.make(size);
-    }
-
-    /**
-     * Will be removed
-     */
-    template <
-        class Key,
-        class Value,
-        template <class...> class Map,
-        class Hash = templatious::util::Hasher<Key>,
-        template <class> class Allocator = std::allocator
-    >
-    static auto makeMap()
-    -> decltype(templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator>().make())
-    {
-        templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator> mk;
-        return mk.make();
-    }
-
-    /**
-     * Will be removed
-     */
-    template <
-        class Key,
-        class Value,
-        template <class...> class Map,
-        class Hash = templatious::util::Hasher<Key>,
-        template <class> class Allocator = std::allocator
-    >
-    static auto makeMap(const Hash& h)
-    -> decltype(templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator>(h).make())
-    {
-        templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator> mk(h);
-        return mk.make();
-    }
-
-    /**
-     * Will be removed
-     */
-    template <
-        class Key,
-        class Value,
-        template <class...> class Map,
-        class Hash = templatious::util::Hasher<Key>,
-        template <class> class Allocator = std::allocator
-    >
-    static auto makeMap(size_t size)
-    -> decltype(templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator>().make(size))
-    {
-        templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator> mk;
-        return mk.make(size);
-    }
-
-    /**
-     * Will be removed
-     */
-    template <
-        class Key,
-        class Value,
-        template <class...> class Map,
-        class Hash = templatious::util::Hasher<Key>,
-        template <class> class Allocator = std::allocator
-    >
-    static auto makeMap(const Hash& h,size_t size)
-    -> decltype(templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator>(h).make(size))
-    {
-        templatious::adapters::MapMaker<
-            Key,Value,Map,Hash,Allocator> mk(h);
         return mk.make(size);
     }
 

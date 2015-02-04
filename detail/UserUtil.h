@@ -62,6 +62,54 @@ struct SumFunctor {
     size_t _cnt;
 };
 
+//------- Forall functor.
+template <
+    class StorType,
+    template <class> class StoragePolicy
+>
+struct ForallFunctor {
+
+    template <class V>
+    ForallFunctor(V&& v) :
+        _st(std::forward<V>(v)), _state(true) {}
+
+    template <class T>
+    bool operator()(T&& i) {
+        bool curr = _st.getRef()(std::forward<T>(i));
+        _state &= curr;
+        return curr;
+    }
+
+    typedef typename StoragePolicy<StorType>
+        ::Container Storage;
+    Storage _st;
+    bool _state;
+};
+
+//------- Exists functor.
+template <
+    class StorType,
+    template <class> class StoragePolicy
+>
+struct ExistsFunctor {
+
+    template <class V>
+    ExistsFunctor(V&& v) :
+        _st(std::forward<V>(v)), _state(false) {}
+
+    template <class T>
+    bool operator()(T&& i) {
+        bool curr = _st.getRef()(std::forward<T>(i));
+        _state |= curr;
+        return !curr;
+    }
+
+    typedef typename StoragePolicy<StorType>
+        ::Container Storage;
+    Storage _st;
+    bool _state;
+};
+
 template <class StorType,class FStorType,bool countAlso = false>
 struct SumFunctorCustom {
 

@@ -7,9 +7,7 @@
 #include <memory>
 #include <initializer_list>
 
-#include <templatious/util/Selectors.h>
 #include <templatious/util/Exceptions.h>
-#include <templatious/util/Comparator.h>
 
 namespace templatious {
 namespace adapters {
