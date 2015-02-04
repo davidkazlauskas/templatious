@@ -63,10 +63,10 @@ private:
     };
     // end
 
-    template <int i,int gr,int target,class Func,class U>
+    template <int i,int gr,class Func,class U,int... target>
     struct Decider {
         typedef typename std::conditional<
-                gr == target,
+                Contains<gr,target...>::result,
                 Include,
                 Exclude
         >::type IncOrExc;
