@@ -172,16 +172,16 @@ private:
 
 };
 
-template <class Delimiter,class Func,int gr,class... Args>
+template <class Delimiter,class Func,int... gr,class... Args>
 auto callGroup(Args&&... args)
  -> decltype (
-    UniGroupCaller<Delimiter>::template firstCall<gr,Func>(
+    UniGroupCaller<Delimiter>::template firstCall<gr...,Func>(
         std::forward<Args>(args)...
     )
  )
 {
     typedef UniGroupCaller<Delimiter> Caller;
-    return Caller::template firstCall<gr,Func>(
+    return Caller::template firstCall<gr...,Func>(
         std::forward<Args>(args)...
     );
 }
