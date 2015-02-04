@@ -164,7 +164,7 @@ private:
     };
 
     struct Terminate {
-        template <int i,int gr,int target,class Func,class Loner,class... Args>
+        template <int i,int gr,class Func,int... target,class Loner,class... Args>
         static auto callInternal(Loner&& l,Args&&... args)
         -> decltype(
             Func::call(std::forward<Args>(args)...)
@@ -174,7 +174,7 @@ private:
             return Func::call(std::forward<Args>(args)...);
         }
 
-        template <int i,int gr,int target,class Func,class Loner>
+        template <int i,int gr,class Func,int... target,class Loner>
         static auto callInternal(Loner&& l)
         -> void
         {
