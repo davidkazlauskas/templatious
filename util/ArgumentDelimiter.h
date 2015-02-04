@@ -134,16 +134,16 @@ public:
 
 private:
     struct Include {
-        template <int i,int gr,int target,class Func,class Loner,class... Args>
+        template <int i,int gr,class Func,int... target,class Loner,class... Args>
         static auto callInternal(Loner&& l,Args&&... args)
         -> decltype(
-            ThisCaller::template call<i,gr,target,Func>(
+            ThisCaller::template call<i,gr,Func,target...>(
                 std::forward<Args>(args)...,
                 std::forward<Loner>(l)
             )
         )
         {
-            return ThisCaller::template call<i,gr,target,Func>(
+            return ThisCaller::template call<i,gr,Func,target...>(
                     std::forward<Args>(args)...,
                     std::forward<Loner>(l));
         }
