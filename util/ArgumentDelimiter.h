@@ -98,17 +98,17 @@ private:
         }
     };
 
-    template <int i,int gr,int target,class Func,class T,class... Args>
+    template <int i,int gr,class Func,int... target,class T,class... Args>
     static auto call(T&& t,Args&&... args)
     -> decltype(
-           Decider<i + 1,gr,target,Func,T>::
+           Decider<i + 1,gr,Func,T,target...>::
                callInternal(
                    std::forward<T>(t),
                    std::forward<Args>(args)...
                )
        )
     {
-        typedef Decider<i + 1,gr,target,Func,T> Dec;
+        typedef Decider<i + 1,gr,Func,T,target...> Dec;
         return Dec::callInternal(
                 std::forward<T>(t),
                 std::forward<Args>(args)...);
