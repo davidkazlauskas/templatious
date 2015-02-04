@@ -94,7 +94,7 @@ struct PackTransformInsertWithin {
         template <class> class StoragePolicy,
         class... T,class U
     >
-    static auto call(Pack<StoragePolicy,T...> p,U&& u)
+    auto operator()(Pack<StoragePolicy,T...> p,U&& u) const
      -> decltype(p.template insert<NewStoragePolicy>(
                  std::forward<U>(u)))
     {
@@ -103,7 +103,7 @@ struct PackTransformInsertWithin {
     }
 
     template <class U>
-    static auto call(U&& u)
+    auto operator()(U&& u) const
      -> decltype(std::forward<U>(u))
     {
         return std::forward<U>(u);
@@ -119,16 +119,18 @@ struct ExpPackConInvoke {};
 
 struct PackAccess {
 
-    template <class TrPol,class P,class... T>
-    static auto packTransformWithin(P p,T&&... t)
+    template <class F,class P,class... T>
+    static auto packTransformWithin(F&& f,P p,T&&... t)
      -> decltype(
-             p.template transform<TrPol>(
-                    std::forward<T>(t)...,
-                    detail::TransformDelimiter()
+             p.transform(
+                 std::forward<F>(f),
+                 std::forward<T>(t)...,
+                 detail::TransformDelimiter()
              )
         )
     {
-        return p.template transform<TrPol>(
+        return p.transform(
+                std::forward<F>(f),
                 std::forward<T>(t)...,
                 detail::TransformDelimiter());
     }
@@ -148,10 +150,12 @@ struct PackAccess {
         class P,class T
     >
     static auto packInsertWithin(P&& p,T&& t)
-     -> decltype( packTransformWithin< PackTransformInsertWithin<StoragePolicy> >(
+     -> decltype( packTransformWithin(
+                 PackTransformInsertWithin<StoragePolicy>(),
                  std::forward<P>(p),std::forward<T>(t)) )
     {
-        return packTransformWithin< PackTransformInsertWithin<StoragePolicy> >(
+        return packTransformWithin(
+                PackTransformInsertWithin<StoragePolicy>(),
                 std::forward<P>(p),std::forward<T>(t) );
     }
 
@@ -200,6 +204,18 @@ struct Packer {
         class... Args
     >
     static auto call(Args&&... args)
+     -> decltype( PackAccess::packUp<StoragePolicy>(
+                 std::forward<Args>(args)...) )
+    {
+        return PackAccess::packUp<StoragePolicy>(
+                std::forward<Args>(args)...);
+    }
+
+    template <
+        template <class> class StoragePolicy = DefaultPackStoragePolicy,
+        class... Args
+    >
+    auto operator()(Args&&... args) const
      -> decltype( PackAccess::packUp<StoragePolicy>(
                  std::forward<Args>(args)...) )
     {
@@ -379,28 +395,30 @@ struct Pack<StoragePolicy,A,Tail...> {
                  _r.cpy());
     }
 
-    template <class Tr,class... Args>
-    auto transform(Args&&... args)
+    template <class F,class... Args>
+    auto transform(F&& f,Args&&... args)
      -> decltype(
-         std::declval< Pack<StoragePolicy,Tail...> >().template transform<Tr>(
+         std::declval< Pack<StoragePolicy,Tail...> >().transform(
+             std::forward<F>(f),
              std::forward<Args>(args)...,
-             templatious::util::callGroup<
+             templatious::util::callGroupF<
                 detail::TransformDelimiter,
-                Tr,
-                0
-             >( std::declval<Container>().cpy(),
+                1
+             >( std::forward<F>(f),
+                std::declval<Container>().cpy(),
                 std::forward<Args>(args)... )
          )
      )
     {
         namespace u = templatious::util;
-        return _t.template transform<Tr>(
+        return _t.transform(
+            std::forward<F>(f),
             std::forward<Args>(args)...,
-            u::callGroup<
+            u::callGroupF<
                 detail::TransformDelimiter,
-                Tr,
-                0
-            >( _r.cpy(),
+                1
+            >( std::forward<F>(f),
+               _r.cpy(),
                std::forward<Args>(args)... )
         );
     }
@@ -528,8 +546,8 @@ struct Pack<StoragePolicy,A> {
                 );
     }
 
-    template <class Tr,class... Args>
-    auto transform(Args&&... args)
+    template <class F,class... Args>
+    auto transform(F&& f,Args&&... args)
      -> decltype(
          templatious::util::callGroup<
             detail::TransformDelimiter,
@@ -537,11 +555,11 @@ struct Pack<StoragePolicy,A> {
             1
          >(
              std::forward<Args>(args)...,
-             templatious::util::callGroup<
+             templatious::util::callGroupF<
                 detail::TransformDelimiter,
-                Tr,
-                0
-             >( std::declval<Container>().cpy(),
+                1
+             >( std::forward<F>(f),
+                std::declval<Container>().cpy(),
                 std::forward<Args>(args)... )
          )
      )
@@ -553,11 +571,11 @@ struct Pack<StoragePolicy,A> {
             1
         >(
             std::forward<Args>(args)...,
-            u::callGroup<
+            u::callGroupF<
                 detail::TransformDelimiter,
-                Tr,
-                0
-            >( _r.cpy(),
+                1
+            >( std::forward<F>(f),
+               _r.cpy(),
                std::forward<Args>(args)... )
         );
     }

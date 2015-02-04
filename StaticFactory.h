@@ -902,7 +902,6 @@ struct StaticFactory {
                 std::forward<P>(p),std::forward<T>(t));
     }
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
     /**
      * Transform pack with a predicate function
      * (usually this is a match functor which
@@ -941,20 +940,21 @@ struct StaticFactory {
      * @param[in] p Pack to transform
      *
      */
-    template <class TrPol,class P,class... T>
-    static auto packTransformWithin(P&& p,T&&... t)
+    template <class F,class P,class... T>
+    static auto packTransformWithin(F&& f,P&& p,T&&... t)
      -> decltype(
-            detail::PackAccess::packTransformWithin<TrPol>(
+            detail::PackAccess::packTransformWithin(
+                std::forward<F>(f),
                 std::forward<P>(p),
                 std::forward<T>(t)...)
         )
     {
-        return detail::PackAccess::packTransformWithin<TrPol>(
+        return detail::PackAccess::packTransformWithin(
+            std::forward<F>(f),
             std::forward<P>(p),
             std::forward<T>(t)...
         );
     }
-#endif
 
     /**
      * Make a pack of repeated element(s).

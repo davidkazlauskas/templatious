@@ -199,6 +199,7 @@ private:
 
 };
 
+// func template has to have ::call static method
 template <class Delimiter,class Func,int... gr,class... Args>
 auto callGroup(Args&&... args)
  -> decltype (
@@ -211,6 +212,37 @@ auto callGroup(Args&&... args)
     return Caller::template firstCall<Func,gr...>(
         std::forward<Args>(args)...
     );
+}
+
+struct CallFirstFctor {
+    template <class F,class... Args>
+    static auto call(F&& f,Args&&... args)
+     -> decltype(f(std::forward<Args>(args)...))
+    {
+        return f(std::forward<Args>(args)...);
+    }
+};
+
+// take in functor for call, not static class
+// here indexing starts from 1 because first group
+// is for functor
+template <class Delimiter,int... gr,class F,class... Args>
+auto callGroupF(F&& f,Args&&... args)
+ -> decltype (
+    UniGroupCaller<Delimiter>::template firstCall<CallFirstFctor,0,gr...>(
+        std::forward<F>(f),
+        Delimiter(),
+        std::forward<Args>(args)...
+    )
+ )
+{
+    typedef UniGroupCaller<Delimiter> Caller;
+    return Caller::template firstCall<CallFirstFctor,0,gr...>(
+        std::forward<F>(f),
+        Delimiter(),
+        std::forward<Args>(args)...
+    );
+
 }
 
 }
