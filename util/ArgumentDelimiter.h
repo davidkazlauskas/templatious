@@ -36,6 +36,33 @@ private:
     struct Terminate;
     struct Advance;
 
+    // small utility for checking if int list
+    // contains target
+    template <int i,int... target>
+    struct Contains;
+
+    template <int i,int... target>
+    struct Contains<i,i,target...> {
+        static const bool result = true;
+    };
+
+    template <int i,int j,int... target>
+    struct Contains<i,j,target...> {
+        static const bool result =
+            Contains<i,target...>::result;
+    };
+
+    template <int i,int j>
+    struct Contains<i,j> {
+        static const bool result = false;
+    };
+
+    template <int i>
+    struct Contains<i,i> {
+        static const bool result = true;
+    };
+    // end
+
     template <int i,int gr,int target,class Func,class U>
     struct Decider {
         typedef typename std::conditional<
