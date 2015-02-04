@@ -117,16 +117,16 @@ private:
 public:
     typedef UniGroupCaller<Delim> ThisCaller;
 
-    template <int target,class Func,class... Args>
+    template <class Func,int... target,class... Args>
     static auto firstCall(Args&&... args)
     -> decltype(
-        call<0,0,target,Func>(
+        call<0,0,Func,target...>(
             std::forward<Args>(args)...,
             CustomDelimiter()
         )
     )
     {
-        return call<0,0,target,Func>(
+        return call<0,0,Func,target...>(
             std::forward<Args>(args)...,
             CustomDelimiter()
         );
