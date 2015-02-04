@@ -89,11 +89,11 @@ private:
         template <class T,class... Args>
         static auto callInternal(T&& t,Args&&... args)
         -> decltype( Alg::template callInternal<
-               i,gr,target,Func
+               i,gr,Func,target...
            >(std::forward<T>(t),std::forward<Args>(args)...))
         {
            return Alg::template callInternal<
-               i,gr,target,Func
+               i,gr,Func,target...
            >(std::forward<T>(t),std::forward<Args>(args)...);
         }
     };
