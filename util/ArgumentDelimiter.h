@@ -184,15 +184,15 @@ private:
     };
 
     struct Advance {
-        template <int i,int gr,int target,class Func,class Loner,class... Args>
+        template <int i,int gr,class Func,int... target,class Loner,class... Args>
         static auto callInternal(Loner&& l,Args&&... args)
         -> decltype(
-            ThisCaller::template call<i,gr + 1,target,Func>(
+            ThisCaller::template call<i,gr + 1,Func,target...>(
                 std::forward<Args>(args)...
             )
         )
         {
-            return call<i,gr + 1,target,Func>(
+            return call<i,gr + 1,Func,target...>(
                     std::forward<Args>(args)...);
         }
     };
