@@ -21,6 +21,8 @@
 
 #include <utility>
 #include <vector>
+
+#include <templatious/util/Selectors.h>
 #include <templatious/CollectionMaker.h>
 #include <templatious/CollectionAdapter.h>
 
