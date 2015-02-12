@@ -2,6 +2,7 @@ LEGEND:
 # - done
 ~ - partial
 ? - problems
+@ - stupid
 
 BUG LOG:
 
@@ -47,7 +48,7 @@ features:
 #42. transformation on add methods
 #43. return from callEach/distribute to stop traversal
 #44. decorate functor - make few functors from one as decorator
-47. make recursive sequence generator from lamba
+@47. make recursive sequence generator from lamba [ FOLD IS BETTER ]
 #48. pair functors - do/undo stuff
 #49. set ignore return val
 #50. static vector splitter from bigger array
@@ -56,7 +57,7 @@ features:
 #54. quadro return times traversed
 #55. dummy var which can be assigned anything
 #56. proxy classes should use storage policy for functions and collections
-57. MULTIRATOR!!
+@57. MULTIRATOR!! [ RETARDED ]
 #58. select - type exchange collection
 #59. make static array looser (eliminate constant only size knowledge)
 #60. seqR - sequence repeat same value // - repS
@@ -66,7 +67,7 @@ features:
 #64. fold
 65. inspect
 #66. pack transform should take functor or shouldn't be left at all...
-67. matchFunctor checked composition?
+#67. matchFunctor checked composition?
 #70. are collections equal algorithm.
 #71. forall function
 #72. exists function
