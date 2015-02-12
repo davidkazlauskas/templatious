@@ -71,6 +71,7 @@ features:
 #70. are collections equal algorithm.
 #71. forall function
 #72. exists function
+73. proxy function should contain reference to collection, not a function
 
 remove:
 #68. logic functors - useless
