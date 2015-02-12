@@ -7,7 +7,7 @@ LEGEND:
 BUG LOG:
 
 ?2. need for implicit conversion to value from initializer list -- difficulties
-6. move collection map to default map object
+@6. move collection map to default map object [ DROPPED ]
 
 defects:
 
@@ -20,9 +20,9 @@ defects:
 
 features:
 
-1. findIter @ CollectionManipulator needs comparator support
+@1. findIter @ CollectionManipulator needs comparator support [ DROPPED ]
 #7. virtual collection wrapper
-10. tune map object
+@10. tune map object [ MAP DROPPED ]
 #11. loops
 #12. quadro function
 #13. lambda cat
@@ -74,7 +74,7 @@ features:
 
 remove:
 #68. logic functors - useless
-69. remove map adapter - maybe leave for future,
+#69. remove map adapter - maybe leave for future,
     no need if it's half done
 
 compatibility:
@@ -86,10 +86,10 @@ compatibility:
 #39. drop TypeSelector and use std::conditional
 #40. give packs policies to decide how to store variables
 #52. rvalue storage policy is never used unless we call it with decltype, not template parameter
-66. make size return long, not int
+#66. make size return long, not int
 
 perfection:
-9. add const qualifiers to comparators
+@9. add const qualifiers to comparators [ NO MORE COMPARATORS ]
 #23. replace asserts with thrown exceptions
 #26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
 #28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
