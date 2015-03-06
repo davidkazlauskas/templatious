@@ -187,6 +187,11 @@ public:
             return *(this->_i);
         }
 
+        const IVal& operator*() const
+        {
+            return *(this->_i);
+        }
+
         auto operator->()
             -> decltype(&(this->_i))
         const {

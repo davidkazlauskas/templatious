@@ -200,7 +200,14 @@ public:
             return !(*this == rhs);
         }
 
-        auto operator*() -> decltype(*(this->_i))
+        auto operator*() -> decltype(
+            *std::declval<ThisIter>()._i)
+        {
+            return *(this->_i);
+        }
+
+        auto operator*() const -> decltype(
+            *std::declval<ThisIter>()._i)
         {
             return *(this->_i);
         }
@@ -309,6 +316,7 @@ struct IsProxy< Filter< T,Fn,StoragePolicy > > {
 }
 
 namespace adapters {
+
 template <class T,class Fn,template <class> class StoragePolicy>
 struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
 

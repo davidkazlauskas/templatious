@@ -63,7 +63,7 @@ struct __ForeachCounter {
         ::seqL(to))
 
 #define TEMPLATIOUS_REPEAT(n) \
-    TEMPLATIOUS_FOREACH(auto __tmp_var,::templatious::StaticFactory::seqL(n))
+    for (long __tmp_i = 0; __tmp_i < n; ++__tmp_i)
 
 #define TEMPLATIOUS_TRIPLET(AdName,FactName,ManipName) \
     typedef templatious::StaticAdapter AdName;\

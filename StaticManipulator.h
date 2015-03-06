@@ -4,6 +4,7 @@
 #include <utility>
 #include <type_traits>
 #include <vector>
+#include <algorithm>
 
 #include <templatious/CollectionAdapter.h>
 #include <templatious/CollectionMaker.h>
@@ -11,11 +12,13 @@
 #include <templatious/util/SizeVerifier.h>
 #include <templatious/util/CallCountFunctor.h>
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/IteratorTagExtractor.h>
 
 #include <templatious/IterMaker.h>
 #include <templatious/Pack.h>
 #include <templatious/detail/Distributor.h>
 #include <templatious/detail/UserUtil.h>
+#include <templatious/detail/VectoratorItem.h>
 
 namespace templatious {
 namespace detail {
@@ -95,6 +98,24 @@ namespace detail {
     private:
         T& _c;
         Container _f;
+    };
+
+    // Sort algorithms
+    // random access iterator
+    template <bool randTag>
+    struct SortAlg {
+        template <class T,class Comparator>
+        static void sort(T& t,Comparator&& c) {
+            typedef templatious::adapters::CollectionAdapter<T> Ad;
+            std::sort(Ad::begin(t),Ad::end(t),
+                std::forward<Comparator>(c));
+        }
+
+        template <class T>
+        static void sort(T& t) {
+            sort(t,templatious::detail
+                ::DefaultLessComparator());
+        }
     };
 }
 
@@ -823,9 +844,158 @@ public:
         return fctor._state;
     }
 
+    /**
+     * Dump iterators of collection into one
+     * collection. Useful for operations like
+     * quick sorting of collections without
+     * random access iterators, like std::list.
+     * @param[in] t Collection to dump iterators
+     * from.
+     */
+    template <
+        bool saveIdx = false,
+        template <class...> class Collection = std::vector,
+        template <class> class Alloc = std::allocator,
+        class T
+    >
+    static auto iterDump(T&& t)
+     -> decltype(
+         templatious::detail::CollectionIterDumper<
+             decltype(std::forward<T>(t)),
+             saveIdx,
+             Collection,Alloc
+         >::dumpIter(std::forward<T>(t))
+     )
+    {
+        return templatious::detail::CollectionIterDumper<
+            decltype(std::forward<T>(t)),
+            saveIdx,
+            Collection,Alloc
+        >::dumpIter(std::forward<T>(t));
+    }
+
+    /**
+     * Sort elements in the collection.
+     * Collection has to be mutable. If
+     * collection iterator has
+     * random_access_iterator_tag then simply
+     * calls std::sort on collection. If
+     * iterator doesn't have random access
+     * iterator tag then all iterators are
+     * dumped to collection with random
+     * access iterator tag and are sorted then.
+     * @param[in] t Collection to be sorted.
+     */
+    template <class T>
+    static void sort(T&& t) {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        static const bool isRand = templatious::util
+            ::IsRandomAccessIteratorTagged<
+                typename Ad::Iterator>::value;
+
+        templatious::detail::SortAlg<isRand>::sort(t);
+    }
+
+    /**
+     * Sort elements in the collection using
+     * special comparator function which returns
+     * true for f(a,b) if a < b by default.
+     * Collection has to be mutable. If
+     * collection iterator has
+     * random_access_iterator_tag then simply
+     * calls std::sort on collection. If
+     * iterator doesn't have random access
+     * iterator tag then all iterators are
+     * dumped to collection with random
+     * access iterator tag and are sorted then.
+     * @param[in] t Collection to be sorted.
+     */
+    template <class T,class Comparator>
+    static void sortS(T&& t,Comparator&& c) {
+        typedef templatious::adapters::CollectionAdapter<T> Ad;
+        static const bool isRand = templatious::util
+            ::IsRandomAccessIteratorTagged<
+                typename Ad::Iterator>::value;
+
+        templatious::detail::SortAlg<isRand>
+            ::sort(t,std::forward<Comparator>(c));
+    }
+
+    /**
+     * Check if collection is sorted using
+     * special comparator.
+     * @param[in] t Collection to check.
+     * @param[in] c Comparator to use. Function
+     * which returns true for f(a,b) if a < b.
+     */
+    template <class T,class Comparator>
+    static bool isSortedS(T&& t,Comparator&& c) {
+        typedef templatious::adapters::CollectionAdapter<const T> Ad;
+        auto b = Ad::cbegin(t);
+        auto e = Ad::cend(t);
+        if (b == e) return true;
+
+        auto pr = b;
+        ++b;
+
+        while (b != e) {
+            if (c(*b,*pr)) return false;
+            pr = b;
+            ++b;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if collection is sorted using
+     * default comparator.
+     * @param[in] t Collection to check.
+     */
+    template <class T>
+    static bool isSorted(T&& t) {
+        return isSortedS(std::forward<T>(t),
+            templatious::detail::DefaultLessComparator());
+    }
 };
 
 namespace detail {
+
+    // not random access iterator
+    template <>
+    struct SortAlg<false> {
+        template <class T,class Comparator>
+        static void sort(T& t,Comparator&& c) {
+            auto d = templatious::StaticManipulator::iterDump<true>(t);
+            typedef templatious::adapters::CollectionAdapter<T> Ad;
+            typedef templatious::adapters::CollectionAdapter<
+                decltype(d)> AdD;
+            typedef templatious::adapters::CollectionMaker<
+                typename Ad::Iterator,std::vector,std::allocator> Maker;
+
+            auto rawDump = Maker::make(AdD::size(d));
+            typedef templatious::adapters::CollectionAdapter<
+                decltype(rawDump)> AdR;
+
+            auto e = Ad::end(t);
+            for (auto i = Ad::begin(t); i != e; ++i) {
+                AdR::add(rawDump,i);
+            }
+
+            std::sort(AdD::begin(d),AdD::end(d),
+                std::forward<Comparator>(c));
+
+            templatious::detail::VectoratorAlgs
+                ::vectoratorSortExp(rawDump,d,e);
+        }
+
+        template <class T>
+        static void sort(T& t) {
+            sort(t,templatious::detail
+                ::DefaultLessComparator());
+        }
+    };
+
     template <
         template <class> class Decider
     >

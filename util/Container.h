@@ -92,6 +92,20 @@ private:
     const T* const& _r;
 };
 
+struct CopyContainerAccess {
+    template <class Cont,class Val>
+    static void mutate(Cont& c,Val&& v) {
+        c.mutate(std::forward<Val>(v));
+    }
+
+    template <class Cont>
+    static auto move(Cont& c)
+     -> decltype(std::move(c.move()))
+    {
+        return std::move(c.move());
+    }
+};
+
 template <class T>
 struct CopyContainer {
     CopyContainer(const T& t) : _r(t) {}
@@ -108,7 +122,20 @@ struct CopyContainer {
         return T(_r);
     }
 
+    friend struct CopyContainerAccess;
 private:
+    void mutate(const T& t) {
+        _r = t;
+    }
+
+    void mutate(T&& t) {
+        _r = std::move(t);
+    }
+
+    T&& move() {
+        return std::move(_r);
+    }
+
     T _r;
 };
 

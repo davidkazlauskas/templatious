@@ -37,32 +37,32 @@ struct CollectionAdapter< T[sz] > {
 	typedef T* ThisCol;
     typedef const ThisCol ConstCol;
 	typedef T* Iterator;
-	typedef const Iterator ConstIterator;
+	typedef const T* ConstIterator;
 	typedef T ValueType;
 	typedef const ValueType ConstValueType;
 
     template <class U = int>
-    static bool add(T c[size_const], ConstValueType& i) {
+    static bool add(T (&c)[size_const], ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
         return false;
     }
 
-    static ValueType& getByIndex(T c[size_const],size_t i) {
+    static ValueType& getByIndex(T (&c)[size_const],size_t i) {
         return c[i];
     }
 
-    static ConstValueType& getByIndex(const T c[size_const],size_t i) {
+    static ConstValueType& getByIndex(const T (&c)[size_const],size_t i) {
         return c[i];
     }
 
-    static long size(const T c[size_const]) {
+    static long size(const T (&c)[size_const]) {
         return size_const;
     }
 
     template <class U = int>
-    static bool erase(T c[size_const], Iterator beg) {
+    static bool erase(T (&c)[size_const], Iterator beg) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
@@ -70,50 +70,50 @@ struct CollectionAdapter< T[sz] > {
     }
 
     template <class U = int>
-    static bool erase(T c[size_const], Iterator beg, Iterator end) {
+    static bool erase(T (&c)[size_const], Iterator beg, Iterator end) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
         return false;
     }
 
-    static Iterator begin(T c[size_const]) {
+    static Iterator begin(T (&c)[size_const]) {
         return &c[0];
     }
 
-    static Iterator end(T c[size_const]) {
+    static Iterator end(T (&c)[size_const]) {
         return &c[size_const];
     }
 
-    static Iterator iterAt(T c[size_const],size_t i) {
+    static Iterator iterAt(T (&c)[size_const],size_t i) {
         return &c[i];
     }
 
-    static ConstIterator cbegin(T c[size_const]) {
+    static ConstIterator cbegin(const T (&c)[size_const]) {
         return &c[0];
     }
 
-    static ConstIterator cend(T c[size_const]) {
+    static ConstIterator cend(const T (&c)[size_const]) {
         return &c[size_const];
     }
 
-    static ConstIterator citerAt(T c[size_const],size_t i) {
+    static ConstIterator citerAt(T (&c)[size_const],size_t i) {
         return &c[i];
     }
 
-    static ValueType& first(T c[size_const]) {
+    static ValueType& first(T (&c)[size_const]) {
         return c[0];
     }
 
-    static ConstValueType& first(const T c[size_const]) {
+    static ConstValueType& first(const T (&c)[size_const]) {
         return c[0];
     }
 
-    static ValueType& last(T c[size_const]) {
+    static ValueType& last(T (&c)[size_const]) {
         return c[size_const - 1];
     }
 
-    static ConstValueType& last(const T c[size_const]) {
+    static ConstValueType& last(const T (&c)[size_const]) {
         return c[size_const - 1];
     }
 
@@ -126,7 +126,7 @@ struct CollectionAdapter< T[sz] > {
     }
 
     template <class U = int>
-    static void clear(T c[size_const]) {
+    static void clear(T (&c)[size_const]) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Clear not supported as static array doesn't hold any state.");
@@ -149,23 +149,23 @@ struct CollectionAdapter< const T[sz] > {
 	typedef ValueType ConstValueType;
 
     template <class U = int>
-    static bool add(T c[size_const], ConstValueType& i) {
+    static bool add(T (&c)[size_const], ConstValueType& i) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Add not supported as static array doesn't hold any state.");
         return false;
     }
 
-    static ConstValueType& getByIndex(const T c[size_const],size_t i) {
+    static ConstValueType& getByIndex(const T (&c)[size_const],size_t i) {
         return c[i];
     }
 
-    static long size(const T c[size_const]) {
+    static long size(const T (&c)[size_const]) {
         return size_const;
     }
 
     template <class U = int>
-    static bool erase(T c[size_const], Iterator beg) {
+    static bool erase(T (&c)[size_const], Iterator beg) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
@@ -173,42 +173,42 @@ struct CollectionAdapter< const T[sz] > {
     }
 
     template <class U = int>
-    static bool erase(T c[size_const], Iterator beg, Iterator end) {
+    static bool erase(T (&c)[size_const], Iterator beg, Iterator end) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Erase not supported as static array doesn't hold any state.");
         return false;
     }
 
-    static Iterator begin(const T c[size_const]) {
+    static Iterator begin(const T (&c)[size_const]) {
         return &c[0];
     }
 
-    static Iterator end(const T c[size_const]) {
+    static Iterator end(const T (&c)[size_const]) {
         return &c[size_const];
     }
 
-    static Iterator iterAt(const T c[size_const],size_t i) {
+    static Iterator iterAt(const T (&c)[size_const],size_t i) {
         return &c[i];
     }
 
-    static ConstIterator cbegin(const T c[size_const]) {
+    static ConstIterator cbegin(const T (&c)[size_const]) {
         return &c[0];
     }
 
-    static ConstIterator cend(const T c[size_const]) {
+    static ConstIterator cend(const T (&c)[size_const]) {
         return &c[size_const];
     }
 
-    static ConstIterator citerAt(const T c[size_const],size_t i) {
+    static ConstIterator citerAt(const T (&c)[size_const],size_t i) {
         return &c[i];
     }
 
-    static ConstValueType& first(const T c[size_const]) {
+    static ConstValueType& first(const T (&c)[size_const]) {
         return c[0];
     }
 
-    static ConstValueType& last(const T c[size_const]) {
+    static ConstValueType& last(const T (&c)[size_const]) {
         return c[size_const - 1];
     }
 
@@ -221,7 +221,7 @@ struct CollectionAdapter< const T[sz] > {
     }
 
     template <class U = int>
-    static void clear(T c[size_const]) {
+    static void clear(T (&c)[size_const]) {
         // suppress static assert unless method is actually used
         static_assert(templatious::util::DummyResolver<U, false>::val,
             "Clear not supported as static array doesn't hold any state.");

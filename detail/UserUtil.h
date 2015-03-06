@@ -137,6 +137,13 @@ struct DefaultComparator {
     }
 };
 
+struct DefaultLessComparator {
+    template <class A,class B>
+    bool operator()(A&& a,B&& b) const {
+        return a < b;
+    }
+};
+
 //------- DummyVar
 
 struct DummyVar {
