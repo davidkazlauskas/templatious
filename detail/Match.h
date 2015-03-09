@@ -165,7 +165,7 @@ struct Match<
     struct DoesMatch {
         static const bool value =
             TypelistComparisonPolicy<
-                MatchList, U, ComparisonPolicy
+                U, MatchList, ComparisonPolicy
             >::value;
     };
 
@@ -184,6 +184,69 @@ private:
     Container _c;
 };
 
+template <
+    int counter,
+    template <class,int> class Decider,
+    class... Args
+> struct MatchSpecialAlg;
+
+template <
+    int counter,
+    template <class,int> class Decider,
+    class Curr,class... Tail
+> struct MatchSpecialAlg<counter,Decider,Curr,Tail...> {
+    typedef Decider<Curr,counter> CurrD;
+    typedef MatchSpecialAlg<counter+1,Decider,Tail...> TailAlg;
+    static const bool this_match = CurrD::does_match;
+    static const bool val = this_match && TailAlg::val;
+};
+
+template <
+    int counter,
+    template <class,int> class Decider,
+    class Curr
+> struct MatchSpecialAlg<counter,Decider,Curr> {
+    typedef Decider<Curr,counter> CurrD;
+    static const bool this_match = CurrD::does_match;
+    static const bool val = this_match;
+};
+
+template <
+    template <class,int> class Decider,
+    class Func,
+    template <class> class StoragePolicy
+>
+struct MatchSpecial {
+    typedef StoragePolicy<Func> RefMaker;
+
+    typedef typename RefMaker::Container Container;
+
+    template <class V>
+    MatchSpecial(V&& v) :
+        _c(std::forward<V>(v)) {}
+
+    template <class... Args>
+    struct DoesMatch {
+        static const int nArgs = Decider<void,0>::num_args;
+        static const bool numMatches = nArgs == 0 ||
+             nArgs == sizeof...(Args);
+        static const bool value = numMatches &&
+            MatchSpecialAlg<1,Decider,Args...>::val;
+    };
+
+    template <class... FArgs>
+    auto operator()(FArgs&&... args)
+     -> decltype(
+            std::declval<Container>().getRef()(
+                std::forward<FArgs>(args)...
+            )
+        )
+    {
+        return _c.getRef()(std::forward<FArgs>(args)...);
+    }
+private:
+    Container _c;
+};
 
 }
 }

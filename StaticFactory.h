@@ -1118,6 +1118,60 @@ struct StaticFactory {
         return TheMatch(std::forward<Func>(f));
     }
 
+    /**
+     * Special match which uses user supplied
+     * template function to test whether
+     * this match succeeds.
+     * @param[in] f Function to use.
+     * @param[in] MatchAlgorithm User supplied
+     * template function for matching.
+     * Example:
+     * ~~~~~~~
+     * // CurrentMatch - current argument type
+     * // being matched.
+     * // pos - current argument position,
+     * // starting with 1
+     * template <class CurrentMatch,int pos>
+     * struct UserMatcher {
+     *
+     *     // does_match - result of this function.
+     *     // Must be true for all arguments to use
+     *     // this match.
+     *     static const bool does_match = true;
+     *     // num_args - the amount of arguments
+     *     // function should take. 0 for any amount
+     *     // of arguments.
+     *     static const int num_args = 0;
+     * };
+     *
+     * // If function f is called with arguments
+     * // a,b,c like f(A a,B b,C c) UserMatcher will
+     * // be called like:
+     * // if (UserMatcher<A,1>::does_match &&
+     * // UserMatcher<B,2>::does_match &&
+     * // UserMatcher<C,3>::does_match) { MATCHED }
+     * ~~~~~~~
+     */
+    template <
+        template <class,int> class MatchAlgorithm,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class Func
+    >
+    static auto matchSpecial(Func&& f)
+     -> detail::MatchSpecial<
+         MatchAlgorithm,
+         Func,
+         StoragePolicy
+     >
+    {
+        typedef detail::MatchSpecial<
+            MatchAlgorithm,
+            Func,
+            StoragePolicy
+        > TheMatch;
+        return TheMatch(std::forward<Func>(f));
+    }
 
     /**
      * Loose match to be used in matchFunctor.

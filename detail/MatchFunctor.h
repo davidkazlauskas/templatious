@@ -86,6 +86,25 @@ struct DoesMatchExt<
 };
 
 template <
+    template <class,int> class Decider,
+    class Func,
+    template <class> class StoragePolicy,
+    class... Args
+> struct DoesMatchExt<
+    MatchSpecial<
+        Decider,Func,StoragePolicy
+    >,
+    Args...
+>
+{
+    typedef MatchSpecial<
+        Decider,Func,StoragePolicy
+    > ThisMatch;
+    static const bool value =
+        ThisMatch::template DoesMatch< Args... >::value;
+};
+
+template <
     template <class> class StoragePolicy,
     class... T,
     class... Args
