@@ -21,6 +21,7 @@
 
 #include <limits>
 #include <templatious/util/Exceptions.h>
+#include <templatious/util/Selectors.h>
 #include <templatious/CollectionAdapter.h>
 
 namespace templatious {

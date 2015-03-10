@@ -22,7 +22,9 @@
 #include <utility>
 #include <list>
 
+#include <templatious/util/Selectors.h>
 #include <templatious/CollectionAdapter.h>
+#include <templatious/CollectionMaker.h>
 
 namespace templatious {
 namespace adapters {
