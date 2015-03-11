@@ -624,7 +624,6 @@ struct StaticFactory {
             Collection, Allocator
         >::Collection
     {
-        typedef templatious::adapters::CollectionAdapter<T> Ad;
         auto sTemp = StaticFactory::select<ColType>(
             std::forward<T>(t),
             std::forward<Args>(args)...

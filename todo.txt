@@ -62,7 +62,7 @@ features:
 #59. make static array looser (eliminate constant only size knowledge)
 #60. seqR - sequence repeat same value // - repS
 #61. storage policy for match functor. partial - should be customized
-62. iterator dump - useful for proxies
+#62. iterator dump - useful for proxies
 #63. cversions of proxy methods - copy instead of proxy
 #64. fold
 65. inspect
@@ -73,9 +73,9 @@ features:
 #72. exists function
 @73. proxy function should contain reference to collection, not a function
     [ WE USE STORAGE POLICY TO STORE ANYWAY SO IT IS REFERENCE ALWAYS ANYWAY ]
-74. diagnose YCM autocompletion fail
+#74. diagnose YCM autocompletion fail - fails because symbols too complex? just a guess
 #75. is sorted
-76. docs for match special
+#76. docs for match special
 
 remove:
 #68. logic functors - useless
