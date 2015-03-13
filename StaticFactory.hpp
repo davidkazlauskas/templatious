@@ -1173,6 +1173,53 @@ struct StaticFactory {
     }
 
     /**
+     * Special match extended which uses user
+     * supplied template function to test whether
+     * this match succeeds. TypeList is passed to
+     * user template.
+     * @param[in] f Function to use.
+     * @param[in] MatchAlgorithm User supplied
+     * template function for matching.
+     * Example:
+     * ~~~~~~~
+     * // TypeList - typelist which contains
+     * // all the types current call has.
+     * template <class TypeList>
+     * struct UserMatcher {
+     *     // does_match - result. Did this
+     *     // TypeList satisfy user requirements?
+     *     static const bool does_match = ?;
+     * };
+     *
+     * // If function f is called with arguments
+     * // a,b,c like f(A a,B b,C c) UserMatcher will
+     * // be called like:
+     * // if (UserMatcher< TypeList<A,B,C> >::does_match )
+     * //     { MATCHED }
+     * ~~~~~~~
+     */
+    template <
+        template <class> class MatchAlgorithm,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class Func
+    >
+    static auto matchSpecialExt(Func&& f)
+     -> detail::MatchSpecialExt<
+         MatchAlgorithm,
+         Func,
+         StoragePolicy
+     >
+    {
+        typedef detail::MatchSpecialExt<
+            MatchAlgorithm,
+            Func,
+            StoragePolicy
+        > TheMatch;
+        return TheMatch(std::forward<Func>(f));
+    }
+
+    /**
      * Loose match to be used in matchFunctor.
      * This match applied std::decay on both
      * types when comparing.

@@ -76,6 +76,7 @@ features:
 #74. diagnose YCM autocompletion fail - fails because symbols too complex? just a guess
 #75. is sorted
 #76. docs for match special
+#77. min/max
 
 remove:
 #68. logic functors - useless

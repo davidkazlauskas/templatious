@@ -248,6 +248,40 @@ private:
     Container _c;
 };
 
+template <
+    template <class> class Decider,
+    class Func,
+    template <class> class StoragePolicy
+>
+struct MatchSpecialExt {
+    typedef StoragePolicy<Func> RefMaker;
+
+    typedef typename RefMaker::Container Container;
+
+    template <class V>
+    MatchSpecialExt(V&& v) :
+        _c(std::forward<V>(v)) {}
+
+    template <class... Args>
+    struct DoesMatch {
+        typedef TypeList<Args...> List;
+        static const bool value = Decider<List>::does_match;
+    };
+
+    template <class... FArgs>
+    auto operator()(FArgs&&... args)
+     -> decltype(
+            std::declval<Container>().getRef()(
+                std::forward<FArgs>(args)...
+            )
+        )
+    {
+        return _c.getRef()(std::forward<FArgs>(args)...);
+    }
+private:
+    Container _c;
+};
+
 }
 }
 

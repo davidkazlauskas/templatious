@@ -36,11 +36,24 @@ struct ComparatorSame {
 template <class... T>
 struct TypeList;
 
+// for ByIndex function
+template <class List,int sel>
+struct IndexSelector {
+    typedef typename List::Tail::template ByIndex<sel-1>::type type;
+};
+
+template <class List>
+struct IndexSelector<List,0> {
+    typedef typename List::Head type;
+};
+
 template <class A,class... T>
 struct TypeList<A,T...> {
     typedef A Head;
     typedef TypeList<T...> Tail;
     static const int size = sizeof...(T) + 1;
+
+    typedef TypeList<A,T...> ThisList;
 
     template <
         class U,
@@ -51,6 +64,13 @@ struct TypeList<A,T...> {
         static const bool value = thisEquals
             || Tail::template Contains<U,Comparator>::value;
     };
+
+    template <int i>
+    struct ByIndex {
+        static_assert(i >= 0,"Index has to be non negative.");
+
+        typedef typename IndexSelector<ThisList,i>::type type;
+    };
 };
 
 template <class A>
@@ -59,6 +79,8 @@ struct TypeList<A> {
     typedef A Head;
     typedef NullType Tail;
 
+    typedef TypeList<A> ThisList;
+
     template <
         class U,
         template <class,class> class Comparator = ComparatorSame
@@ -66,6 +88,16 @@ struct TypeList<A> {
     struct Contains {
         static const bool thisEquals = Comparator<A,U>::value;
         static const bool value = thisEquals;
+    };
+
+    template <int i>
+    struct ByIndex {
+        static_assert(i >= 0,"Index has to be non negative.");
+
+        static const bool moreThanOne = i > 0;
+
+        typedef typename std::conditional<
+            moreThanOne, NullType, Head >::type type;
     };
 };
 
