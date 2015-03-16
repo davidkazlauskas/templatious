@@ -257,9 +257,9 @@ struct Pack<StoragePolicy,A,Tail...> {
     struct ThisValGetter {
         template <int i>
         static auto get(ThisPack& p)
-         -> decltype( std::declval<Container>().cpy() )
+         -> decltype( std::declval<Container>().getRef() )
         {
-            return p._r.cpy();
+            return p._r.getRef();
         }
     };
 

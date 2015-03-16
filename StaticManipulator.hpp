@@ -348,6 +348,27 @@ public:
 
     /**
      * Quadratic traversal function.
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,1,2,3);
+     * SM::quadro(
+     *     [](int i,int j,int k) {
+     *         std::cout << i << j << k << std::endl;
+     *     },
+     *     v,v,v
+     * );
+     * // Should output:
+     * // 1,1,1
+     * // 1,1,2
+     * // 1,1,3
+     * // 1,2,1
+     * // 1,2,2
+     * // 1,2,3
+     * // ...
+     * // 3,3,2
+     * // 3,3,3
+     * ~~~~~~~
      * @param[in] fn Function to be used on each iteration.
      * Should take in args collection value types.
      * @param[in] args Collection arguments to be traversed
@@ -401,7 +422,16 @@ public:
     }
 
     /**
-     * Value set function.
+     * Value set function. Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * std::vector<int> v(3);
+     * auto p = SF::pack(1,2,3);
+     * SM::set(7,a,b,c,v,p);
+     * // a,b,c = 7
+     * // v[0],v[1],v[2] = 7
+     * // p.get<0>(),p.get<1>().p.get<2>() = 7
+     * ~~~~~~~
      * @param[in] t Value used for setting
      * @param[in,out] v Entity to set. Can be collection,
      * pack or a single variable.
@@ -483,7 +513,20 @@ public:
 
     /**
      * Sum utility function. Returns numeric sum of
-     * all elements.
+     * all elements. Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * a = b = c = 7;
+     * auto s = SF::seqL(3);
+     * auto p = SF::pack(4,5,6);
+     *
+     * int sum = SM::sum<int>(a,b,c,s,p);
+     * // sum =
+     * // 7 + 7 + 7 | a,b,c
+     * // + 0 + 1 + 2 | s
+     * // + 4 + 5 + 6 | p
+     * // = 39
+     * ~~~~~~~
      * @param[in] args Elements to sum. Can process
      * packs, collections and single values.
      * @param[in] RetVal Return type. Defaults
@@ -506,7 +549,22 @@ public:
 
     /**
      * Sum using special function. Returns numeric sum of
-     * all elements.
+     * all elements. Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * a = b = c = 7;
+     * auto s = SF::seqL(3);
+     * auto p = SF::pack(4,5,6);
+     *
+     * int sum = SM::sumS<int>(
+     *     [](int i) { return 2*i; } // multiply each arg by 2
+     *     a,b,c,s,p);
+     * // sum =
+     * // 7*2 + 7*2 + 7*2 | a,b,c
+     * // + 0*2 + 1*2 + 2*2 | s
+     * // + 4*2 + 5*2 + 6*2 | p
+     * // = 78
+     * ~~~~~~~
      * @param[in] f Function to be used on every element
      * before summing an element to the result.
      * @param[in] args Elements to sum. Can process
@@ -576,6 +634,106 @@ public:
         );
 
         return r / func._cnt;
+    }
+
+    /**
+     * Minimum of values. Returns numeric minimum
+     * of elements passed. Example:
+     * ~~~~~~~
+     * int a = 2;
+     * int b = 3;
+     * auto p = SF::pack(4,5,6);
+     * auto s = SF::seqL(6,8);
+     * int min = SM::min<int>(a,b,p,s,-1);
+     * assert(min == -1);
+     * ~~~~~~~
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     */
+    template <class RetVal = double,class... V>
+    static RetVal min(V&&... args) {
+        typedef templatious::detail::DefaultLessComparator Comp;
+        return maxS<RetVal>(Comp(),std::forward<V>(args)...);
+    }
+
+    /**
+     * Maximum of values. Returns numeric maximum
+     * of elements passed. Example:
+     * ~~~~~~~
+     * int a = 2;
+     * int b = 3;
+     * auto p = SF::pack(4,5,6);
+     * auto s = SF::seqL(6,8);
+     * int max = SM::max<int>(a,b,p,s,-1);
+     * assert(max == 7);
+     * ~~~~~~~
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     */
+    template <class RetVal = double,class... V>
+    static RetVal max(V&&... args) {
+        typedef templatious::detail::DefaultMoreComparator Comp;
+        return maxS<RetVal>(Comp(),std::forward<V>(args)...);
+    }
+
+    /**
+     * Maximum of values using a special function.
+     * Returns numeric user specified maximum according
+     * to the user specified comparison of elements passed. Example:
+     * ~~~~~~~
+     * struct MyPod {
+     *     MyPod(int a,int b) :
+     *      _a(a), _b(b) {}
+     *
+     *     int _a;
+     *     int _b;
+     * };
+     *
+     * MyPod a(7,8);
+     * std::vector<MyPod> v;
+     * SA::add(v,MyPod(1,2),MyPod(3,4),MyPod(5,6));
+     * MyPod& mp = SM::maxS<MyPod&>(
+     *     [](const MyPod& a,const MyPod& b) {
+     *         return a._a * a._b > b._a * b._b;
+     *     },
+     *     v,a
+     * );
+     *
+     * assert(&a == &mp);
+     * ~~~~~~~
+     * @param[in] cf Function to be used for comparison.
+     * Should take two parameters for comparison. For instance,
+     * if maximum is wanted the function is called like cf(a,b)
+     * and it should return true if a > b.
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     */
+    template <class RetVal = double,class CompFunc,class... V>
+    static RetVal maxS(CompFunc&& cf,V&&... args) {
+        typedef typename std::conditional<
+            std::is_reference<RetVal>::value,
+            templatious::util::MutRefContainer<RetVal>,
+            templatious::util::MutCopyContainer<RetVal>
+        >::type TheCont;
+
+        typedef templatious::detail::CompFunctor<
+            TheCont, decltype(std::forward<CompFunc>(cf)),
+            templatious::util::DefaultStoragePolicy
+        > TheFctor;
+
+        TheFctor f(std::forward<CompFunc>(cf));
+
+        genericCallAll< detail::DeciderAllUniform, true >(
+            f,std::forward<V>(args)...
+        );
+
+        return f._c.getRef();
     }
 
     /**
@@ -875,7 +1033,8 @@ public:
     }
 
     /**
-     * Sort elements in the collection.
+     * Sort elements in the collection
+     * in ascending order.
      * Collection has to be mutable. If
      * collection iterator has
      * random_access_iterator_tag then simply
@@ -909,6 +1068,10 @@ public:
      * dumped to collection with random
      * access iterator tag and are sorted then.
      * @param[in] t Collection to be sorted.
+     * @param[in] c Comparator function to be used.
+     * should take two parameters by default. If
+     * returns true on f(a,b) when a < b collection
+     * is sorted in ascending order.
      */
     template <class T,class Comparator>
     static void sortS(T&& t,Comparator&& c) {
@@ -1028,13 +1191,13 @@ namespace detail {
         >
         static bool call(F&& f,T&& t) {
             typedef templatious::adapters::CollectionAdapter<T> Ad;
-            typedef decltype(Ad::begin(std::forward<T>(t))) It;
+            typedef decltype(Ad::begin(t)) It;
             typedef templatious::util::RetValSelector<
                 decltype(f(*std::declval<It>())),
                 true> Sel;
 
-            auto end = Ad::end(std::forward<T>(t));
-            for (auto i = Ad::begin(std::forward<T>(t));
+            auto end = Ad::end(t);
+            for (auto i = Ad::begin(t);
                     i != end;
                     ++i)
             {
@@ -1076,7 +1239,7 @@ namespace detail {
             bool ignoreBooleanReturn = false,
             class F,class T
         >
-        static bool call(F&& f,T t) {
+        static bool call(F&& f,T&& t) {
             PackCaller<ignoreBooleanReturn,F> p(std::forward<F>(f));
             bool res = t.template call<ignoreBooleanReturn>(p);
             return ignoreBooleanReturn || res;

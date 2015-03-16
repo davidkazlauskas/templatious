@@ -385,7 +385,7 @@ struct StaticAdapter {
      */
     template <class T>
     static auto getByIndex(T& c,long i)
-        -> typename adapters::CollectionAdapter<T>::ValueType {
+        -> typename adapters::CollectionAdapter<T>::ValueType& {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         return Ad::getByIndex(c, i);

@@ -130,6 +130,38 @@ struct SumFunctorCustom {
     size_t _cnt;
 };
 
+template <
+    class StorType,class Comparator,
+    template <class> class ComparatorStoragePolicy
+>
+struct CompFunctor {
+    typedef typename ComparatorStoragePolicy<
+        Comparator>::Container Cont;
+
+    template <class V>
+    CompFunctor(V&& v) :
+        _comp(std::forward<V>(v)),
+        _isCompared(false) {}
+
+    template <class T>
+    void operator()(T&& i) {
+        if (_isCompared) {
+            if (_comp.getRef()(
+                std::forward<T>(i),_c.getRef()))
+            {
+                _c.assign(std::forward<T>(i));
+            }
+        } else {
+            _c.assign(std::forward<T>(i));
+            _isCompared = true;
+        }
+    }
+
+    StorType _c;
+    Cont _comp;
+    bool _isCompared;
+};
+
 struct DefaultComparator {
     template <class A,class B>
     bool operator()(A&& a,B&& b) const {
@@ -141,6 +173,13 @@ struct DefaultLessComparator {
     template <class A,class B>
     bool operator()(A&& a,B&& b) const {
         return a < b;
+    }
+};
+
+struct DefaultMoreComparator {
+    template <class A,class B>
+    bool operator()(A&& a,B&& b) const {
+        return a > b;
     }
 };
 

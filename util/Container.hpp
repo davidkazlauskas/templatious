@@ -25,6 +25,82 @@
 namespace templatious {
 namespace util {
 
+// Didnt add extended functionality
+// to the RefContainer because it
+// has promise of immutability
+template <class T>
+struct MutRefContainer {
+    typedef typename std::
+        remove_reference<T>::type SaveType;
+
+    // default ctor so we could assign
+    MutRefContainer() : _r(nullptr) {}
+
+    MutRefContainer(SaveType& t) : _r(std::addressof(t)) {}
+
+    void assign(SaveType& t) {
+        _r = std::addressof(t);
+    }
+
+    SaveType& getRef() {
+        return *_r;
+    }
+
+    const SaveType& getRef() const {
+        return *_r;
+    }
+
+    const SaveType& cgetRef() const {
+        return *_r;
+    }
+
+    const SaveType& cpy() const {
+        return *_r;
+    }
+
+private:
+    SaveType* _r;
+};
+
+// Didnt add extended functionality
+// to the CopyContainer because it
+// has promise of immutability
+template <class T>
+struct MutCopyContainer {
+    typedef typename std::
+        remove_reference<T>::type SaveType;
+
+    // default ctor so we could assign
+    // value must be default constructable
+    MutCopyContainer() {}
+
+    MutCopyContainer(const SaveType& t) : _r(t) {}
+
+    template <class V>
+    void assign(V&& t) {
+        _r = std::forward<V>(t);
+    }
+
+    SaveType& getRef() {
+        return _r;
+    }
+
+    const SaveType& getRef() const {
+        return _r;
+    }
+
+    const SaveType& cgetRef() const {
+        return _r;
+    }
+
+    const SaveType& cpy() const {
+        return _r;
+    }
+
+private:
+    SaveType _r;
+};
+
 template <class T>
 struct RefContainer {
 

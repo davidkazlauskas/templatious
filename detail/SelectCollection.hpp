@@ -52,7 +52,7 @@ struct SelectCollection {
 
     template <class InternalIter,class ColType>
     struct IntIterator {
-        typedef IntIterator< InternalIter,ColType > ThisIter;
+        typedef IntIterator< InternalIter, ColType > ThisIter;
 
         // constructor using internal iterator
         template <class V>
@@ -112,7 +112,7 @@ struct SelectCollection {
         return ConstIterator(*this,Ad::cend(_c.cgetRef()));
     }
 
-    Iterator citerAt(size_t i) const {
+    ConstIterator citerAt(size_t i) const {
         return ConstIterator(*this,Ad::citerAt(_c.cgetRef(),i));
     }
 
