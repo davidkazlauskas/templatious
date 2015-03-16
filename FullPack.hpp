@@ -18,4 +18,4 @@
 
 #include <templatious/MainPack.hpp>
 #include <templatious/adapters/All.hpp>
-
+#include <templatious/StaticVector.hpp>
