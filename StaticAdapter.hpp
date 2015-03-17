@@ -24,9 +24,46 @@
 #include <templatious/CollectionAdapter.hpp>
 #include <templatious/virtual/Iterator.hpp>
 #include <templatious/Pack.hpp>
+#include <templatious/detail/MatchFunctor.hpp>
 
 namespace templatious {
 namespace sa_spec {
+
+template <bool tryPull,class BadVal,class Func,class Arg>
+struct PullForwardType {
+    typedef templatious::util::IsCallableWith< Func, Arg > ICVal;
+    typedef typename ICVal::type FwdType;
+};
+
+template <class BadVal,class Func,class Arg>
+struct PullForwardType<false,BadVal,Func,Arg> {
+    typedef BadVal FwdType;
+};
+
+template <class Func,class Arg>
+struct IsCallableWithInternal {
+    typedef typename PullForwardType<
+        true,void,Func,Arg>::FwdType type;
+};
+
+// we don't want to trigger MatchFunctor
+// static assert if it doesn't match anything
+template <
+    template <class> class StoragePolicy,
+    class Arg,
+    class... T
+> struct IsCallableWithInternal< templatious::detail::
+    MatchFunctor< StoragePolicy, T... >, Arg >
+{
+    typedef templatious::detail::
+        MatchFunctor< StoragePolicy, T... > MatchFunctor;
+    static const bool does_match = MatchFunctor::
+        template DoesMatch< Arg >::value;
+
+    typedef typename PullForwardType<
+        does_match,templatious::util::InvalidType,
+        MatchFunctor, Arg >::FwdType type;
+};
 
 enum AdditionVariant { Data, Collection, Pack, Invalid };
 
@@ -35,7 +72,8 @@ struct AdditionSelector {
     typedef templatious::adapters::CollectionAdapter<T> AdT;
     typedef templatious::adapters::CollectionAdapter<U> AdU;
 
-    typedef templatious::util::IsCallableWith< Function, U > ICval;
+    typedef typename std::decay<Function>::type FuncDec;
+    typedef IsCallableWithInternal< FuncDec, U > ICval;
     typedef typename ICval::type FwdType;
 
     static const bool areAdaptable =
