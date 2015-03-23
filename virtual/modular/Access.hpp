@@ -45,7 +45,7 @@ struct Access: public T {
     }
 
     CValType& cfirst() const {
-        return Ad::first(static_cast<ConstCol&>(getRef()));
+        return Ad::first(cgetRef());
     }
 
     ValType& last() {
@@ -53,7 +53,7 @@ struct Access: public T {
     }
 
     CValType& clast() const {
-        return Ad::last(static_cast<ConstCol&>(getRef()));
+        return Ad::last(cgetRef());
     }
 
     ValType& getByIndex(size_t idx) {
@@ -61,7 +61,7 @@ struct Access: public T {
     }
 
     CValType& cgetByIndex(size_t idx) const {
-        return Ad::getByIndex(static_cast<ConstCol&>(getRef()),idx);
+        return Ad::getByIndex(cgetRef(),idx);
     }
 
 protected:

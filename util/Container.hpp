@@ -122,6 +122,10 @@ struct RefContainer {
         return _r;
     }
 
+    const T& constCpy() const {
+        return _r;
+    }
+
 private:
     T& _r;
 };
@@ -143,6 +147,10 @@ struct RefContainer<const T> {
         return _r;
     }
 
+    const T& constCpy() const {
+        return _r;
+    }
+
 private:
     const T& _r;
 };
@@ -161,6 +169,10 @@ struct RefContainer<const T*> {
     }
 
     const T* cpy() const {
+        return _r;
+    }
+
+    const T* constCpy() const {
         return _r;
     }
 
@@ -198,6 +210,10 @@ struct CopyContainer {
         return T(_r);
     }
 
+    const T constCpy() const {
+        return T(_r);
+    }
+
     friend struct CopyContainerAccess;
 private:
     void mutate(const T& t) {
@@ -232,6 +248,10 @@ struct RvalueCopyContainer {
         return std::move(_r);
     }
 
+    T constCpy() const {
+        return T(_r);
+    }
+
 private:
     T _r;
 };
@@ -249,6 +269,10 @@ struct StaticPointerContainer {
     }
 
     const T* cpy() const {
+        return _r;
+    }
+
+    const T* constCpy() const {
         return _r;
     }
 

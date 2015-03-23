@@ -141,7 +141,7 @@ struct add_custom< AdditionVariant::Data > {
     static void add(T& c,F&& f,U&& i) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        Ad::add(c, f(i));
+        Ad::add(c, f(std::forward<U>(i)));
     }
 };
 
@@ -507,14 +507,14 @@ struct StaticAdapter {
      * Inserted element replaces element pointed to this iterator.
      * @param[in] val Value to insert.
      */
-    template <class T>
+    template <class T,class V>
     static void insert(
         T& c, typename adapters::CollectionAdapter<T>::Iterator at,
-        const typename adapters::CollectionAdapter<T>::ValueType& val)
+        V&& val)
     {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        Ad::insertAt(c,at,val);
+        Ad::insertAt(c,at,std::forward<V>(val));
     }
 
     /**

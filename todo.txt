@@ -77,6 +77,7 @@ features:
 #75. is sorted
 #76. docs for match special
 #77. min/max
+#78. threadsafe collection access
 
 remove:
 #68. logic functors - useless

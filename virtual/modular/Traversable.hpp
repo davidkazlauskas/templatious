@@ -60,8 +60,7 @@ struct Traversable: public T {
     }
 
     CIter citerAt(size_t idx) const {
-        return Ad::iterAt(
-            static_cast<ConstCol&>(getRef()),idx);
+        return Ad::citerAt(cgetRef(),idx);
     }
 
 protected:
@@ -99,15 +98,15 @@ struct TraversableFake: public T {
     }
 
     CIter cbegin() const {
-        return Ad::cend(getRef());
+        return Ad::cend(cgetRef());
     }
 
     CIter cend() const {
-        return Ad::cend(getRef());
+        return Ad::cend(cgetRef());
     }
 
     CIter citerAt(size_t idx) const {
-        return Ad::cend(getRef());
+        return Ad::cend(cgetRef());
     }
 
 protected:

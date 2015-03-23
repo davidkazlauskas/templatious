@@ -60,7 +60,7 @@ enum TraversablePolicy {
 
 template <
     class T,
-    bool copy = false,
+    template <class> class StoragePolicy,
     int sizablePolicy = SP_ENABLED,
     int accessPolicy = ACP_ENABLED,
     int addablePolicy = AP_ENABLED,
@@ -71,13 +71,8 @@ struct VCollectionFactory {
     typedef T ThisCol;
     typedef const T ConstCol;
 
-    typedef typename std::conditional<
-        copy,
-        templatious::vmodular::Root<
-            ThisCol,templatious::util::CopyContainer>,
-        templatious::vmodular::Root<
-            ThisCol,templatious::util::RefContainer>
-    >::type Root;
+    typedef typename StoragePolicy<ThisCol>::Container Cont;
+    typedef templatious::vmodular::Root<ThisCol,Cont> Root;
 
     typedef templatious::util::NumTypeMap<
         TEMPLATIOUS_PAIR_NT(SP_ENABLED,templatious::vmodular::Sizable<Root>),
@@ -140,8 +135,9 @@ struct VCollectionFactory {
 
     typedef templatious::vmodular::Tail<TrPol> Type;
 
-    static Type make(ThisCol& c) {
-        return Type(c);
+    template <class V>
+    static Type make(V&& c) {
+        return Type(std::forward<V>(c));
     }
 };
 

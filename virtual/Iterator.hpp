@@ -130,6 +130,7 @@ struct VIterator {
 
     ThisIter& operator--() {
         _i->operator--();
+        return *this;
     }
 
     ValType& operator*() const {
@@ -162,7 +163,10 @@ struct VIterator {
     }
 
 private:
-    template <class Tm>
+    template <
+        class Tm,
+        template <class> class StoragePolicy
+    >
     friend struct VCollectionImpl;
 
     Base* getBase() const {

@@ -26,14 +26,15 @@ namespace vmodular {
 
 template <
     class T,
-    template <class> class Container
+    class Container
 >
 struct Root {
     typedef adapters::CollectionAdapter<T> Ad;
     typedef typename Ad::ThisCol ThisCol;
-    typedef Container<T> Cont;
+    typedef Container Cont;
 
-    Root(T& t) : _c(t) {}
+    template <class V>
+    Root(V&& t) : _c(std::forward<V>(t)) {}
 protected:
     T& getRef() {
         return _c.getRef();

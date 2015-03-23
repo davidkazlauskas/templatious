@@ -36,7 +36,9 @@ struct VCollectionBase {
     virtual ~VCollectionBase() {}
 
     virtual void add(const T& e) = 0;
+    virtual void add(T&& e) = 0;
     virtual void insert(const Iter& i,const T& t) = 0;
+    virtual void insert(const Iter& i,T&& t) = 0;
     virtual void erase(const Iter& i) = 0;
     virtual void erase(const Iter& beg,const Iter& end) = 0;
     virtual void clear() = 0;
@@ -62,8 +64,8 @@ struct VCollectionBase {
 
     virtual bool equals(ThisCol& c) const = 0;
     virtual bool equals(ThisCol* c) const = 0;
-    virtual ThisCol* clone() const = 0;
 protected:
+    virtual ThisCol* clone() const = 0;
 
     template <class V>
     static VIteratorBase<T>* getInternal(V&& v) {
@@ -72,107 +74,119 @@ protected:
 
 };
 
-template <class T>
+template <
+    class T,
+    template <class> class StoragePolicy
+>
 struct VCollectionImpl:
     public VCollectionBase< typename templatious::adapters::CollectionAdapter<T>::ValueType >
 {
-
-
     typedef templatious::adapters::CollectionAdapter<T> Ad;
     typedef templatious::StaticAdapter SA;
     typedef VCollectionBase< typename Ad::ValueType > Super;
 
     typedef typename Ad::ValueType ValType;
     typedef typename Ad::ConstValueType CValType;
-    typedef VCollectionImpl< T > ThisCol;
+    typedef VCollectionImpl< T, StoragePolicy > ThisCol;
     typedef typename Super::Iter Iter;
     typedef typename Super::CIter CIter;
+    typedef typename StoragePolicy<T>::Container Cont;
 
     typedef typename templatious::VIteratorImpl<
         T > IterImpl;
     typedef typename templatious::VIteratorImpl<
         T > CIterImpl;
 
-    VCollectionImpl(T& c) : _ref(c) {}
+    template <class V>
+    VCollectionImpl(V&& c) : _ref(std::forward<V>(c)) {}
 
     virtual void add(const ValType& e) {
-        Ad::add(_ref,e);
+        Ad::add(_ref.getRef(),e);
+    }
+
+    virtual void add(ValType&& e) {
+        Ad::add(_ref.getRef(),std::move(e));
     }
 
     virtual void insert(const Iter& i,const ValType& t) {
         IterImpl* impl = static_cast<IterImpl*>(i.getBase());
-        Ad::insertAt(_ref,impl->internal(),t);
+        Ad::insertAt(_ref.getRef(),impl->internal(),t);
+    }
+
+    virtual void insert(const Iter& i,ValType&& t) {
+        IterImpl* impl = static_cast<IterImpl*>(i.getBase());
+        Ad::insertAt(_ref.getRef(),impl->internal(),std::move(t));
     }
 
     virtual void erase(const Iter& i) {
         IterImpl* impl = static_cast<IterImpl*>(i.getBase());
-        Ad::erase(_ref,impl->internal());
+        Ad::erase(_ref.getRef(),impl->internal());
     }
 
     virtual void erase(const Iter& beg,const Iter& end) {
         IterImpl* iBeg = static_cast<IterImpl*>(beg.getBase());
         IterImpl* iEnd = static_cast<IterImpl*>(end.getBase());
-        Ad::erase(_ref,iBeg->internal(),iEnd->internal());
+        Ad::erase(_ref.getRef(),iBeg->internal(),iEnd->internal());
     }
 
     virtual void clear() {
-        Ad::clear(_ref);
+        Ad::clear(_ref.getRef());
     }
 
     virtual ValType& getByIndex(size_t idx) {
-        return Ad::getByIndex(_ref,idx);
+        return Ad::getByIndex(_ref.getRef(),idx);
     }
 
     virtual CValType& cgetByIndex(size_t idx) const {
-        return Ad::getByIndex(static_cast<const T&>(_ref),idx);
+        return Ad::getByIndex(_ref.cgetRef(),idx);
     }
 
     virtual ValType& first() {
-        return Ad::first(_ref);
+        return Ad::first(_ref.getRef());
     }
 
     virtual CValType& cfirst() const {
-        return Ad::first(_ref);
+        return Ad::first(_ref.cgetRef());
     }
 
     virtual ValType& last() {
-        return Ad::last(_ref);
+        return Ad::last(_ref.getRef());
     }
 
     virtual CValType& clast() const {
-        return Ad::last(_ref);
+        return Ad::last(_ref.cgetRef());
     }
 
     virtual Iter begin() {
-        return SA::vbegin(_ref);
+        return SA::vbegin(_ref.getRef());
     }
 
     virtual Iter end() {
-        return SA::vend(_ref);
+        return SA::vend(_ref.getRef());
     }
 
     virtual CIter cbegin() const {
-        return SA::vcbegin(_ref);
+        return SA::vcbegin(_ref.cgetRef());
     }
 
     virtual CIter cend() const {
-        return SA::vcend(_ref);
+        return SA::vcend(_ref.cgetRef());
     }
 
     virtual Iter iterAt(size_t idx) {
-        return SA::viterAt(_ref,idx);
+        return SA::viterAt(_ref.getRef(),idx);
     }
 
     virtual CIter citerAt(size_t idx) const {
-        return SA::vciterAt(_ref,idx);
+        return SA::vciterAt(_ref.cgetRef(),idx);
     }
 
     virtual bool canAdd() const {
-        return Ad::canAdd(_ref);
+        return Ad::canAdd(_ref.cgetRef());
     }
 
     virtual long size() const {
-        return Ad::size(_ref);
+        return Ad::size(_ref.cgetRef());
     }
 
     virtual bool equals(Super& c) const {
@@ -183,22 +197,22 @@ struct VCollectionImpl:
         return comp(*c);
     }
 
-    virtual ThisCol* clone() const {
-        return new ThisCol(_ref);
-    }
-
 private:
+    virtual ThisCol* clone() const {
+        return new ThisCol(_ref.constCpy());
+    }
 
     bool comp(Super& c) const {
         if (typeid(c) == typeid(*this)) {
             ThisCol& ref = static_cast<ThisCol&>(c);
-            return std::addressof(_ref) == std::addressof(ref._ref);
+            return std::addressof(_ref.cgetRef()) ==
+                std::addressof(ref._ref.cgetRef());
         }
 
         return false;
     }
 
-    T& _ref;
+    Cont _ref;
 };
 
 template <class T>
@@ -234,8 +248,16 @@ struct VCollection {
         _b->add(e);
     }
 
+    void add(T&& e) {
+        _b->add(std::move(e));
+    }
+
     void insert(const Iter& i,const T& t) {
         _b->insert(i,t);
+    }
+
+    void insert(const Iter& i,T&& t) {
+        _b->insert(i,std::move(t));
     }
 
     void erase(const Iter& i) {
@@ -252,6 +274,10 @@ struct VCollection {
 
     T& getByIndex(size_t idx) {
         return _b->getByIndex(idx);
+    }
+
+    const T& cgetByIndex(size_t idx) const {
+        return _b->cgetByIndex(idx);
     }
 
     ValType& first() {
@@ -331,7 +357,7 @@ struct CollectionAdapter< VCollection<T> > {
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
-        c.add(i);
+        c.add(std::forward<V>(i));
     }
 
     template <class V>
@@ -344,7 +370,7 @@ struct CollectionAdapter< VCollection<T> > {
     }
 
     static ConstValueType& getByIndex(ConstCol& c, size_t i) {
-        return c.getByIndex(i);
+        return c.cgetByIndex(i);
     }
 
     static long size(ConstCol& c) {
@@ -435,7 +461,7 @@ struct CollectionAdapter< const VCollection<T> > {
 
     template <class V>
     static void add(ThisCol& c, V&& i) {
-        c.add(i);
+        c.add(std::forward<V>(i));
     }
 
     template <class V>

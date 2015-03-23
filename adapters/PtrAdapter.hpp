@@ -224,12 +224,12 @@ struct CollectionAdapter<T&> {
 
     template <class V>
     static void add(RCol c, V&& i) {
-        Inner::add(c,i);
+        Inner::add(c,std::forward<V>(i));
     }
 
     template <class V>
     static void insertAt(RCol c,Iterator at,V&& i) {
-        Inner::insertAt(c,at,i);
+        Inner::insertAt(c,at,std::forward<V>(i));
     }
 
     static ValueType& getByIndex(RCol c,size_t i) {
@@ -268,15 +268,15 @@ struct CollectionAdapter<T&> {
         return Inner::iterAt(c,i);
     }
 
-    static ConstIterator cbegin(RCol c) {
+    static ConstIterator cbegin(CRCol c) {
         return Inner::cbegin(c);
     }
 
-    static ConstIterator cend(RCol c) {
+    static ConstIterator cend(CRCol c) {
         return Inner::cend(c);
     }
 
-    static ConstIterator citerAt(RCol c,size_t i) {
+    static ConstIterator citerAt(CRCol c,size_t i) {
         return Inner::citerAt(c,i);
     }
 

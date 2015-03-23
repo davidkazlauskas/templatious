@@ -107,13 +107,18 @@ struct StaticVector {
             throw StaticVectorOutOfBoundsException();
         }
 
-        new (&_vct[_cnt]) T();
-        ++_cnt;
-        for (size_t i = _cnt - 1; i >= at + 1; --i)
-        {
-            _vct[i] = std::move(_vct[i - 1]);
+        if (_cnt > 0) {
+            new (&_vct[_cnt]) T(std::move(_vct[_cnt-1]));
+            for (size_t i = _cnt - 1; i >= at + 1; --i)
+            {
+                _vct[i] = std::move(_vct[i - 1]);
+            }
+            ++_cnt;
+            _vct[at] = std::forward<V>(e);
+        } else {
+            ++_cnt;
+            new (&_vct[at]) T(std::forward<V>(e));
         }
-        _vct[at] = std::forward<V>(e);
     }
 
     template <class V>

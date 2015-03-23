@@ -670,16 +670,63 @@ struct StaticFactory {
      * is always valid and not freed.
      * @param[in] Collection to virtualize.
      */
-    template <class T>
-    static auto vcollection(T& t)
-     -> VCollection< typename adapters::CollectionAdapter<T>::ValueType >
+    template <
+        class T,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy
+    >
+    static auto vcollection(T&& t)
+     -> VCollection< typename adapters::CollectionAdapter<
+         decltype(std::forward<T>(t))
+     >::ValueType >
     {
-        typedef adapters::CollectionAdapter<T> Ad;
+        typedef adapters::CollectionAdapter< T > Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
         typedef typename Ad::ValueType ValType;
 
-        typedef VCollectionImpl<T> VImpl;
-        VImpl *v = new VImpl( t );
+        // for lvalue references
+        typedef VCollectionImpl<
+            decltype(std::forward<T>(t)),
+            StoragePolicy> VImpl;
+        VImpl *v = new VImpl( std::forward<T>(t) );
+        return VCollection< ValType >(v);
+    }
+
+    template <
+        templatious::AddablePolicy ap = templatious::AP_THROW,
+        templatious::ClearablePolicy cp = templatious::CP_THROW,
+        templatious::TraversablePolicy tp = templatious::TP_THROW,
+        templatious::AccessPolicy acp = templatious::ACP_THROW,
+        templatious::SizablePolicy sp = templatious::SP_THROW,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T
+    >
+    static auto vcollectionCustom(T&& t)
+     -> VCollection< typename adapters::CollectionAdapter<T>::ValueType >
+    {
+        typedef adapters::CollectionAdapter<
+            decltype(std::forward<T>(t))> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef typename Ad::ValueType ValType;
+
+        typedef VCollectionFactory<
+            decltype(std::forward<T>(t)),
+            StoragePolicy,
+            sp,
+            acp,
+            ap,
+            cp,
+            tp
+        > Factory;
+
+        typedef typename Factory::Type Wrap;
+
+        typedef VCollectionImpl<
+            Wrap&&,
+            StoragePolicy
+        > VImpl;
+        VImpl *v = new VImpl( Factory::make(std::forward<T>(t)) );
         return VCollection< ValType >(v);
     }
 
@@ -711,11 +758,13 @@ struct StaticFactory {
         bool traverse = false,
         bool access = false,
         bool size = false,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
         class T
     >
     static auto prevent(T&& t)
      -> typename templatious::VCollectionFactory<
-         T,false,
+         decltype(std::forward<T>(t)),StoragePolicy,
          templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
          templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
          templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
@@ -725,7 +774,7 @@ struct StaticFactory {
     {
 
         typedef typename templatious::VCollectionFactory<
-             T,false,
+             decltype(std::forward<T>(t)),StoragePolicy,
              templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
              templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
              templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
@@ -764,11 +813,13 @@ struct StaticFactory {
         bool traverse = false,
         bool access = false,
         bool size = false,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
         class T
     >
     static auto allow(T&& t)
      -> typename templatious::VCollectionFactory<
-         T,false,
+         T,StoragePolicy,
          templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
          templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
          templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,
@@ -778,7 +829,7 @@ struct StaticFactory {
     {
 
         typedef typename templatious::VCollectionFactory<
-             T,false,
+             T,StoragePolicy,
              templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
              templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
              templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,

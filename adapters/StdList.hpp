@@ -198,7 +198,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         c.clear();
     }
 
-    static bool canAdd(ThisCol& c) {
+    static bool canAdd(ConstCol& c) {
         return true;
     }
 };
