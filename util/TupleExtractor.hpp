@@ -1,17 +1,21 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
 /*
  * =====================================================================================
  *
- *       Filename:  TupleExtractor.h
+ *       Filename:  TupleExtractor.hpp
  *
  *    Description:  Extract tuple from collections
  *
  *        Version:  1.0
  *        Created:  05/25/2014 03:55:33 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Deividas Kazlauskas (dk), ne-bobu@reikalas.lt
- *        Company:  Company and shit
+ *         Author:  David Kazlauskas (dk), david@templatious.org
  *
  * =====================================================================================
  */

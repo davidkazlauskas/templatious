@@ -1,17 +1,21 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
 /*
  * =====================================================================================
  *
- *       Filename:  DoIf.h
+ *       Filename:  DoIf.hpp
  *
  *    Description:  Do If static assertion is true
  *
  *        Version:  1.0
  *        Created:  05/26/2014 06:56:36 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Deividas Kazlauskas (dk), ne-bobu@reikalas.lt
- *        Company:  Company and shit
+ *         Author:  David Kazlauskas (dk), david@templatious.org
  *
  * =====================================================================================
  */

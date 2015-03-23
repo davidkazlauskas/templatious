@@ -1,17 +1,21 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
 /*
  * =====================================================================================
  *
- *       Filename:  MatchFunctor.h
+ *       Filename:  MatchFunctor.hpp
  *
  *    Description:  Match functor
  *
  *        Version:  1.0
  *        Created:  10/06/2014 05:39:27 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Deividas Kazlauskas (dk), ne-bobu@reikalas.lt
- *        Company:  Company and shit
+ *         Author:  David Kazlauskas (dk), david@templatious.org
  *
  * =====================================================================================
  */

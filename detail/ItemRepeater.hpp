@@ -1,17 +1,21 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
 /*
  * =====================================================================================
  *
- *       Filename:  ItemRepeater.h
+ *       Filename:  ItemRepeater.hpp
  *
  *    Description:  Repeat one item n times
  *
  *        Version:  1.0
  *        Created:  01/02/2015 02:20:04 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Deividas Kazlauskas (dk), ne-bobu@reikalas.lt
- *        Company:  Company and shit
+ *         Author:  David Kazlauskas (dk), david@templatious.org
  *
  * =====================================================================================
  */

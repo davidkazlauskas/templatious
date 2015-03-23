@@ -1,17 +1,21 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
 /*
  * =====================================================================================
  *
- *       Filename:  Variadic.h
+ *       Filename:  Variadic.hpp
  *
  *    Description:  Variadic utilities
  *
  *        Version:  1.0
  *        Created:  05/25/2014 03:11:34 PM
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  Deividas Kazlauskas (dk), ne-bobu@reikalas.lt
- *        Company:  Company and shit
+ *         Author:  David Kazlauskas (dk), david@templatious.org
  *
  * =====================================================================================
  */

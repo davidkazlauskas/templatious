@@ -1,3 +1,24 @@
+//==================================================
+// Copyright (c) 2015 Deividas Kazlauskas
+//
+// See the file license.txt for copying permission.
+//==================================================
+
+/*
+ * =====================================================================================
+ *
+ *       Filename:  StaticAdapter.hpp
+ *
+ *    Description:  Generic collection adapter for collections and alike.
+ *
+ *        Version:  1.0
+ *        Created:  08/18/2014 07:38:12 PM
+ *       Compiler:  gcc
+ *
+ *         Author:  David Kazlauskas (dk), david@templatious.org
+ *
+ * =====================================================================================
+ */
 
 #ifndef COLLECTIONADAPTER_728YVC81
 #define COLLECTIONADAPTER_728YVC81
