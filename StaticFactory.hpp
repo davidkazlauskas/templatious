@@ -1461,7 +1461,7 @@ struct StaticFactory {
      * Create a stream functor out of object.
      * For instance
      * ~~~~~~~
-     * auto sf = StaticFactory::streamFunctor(std::cout);
+     * auto sf = StaticFactory::streamOutFunctor(std::cout);
      * sf("ashes","to","ashes","dust","to","dust");
      * // upper expression is the same as:
      * std::cout << "ashes" << "to" << "ashes"
@@ -1470,7 +1470,7 @@ struct StaticFactory {
      * @param[in] t Object to create stream functor from.
      */
     template <class T>
-    static auto streamFunctor(T& t)
+    static auto streamOutFunctor(T& t)
      -> detail::CallEachStreamFunctor<T&>
     {
         return detail::CallEachStreamFunctor<T&>(t);
