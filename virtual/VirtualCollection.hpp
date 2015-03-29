@@ -69,7 +69,6 @@ struct VCollectionBase {
     virtual bool equals(ThisCol& c) const = 0;
     virtual bool equals(ThisCol* c) const = 0;
 protected:
-    virtual ThisCol* clone() const = 0;
 
     template <class V>
     static VIteratorBase<T>* getInternal(V&& v) {
@@ -82,6 +81,83 @@ template <
     class T,
     template <class> class StoragePolicy
 >
+struct VCollectionContainerRaw {
+    typedef typename StoragePolicy<T>::Container ContCol;
+
+    template <class A>
+    VCollectionContainerRaw(A&& col):
+        _cc(std::forward<A>(col))
+    {}
+
+    auto getColRef()
+     -> decltype(std::declval<ContCol>().getRef())
+    {
+        return _cc.getRef();
+    }
+
+    auto cgetColRef() const
+     -> decltype(std::declval<ContCol>().cgetRef())
+    {
+        return _cc.cgetRef();
+    }
+
+    auto constCpy() const
+     -> decltype(std::declval<ContCol>().constCpy())
+    {
+        return _cc.constCpy();
+    }
+
+private:
+    ContCol _cc;
+};
+
+template <
+    class T,class Dtor,
+    template <class> class StoragePolicy
+>
+struct VCollectionContainerWDtor {
+    typedef typename StoragePolicy<T>::Container ContCol;
+    typedef typename StoragePolicy<Dtor>::Container ContDtor;
+
+    template <class A,class B>
+    VCollectionContainerWDtor(A&& col,B&& dtor):
+        _cc(std::forward<A>(col)),
+        _cd(std::forward<B>(dtor))
+    {}
+
+    ~VCollectionContainerWDtor() {
+        // call the destructor
+        _cd.getRef()();
+    }
+
+    auto getColRef()
+     -> decltype(std::declval<ContCol>().getRef())
+    {
+        return _cc.getRef();
+    }
+
+    auto cgetColRef() const
+     -> decltype(std::declval<ContCol>().cgetRef())
+    {
+        return _cc.cgetRef();
+    }
+
+    auto constCpy() const
+     -> decltype(std::declval<ContCol>().constCpy())
+    {
+        return _cc.constCpy();
+    }
+
+private:
+    ContCol _cc;
+    ContDtor _cd;
+};
+
+template <
+    class T,
+    class Dtor,
+    template <class> class StoragePolicy
+>
 struct VCollectionImpl:
     public VCollectionBase< typename templatious::adapters::CollectionAdapter<T>::ValueType >
 {
@@ -89,108 +165,145 @@ struct VCollectionImpl:
     typedef templatious::StaticAdapter SA;
     typedef VCollectionBase< typename Ad::ValueType > Super;
 
+    static const bool hasDestructor =
+        !std::is_same< Dtor, void >::value;
+
     typedef typename Ad::ValueType ValType;
     typedef typename Ad::ConstValueType CValType;
-    typedef VCollectionImpl< T, StoragePolicy > ThisCol;
+    typedef VCollectionImpl< T, Dtor, StoragePolicy > ThisCol;
     typedef typename Super::Iter Iter;
     typedef typename Super::CIter CIter;
-    typedef typename StoragePolicy<T>::Container Cont;
+    typedef typename std::conditional<
+        !hasDestructor,
+        VCollectionContainerRaw< T, StoragePolicy >,
+        VCollectionContainerWDtor< T, Dtor, StoragePolicy >
+    >::type Cont;
 
     typedef typename templatious::VIteratorImpl<
         T > IterImpl;
     typedef typename templatious::VIteratorImpl<
         T > CIterImpl;
 
-    template <class V>
-    VCollectionImpl(V&& c) : _ref(std::forward<V>(c)) {}
+    template <class V, class Enabled = void*>
+    VCollectionImpl(
+        V&& c,
+        typename std::enable_if<
+            !hasDestructor, Enabled
+        >::type dummy = nullptr
+    ) : _ref(std::forward<V>(c)) {
+        static_assert(templatious::util::
+            DummyResolver<V,!hasDestructor>::val,
+            "This VCollection imlementation "
+            "must call the two argument constructor "
+            "with collection and functor.");
+    }
+
+    template <class V,class D, class Enabled = void* >
+    VCollectionImpl(
+        V&& c,D&& d,
+        typename std::enable_if<
+            hasDestructor, Enabled
+        >::type dummy = nullptr
+    ) :
+        _ref(
+            std::forward<V>(c),
+            std::forward<D>(d)
+        )
+    {
+        static_assert(templatious::util::
+            DummyResolver<V,hasDestructor>::val,
+            "This VCollection imlementation "
+            "must call the one argument constructor "
+            "with collection only.");
+    }
 
     virtual void add(const ValType& e) {
-        Ad::add(_ref.getRef(),e);
+        Ad::add(getColRef(),e);
     }
 
     virtual void add(ValType&& e) {
-        Ad::add(_ref.getRef(),std::move(e));
+        Ad::add(getColRef(),std::move(e));
     }
 
     virtual void insert(const Iter& i,const ValType& t) {
         IterImpl* impl = static_cast<IterImpl*>(i.getBase());
-        Ad::insertAt(_ref.getRef(),impl->internal(),t);
+        Ad::insertAt(getColRef(),impl->internal(),t);
     }
 
     virtual void insert(const Iter& i,ValType&& t) {
         IterImpl* impl = static_cast<IterImpl*>(i.getBase());
-        Ad::insertAt(_ref.getRef(),impl->internal(),std::move(t));
+        Ad::insertAt(getColRef(),impl->internal(),std::move(t));
     }
 
     virtual void erase(const Iter& i) {
         IterImpl* impl = static_cast<IterImpl*>(i.getBase());
-        Ad::erase(_ref.getRef(),impl->internal());
+        Ad::erase(getColRef(),impl->internal());
     }
 
     virtual void erase(const Iter& beg,const Iter& end) {
         IterImpl* iBeg = static_cast<IterImpl*>(beg.getBase());
         IterImpl* iEnd = static_cast<IterImpl*>(end.getBase());
-        Ad::erase(_ref.getRef(),iBeg->internal(),iEnd->internal());
+        Ad::erase(getColRef(),iBeg->internal(),iEnd->internal());
     }
 
     virtual void clear() {
-        Ad::clear(_ref.getRef());
+        Ad::clear(getColRef());
     }
 
     virtual ValType& getByIndex(size_t idx) {
-        return Ad::getByIndex(_ref.getRef(),idx);
+        return Ad::getByIndex(getColRef(),idx);
     }
 
     virtual CValType& cgetByIndex(size_t idx) const {
-        return Ad::getByIndex(_ref.cgetRef(),idx);
+        return Ad::getByIndex(cgetColRef(),idx);
     }
 
     virtual ValType& first() {
-        return Ad::first(_ref.getRef());
+        return Ad::first(getColRef());
     }
 
     virtual CValType& cfirst() const {
-        return Ad::first(_ref.cgetRef());
+        return Ad::first(cgetColRef());
     }
 
     virtual ValType& last() {
-        return Ad::last(_ref.getRef());
+        return Ad::last(getColRef());
     }
 
     virtual CValType& clast() const {
-        return Ad::last(_ref.cgetRef());
+        return Ad::last(cgetColRef());
     }
 
     virtual Iter begin() {
-        return SA::vbegin(_ref.getRef());
+        return SA::vbegin(getColRef());
     }
 
     virtual Iter end() {
-        return SA::vend(_ref.getRef());
+        return SA::vend(getColRef());
     }
 
     virtual CIter cbegin() const {
-        return SA::vcbegin(_ref.cgetRef());
+        return SA::vcbegin(cgetColRef());
     }
 
     virtual CIter cend() const {
-        return SA::vcend(_ref.cgetRef());
+        return SA::vcend(cgetColRef());
     }
 
     virtual Iter iterAt(size_t idx) {
-        return SA::viterAt(_ref.getRef(),idx);
+        return SA::viterAt(getColRef(),idx);
     }
 
     virtual CIter citerAt(size_t idx) const {
-        return SA::vciterAt(_ref.cgetRef(),idx);
+        return SA::vciterAt(cgetColRef(),idx);
     }
 
     virtual bool canAdd() const {
-        return Ad::canAdd(_ref.cgetRef());
+        return Ad::canAdd(cgetColRef());
     }
 
     virtual long size() const {
-        return Ad::size(_ref.cgetRef());
+        return Ad::size(cgetColRef());
     }
 
     virtual bool equals(Super& c) const {
@@ -202,15 +315,24 @@ struct VCollectionImpl:
     }
 
 private:
-    virtual ThisCol* clone() const {
-        return new ThisCol(_ref.constCpy());
+
+    auto getColRef()
+     -> decltype(std::declval<Cont>().getColRef())
+    {
+        return _ref.getColRef();
+    }
+
+    auto cgetColRef() const
+     -> decltype(std::declval<Cont>().cgetColRef())
+    {
+        return _ref.cgetColRef();
     }
 
     bool comp(Super& c) const {
         if (typeid(c) == typeid(*this)) {
             ThisCol& ref = static_cast<ThisCol&>(c);
-            return std::addressof(_ref.cgetRef()) ==
-                std::addressof(ref._ref.cgetRef());
+            return std::addressof(cgetColRef()) ==
+                std::addressof(ref.cgetColRef());
         }
 
         return false;
@@ -234,12 +356,9 @@ struct VCollection {
         o._b = nullptr;
     }
 
-    VCollection(const ThisCol& o) : _b(o._b->clone()) {}
-
-    ThisCol& operator=(const ThisCol& o) {
-        delete _b;
-        _b = o._b->clone();
-    }
+    // handle cannot be copied, only moved
+    VCollection(const ThisCol& o) = delete;
+    ThisCol& operator=(const ThisCol& o) = delete;
 
     ThisCol& operator=(ThisCol&& o) {
         _b = o._b;

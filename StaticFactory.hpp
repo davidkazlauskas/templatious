@@ -653,26 +653,17 @@ struct StaticFactory {
     }
 
     /**
-     * Will be removed.
-     */
-    template <class T>
-    static auto socket(T& t)
-     -> CollectionSocket<T>
-    {
-        return CollectionSocket<T>(t);
-    }
-
-    /**
      * Get virtual collection handle with all
      * access to collection while hiding the
      * original collection type.
      * This is useful for exposing collection
      * across translation units.
      * Handle doesn't take ownership of it's
-     * collection nor is responsible of
+     * collection (unless it is passed as rvalue
+     * reference) nor is responsible of
      * freeing it. Handle assumes that collection
      * is always valid and not freed.
-     * @param[in] Collection to virtualize.
+     * @param[in] t Collection to virtualize.
      */
     template <
         class T,
@@ -691,11 +682,203 @@ struct StaticFactory {
         // for lvalue references
         typedef VCollectionImpl<
             decltype(std::forward<T>(t)),
+            void,
             StoragePolicy> VImpl;
         VImpl *v = new VImpl( std::forward<T>(t) );
         return VCollection< ValType >(v);
     }
 
+    /**
+     * Same as vcollection but user can specify destructor
+     * function when the handle (not the collection)
+     * is destroyed.
+     * @param[in] t Collection to virtualize
+     * @param[in] d Destructor function. Should be callable
+     * as d() (without parameters).
+     * @param[in] StoragePolicy storage policy for collection
+     * as well as function. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
+    template <
+        class T,
+        class Dtor,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy
+    >
+    static auto vcollectionWDtor(T&& t,Dtor&& d)
+     -> VCollection< typename adapters::CollectionAdapter<
+         decltype(std::forward<T>(t))
+     >::ValueType >
+    {
+        typedef adapters::CollectionAdapter< T > Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef typename Ad::ValueType ValType;
+
+        // for lvalue references
+        typedef VCollectionImpl<
+            decltype(std::forward<T>(t)),
+            decltype(std::forward<Dtor>(d)),
+            StoragePolicy> VImpl;
+        VImpl *v = new VImpl(
+            std::forward<T>(t),
+            std::forward<Dtor>(d) );
+        return VCollection< ValType >(v);
+    }
+
+    /**
+     * Make custom virtual collection with
+     * custom access to specific functions.
+     * Every policy value defaults to THROW.
+     * Handle doesn't take ownership of it's
+     * collection (unless it is passed as rvalue
+     * reference) nor is responsible of
+     * freeing it. Handle assumes that collection
+     * is always valid and not freed.
+     * @param[in] t Collection to virtualize.
+     * @param[in] ap Addition policy. Specifies
+     * whether user is allowed to add or insert
+     * elements in collection.
+     * Possible enums:
+     * ~~~~~~~
+     * // Throw whenever function
+     * // belonging to the addition section is called.
+     * templatious::AP_THROW
+     *
+     * // Fake addition (users
+     * // may try to add elements but
+     * // there would be no effect).
+     * templatious::AP_FAKE
+     *
+     * // Enable addition (what would normally happen)
+     * templatious::AP_ENABLED
+     * ~~~~~~~
+     * Functions that belong to this part of the interface:
+     * ~~~~~~~
+     * CollectionAdapter::add
+     * CollectionAdapter::insert
+     * ~~~~~~~
+     * @param[in] cp Clearable policy. Specifies how
+     * collection should react to attempts to erase elements.
+     * Possible enums:
+     * ~~~~~~~
+     * // Throw whenever function
+     * // belonging to the clear section is called.
+     * templatious::CP_THROW
+     *
+     * // Fake removal (users
+     * // may try to erase elements but
+     * // there would be no effect).
+     * templatious::CP_FAKE
+     *
+     * // Enable removal (what would normally happen)
+     * templatious::CP_ENABLED
+     * ~~~~~~~
+     * Functions that belong to this part of the interface:
+     * ~~~~~~~
+     * CollectionAdapter::erase
+     * CollectionAdapter::clear
+     * ~~~~~~~
+     * @param[in] tp Traversible policy. Specifies
+     * how collection should react to traverse attempts.
+     * Possible enums:
+     * ~~~~~~~
+     * // Throw whenever function
+     * // belonging to the traversal section is called.
+     * templatious::TP_THROW
+     *
+     * // Fake traversal. Implemented by
+     * // returning end iterator for both
+     * // begin and end.
+     * templatious::TP_FAKE
+     *
+     * // Enable traversal (what would normally happen)
+     * templatious::TP_ENABLED
+     * ~~~~~~~
+     * Functions that belong to this part of the interface:
+     * ~~~~~~~
+     * CollectionAdapter::begin
+     * CollectionAdapter::end
+     * CollectionAdapter::iterAt
+     *
+     * CollectionAdapter::cbegin
+     * CollectionAdapter::cend
+     * CollectionAdapter::citerAt
+     * ~~~~~~~
+     * @param[in] acp Access policy. Specifies
+     * how collection should react to random
+     * element access.
+     * Possible enums:
+     * ~~~~~~~
+     * // Throw whenever function
+     * // belonging to the access section is called.
+     * templatious::ACP_THROW
+     *
+     * // Enable random access (what would normally happen)
+     * templatious::ACP_ENABLED
+     * ~~~~~~~
+     * Functions that belong to this part of the interface:
+     * ~~~~~~~
+     * CollectionAdapter::first
+     * CollectionAdapter::last
+     * CollectionAdapter::getByIndex
+     *
+     * CollectionAdapter::cfirst
+     * CollectionAdapter::clast
+     * CollectionAdapter::cgetByIndex
+     * ~~~~~~~
+     * @param[in] sp Sizable policy. Specifies
+     * whether user is allowed to know collection
+     * size.
+     * Possible enums:
+     * ~~~~~~~
+     * // Throw whenever user asks for
+     * // collection size.
+     * templatious::SP_THROW
+     *
+     * // Fake size (always return 0 when asked)
+     * templatious::SP_FAKE
+     *
+     * // Enable size (what would normally happen)
+     * templatious::SP_ENABLED
+     * ~~~~~~~
+     * Functions that belong to this part of the interface:
+     * ~~~~~~~
+     * CollectionAdapter::size
+     * ~~~~~~~
+     * @param[in] StoragePolicy Storage policy to be used
+     * for storing collection. Defaults to
+     * templatious::util::DefaultStoragePolicy
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,1,2,3,4,5,6,7);
+     *
+     * auto vcol = SF::vcollectionCustom<
+     *     templatious::AP_THROW,
+     *     templatious::CP_FAKE,
+     *     templatious::TP_FAKE,
+     *     templatious::ACP_ENABLED,
+     *     templatious::SP_FAKE
+     * >(v);
+     *
+     * SA::add(vcol,7); // addition throws
+     * SA::clear(vcol); // fakes clear (no effect)
+     *
+     * int sum = 0;
+     * TEMPLATIOUS_FOREACH(auto i,vcol) {
+     *     ++sum;
+     * }
+     * // traversal faked
+     * assert( sum == 0 );
+     *
+     * // access enabled
+     * assert( SA::getByIndex(vcol,6) == 7 );
+     *
+     * // size faked
+     * assert( SA::size(vcol) == 0 );
+     * ~~~~~~~
+     */
     template <
         templatious::AddablePolicy ap = templatious::AP_THROW,
         templatious::ClearablePolicy cp = templatious::CP_THROW,
@@ -728,9 +911,69 @@ struct StaticFactory {
 
         typedef VCollectionImpl<
             Wrap&&,
+            void,
             StoragePolicy
         > VImpl;
         VImpl *v = new VImpl( Factory::make(std::forward<T>(t)) );
+        return VCollection< ValType >(v);
+    }
+
+    /**
+     * Same as vcollectionCustom but user can specify
+     * destructor function when the handle (not the collection)
+     * is destroyed.
+     * @param[in] t Collection to virtualize
+     * @param[in] d Destructor function. Should be callable
+     * as d() (without parameters).
+     * @param[in] ap Same as vcollectionCustom.
+     * @param[in] cp Same as vcollectionCustom.
+     * @param[in] tp Same as vcollectionCustom.
+     * @param[in] acp Same as vcollectionCustom.
+     * @param[in] sp Same as vcollectionCustom.
+     * @param[in] StoragePolicy storage policy for collection
+     * as well as function. Defaults to
+     * templatious::util::DefaultStoragePolicy.
+     */
+    template <
+        templatious::AddablePolicy ap = templatious::AP_THROW,
+        templatious::ClearablePolicy cp = templatious::CP_THROW,
+        templatious::TraversablePolicy tp = templatious::TP_THROW,
+        templatious::AccessPolicy acp = templatious::ACP_THROW,
+        templatious::SizablePolicy sp = templatious::SP_THROW,
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class T,
+        class Dtor
+    >
+    static auto vcollectionCustomWDtor(T&& t,Dtor&& d)
+     -> VCollection< typename adapters::CollectionAdapter<T>::ValueType >
+    {
+        typedef adapters::CollectionAdapter<
+            decltype(std::forward<T>(t))> Ad;
+        static_assert(Ad::is_valid, "Adapter not supported.");
+        typedef typename Ad::ValueType ValType;
+
+        typedef VCollectionFactory<
+            decltype(std::forward<T>(t)),
+            StoragePolicy,
+            sp,
+            acp,
+            ap,
+            cp,
+            tp
+        > Factory;
+
+        typedef typename Factory::Type Wrap;
+
+        typedef VCollectionImpl<
+            Wrap&&,
+            decltype(std::forward<Dtor>(d)),
+            StoragePolicy
+        > VImpl;
+        VImpl *v = new VImpl(
+            Factory::make( std::forward<T>(t) ),
+            std::forward<Dtor>(d)
+        );
         return VCollection< ValType >(v);
     }
 

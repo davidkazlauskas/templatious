@@ -169,6 +169,7 @@ struct VIterator {
 private:
     template <
         class Tm,
+        class Dtor,
         template <class> class StoragePolicy
     >
     friend struct VCollectionImpl;
