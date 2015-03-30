@@ -279,9 +279,7 @@ struct StaticVector {
         return _vct[_cnt - 1];
     }
 
-    template <class V = T>
-    typename std::enable_if< !std::is_const<V>::value, const T& >::type
-    top() const {
+    const T& top() const {
         if (isEmpty()) {
             throw StaticVectorOutOfBoundsException();
         }
