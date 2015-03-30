@@ -515,8 +515,11 @@ private:
         return reinterpret_cast<ValTrue*>(_buf);
     }
 
+    typedef typename std::aligned_storage<
+        sizeof(T),alignof(T)>::type AlStor;
+
     size_t _currSize;
-    char _buf[total_size * sizeof(T)];
+    AlStor _buf[total_size];
 };
 
 namespace adapters {
