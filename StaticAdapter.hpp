@@ -526,10 +526,10 @@ struct StaticAdapter {
      * @param[out] c Collection to clear.
      */
     template <class T>
-    static void clear(T& c) {
+    static void clear(T&& c) {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
-        Ad::clear(c);
+        Ad::clear(std::forward<T>(c));
     }
 
     /**
@@ -538,9 +538,9 @@ struct StaticAdapter {
      * @param[out] t Rest of collections to clear.
      */
     template <class T,class... Tail>
-    static void clear(T& c,Tail&... t) {
-        clear(c);
-        clear(t...);
+    static void clear(T&& c,Tail&&... t) {
+        clear(std::forward<T>(c));
+        clear(std::forward<Tail>(t)...);
     }
 
     /**
