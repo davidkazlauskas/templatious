@@ -85,11 +85,11 @@ public:
         _c(std::forward<V>(v)),
         _fn(std::forward<FnRef>(fn)),
         _b(Ad::begin(_c.getRef()),
-            Ad::end(_c.getRef()),
-            std::forward<FnRef>(fn)),
+           Ad::end(_c.getRef()),
+           _fn.getRef()),
         _e(Ad::end(_c.getRef()),
-            Ad::end(_c.getRef()),
-            std::forward<FnRef>(fn)),
+           Ad::end(_c.getRef()),
+           _fn.getRef()),
         _cleared(false)
     {
         bool begEqEnd = _b == _e;
@@ -102,11 +102,11 @@ public:
         : _c(other._c.cpy()),
           _fn(other._fn.cpy()),
           _b(Ad::begin(_c.getRef()),
-              Ad::end(_c.getRef()),
-              _fn.getRef()),
+             Ad::end(_c.getRef()),
+             _fn.getRef()),
           _e(Ad::end(_c.getRef()),
               Ad::end(_c.getRef()),
-              _fn.cpy()),
+              _fn.getRef()),
           _cleared(other._cleared)
     {
         bool begEqEnd = _b == _e;
