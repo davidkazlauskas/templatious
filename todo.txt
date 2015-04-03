@@ -14,7 +14,7 @@ defects:
 #8. fix std::move semantics on instantiate collection
 #20. when range/proxy get's clobbered it should throw an error trying to reiterate
 #25. move CollectionManipulator to templatious instead of templatious::manip namespace
-#~35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
+#35. we can't chain functional calls to, for instance, .insert for packs (const correctness error, val is const)
 #45. SF::seq when used as rvalue only receives const iterator... maybe it should receive copies of normal iterator?
 #46. tweak seq to only return one type of iterator
 
@@ -77,7 +77,7 @@ features:
 #75. is sorted
 #76. docs for match special
 #77. min/max
-@78. threadsafe collection access - kinda stupid
+#78. threadsafe collection access
 
 remove:
 #68. logic functors - useless
@@ -101,6 +101,7 @@ perfection:
 #26. rename loopL/loopI to seqI/seqL + add seqR (sequence repeat)
 #28. rename value_type etc. in adapter to camel case (no hybrid conventions...)
 #51. rewrite erase function for filter to simply replace iterator instead of new collection
+79. adapters for the rest of STL containers
 
 CONTENT:
 - DID YOU STATIC VECTOR

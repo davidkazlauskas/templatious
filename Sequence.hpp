@@ -45,6 +45,8 @@ typedef SeqL<int> Loop;
 // Sequence exceptions
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(IllogicalSequenceException,
     "Sequence is illogical.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(NegativeStepException,
+    "Sequence step has to be positive.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(IncorrectBoundsException,
     "Include sequence doesn't include last element.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(IteratorPastEndException,
@@ -162,6 +164,10 @@ struct SeqL : public SeqBase<T> {
         _step = step;
         _end = getPerfectEnd(end);
 
+        if (_step <= 0) {
+            throw NegativeStepException();
+        }
+
         if (Base::is_signed) {
             setAppropriateStep();
         }
@@ -204,7 +210,9 @@ struct SeqL : public SeqBase<T> {
         if (!Base::is_signed) {
             return RevType(_beg,_end,_step);
         }
-        return RevType(_end - getModulus(),_beg - getModulus(),-_step);
+        return RevType(_end - getModulus(),
+                _beg - getModulus(),
+                _step > 0 ? _step : -_step);
     }
 
     Unit size() const {
