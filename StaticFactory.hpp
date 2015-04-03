@@ -130,7 +130,8 @@ struct StaticFactory {
      * @param[in] end Value to specify end
      * of collection.
      * @param[in] step Value to specify step
-     * of collection.
+     * of collection. Has to be always positive,
+     * even if start > end.
      */
     template <class T>
     static auto seqL(const T& start,const T& end,const T& step)
@@ -187,7 +188,8 @@ struct StaticFactory {
      * @param[in] end Value to specify end
      * of collection.
      * @param[in] step Value to specify step
-     * of collection.
+     * of collection. Has to be always positive,
+     * even if start > end.
      */
     template <class T>
     static auto seqI(const T& start,const T& end,const T& step)
