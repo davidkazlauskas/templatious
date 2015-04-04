@@ -370,6 +370,9 @@ public:
 
     /**
      * Quadratic traversal function.
+     * ***Removing or adding elements
+     * to traversed collections during
+     * traversal is undefined behaviour***.
      * Example:
      * ~~~~~~~
      * std::vector<int> v;

@@ -59,12 +59,12 @@ struct ItemRepeater {
 
     struct Iterator {
         Iterator(const ThisRepeater& r,long i)
-            : _i(i), _r(r) {}
+            : _i(i), _r(std::addressof(r)) {}
 
         auto operator*() const
          -> decltype(std::declval<Container>().cgetRef())
         {
-            return _r._c.cgetRef();
+            return _r->_c.cgetRef();
         }
 
         Iterator& operator++() {
@@ -81,7 +81,7 @@ struct ItemRepeater {
         }
     private:
         long _i;
-        const ThisRepeater& _r;
+        const ThisRepeater* _r;
     };
 
     // this collection shall return
