@@ -89,14 +89,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        long count = 0;
-        auto iter = begin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return *iter;
+        return *iterAt(c,i);
     }
 
 	static ConstValueType& getByIndex(ConstCol& c,long i) {
@@ -104,14 +97,7 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        long count = 0;
-        auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return *iter;
+        return *citerAt(c,i);
     }
 
     static void erase(ThisCol& c,Iterator pos) {
@@ -123,47 +109,22 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
     }
 
     static Iterator iterAt(ThisCol& c,size_t i) {
+        // no compiler warning
         if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
-
-        size_t count = 0;
         auto iter = begin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
+        std::advance(iter,i);
         return iter;
     }
 
     static ConstIterator iterAt(ConstCol& c,size_t i) {
+        // no compiler warning
         if (static_cast<size_t>(size(c)) < i) {
             throw CollectionAdapterNoSuchIteratorException();
         }
-
-        size_t count = 0;
         auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return iter;
-    }
-
-    static Iterator iterAt(ThisCol&& c,size_t i) {
-        if (static_cast<size_t>(size(c)) < i) {
-            throw CollectionAdapterNoSuchIteratorException();
-        }
-
-        size_t count = 0;
-        auto iter = begin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
+        std::advance(iter,i);
         return iter;
     }
 
@@ -172,13 +133,8 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        size_t count = 0;
         auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
+        std::advance(iter,i);
         return iter;
     }
 
@@ -258,14 +214,7 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
             throw CollectionAdapterNoSuchElementException();
         }
 
-        long count = 0;
-        auto iter = begin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
-        return *iter;
+        return *iterAt(c,i);
     }
 
     template <class U>
@@ -297,13 +246,8 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
-        long count = 0;
         auto iter = cbegin(c);
-        while (count < i) {
-            ++iter;
-            ++count;
-        }
-
+        std::advance(iter,i);
         return iter;
     }
 

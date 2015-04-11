@@ -53,6 +53,20 @@ namespace detail {
     >
     struct CallHandler;
 
+    /** \mainpage Templatious documentation
+     *
+     * Those three classes are likely
+     * what you care about:
+     *
+     * - templatious::StaticAdapter
+     * - templatious::StaticFactory
+     * - templatious::StaticManipulator
+     *
+     * And this could be also interesting:
+     * - templatious::StaticBuffer
+     * - templatious::StaticVector
+     */
+
 
     // Difference between callEach and forEach:
     // callEach treats packs as composite
@@ -146,6 +160,11 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION( MapFunctionNotEqualException,
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( TraverseFunctionNotEqualException,
     "Collections passed to traverse are not all equal in size.");
 
+/**
+ * A class which holds static methods that
+ * mainly have to do with element/collection
+ * manipulation.
+ */
 struct StaticManipulator {
 private:
     template <

@@ -233,6 +233,11 @@ private:
 
 }
 
+/**
+ * A class which holds static methods that
+ * mainly have to do with interacting with
+ * a single collection.
+ */
 struct StaticAdapter {
     /**
      * Returns begin iterator for any collection.

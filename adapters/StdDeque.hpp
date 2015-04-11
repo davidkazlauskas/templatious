@@ -7,12 +7,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  StdVector.hpp
+ *       Filename:  StdList.hpp
  *
- *    Description:  std::vector adapter
+ *    Description:  std::deque adapter
  *
  *        Version:  1.0
- *        Created:  05/16/2014 10:07:30 AM
+ *        Created:  04/11/2015 13:51:27 AM
  *       Compiler:  gcc
  *
  *         Author:  David Kazlauskas (dk), david@templatious.org
@@ -20,27 +20,27 @@
  * =====================================================================================
  */
 
-#ifndef STDVECTOR_H6YPGTPK
-#define STDVECTOR_H6YPGTPK
+#ifndef STDDEQUE_CBCZLYNK
+#define STDDEQUE_CBCZLYNK
 
 #include <utility>
-#include <vector>
+#include <deque>
 
 #include <templatious/util/Selectors.hpp>
-#include <templatious/CollectionMaker.hpp>
 #include <templatious/CollectionAdapter.hpp>
+#include <templatious/CollectionMaker.hpp>
 
 namespace templatious {
 namespace adapters {
 
 template <class T,template <class> class Alloc >
-struct CollectionAdapter< std::vector<T,Alloc<T> > > {
+struct CollectionAdapter< std::deque< T,Alloc<T> > > {
 
     static const bool is_valid = true;
     static const bool floating_iterator = true;
 
-	typedef typename std::vector<T, Alloc<T> > ThisCol;
-	typedef typename std::vector<T, Alloc<T> > const ConstCol;
+	typedef typename std::deque< T,Alloc<T> > ThisCol;
+	typedef typename std::deque< T,Alloc<T> > const ConstCol;
 	typedef typename ThisCol::iterator Iterator;
 	typedef typename ThisCol::const_iterator ConstIterator;
 	typedef T ValueType;
@@ -52,11 +52,7 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	}
 
     template <class V>
-    static void insertAt(ThisCol& c, Iterator at, V&& v) {
-        if (at < begin(c) || at >= end(c)) {
-            throw CollectionAdapterIteratorOutOfBoundsException();
-        }
-
+    static void insertAt(ThisCol& c,Iterator at,V&& v) {
         c.insert(at,std::forward<V>(v));
     }
 
@@ -67,27 +63,6 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	static Iterator end(ThisCol& c) {
 		return c.end();
 	}
-
-    static Iterator iterAt(ThisCol& c,size_t pos) {
-        if (c.size() < pos) {
-            throw CollectionAdapterNoSuchIteratorException();
-        }
-        return c.begin() + pos;
-    }
-
-    static ConstIterator iterAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
-            throw CollectionAdapterNoSuchIteratorException();
-        }
-        return c.cbegin() + pos;
-    }
-
-    static ConstIterator citerAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
-            throw CollectionAdapterNoSuchIteratorException();
-        }
-        return c.cbegin() + pos;
-    }
 
 	static ConstIterator begin(ConstCol& c) {
 		return c.cbegin();
@@ -109,12 +84,20 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
-        return c[i];
+	static ValueType& getByIndex(ThisCol& c,long i) {
+        if (size(c) <= i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
+
+        return *iterAt(c,i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
-        return c[i];
+	static ConstValueType& getByIndex(ConstCol& c,long i) {
+        if (size(c) <= i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
+
+        return *citerAt(c,i);
     }
 
     static void erase(ThisCol& c,Iterator pos) {
@@ -123,6 +106,36 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 
     static void erase(ThisCol& c,Iterator beg,Iterator end) {
         c.erase(beg,end);
+    }
+
+    static Iterator iterAt(ThisCol& c,size_t i) {
+        // no compiler warning
+        if (static_cast<size_t>(size(c)) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+        auto iter = begin(c);
+        std::advance(iter,i);
+        return iter;
+    }
+
+    static ConstIterator iterAt(ConstCol& c,size_t i) {
+        // no compiler warning
+        if (static_cast<size_t>(size(c)) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+        auto iter = cbegin(c);
+        std::advance(iter,i);
+        return iter;
+    }
+
+    static ConstIterator citerAt(ConstCol& c,size_t i) {
+        if (static_cast<size_t>(size(c)) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
+        auto iter = cbegin(c);
+        std::advance(iter,i);
+        return iter;
     }
 
     static ValueType& first(ThisCol& c) {
@@ -148,17 +161,17 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
     static bool canAdd(ConstCol& c) {
         return true;
     }
-
 };
 
+
 template <class T,template <class> class Alloc >
-struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
+struct CollectionAdapter< const std::deque< T,Alloc<T> > > {
 
     static const bool is_valid = true;
-    static const bool floating_iterator = true;
+    static const bool floating_iterator = false;
 
-	typedef typename std::vector<T, Alloc<T> > const ThisCol;
-	typedef typename std::vector<T, Alloc<T> > const ConstCol;
+	typedef typename std::deque< T,Alloc<T> > const ThisCol;
+	typedef typename std::deque< T,Alloc<T> > const ConstCol;
 	typedef typename ThisCol::const_iterator Iterator;
 	typedef typename ThisCol::const_iterator ConstIterator;
 	typedef const T ValueType;
@@ -196,31 +209,21 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
-        return c[i];
-    }
-
-    static Iterator iterAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
-            throw CollectionAdapterNoSuchIteratorException();
+    static ConstValueType& getByIndex(ThisCol& c, long i) {
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchElementException();
         }
-        return c.cbegin() + pos;
+
+        return *iterAt(c,i);
     }
 
-    static Iterator citerAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
-            throw CollectionAdapterNoSuchIteratorException();
-        }
-        return c.cbegin() + pos;
-    }
-
-    template <class U = int>
+    template <class U>
     static void erase(ThisCol& c,Iterator pos) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
     }
 
-    template <class U = int>
+    template <class U>
     static void erase(ThisCol& c,Iterator beg,Iterator end) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
@@ -234,7 +237,21 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
         return c.back();
     }
 
-    template <class U = int>
+    static ConstIterator iterAt(ConstCol& c,size_t i) {
+        return citerAt(c,i);
+    }
+
+    static ConstIterator citerAt(ConstCol& c,long i) {
+        if (size(c) < i) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
+        auto iter = cbegin(c);
+        std::advance(iter,i);
+        return iter;
+    }
+
+    template <class U>
     static void clear(ThisCol& c) {
         static_assert(templatious::util::DummyResolver<U,false>::val,
                 "Const version of a collection doesn't support this method");
@@ -251,8 +268,8 @@ template <
     class Val,
     template <class> class Alloc
 >
-struct CollectionMaker<Val,std::vector,Alloc> {
-    typedef std::vector<Val,Alloc<Val> > Collection;
+struct CollectionMaker<Val,std::deque,Alloc> {
+    typedef std::deque< Val,Alloc<Val> > Collection;
     typedef Collection* CollectionPtr;
 
     static const bool is_maker_valid = true;
@@ -263,7 +280,6 @@ struct CollectionMaker<Val,std::vector,Alloc> {
 
     static Collection make(size_t size) {
         Collection res;
-        res.reserve(size);
         return std::move(res);
     }
 
@@ -273,7 +289,6 @@ struct CollectionMaker<Val,std::vector,Alloc> {
 
     static Collection* makeHeap(size_t size) {
         CollectionPtr res = new Collection();
-        res->reserve(size);
         return res;
     }
 
@@ -282,4 +297,4 @@ struct CollectionMaker<Val,std::vector,Alloc> {
 }
 }
 
-#endif /* end of include guard: STDVECTOR_H6YPGTPK */
+#endif /* end of include guard: STDLIST_8E2DYM7Y */

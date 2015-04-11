@@ -25,4 +25,6 @@
 #include <templatious/adapters/PtrAdapter.hpp>
 #include <templatious/adapters/StdVector.hpp>
 #include <templatious/adapters/StdList.hpp>
+#include <templatious/adapters/StdForwardList.hpp>
+#include <templatious/adapters/StdDeque.hpp>
 #include <templatious/adapters/StaticArray.hpp>

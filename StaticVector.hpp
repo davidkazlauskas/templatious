@@ -44,6 +44,32 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEmptyPopException,
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEraseException,
     "Element erase exception.");
 
+/**
+ * StaticVector is a class whose
+ * main purpose is to be like
+ * std::vector, but rather use
+ * static memory without dynamic
+ * allocation.
+ *
+ * Although, this class was intended
+ * to be used with stack memory, it
+ * may be used with any memory given
+ * a pointer, element type and size.
+ *
+ * To create instances of this collection
+ * see templatious::StaticBuffer.
+ *
+ * Static vector doesn't take ownership
+ * of it's memory, nor is responsible
+ * for freeing it. Static vector only
+ * destroys objects that reside in the
+ * initialized memory which were
+ * constructed by this vector. After
+ * this vector is destroyed, it's
+ * consumed memory is free for reuse.
+ *
+ * @param[in] T type of objects to hold.
+ */
 template <class T>
 struct StaticVector {
 
@@ -59,16 +85,46 @@ struct StaticVector {
     typedef SvIterator<is_const> Iterator;
     typedef SvIterator<true> ConstIter;
 
+
+    /**
+     * Constructor for static vector which
+     * takes in pointer and capacity of this vector.
+     * @param[in] vct Memory to use for this vector.
+     * @param[in] size Capacity of this vector.
+     */
     StaticVector(ValTrue* vct,ulong size) : _vct(vct), _cnt(0), _sz(size) { }
+
+    /**
+     * Constructor which constructs amount of elements
+     * specified in currCnt variable. Default constructor
+     * with no parameters is used.
+     *
+     * @param[in] vct Memory to use for this vector.
+     * @param[in] size Capacity of the vector.
+     * @param[in] currCnt Current count of elements.
+     * Elements are instantiated with default constructor.
+     */
+    // don't throw template errors unless instance of this
+    // constructor is called
+    template <class Type = T>
     StaticVector(ValTrue* vct,ulong size,ulong currCnt) :
         _vct(vct), _cnt(currCnt), _sz(size)
     {
         if (currCnt > _sz) {
             throw StaticVectorSpaceException();
         }
+
+        preallocate<Type>(_cnt);
     }
 
     StaticVector(const ThisVector& other) = delete;
+
+    /**
+     * Move constructor. Takes over memory
+     * from the other StaticVector.
+     * @param[in] other Static vector to take
+     * over memory from.
+     */
     StaticVector(ThisVector&& other) :
         _vct(other._vct), _cnt(other._cnt), _sz(other._sz)
     {
@@ -81,6 +137,12 @@ struct StaticVector {
         destroyAll();
     }
 
+    /**
+     * Push element to the end of the vector.
+     * Throws if vector is full or moved.
+     * @param[in] e Element to push. Can be
+     * const T& or T&&.
+     */
     template <class V>
     void push(V&& e) {
         if (isFull()) {
@@ -94,11 +156,25 @@ struct StaticVector {
         ++_cnt;
     }
 
+    /**
+     * Push element to the beginning of the vector.
+     * Throws if vector is full or moved.
+     * @param[in] e Element to push. Can be
+     * const T& or T&&.
+     */
     template <class V>
     void pushFirst(V&& e) {
         insert(0,std::forward<V>(e));
     }
 
+    /**
+     * Insert element at the position
+     * of the vector. Throws if vector
+     * is full or moved.
+     * @param[in] at Position to push at.
+     * @param[in] e Element to push. Can be
+     * const T& or T&&.
+     */
     template <class V>
     void insert(ulong at,V&& e) {
         if (isFull()) {
@@ -125,11 +201,27 @@ struct StaticVector {
         }
     }
 
+    /**
+     * Insert element at the iterator
+     * of the vector. Throws if vector
+     * is full or moved.
+     * @param[in] at Iterator to push at.
+     * @param[in] e Element to push. Can be
+     * const T& or T&&.
+     */
     template <class V>
     void insert(Iterator at,V&& e) {
         insert(at._iter,std::forward<V>(e));
     }
 
+    /**
+     * Pop element out of the vector
+     * into out variable.
+     * @param[out] out Variable to pop into.
+     * Returns if true if pop succeeds
+     * (vector was not empty), false
+     * otherwise.
+     */
     bool pop(T& out) {
         if (isEmpty()) {
             return false;
@@ -141,6 +233,10 @@ struct StaticVector {
         return true;
     }
 
+    /**
+     * Pop element directly to return value.
+     * Throws if vector is empty.
+     */
     T pop() {
         if (_cnt <= 0) {
             throw StaticVectorEmptyPopException();
@@ -151,6 +247,12 @@ struct StaticVector {
         return std::move(v);
     }
 
+    /**
+     * Pop first element from the vector
+     * directly to return value.
+     * Throws if vector is empty.
+     * Moves subsequent elements back.
+     */
     T popFirst() {
         if (_cnt <= 0) {
             throw StaticVectorEmptyPopException();
@@ -164,7 +266,13 @@ struct StaticVector {
         return std::move(res);
     }
 
-    // xchg
+    /**
+     * Pop first element of the vector
+     * to out variable.
+     * Returns false if vector is empty.
+     * Returns true if pop succeeded.
+     * @param[out] out Value to pop to.
+     */
     bool popFirst(T& out) {
         if (isEmpty()) {
             return false;
@@ -178,6 +286,11 @@ struct StaticVector {
         return true;
     }
 
+    /**
+     * Return iterator at position pos
+     * of this vector.
+     * @param[in] pos Position of iterator.
+     */
     Iterator iterAt(ulong pos) const {
         if (pos > _cnt) {
             throw StaticVectorOutOfBoundsException();
@@ -185,6 +298,11 @@ struct StaticVector {
         return Iterator(_vct,_cnt,pos);
     }
 
+    /**
+     * Return constant iterator at position pos
+     * of this vector.
+     * @param[in] pos Position of iterator.
+     */
     ConstIter citerAt(ulong pos) const {
         if (pos > _cnt) {
             throw StaticVectorOutOfBoundsException();
@@ -192,6 +310,11 @@ struct StaticVector {
         return ConstIter(_vct,_cnt,pos);
     }
 
+    /**
+     * Erase elements from this vector from beg to end.
+     * @param[in] beg Beginning iterator for erase.
+     * @param[in] end End iterator for erase.
+     */
     void erase(const Iterator& beg,const Iterator& end) {
         eraseAssertions(beg,end);
 
@@ -205,10 +328,21 @@ struct StaticVector {
         _cnt -= (end._iter - beg._iter);
     }
 
+    /**
+     * Erase single element pointed by iterator i
+     * from this vector.
+     * @param[in] i Iterator pointing to element
+     * for erase.
+     */
     void erase(const Iterator& i) {
         erase(i,Iterator(_vct,_cnt,i._iter + 1));
     }
 
+    /**
+     * Get reference to element at pos.
+     * Throws if out of bounds.
+     * @param[in] pos Position to get.
+     */
     T& at(ulong pos) const {
         if (!(pos >= 0 && pos < _cnt && pos < _sz)) {
             StaticVectorOutOfBoundsException();
@@ -216,54 +350,105 @@ struct StaticVector {
         return _vct[pos];
     }
 
+    /**
+     * Returns if vector is full.
+     */
     bool isFull() const {
         return _cnt >= _sz;
     }
 
+    /**
+     * Returns if vector was moved.
+     */
     bool isMoved() const {
         return _vct == nullptr;
     }
 
+    /**
+     * Returns if vector is empty.
+     */
     bool isEmpty() const {
         return _cnt == 0;
     }
 
+    /**
+     * Returns size of the vector.
+     */
     ulong size() const {
         return _cnt;
     }
 
+    /**
+     * Returns beginning iterator
+     * of the vector.
+     */
     Iterator begin() const {
         return Iterator(_vct,_cnt);
     }
 
+    /**
+     * Returns end iterator
+     * of the vector.
+     */
     Iterator end() const {
         return Iterator(_vct,_cnt,_cnt);
     }
 
+    /**
+     * Returns constant beginning
+     * iterator of the vector.
+     */
     ConstIter cbegin() const {
         return ConstIter(_vct,_cnt);
     }
 
+    /**
+     * Returns constant beginning
+     * iterator of the vector.
+     */
     ConstIter cend() const {
         return ConstIter(_vct,_cnt,_cnt);
     }
 
+    /**
+     * Returns raw pointer of beginning
+     * of the vector.
+     */
     ValTrue* rawBegin() {
         return _vct;
     }
 
+    /**
+     * Returns raw pointer to the end
+     * of the vector (if size is 1) then
+     * result is &v[2]
+     */
     ValTrue* rawEnd() {
         return _vct + _cnt;
     }
 
+    /**
+     * Returns constant raw pointer
+     * of beginning of the vector.
+     */
     const ValTrue* rawCBegin() const {
         return _vct;
     }
 
+    /**
+     * Returns constant raw pointer
+     * of end of the vector (if
+     * size is 1) then result is &v[2]
+     */
     const ValTrue* rawCEnd() const {
         return _vct + _cnt;
     }
 
+    /**
+     * Clear elements from the vector
+     * calling destructors on them and
+     * resetting size to 0.
+     */
     void clear() {
         destroyAll();
         _cnt = 0;
@@ -272,6 +457,10 @@ struct StaticVector {
     // added purely for exception
     // correctness if you're the 1 in the million
     // whose class might throw on copy
+    /**
+     * Get reference to the top element of
+     * the vector.
+     */
     T& top() {
         if (isEmpty()) {
             throw StaticVectorOutOfBoundsException();
@@ -279,6 +468,10 @@ struct StaticVector {
         return _vct[_cnt - 1];
     }
 
+    /**
+     * Get const reference to the top
+     * element of the vector.
+     */
     const T& top() const {
         if (isEmpty()) {
             throw StaticVectorOutOfBoundsException();
@@ -286,6 +479,14 @@ struct StaticVector {
         return _vct[_cnt - 1];
     }
 
+    /**
+     * Stateful pop of the top
+     * element of the vector. Top
+     * element is destroyed in the
+     * process.
+     *
+     * Throws if vector is empty.
+     */
     void popState() {
         if (isEmpty()) {
             throw StaticVectorEmptyPopException();
@@ -294,6 +495,13 @@ struct StaticVector {
         --_cnt;
     }
 
+    /**
+     * Emplace-construct element at the end
+     * of the vector. Throws if vector
+     * is full.
+     * @param[in] args Arguments to use for
+     * construction.
+     */
     template <class... Args>
     void emplaceBack(Args&&... args) {
         if (isFull()) {
@@ -420,6 +628,14 @@ private:
         }
     }
 
+    // suppress this method unless it is used
+    template <class Type>
+    void preallocate(size_t amount) {
+        for (size_t i = 0; i < _cnt; ++i) {
+            new(&_vct[i]) Type();
+        }
+    }
+
     void eraseAssertions(const Iterator& beg,const Iterator& end) {
         if (!(_vct == beg._vct && _cnt == beg._size)) {
             throw StaticVectorEraseException(
@@ -461,6 +677,38 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticBufferExceedException,
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticBufferWrongSize,
     "StaticVector has to contain at least one element.");
 
+/**
+ * Class that generates static vectors
+ * whose memory resides on the stack.
+ * Vectors generated by this class use
+ * aligned memory (std::aligned_storage)
+ *
+ * Example:
+ * ~~~~~~ C++
+ * // buffer for 16 ints.
+ * templatious::StaticBuffer<int,16> buffer;
+ *
+ * auto v1 = buffer.getStaticVector(8);
+ * auto v2 = buffer.getStaticVector();
+ *
+ * // v1 and v2 can each hold 8 integers.
+ * SA::add(v1,0,1,2,3,4,5,6,7);
+ *
+ * SA::add(v2,v1);
+ *
+ * // adding more to v1 will throw
+ * // SA::add(v1,8);
+ *
+ * // No need to care about releasing
+ * // memory or heap allocation -
+ * // objects are destroyed automatically
+ * ~~~~~~
+ *
+ * @param[in] T Type of elements to allocate
+ * memory for.
+ * @param[in] sz Amount of T elements this
+ * buffer can contain.
+ */
 template <class T,size_t sz>
 struct StaticBuffer {
 
@@ -472,6 +720,14 @@ struct StaticBuffer {
     // a negative value than a very large number.
     // this is not meant for huge collections anyway
     // and shall be contained on the stack
+    /**
+     * Generate static vector with a given
+     * capacity. If this exceeds the
+     * remaining memory in this buffer
+     * exception is thrown.
+     * @param[in] capacity Capacity of static
+     * vector.
+     */
     auto getStaticVector(int capacity)
      -> StaticVector<T>
     {
@@ -490,6 +746,10 @@ struct StaticBuffer {
         );
     }
 
+    /**
+     * Generate static vector with a remaining
+     * memory.
+     */
     auto getStaticVector()
      -> StaticVector<T>
     {
@@ -586,7 +846,7 @@ struct CollectionAdapter< StaticVector<T> > {
         return c.iterAt(i);
     }
 
-    static Iterator iterAt(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,size_t i) {
         return c.citerAt(i);
     }
 

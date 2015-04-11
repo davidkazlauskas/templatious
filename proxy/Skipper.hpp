@@ -34,6 +34,8 @@ namespace templatious {
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( SkipperInvalidAssignmentException,
     "Skipper iterator can only be assigned iterator from same original collection.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( SkipperNonPositiveStepException,
+    "Skipper can only be assigned positive step >= 1.");
 
 template <class T,template <class> class StoragePolicy>
 struct Skipper {
@@ -67,7 +69,7 @@ private:
     Ref _c;
     Iterator _b;
     Iterator _e;
-    size_t _sk; // - skip size
+    long _sk; // - skip size
     bool _cleared;
 
     void assertUncleared() const {
@@ -85,12 +87,16 @@ public:
 #endif
 
     template <class V>
-    Skipper(V&& v,size_t sz) :
+    Skipper(V&& v,long sz) :
         _c(std::forward<V>(v)),
         _b(*this,SA::begin(_c.getRef()),sz),
         _e(*this,SA::end(_c.getRef()),sz),
         _sk(sz), _cleared(false)
-    { }
+    {
+        if (_sk <= 0) {
+            throw SkipperNonPositiveStepException();
+        }
+    }
 
     Skipper(ThisSkipper&& s) :
         _c(s._c.cpy()),
@@ -127,7 +133,7 @@ public:
         );
     }
 
-    Iterator iterAt(size_t n) {
+    Iterator iterAt(long n) {
         assertUncleared();
         if (!random_access_iterator) {
             Iterator res(_b);
@@ -160,7 +166,7 @@ public:
 
         Parent& _p;
         I _i;
-        size_t _sk;
+        long _sk;
 
         static const bool random_access_iterator =
             Parent::random_access_iterator;
@@ -173,7 +179,7 @@ public:
         typedef PIterator<I,Parent> ThisIter;
         typedef decltype(*_i) IVal;
 
-        PIterator(Parent& p,const I& i,size_t sz) :
+        PIterator(Parent& p,const I& i,long sz) :
             _p(p),
             _i(i),
             _sk(sz)
@@ -198,7 +204,7 @@ public:
                 auto i = iterUnwrap(_i);
                 auto e = SA::end(_p).getInternal();
                 typedef detail::AdvancePicker<!random_access_iterator> A;
-                size_t mul = ProxUtil::get_mul(_p);
+                long mul = ProxUtil::get_mul(_p);
                 A::adv(i,e,mul * _sk);
                 ProxUtil::iter_unwrap(_i) = i;
             }
@@ -363,7 +369,7 @@ struct CollectionAdapter< Skipper<T,StoragePolicy> > {
     }
 
     template <class V>
-    static Iterator iterAt(V&& c,size_t i) {
+    static Iterator iterAt(V&& c,long i) {
         return c.iterAt(i);
     }
 

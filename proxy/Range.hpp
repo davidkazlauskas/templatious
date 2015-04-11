@@ -31,6 +31,9 @@
 
 namespace templatious {
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( RangeBeginMoreThanEndException,
+    "Range beginning cannot be greater than end.");
+
 template <class T, template <class> class StoragePolicy>
 struct Range {
 

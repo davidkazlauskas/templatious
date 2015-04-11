@@ -41,6 +41,10 @@
 
 namespace templatious {
 
+/**
+ * A class which holds static methods that
+ * mainly have to do with object creation.
+ */
 struct StaticFactory {
 
     /**
@@ -312,6 +316,12 @@ struct StaticFactory {
     /**
      * Return range from existing collection
      * specifying begin and end iterators.
+     * Passing b iterator which is greater than
+     * e iterator causes undefined behaviour.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] b Collection begin iterator.
      * @param[in] e Collection end iterator.
@@ -335,6 +345,10 @@ struct StaticFactory {
     /**
      * Return range from existing collection from
      * begin to end only begin iterator.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] b Collection begin iterator.
      * @param[in] StoragePolicy Storage policy
@@ -358,6 +372,10 @@ struct StaticFactory {
     /**
      * Return range from existing collection from
      * begin index to end index.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] b Collection begin index.
      * @param[in] e Collection end index.
@@ -373,16 +391,24 @@ struct StaticFactory {
     static auto range(T&& t, long b, long e)
         -> templatious::Range<decltype(std::forward<T>(t)),StoragePolicy>
     {
+        if (b > e) {
+            throw RangeBeginMoreThanEndException();
+        }
+
         typedef adapters::CollectionAdapter<T> Ad;
         return Range<decltype(std::forward<T>(t)),StoragePolicy>(
             std::forward<T>(t),
-            Ad::iterAt(std::forward<T>(t),b),
-            Ad::iterAt(std::forward<T>(t),e));
+            Ad::iterAt(t,b),
+            Ad::iterAt(t,e));
     }
 
     /**
      * Return range from existing collection from
      * begin index until end.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] b Collection begin index.
      * @param[in] StoragePolicy Storage policy
@@ -442,6 +468,10 @@ struct StaticFactory {
 
     /**
      * Filter collection using predicate.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] f Predicate function which decides
      * what elements to expose in collection.
@@ -506,6 +536,10 @@ struct StaticFactory {
 
     /**
      * Skip collection each sz elements.
+     * Modifying underlying collection
+     * (adding or removing elements) and
+     * trying to use this one causes
+     * undefined behaviour.
      * @param[in] t Collection to return range from.
      * @param[in] sz Skip size.
      * @param[in] StoragePolicy Storage policy

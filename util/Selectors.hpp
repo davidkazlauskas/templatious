@@ -143,6 +143,20 @@ namespace util {
         typedef typename Decider< Helper::value, F, A... >::type type;
         static const bool value = Helper::value;
     };
+
+    template <class T>
+    struct SupportsDecrementOperator
+    {
+        // shameless stack overflow copying
+        typedef char one;
+        typedef long two;
+
+        template <typename U> static one test( decltype(&(--std::declval<U>())) );
+        template <typename U> static two test(...);
+
+        static const bool value = (sizeof(test<T>(0)) == sizeof(one));
+    };
+
 }
 }
 

@@ -27,9 +27,15 @@
 #include <utility>
 
 #include <templatious/CollectionAdapter.hpp>
+#include <templatious/util/Selectors.hpp>
+#include <templatious/util/Exceptions.hpp>
 
 namespace templatious {
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    VirtualIteratorNoDecrementException,
+    "This virtual iterator doesn't support decrement"
+    " operation.");
 
 template <class T>
 struct VIteratorBase {
@@ -57,6 +63,10 @@ struct VIteratorImpl:
     typedef typename Ad::ValueType ValType;
     typedef VIteratorBase<ValType> Base;
 
+    static const bool supports_decrement =
+        templatious::util::
+            SupportsDecrementOperator<Iterator>::value;
+
     template <class V>
     VIteratorImpl(V&& v) : _i(std::forward<V>(v)) {}
 
@@ -68,8 +78,28 @@ struct VIteratorImpl:
     }
 
     virtual ThisIter& operator--() {
+        return decrement();
+    }
+
+    template <class Dummy = void>
+    ThisIter& decrement(
+        typename std::enable_if<
+            supports_decrement,
+            Dummy
+        >::type* ptr = nullptr
+    ) {
         --_i;
         return *this;
+    }
+
+    template <class Dummy = void>
+    ThisIter& decrement(
+        typename std::enable_if<
+            !supports_decrement,
+            Dummy
+        >::type* ptr = nullptr
+    ) {
+        throw VirtualIteratorNoDecrementException();
     }
 
     virtual ValType& operator*() {
@@ -77,7 +107,7 @@ struct VIteratorImpl:
     }
 
     virtual ValType* operator->() {
-        return &(*_i);
+        return std::addressof(*_i);
     }
 
     virtual bool operator==(const Base& rhs) const {

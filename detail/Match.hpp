@@ -44,6 +44,8 @@ struct TightComparison<A,AnyType> : std::true_type {};
 template <class A>
 struct TightComparison<AnyType,A> : std::true_type {};
 
+// A - to compare
+// B - condition typelist member
 template <class A,class B>
 struct LooseComparison {
     typedef typename std::decay<A>::type DecayA;
@@ -54,7 +56,7 @@ struct LooseComparison {
     >::value;
 
     static const bool subtype_of = std::is_base_of<
-        DecayA, DecayB
+        DecayB, DecayA
     >::value;
 
     static const bool value = decay_same || subtype_of;

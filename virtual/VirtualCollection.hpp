@@ -520,15 +520,15 @@ struct CollectionAdapter< VCollection<T> > {
         return c.iterAt(i);
     }
 
-    static Iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static Iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
 
-    static Iterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, size_t i) {
         return c.citerAt(i);
     }
 
@@ -593,7 +593,7 @@ struct CollectionAdapter< const VCollection<T> > {
     }
 
     static ConstValueType& getByIndex(ConstCol& c, size_t i) {
-        return c.getByIndex(i);
+        return c.cgetByIndex(i);
     }
 
     static long size(ConstCol& c) {

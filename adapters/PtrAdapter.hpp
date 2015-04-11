@@ -272,6 +272,18 @@ struct CollectionAdapter<T&> {
         return Inner::iterAt(c,i);
     }
 
+    static ConstIterator begin(CRCol c) {
+        return Inner::begin(c);
+    }
+
+    static ConstIterator end(CRCol c) {
+        return Inner::end(c);
+    }
+
+    static ConstIterator iterAt(CRCol c,size_t i) {
+        return Inner::iterAt(c,i);
+    }
+
     static ConstIterator cbegin(CRCol c) {
         return Inner::cbegin(c);
     }
