@@ -403,7 +403,7 @@ struct StaticVector {
     }
 
     /**
-     * Returns constant beginning
+     * Returns constant end
      * iterator of the vector.
      */
     ConstIter cend() const {
