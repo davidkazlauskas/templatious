@@ -69,10 +69,14 @@ struct CollectionAdapter< std::forward_list<T,Alloc<T> > > {
 		return c.end();
 	}
 
-    static Iterator iterAt(ThisCol& c,size_t pos) {
+    static Iterator iterAt(ThisCol& c,long pos) {
+        if (pos < 0) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
         auto res = c.begin();
         auto end = c.end();
-        size_t cnt = 0;
+        long cnt = 0;
         while (cnt < pos) {
             if (end == res) {
                 throw CollectionAdapterNoSuchIteratorException();
@@ -83,10 +87,14 @@ struct CollectionAdapter< std::forward_list<T,Alloc<T> > > {
         return res;
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t pos) {
+    static ConstIterator iterAt(ConstCol& c,long pos) {
+        if (pos < 0) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
         auto res = c.cbegin();
         auto end = c.cend();
-        size_t cnt = 0;
+        long cnt = 0;
         while (cnt < pos) {
             if (end == res) {
                 throw CollectionAdapterNoSuchIteratorException();
@@ -97,10 +105,14 @@ struct CollectionAdapter< std::forward_list<T,Alloc<T> > > {
         return res;
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t pos) {
+    static ConstIterator citerAt(ConstCol& c,long pos) {
+        if (pos < 0) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
         auto res = c.cbegin();
         auto end = c.cend();
-        size_t cnt = 0;
+        long cnt = 0;
         while (cnt < pos) {
             if (end == res) {
                 throw CollectionAdapterNoSuchIteratorException();
@@ -137,11 +149,11 @@ struct CollectionAdapter< std::forward_list<T,Alloc<T> > > {
 		return sum;
 	}
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return *iterAt(c,i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return *citerAt(c,i);
     }
 
@@ -282,14 +294,18 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return *citerAt(c,i);
     }
 
-    static Iterator iterAt(ConstCol& c,size_t pos) {
+    static Iterator iterAt(ConstCol& c,long pos) {
+        if (pos < 0) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
         auto res = c.cbegin();
         auto end = c.cend();
-        size_t cnt = 0;
+        long cnt = 0;
         while (cnt < pos) {
             if (end == res) {
                 throw CollectionAdapterNoSuchIteratorException();
@@ -300,10 +316,10 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
         return res;
     }
 
-    static Iterator citerAt(ConstCol& c,size_t pos) {
+    static Iterator citerAt(ConstCol& c,long pos) {
         auto res = c.cbegin();
         auto end = c.cend();
-        size_t cnt = 0;
+        long cnt = 0;
         while (cnt < pos) {
             if (end == res) {
                 throw CollectionAdapterNoSuchIteratorException();
@@ -384,7 +400,7 @@ struct CollectionMaker<Val,std::forward_list,Alloc> {
         return std::move(Collection());
     }
 
-    static Collection make(size_t size) {
+    static Collection make(long size) {
         return std::move(Collection());
     }
 
@@ -392,7 +408,7 @@ struct CollectionMaker<Val,std::forward_list,Alloc> {
         return new Collection();
     }
 
-    static Collection* makeHeap(size_t size) {
+    static Collection* makeHeap(long size) {
         return new Collection();
     }
 

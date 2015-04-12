@@ -50,11 +50,11 @@ struct CallCountFunctor {
             std::forward<Args>(args)...);
     }
 
-    size_t getCount() const { return _count; }
+    long getCount() const { return _count; }
 
 private:
     Cont _c;
-    size_t _count;
+    long _count;
 };
 
 }

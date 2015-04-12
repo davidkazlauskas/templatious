@@ -320,8 +320,8 @@ void clearRoutine(C&& c) {
 }
 
 template <class T>
-void naiveIterAdvance(T& i,const T& end,size_t t) {
-    for (size_t j = 0; j < t; ++j) {
+void naiveIterAdvance(T& i,const T& end,long t) {
+    for (long j = 0; j < t; ++j) {
         if (i == end) {
             return;
         }
@@ -333,7 +333,7 @@ template <bool naiveAdvance>
 struct AdvancePicker {
 
     template <class T>
-    static void adv(T& i,const T& end,size_t t) {
+    static void adv(T& i,const T& end,long t) {
         naiveIterAdvance(i,end,t);
     }
 
@@ -343,7 +343,7 @@ template <>
 struct AdvancePicker<false> {
 
     template <class T>
-    static void adv(T& i,const T& end,size_t t) {
+    static void adv(T& i,const T& end,long t) {
         // std::advance could be used but
         // assumption is made that ONLY
         // random access iterator will be used here

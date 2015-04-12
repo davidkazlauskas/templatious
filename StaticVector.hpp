@@ -73,7 +73,7 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticVectorEraseException,
 template <class T>
 struct StaticVector {
 
-    typedef size_t ulong;
+    typedef long ulong;
     typedef StaticVector<T> ThisVector;
     typedef typename std::remove_const<T>::type ValTrue;
 
@@ -189,7 +189,7 @@ struct StaticVector {
 
         if (_cnt > 0) {
             new (&_vct[_cnt]) T(std::move(_vct[_cnt-1]));
-            for (size_t i = _cnt - 1; i >= at + 1; --i)
+            for (long i = _cnt - 1; i >= at + 1; --i)
             {
                 _vct[i] = std::move(_vct[i - 1]);
             }
@@ -260,7 +260,7 @@ struct StaticVector {
         T res = std::move(_vct[0]);
         _vct[0].~T();
         --_cnt;
-        for (size_t i = 0; i < _cnt; ++i) {
+        for (long i = 0; i < _cnt; ++i) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return std::move(res);
@@ -280,7 +280,7 @@ struct StaticVector {
 
         out = std::move(_vct[0]);
         --_cnt;
-        for (size_t i = 0; i < _cnt; ++i) {
+        for (long i = 0; i < _cnt; ++i) {
             _vct[i] = std::move(_vct[i + 1]);
         }
         return true;
@@ -292,7 +292,7 @@ struct StaticVector {
      * @param[in] pos Position of iterator.
      */
     Iterator iterAt(ulong pos) const {
-        if (pos > _cnt) {
+        if (pos > _cnt || pos < 0) {
             throw StaticVectorOutOfBoundsException();
         }
         return Iterator(_vct,_cnt,pos);
@@ -304,7 +304,7 @@ struct StaticVector {
      * @param[in] pos Position of iterator.
      */
     ConstIter citerAt(ulong pos) const {
-        if (pos > _cnt) {
+        if (pos > _cnt || pos < 0) {
             throw StaticVectorOutOfBoundsException();
         }
         return ConstIter(_vct,_cnt,pos);
@@ -623,15 +623,15 @@ private:
     ulong _sz;
 
     void destroyAll() {
-        for (size_t i = 0; i < _cnt; ++i) {
+        for (long i = 0; i < _cnt; ++i) {
             _vct[i].~T();
         }
     }
 
     // suppress this method unless it is used
     template <class Type>
-    void preallocate(size_t amount) {
-        for (size_t i = 0; i < _cnt; ++i) {
+    void preallocate(long amount) {
+        for (long i = 0; i < _cnt; ++i) {
             new(&_vct[i]) Type();
         }
     }
@@ -665,7 +665,7 @@ private:
 
 };
 
-template <class T,size_t sz>
+template <class T,long sz>
 StaticVector<T> makeStaticVector(char (&arr)[sz]) {
     static_assert(sz % sizeof(T) == 0,
         "Array size in bytes must be properly aligned.");
@@ -709,7 +709,7 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(StaticBufferWrongSize,
  * @param[in] sz Amount of T elements this
  * buffer can contain.
  */
-template <class T,size_t sz>
+template <class T,long sz>
 struct StaticBuffer {
 
     static const int total_size = sz;
@@ -765,7 +765,7 @@ private:
         return total_size - _currSize;
     }
 
-    ValTrue* nextPtr(size_t bump) {
+    ValTrue* nextPtr(long bump) {
         ValTrue* res = basePtr() + _currSize;
         _currSize += bump;
         return res;
@@ -778,7 +778,7 @@ private:
     typedef typename std::aligned_storage<
         sizeof(T),alignof(T)>::type AlStor;
 
-    size_t _currSize;
+    long _currSize;
     AlStor _buf[total_size];
 };
 
@@ -842,15 +842,15 @@ struct CollectionAdapter< StaticVector<T> > {
         return c.cend();
     }
 
-    static Iterator iterAt(ThisCol& c,size_t i) {
+    static Iterator iterAt(ThisCol& c,long i) {
         return c.iterAt(i);
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,long i) {
         return c.citerAt(i);
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t i) {
+    static ConstIterator citerAt(ConstCol& c,long i) {
         return c.citerAt(i);
     }
 
@@ -862,7 +862,7 @@ struct CollectionAdapter< StaticVector<T> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ThisCol& c,size_t i) {
+    static ConstIterator citerAt(ThisCol& c,long i) {
         return c.citerAt(i);
     }
 
@@ -937,11 +937,11 @@ struct CollectionAdapter< const StaticVector<T> > {
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,long i) {
         return c.citerAt(i);
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t i) {
+    static ConstIterator citerAt(ConstCol& c,long i) {
         return c.citerAt(i);
     }
 

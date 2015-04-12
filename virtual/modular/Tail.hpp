@@ -73,11 +73,11 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         c.insert(at,i);
     }
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c.getByIndex(i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.cgetByIndex(i);
     }
 
@@ -101,7 +101,7 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.end();
     }
 
-    static Iterator iterAt(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, long i) {
         return c.iterAt(i);
     }
 
@@ -113,7 +113,7 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -125,7 +125,7 @@ struct CollectionAdapter< ::templatious::vmodular::Tail<T> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -178,7 +178,7 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
         c.insert(at,i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.cgetByIndex(i);
     }
 
@@ -202,7 +202,7 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -214,7 +214,7 @@ struct CollectionAdapter< const ::templatious::vmodular::Tail<T> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 

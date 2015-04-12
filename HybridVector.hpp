@@ -32,7 +32,7 @@
 
 namespace templatious {
 
-template <class T,size_t sz,
+template <class T,long sz,
          template <class...> class Additional = std::vector,
          template <class> class Alloc = std::allocator
 >
@@ -54,7 +54,7 @@ struct HybridVector {
     friend struct HvIterator<false>;
     friend struct HvIterator<true>;
 
-    static const size_t static_size = sz;
+    static const long static_size = sz;
 
     static_assert(Ad::is_valid,
             "Adapter is invalid.");
@@ -272,7 +272,7 @@ private:
 };
 
 template <class T,
-         size_t sz,
+         long sz,
          template <class...> class Additional = std::vector,
          template <class> class Alloc = std::allocator
 >
@@ -285,7 +285,7 @@ HybridVector<T,sz,Additional,Alloc>
 
 namespace adapters {
 
-template <class T,size_t sz,
+template <class T,long sz,
          template <class...> class Additional,
          template <class> class Alloc
 >
@@ -310,11 +310,11 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         c.insert(at,std::forward<V>(i));
     }
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c.getByIndex(i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.getByIndex(i);
     }
 
@@ -340,7 +340,7 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.end();
     }
 
-    static Iterator iterAt(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, long i) {
         return c.iterAt(i);
     }
 
@@ -352,7 +352,7 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -364,7 +364,7 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -394,7 +394,7 @@ struct CollectionAdapter< HybridVector<T,sz,Additional,Alloc> > {
 
 };
 
-template <class T,size_t sz,
+template <class T,long sz,
          template <class...> class Additional,
          template <class> class Alloc
 >
@@ -424,7 +424,7 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     }
 
     template <class U = int>
-    static ConstValueType& getByIndex(ThisCol& c, size_t i) {
+    static ConstValueType& getByIndex(ThisCol& c, long i) {
         return c.getByIndex(i);
     }
 
@@ -453,7 +453,7 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
     static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -465,7 +465,7 @@ struct CollectionAdapter< const HybridVector<T,sz,Additional,Alloc> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 

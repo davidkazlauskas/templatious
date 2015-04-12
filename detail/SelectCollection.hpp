@@ -104,7 +104,7 @@ struct SelectCollection {
         return Iterator(*this,Ad::end(_c.getRef()));
     }
 
-    Iterator iterAt(size_t i) {
+    Iterator iterAt(long i) {
         return Iterator(*this,Ad::iterAt(_c.getRef(),i));
     }
 
@@ -116,7 +116,7 @@ struct SelectCollection {
         return ConstIterator(*this,Ad::cend(_c.cgetRef()));
     }
 
-    ConstIterator citerAt(size_t i) const {
+    ConstIterator citerAt(long i) const {
         return ConstIterator(*this,Ad::citerAt(_c.cgetRef(),i));
     }
 
@@ -234,11 +234,11 @@ struct CollectionAdapter<
                 "SelectCollection doesn't support insertion.");
     }
 
-    static ValueType getByIndex(ThisCol& c, size_t i) {
+    static ValueType getByIndex(ThisCol& c, long i) {
         return *c.iterAt(i);
     }
 
-    static ConstValueType getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType getByIndex(ConstCol& c, long i) {
         return *c.citerAt(i);
     }
 
@@ -268,7 +268,7 @@ struct CollectionAdapter<
         return c.end();
     }
 
-    static Iterator iterAt(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, long i) {
         return c.iterAt(i);
     }
 
@@ -280,7 +280,7 @@ struct CollectionAdapter<
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -292,7 +292,7 @@ struct CollectionAdapter<
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -365,7 +365,7 @@ struct CollectionAdapter<
                 "SelectCollection doesn't support insertion.");
     }
 
-    static ValueType getByIndex(ConstCol& c, size_t i) {
+    static ValueType getByIndex(ConstCol& c, long i) {
         return *c.citerAt(i);
     }
 
@@ -395,7 +395,7 @@ struct CollectionAdapter<
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -407,7 +407,7 @@ struct CollectionAdapter<
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 

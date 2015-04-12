@@ -143,7 +143,7 @@ public:
         );
     }
 
-    Iterator iterAt(size_t i) {
+    Iterator iterAt(long i) {
         assertUncleared();
         auto res(_b);
         detail::naiveIterAdvance(res,_e,i);
@@ -285,7 +285,7 @@ struct IsProxy< Filter< T,Fn,StoragePolicy > > {
     }
 
     template <class C>
-    static void iter_advance(C& i,C& e,size_t s) {
+    static void iter_advance(C& i,C& e,long s) {
         naiveIterAdvance(i,e,s);
     }
 
@@ -354,7 +354,7 @@ struct CollectionAdapter< Filter<T,Fn,StoragePolicy> > {
     }
 
     template <class C>
-    static Iterator iterAt(C&& c,size_t i) {
+    static Iterator iterAt(C&& c,long i) {
         return c.iterAt(i);
     }
 

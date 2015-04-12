@@ -47,16 +47,16 @@ struct VCollectionBase {
     virtual void erase(const Iter& beg,const Iter& end) = 0;
     virtual void clear() = 0;
 
-    virtual T& getByIndex(size_t idx) = 0;
-    virtual const T& cgetByIndex(size_t idx) const = 0;
+    virtual T& getByIndex(long idx) = 0;
+    virtual const T& cgetByIndex(long idx) const = 0;
 
     virtual Iter begin() = 0;
     virtual Iter end() = 0;
     virtual CIter cbegin() const = 0;
     virtual CIter cend() const = 0;
 
-    virtual Iter iterAt(size_t idx) = 0;
-    virtual CIter citerAt(size_t idx) const = 0;
+    virtual Iter iterAt(long idx) = 0;
+    virtual CIter citerAt(long idx) const = 0;
 
     virtual T& first() = 0;
     virtual const T& cfirst() const = 0;
@@ -250,11 +250,11 @@ struct VCollectionImpl:
         Ad::clear(getColRef());
     }
 
-    virtual ValType& getByIndex(size_t idx) {
+    virtual ValType& getByIndex(long idx) {
         return Ad::getByIndex(getColRef(),idx);
     }
 
-    virtual CValType& cgetByIndex(size_t idx) const {
+    virtual CValType& cgetByIndex(long idx) const {
         return Ad::getByIndex(cgetColRef(),idx);
     }
 
@@ -290,11 +290,11 @@ struct VCollectionImpl:
         return SA::vcend(cgetColRef());
     }
 
-    virtual Iter iterAt(size_t idx) {
+    virtual Iter iterAt(long idx) {
         return SA::viterAt(getColRef(),idx);
     }
 
-    virtual CIter citerAt(size_t idx) const {
+    virtual CIter citerAt(long idx) const {
         return SA::vciterAt(cgetColRef(),idx);
     }
 
@@ -395,11 +395,11 @@ struct VCollection {
         _b->clear();
     }
 
-    T& getByIndex(size_t idx) {
+    T& getByIndex(long idx) {
         return _b->getByIndex(idx);
     }
 
-    const T& cgetByIndex(size_t idx) const {
+    const T& cgetByIndex(long idx) const {
         return _b->cgetByIndex(idx);
     }
 
@@ -435,11 +435,11 @@ struct VCollection {
         return _b->cend();
     }
 
-    Iter iterAt(size_t idx) {
+    Iter iterAt(long idx) {
         return _b->iterAt(idx);
     }
 
-    CIter citerAt(size_t idx) const {
+    CIter citerAt(long idx) const {
         return _b->citerAt(idx);
     }
 
@@ -488,11 +488,11 @@ struct CollectionAdapter< VCollection<T> > {
         c.insert(at,std::forward<V>(i));
     }
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c.getByIndex(i);
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.cgetByIndex(i);
     }
 
@@ -516,7 +516,7 @@ struct CollectionAdapter< VCollection<T> > {
         return c.end();
     }
 
-    static Iterator iterAt(ThisCol& c, size_t i) {
+    static Iterator iterAt(ThisCol& c, long i) {
         return c.iterAt(i);
     }
 
@@ -528,7 +528,7 @@ struct CollectionAdapter< VCollection<T> > {
         return c.cend();
     }
 
-    static ConstIterator iterAt(ConstCol& c, size_t i) {
+    static ConstIterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -540,7 +540,7 @@ struct CollectionAdapter< VCollection<T> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -592,7 +592,7 @@ struct CollectionAdapter< const VCollection<T> > {
         c.insert(at,std::forward<V>(i));
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c.cgetByIndex(i);
     }
 
@@ -616,7 +616,7 @@ struct CollectionAdapter< const VCollection<T> > {
         return c.cend();
     }
 
-    static Iterator iterAt(ConstCol& c, size_t i) {
+    static Iterator iterAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 
@@ -628,7 +628,7 @@ struct CollectionAdapter< const VCollection<T> > {
         return c.cend();
     }
 
-    static ConstIterator citerAt(ConstCol& c, size_t i) {
+    static ConstIterator citerAt(ConstCol& c, long i) {
         return c.citerAt(i);
     }
 

@@ -51,7 +51,7 @@ struct Traversable: public T {
         return Ad::end(getRef());
     }
 
-    Iter iterAt(size_t idx) {
+    Iter iterAt(long idx) {
         return Ad::iterAt(getRef(),idx);
     }
 
@@ -63,7 +63,7 @@ struct Traversable: public T {
         return Ad::cend(cgetRef());
     }
 
-    CIter citerAt(size_t idx) const {
+    CIter citerAt(long idx) const {
         return Ad::citerAt(cgetRef(),idx);
     }
 
@@ -97,7 +97,7 @@ struct TraversableFake: public T {
         return Ad::end(getRef());
     }
 
-    Iter iterAt(size_t idx) {
+    Iter iterAt(long idx) {
         return Ad::end(getRef());
     }
 
@@ -109,7 +109,7 @@ struct TraversableFake: public T {
         return Ad::cend(cgetRef());
     }
 
-    CIter citerAt(size_t idx) const {
+    CIter citerAt(long idx) const {
         return Ad::cend(cgetRef());
     }
 
@@ -145,7 +145,7 @@ struct TraversableThrow: public T {
             "Traversal is disabled in current collection.");
     }
 
-    Iter iterAt(size_t idx) {
+    Iter iterAt(long idx) {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
     }
@@ -160,7 +160,7 @@ struct TraversableThrow: public T {
             "Traversal is disabled in current collection.");
     }
 
-    CIter citerAt(size_t idx) const {
+    CIter citerAt(long idx) const {
         throw templatious::util::FeatureDisabled(
             "Traversal is disabled in current collection.");
     }
@@ -201,7 +201,7 @@ struct TraversablePrevent: public T {
     }
 
     template <class U = int>
-    Iter iterAt(size_t idx) {
+    Iter iterAt(long idx) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Traversable feature is disabled.");
@@ -222,7 +222,7 @@ struct TraversablePrevent: public T {
     }
 
     template <class U = int>
-    CIter citerAt(size_t idx) const {
+    CIter citerAt(long idx) const {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Traversable feature is disabled.");

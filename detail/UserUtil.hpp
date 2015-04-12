@@ -63,7 +63,7 @@ struct SumFunctor {
     }
 
     StorType& _c;
-    size_t _cnt;
+    long _cnt;
 };
 
 //------- Forall functor.
@@ -131,7 +131,7 @@ struct SumFunctorCustom {
 
     StorType& _c;
     FStorType _fn;
-    size_t _cnt;
+    long _cnt;
 };
 
 template <

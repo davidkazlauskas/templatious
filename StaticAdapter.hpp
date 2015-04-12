@@ -489,7 +489,7 @@ struct StaticAdapter {
      * @param[in] i Index of iterator to get.
      */
     template <class T>
-    static auto iterAt(T& c,size_t i)
+    static auto iterAt(T& c,long i)
         -> typename adapters::CollectionAdapter<T>::Iterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -502,7 +502,7 @@ struct StaticAdapter {
      * @param[in] i Index of iterator to get.
      */
     template <class T>
-    static auto citerAt(T& c,size_t i)
+    static auto citerAt(T& c,long i)
         -> typename adapters::CollectionAdapter<T>::ConstIterator {
         typedef adapters::CollectionAdapter<T> Ad;
         static_assert(Ad::is_valid, "Adapter not supported.");
@@ -635,7 +635,7 @@ struct StaticAdapter {
      * @param[in,out] c Collection to expose.
      */
     template <class T>
-    static auto viterAt(T& c,size_t s)
+    static auto viterAt(T& c,long s)
     -> VIterator< typename adapters::CollectionAdapter<T>::ValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;
@@ -655,7 +655,7 @@ struct StaticAdapter {
      * @param[in,out] c Collection to expose.
      */
     template <class T>
-    static auto vciterAt(const T& c,size_t s)
+    static auto vciterAt(const T& c,long s)
     -> VIterator< typename adapters::CollectionAdapter<T>::ConstValueType >
     {
         typedef adapters::CollectionAdapter<T> Ad;

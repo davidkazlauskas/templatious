@@ -108,9 +108,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         c.erase(beg,end);
     }
 
-    static Iterator iterAt(ThisCol& c,size_t i) {
+    static Iterator iterAt(ThisCol& c,long i) {
         // no compiler warning
-        if (static_cast<size_t>(size(c)) < i) {
+        if (static_cast<long>(size(c)) < i || i < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         auto iter = begin(c);
@@ -118,9 +118,9 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return iter;
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,long i) {
         // no compiler warning
-        if (static_cast<size_t>(size(c)) < i) {
+        if (static_cast<long>(size(c)) < i || i < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         auto iter = cbegin(c);
@@ -128,8 +128,8 @@ struct CollectionAdapter< std::list<T,Alloc<T> > > {
         return iter;
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t i) {
-        if (static_cast<size_t>(size(c)) < i) {
+    static ConstIterator citerAt(ConstCol& c,long i) {
+        if (static_cast<long>(size(c)) < i || i < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
@@ -237,12 +237,12 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
         return c.back();
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t i) {
+    static ConstIterator iterAt(ConstCol& c,long i) {
         return citerAt(c,i);
     }
 
     static ConstIterator citerAt(ConstCol& c,long i) {
-        if (size(c) < i) {
+        if (size(c) < i || i < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
 
@@ -278,7 +278,7 @@ struct CollectionMaker<Val,std::list,Alloc> {
         return std::move(Collection());
     }
 
-    static Collection make(size_t size) {
+    static Collection make(long size) {
         Collection res;
         return std::move(res);
     }
@@ -287,7 +287,7 @@ struct CollectionMaker<Val,std::list,Alloc> {
         return new Collection();
     }
 
-    static Collection* makeHeap(size_t size) {
+    static Collection* makeHeap(long size) {
         CollectionPtr res = new Collection();
         return res;
     }

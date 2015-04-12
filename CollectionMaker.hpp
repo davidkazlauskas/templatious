@@ -40,9 +40,9 @@ struct CollectionMaker {
     static const bool is_maker_valid = false;
 
     static Collection make();
-    static Collection make(size_t size);
+    static Collection make(long size);
     static Collection* makeHeap();
-    static Collection* makeHeap(size_t size);
+    static Collection* makeHeap(long size);
 
 };
 

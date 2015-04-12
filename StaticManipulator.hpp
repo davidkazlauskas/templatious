@@ -173,7 +173,7 @@ private:
     >
     friend struct detail::CallHandler;
 
-    template <class F, class ITER,bool callWithIndex = false,typename Index = size_t>
+    template <class F, class ITER,bool callWithIndex = false,typename Index = long>
     struct IteratorCaller;
 
     template <class F,class ITER,class Index>
@@ -203,7 +203,7 @@ private:
         bool ignoreBooleanReturn = false,
         class Func,class T,class... Args
     >
-    static size_t distributeInternal(Func&& f,T&& t,Args&&... args) {
+    static long distributeInternal(Func&& f,T&& t,Args&&... args) {
         typedef templatious::adapters::CollectionAdapter<T> Ad;
         typedef templatious::detail::IsPack<T> IP;
 
@@ -302,7 +302,7 @@ public:
 
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
-        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        typedef IteratorCaller<U,Iter,passIndex,long> ICall;
         ICall call;
 
         long size = SA::size(ut::getFirst(std::forward<Args>(args)...));
@@ -311,7 +311,7 @@ public:
             T,ResCollection,Allocator> Mk;
 
         auto result = Mk::make(size);
-        size_t idx = 0;
+        long idx = 0;
 
         // hopefully, static_assert is more readable
         typedef decltype(call(
@@ -359,11 +359,11 @@ public:
 
         auto it = ItMk::makeIter(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
-        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        typedef IteratorCaller<U,Iter,passIndex,long> ICall;
         ICall call;
 
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
-        size_t idx;
+        long idx;
         if (passIndex) {
             idx = 0;
         }
@@ -422,16 +422,16 @@ public:
      * it is passed first. Defaults to false.
      */
     template <bool passIndex = false, class U, class... Args>
-    static size_t quadro(U&& fn, Args&&... args) {
+    static long quadro(U&& fn, Args&&... args) {
         typedef typename templatious::recursive::IteratorMaker ItMk;
         namespace ut = templatious::util;
 
         auto it = ItMk::makeQuadro(std::forward<Args>(args)...);
         typedef decltype(it) Iter;
-        typedef IteratorCaller<U,Iter,passIndex,size_t> ICall;
+        typedef IteratorCaller<U,Iter,passIndex,long> ICall;
         ICall call;
 
-        size_t idx = 0;
+        long idx = 0;
 
         do {
             typedef typename ut::RetValSelector<
@@ -514,7 +514,7 @@ public:
         bool ignoreBooleanReturn = false,
         class T,class... V
     >
-    static size_t callEach(T&& f,V&&... args) {
+    static long callEach(T&& f,V&&... args) {
         templatious::util::CallCountFunctor<T>
             func(std::forward<T>(f));
 
@@ -544,7 +544,7 @@ public:
         bool ignoreBooleanReturn = false,
         class T,class... V
     >
-    static size_t forEach(T&& f,V&&... args) {
+    static long forEach(T&& f,V&&... args) {
         templatious::util::CallCountFunctor<T>
             func(std::forward<T>(f));
 
@@ -820,7 +820,7 @@ public:
     template <
         class T,class... Args
     >
-    static size_t distribute(T&& t,Args&&... args) {
+    static long distribute(T&& t,Args&&... args) {
         return distributeInternal<false>(
             templatious::detail::AssignDispatcher(),
             std::forward<T>(t),
@@ -840,7 +840,7 @@ public:
     template <
         class T,class... Args
     >
-    static size_t distributeR(T&& t,Args&&... args) {
+    static long distributeR(T&& t,Args&&... args) {
         return distributeInternal<false>(
             templatious::detail::RevAssignDispatcher(),
             std::forward<T>(t),
@@ -869,7 +869,7 @@ public:
         bool ignoreBooleanReturn = false,
         class Func,class T,class... Args
     >
-    static size_t distributeSpecial(Func&& f,T&& t,Args&&... args) {
+    static long distributeSpecial(Func&& f,T&& t,Args&&... args) {
         return distributeInternal<ignoreBooleanReturn>(
             std::forward<Func>(f),
             std::forward<T>(t),

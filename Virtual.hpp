@@ -24,8 +24,6 @@
 #define VIRTUAL_I7YB4CBD
 
 #include <templatious/virtual/Iterator.hpp>
-#include <templatious/virtual/Socket.hpp>
-#include <templatious/virtual/spec/CollectionSocket.hpp>
 #include <templatious/virtual/VirtualCollection.hpp>
 #include <templatious/virtual/Modular.hpp>
 #include <templatious/virtual/VCollectionFactory.hpp>

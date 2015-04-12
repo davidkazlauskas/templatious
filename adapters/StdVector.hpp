@@ -68,22 +68,22 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.end();
 	}
 
-    static Iterator iterAt(ThisCol& c,size_t pos) {
-        if (c.size() < pos) {
+    static Iterator iterAt(ThisCol& c,long pos) {
+        if (c.size() < static_cast<size_t>(pos) || pos < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.begin() + pos;
     }
 
-    static ConstIterator iterAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
+    static ConstIterator iterAt(ConstCol& c,long pos) {
+        if (c.size() < static_cast<size_t>(pos)) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.cbegin() + pos;
     }
 
-    static ConstIterator citerAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
+    static ConstIterator citerAt(ConstCol& c,long pos) {
+        if (c.size() < static_cast<size_t>(pos) || pos < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.cbegin() + pos;
@@ -109,11 +109,11 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c[i];
     }
 
-    static ConstValueType& getByIndex(ConstCol& c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol& c, long i) {
         return c[i];
     }
 
@@ -196,19 +196,19 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 		return c.size();
 	}
 
-    static ValueType& getByIndex(ThisCol& c, size_t i) {
+    static ValueType& getByIndex(ThisCol& c, long i) {
         return c[i];
     }
 
-    static Iterator iterAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
+    static Iterator iterAt(ConstCol& c,long pos) {
+        if (c.size() < static_cast<size_t>(pos) || pos < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.cbegin() + pos;
     }
 
-    static Iterator citerAt(ConstCol& c,size_t pos) {
-        if (c.size() < pos) {
+    static Iterator citerAt(ConstCol& c,long pos) {
+        if (c.size() < pos || pos < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.cbegin() + pos;
@@ -261,7 +261,7 @@ struct CollectionMaker<Val,std::vector,Alloc> {
         return std::move(Collection());
     }
 
-    static Collection make(size_t size) {
+    static Collection make(long size) {
         Collection res;
         res.reserve(size);
         return std::move(res);
@@ -271,7 +271,7 @@ struct CollectionMaker<Val,std::vector,Alloc> {
         return new Collection();
     }
 
-    static Collection* makeHeap(size_t size) {
+    static Collection* makeHeap(long size) {
         CollectionPtr res = new Collection();
         res->reserve(size);
         return res;

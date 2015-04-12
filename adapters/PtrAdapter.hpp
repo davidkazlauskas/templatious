@@ -52,11 +52,11 @@ struct CollectionAdapter<T*> {
         Inner::insertAt(*c,at,i);
     }
 
-    static ValueType& getByIndex(ThisCol c,size_t i) {
+    static ValueType& getByIndex(ThisCol c,long i) {
         return Inner::getByIndex(*c,i);
     }
 
-    static ConstValueType& getByIndex(ConstCol c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol c, long i) {
         return Inner::getByIndex(*c,i);
     }
 
@@ -80,7 +80,7 @@ struct CollectionAdapter<T*> {
         return Inner::end(*c);
     }
 
-    static Iterator iterAt(ThisCol c,size_t i) {
+    static Iterator iterAt(ThisCol c,long i) {
         return Inner::iterAt(*c,i);
     }
 
@@ -92,7 +92,7 @@ struct CollectionAdapter<T*> {
         return Inner::cend(*c);
     }
 
-    static ConstIterator citerAt(ThisCol c,size_t i) {
+    static ConstIterator citerAt(ThisCol c,long i) {
         return Inner::citerAt(*c,i);
     }
 
@@ -147,7 +147,7 @@ struct CollectionAdapter<const T*> {
                 "Const version of a collection doesn't support this method");
     }
 
-    static ConstValueType& getByIndex(ConstCol c, size_t i) {
+    static ConstValueType& getByIndex(ConstCol c, long i) {
         return Inner::getByIndex(*c,i);
     }
 
@@ -175,7 +175,7 @@ struct CollectionAdapter<const T*> {
         return Inner::end(*c);
     }
 
-    static Iterator iterAt(ThisCol c,size_t i) {
+    static Iterator iterAt(ThisCol c,long i) {
         return Inner::iterAt(*c,i);
     }
 
@@ -187,7 +187,7 @@ struct CollectionAdapter<const T*> {
         return Inner::cend(*c);
     }
 
-    static ConstIterator citerAt(ThisCol c,size_t i) {
+    static ConstIterator citerAt(ThisCol c,long i) {
         return Inner::citerAt(*c,i);
     }
 
@@ -236,11 +236,11 @@ struct CollectionAdapter<T&> {
         Inner::insertAt(c,at,std::forward<V>(i));
     }
 
-    static ValueType& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,long i) {
         return Inner::getByIndex(c,i);
     }
 
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         return Inner::getByIndex(c,i);
     }
 
@@ -268,7 +268,7 @@ struct CollectionAdapter<T&> {
         return Inner::end(c);
     }
 
-    static Iterator iterAt(RCol c,size_t i) {
+    static Iterator iterAt(RCol c,long i) {
         return Inner::iterAt(c,i);
     }
 
@@ -280,7 +280,7 @@ struct CollectionAdapter<T&> {
         return Inner::end(c);
     }
 
-    static ConstIterator iterAt(CRCol c,size_t i) {
+    static ConstIterator iterAt(CRCol c,long i) {
         return Inner::iterAt(c,i);
     }
 
@@ -292,7 +292,7 @@ struct CollectionAdapter<T&> {
         return Inner::cend(c);
     }
 
-    static ConstIterator citerAt(CRCol c,size_t i) {
+    static ConstIterator citerAt(CRCol c,long i) {
         return Inner::citerAt(c,i);
     }
 
@@ -349,7 +349,7 @@ struct CollectionAdapter<const T&> {
                 "Const version of a collection doesn't support this method");
     }
 
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         return Inner::getByIndex(c,i);
     }
 
@@ -377,7 +377,7 @@ struct CollectionAdapter<const T&> {
         return Inner::cend(c);
     }
 
-    static ConstIterator iterAt(CRCol c,size_t i) {
+    static ConstIterator iterAt(CRCol c,long i) {
         return Inner::citerAt(c,i);
     }
 
@@ -389,7 +389,7 @@ struct CollectionAdapter<const T&> {
         return Inner::cend(c);
     }
 
-    static ConstIterator citerAt(CRCol c,size_t i) {
+    static ConstIterator citerAt(CRCol c,long i) {
         return Inner::citerAt(c,i);
     }
 
@@ -440,11 +440,11 @@ struct CollectionAdapter<T&&> {
         Inner::insertAt(c,at,i);
     }
 
-    static ValueType& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,long i) {
         return Inner::getByIndex(c,i);
     }
 
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         return Inner::getByIndex(c,i);
     }
 
@@ -480,11 +480,11 @@ struct CollectionAdapter<T&&> {
         return Inner::end(c);
     }
 
-    static Iterator iterAt(RCol c,size_t i) {
+    static Iterator iterAt(RCol c,long i) {
         return Inner::iterAt(c,i);
     }
 
-    static Iterator iterAt(RVCol c,size_t i) {
+    static Iterator iterAt(RVCol c,long i) {
         return Inner::iterAt(c,i);
     }
 
@@ -496,7 +496,7 @@ struct CollectionAdapter<T&&> {
         return Inner::cend(c);
     }
 
-    static ConstIterator citerAt(RCol c,size_t i) {
+    static ConstIterator citerAt(RCol c,long i) {
         return Inner::citerAt(c,i);
     }
 
@@ -551,11 +551,11 @@ struct CollectionAdapter<const T&&> {
         Inner::insertAt(c,at,i);
     }
 
-    static ValueType& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,long i) {
         return Inner::getByIndex(c,i);
     }
 
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         return Inner::getByIndex(c,i);
     }
 
@@ -583,7 +583,7 @@ struct CollectionAdapter<const T&&> {
         return Inner::end(c);
     }
 
-    static Iterator iterAt(RCol c,size_t i) {
+    static Iterator iterAt(RCol c,long i) {
         return Inner::iterAt(c,i);
     }
 
@@ -595,7 +595,7 @@ struct CollectionAdapter<const T&&> {
         return Inner::cend(c);
     }
 
-    static ConstIterator citerAt(RCol c,size_t i) {
+    static ConstIterator citerAt(RCol c,long i) {
         return Inner::citerAt(c,i);
     }
 

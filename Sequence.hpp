@@ -343,12 +343,12 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static Iterator iterAt(ThisCol& c,size_t i) {
+    static Iterator iterAt(ThisCol& c,long i) {
         return c.iterAt(c,i);
     }
 
     template <class U = int>
-    static ConstIterator citerAt(ThisCol& c,size_t i) {
+    static ConstIterator citerAt(ThisCol& c,long i) {
         return c.citerAt(c,i);
     }
 
@@ -484,12 +484,12 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static Iterator iterAt(ThisCol& c,size_t i) {
+    static Iterator iterAt(ThisCol& c,long i) {
         return c.iterAt(c,i);
     }
 
     template <class U = int>
-    static ConstIterator citerAt(ThisCol& c,size_t i) {
+    static ConstIterator citerAt(ThisCol& c,long i) {
         return c.citerAt(c,i);
     }
 

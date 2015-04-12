@@ -31,12 +31,12 @@
 namespace templatious {
 namespace adapters {
 
-template <class T,size_t sz>
+template <class T,long sz>
 struct CollectionAdapter< T[sz] > {
 
     static const bool is_valid = true;
     static const bool floating_iterator = true;
-    static const size_t size_const = sz;
+    static const long size_const = sz;
 
 	typedef T* ThisCol;
     typedef const ThisCol ConstCol;
@@ -53,11 +53,11 @@ struct CollectionAdapter< T[sz] > {
         return false;
     }
 
-    static ValueType& getByIndex(T (&c)[size_const],size_t i) {
+    static ValueType& getByIndex(T (&c)[size_const],long i) {
         return c[i];
     }
 
-    static ConstValueType& getByIndex(const T (&c)[size_const],size_t i) {
+    static ConstValueType& getByIndex(const T (&c)[size_const],long i) {
         return c[i];
     }
 
@@ -89,7 +89,7 @@ struct CollectionAdapter< T[sz] > {
         return &c[size_const];
     }
 
-    static Iterator iterAt(T (&c)[size_const],size_t i) {
+    static Iterator iterAt(T (&c)[size_const],long i) {
         return &c[i];
     }
 
@@ -101,7 +101,7 @@ struct CollectionAdapter< T[sz] > {
         return &c[size_const];
     }
 
-    static ConstIterator citerAt(T (&c)[size_const],size_t i) {
+    static ConstIterator citerAt(T (&c)[size_const],long i) {
         return &c[i];
     }
 
@@ -138,12 +138,12 @@ struct CollectionAdapter< T[sz] > {
 
 };
 
-template <class T,size_t sz>
+template <class T,long sz>
 struct CollectionAdapter< const T[sz] > {
 
     static const bool is_valid = true;
     static const bool floating_iterator = true;
-    static const size_t size_const = sz;
+    static const long size_const = sz;
 
 	typedef const T* ThisCol;
     typedef ThisCol ConstCol;
@@ -160,7 +160,7 @@ struct CollectionAdapter< const T[sz] > {
         return false;
     }
 
-    static ConstValueType& getByIndex(const T (&c)[size_const],size_t i) {
+    static ConstValueType& getByIndex(const T (&c)[size_const],long i) {
         return c[i];
     }
 
@@ -192,7 +192,7 @@ struct CollectionAdapter< const T[sz] > {
         return &c[size_const];
     }
 
-    static Iterator iterAt(const T (&c)[size_const],size_t i) {
+    static Iterator iterAt(const T (&c)[size_const],long i) {
         return &c[i];
     }
 
@@ -204,7 +204,7 @@ struct CollectionAdapter< const T[sz] > {
         return &c[size_const];
     }
 
-    static ConstIterator citerAt(const T (&c)[size_const],size_t i) {
+    static ConstIterator citerAt(const T (&c)[size_const],long i) {
         return &c[i];
     }
 
@@ -233,7 +233,7 @@ struct CollectionAdapter< const T[sz] > {
 
 };
 
-template <size_t sz>
+template <long sz>
 struct CollectionAdapter< const char(&)[sz] > {
     // const char array with reference is considered
     // a string, not a collection of chars.

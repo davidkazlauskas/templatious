@@ -123,7 +123,7 @@ public:
         );
     }
 
-    Iterator iterAt(size_t n) {
+    Iterator iterAt(long n) {
         assertUncleared();
         if (!random_access_iterator) {
             Iterator res(_b);
@@ -333,7 +333,7 @@ struct CollectionAdapter< Range<T, StoragePolicy> > {
     }
 
     template <class C>
-    static Iterator iterAt(C&& c,size_t i) {
+    static Iterator iterAt(C&& c,long i) {
         return c.iterAt(i);
     }
 

@@ -23,7 +23,7 @@
 #ifndef COLLECTIONREPEATER_20IX8ASF
 #define COLLECTIONREPEATER_20IX8ASF
 
-#include <utility> // size_t, std::forward
+#include <utility> // std::forward
 
 #include <templatious/CollectionAdapter.hpp>
 #include <templatious/util/Selectors.hpp>
@@ -44,7 +44,7 @@ struct Repeater {
     typedef typename Adapter::ConstIterator CInternalIterator;
 
     template <class V>
-    Repeater(size_t n,V&& v)
+    Repeater(long n,V&& v)
      : _n(n), _c(std::forward<V>(v)) {}
 
     template <class IIterType,class IRefType>
@@ -84,7 +84,7 @@ struct Repeater {
 
         Iterator(IRefType r,
                  const IIterType& i,
-                 size_t start)
+                 long start)
             : _r(r), _i(i), _idx(start) {}
 
         Iterator& operator++() {
@@ -109,7 +109,7 @@ struct Repeater {
     private:
         IRefType _r;
         IIterType _i;
-        size_t _idx;
+        long _idx;
     };
 
     auto begin()
@@ -196,7 +196,7 @@ struct Repeater {
     > CIteratorT;
 
 private:
-    size_t _n;
+    long _n;
     Container _c;
 };
 
@@ -249,14 +249,14 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static ValueType& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
     }
 
     template <class U = int>
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -301,7 +301,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static Iterator iterAt(RCol c,size_t i) {
+    static Iterator iterAt(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -316,7 +316,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static ConstIterator citerAt(RCol c,size_t i) {
+    static ConstIterator citerAt(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -408,14 +408,14 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static ValueType& getByIndex(RCol c,size_t i) {
+    static ValueType& getByIndex(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
     }
 
     template <class U = int>
-    static ConstValueType& getByIndex(CRCol c, size_t i) {
+    static ConstValueType& getByIndex(CRCol c, long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -448,7 +448,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static Iterator iterAt(RCol c,size_t i) {
+    static Iterator iterAt(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");
@@ -463,7 +463,7 @@ struct CollectionAdapter<
     }
 
     template <class U = int>
-    static ConstIterator citerAt(RCol c,size_t i) {
+    static ConstIterator citerAt(RCol c,long i) {
         static_assert(templatious::util::
             DummyResolver<U,false>::val,
             "Collection repeater can be traversed only.");

@@ -60,11 +60,11 @@ struct Access: public T {
         return Ad::last(cgetRef());
     }
 
-    ValType& getByIndex(size_t idx) {
+    ValType& getByIndex(long idx) {
         return Ad::getByIndex(getRef(),idx);
     }
 
-    CValType& cgetByIndex(size_t idx) const {
+    CValType& cgetByIndex(long idx) const {
         return Ad::getByIndex(cgetRef(),idx);
     }
 
@@ -111,12 +111,12 @@ struct AccessThrow: public T {
             "Access operations are disabled in current collection.");
     }
 
-    ValType& getByIndex(size_t idx) {
+    ValType& getByIndex(long idx) {
         throw templatious::util::FeatureDisabled(
             "Access operations are disabled in current collection.");
     }
 
-    CValType& cgetByIndex(size_t idx) const {
+    CValType& cgetByIndex(long idx) const {
         throw templatious::util::FeatureDisabled(
             "Access operations are disabled in current collection.");
     }
@@ -172,14 +172,14 @@ struct AccessPrevent: public T {
     }
 
     template <class U = int>
-    ValType& getByIndex(size_t idx) {
+    ValType& getByIndex(long idx) {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Access feature is disabled.");
     }
 
     template <class U = int>
-    CValType& cgetByIndex(size_t idx) const {
+    CValType& cgetByIndex(long idx) const {
         // suppress static assert until method is actually called
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Access feature is disabled.");
