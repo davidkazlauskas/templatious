@@ -86,7 +86,7 @@ struct StaticFactory {
         template <class...> class Collection,
         template <class> class Allocator = std::allocator
     >
-    static auto makeCollection(size_t size)
+    static auto makeCollection(long size)
     -> decltype(templatious::adapters::CollectionMaker<
             Val,Collection,Allocator>().make(size))
     {
