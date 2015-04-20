@@ -37,6 +37,8 @@
 #include <templatious/detail/CollectionRepeater.hpp>
 #include <templatious/detail/ItemRepeater.hpp>
 #include <templatious/detail/SelectCollection.hpp>
+#include <templatious/detail/VirtualPack.hpp>
+#include <templatious/detail/VirtualMatchFunctor.hpp>
 #include <templatious/util/Functions.hpp>
 
 namespace templatious {
@@ -1458,6 +1460,7 @@ struct StaticFactory {
      * @param[in] f Function to use.
      * @param[in] MatchAlgorithm User supplied
      * template function for matching.
+     *
      * Example:
      * ~~~~~~~
      * // CurrentMatch - current argument type
@@ -1514,6 +1517,7 @@ struct StaticFactory {
      * @param[in] f Function to use.
      * @param[in] MatchAlgorithm User supplied
      * template function for matching.
+     *
      * Example:
      * ~~~~~~~
      * // TypeList - typelist which contains
@@ -1734,6 +1738,468 @@ struct StaticFactory {
     {
         typedef detail::MatchFunctor<StoragePolicy,T...> Fctor;
         return Fctor(std::forward<T>(t)...);
+    }
+
+    /**
+     * Create stack allocated virtual match
+     * functor.
+     * This match functor matches only
+     * one type of argument -
+     * templatious::VirtualPack. Can be
+     * used for convenient unpacking of
+     * virtual packs directly into function
+     * calls.
+     *
+     * Virtual match functor can be composed
+     * out of virtual matches ( created with
+     * templatious::StaticFactory::virtualMatch or
+     * templatious::StaticFactory::virtualTransparentMatch )
+     * or out of other virtual match functors.
+     *
+     * Function to call for a specific virtual
+     * pack is resolved at runtime.
+     *
+     * @param[in] t Arguments to compose virtual
+     * match functor from.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto vmfA = SF::virtualMatchFunctor(
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "MATCHED INT" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * auto vmfB = SF::virtualMatchFunctor(
+     *     vmfA, // compose first into second
+     *     SF::virtualMatch<char>(
+     *         [](char i) {
+     *             std::cout << "MATCHED CHAR" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * auto pInt = SF::vpack<int>(7);
+     * auto pChar = SF::vpack<char>('7');
+     *
+     * bool matchedInt  = vmfB.tryMatch(pInt);
+     * bool matchedChar = vmfB.tryMatch(pChar);
+     * // prints out:
+     * // MATCHED INT
+     * // MATCHED CHAR
+     *
+     * assert( matchedInt );
+     * assert( matchedChar );
+     * ~~~~~~~
+     */
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class... T
+    >
+    static auto virtualMatchFunctor(T&&... t)
+     -> VirtualMatchFunctorImpl< StoragePolicy, T... >
+    {
+        typedef VirtualMatchFunctorImpl< StoragePolicy, T... > Fctor;
+        return Fctor(std::forward<T>(t)...);
+    }
+
+
+    /**
+     * Create heap allocated virtual match functor
+     * wrapped inside std::unique_ptr.
+     * This match functor matches only
+     * one type of argument -
+     * templatious::VirtualPack. Can be
+     * used for convenient unpacking of
+     * virtual packs directly into function
+     * calls.
+     *
+     * Virtual match functor can be composed
+     * out of virtual matches ( created with
+     * templatious::StaticFactory::virtualMatch or
+     * templatious::StaticFactory::virtualTransparentMatch )
+     * or out of other virtual match functors.
+     *
+     * Function to call for a specific virtual
+     * pack is resolved at runtime.
+     *
+     * @param[in] t Arguments to compose virtual
+     * match functor from.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto vmfA = SF::virtualMatchFunctor(
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "MATCHED INT" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * std::unique_ptr< templatious::VirtualMatchFunctor > vmfB =
+     *     SF::virtualMatchFunctorPtr(
+     *         vmfA, // compose first into second
+     *         SF::virtualMatch<char>(
+     *             [](char i) {
+     *                 std::cout << "MATCHED CHAR" << std::endl;
+     *             }
+     *         )
+     *     );
+     *
+     * auto pInt = SF::vpack<int>(7);
+     * auto pChar = SF::vpack<char>('7');
+     *
+     * bool matchedInt  = vmfB->tryMatch(pInt);
+     * bool matchedChar = vmfB->tryMatch(pChar);
+     * // prints out:
+     * // MATCHED INT
+     * // MATCHED CHAR
+     *
+     * assert( matchedInt );
+     * assert( matchedChar );
+     * ~~~~~~~
+     */
+    template <
+        template <class> class StoragePolicy =
+            templatious::util::DefaultStoragePolicy,
+        class... T
+    >
+    static auto virtualMatchFunctorPtr(T&&... t)
+     -> std::unique_ptr< VirtualMatchFunctor >
+    {
+        typedef VirtualMatchFunctorVImpl<
+            StoragePolicy,
+            T...
+        > TheImpl;
+
+        return std::unique_ptr< VirtualMatchFunctor >(
+            new TheImpl( std::forward<T>(t)... )
+        );
+    }
+
+    /**
+     * Create virtual match with
+     * default storage policy.
+     * This match returns true if it matched,
+     * indicating that this match handled the object
+     * and stopping further object matching down
+     * the line.
+     * @param[in] f Function to call when matched.
+     * @param[in] Args Virtual pack signature.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<int>(7);
+     *
+     * auto vmf = SF::virtualMatchFunctor(
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "A MATCHED" << std::endl;
+     *         }
+     *     ),
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "NEVER REACHED" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * bool matched = vmf.tryMatch(p);
+     * // prints out:
+     * // A MATCHED
+     *
+     * assert( matched );
+     * ~~~~~~~
+     */
+    template <
+        class... Args,
+        class F
+    >
+    static auto virtualMatch(F&& f)
+     -> VirtualMatch<
+         decltype(std::forward<F>(f)),
+         false,
+         templatious::util::DefaultStoragePolicy,
+         Args...
+     >
+    {
+        typedef VirtualMatch<
+            decltype(std::forward<F>(f)),
+            false,
+            templatious::util::DefaultStoragePolicy,
+            Args...
+        > TheMatch;
+        return TheMatch(std::forward<F>(f));
+    }
+
+    /**
+     * Create virtual match with
+     * custom storage policy.
+     * This match returns true if it matched,
+     * indicating that this match handled the object
+     * and stopping further object matching down
+     * the line.
+     * @param[in] f Function to call when matched.
+     * @param[in] Args Virtual pack signature.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<int>(7);
+     *
+     * auto vmf = SF::virtualMatchFunctor(
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "A MATCHED" << std::endl;
+     *         }
+     *     ),
+     *     SF::virtualMatch<int>(
+     *         [](int i) {
+     *             std::cout << "NEVER REACHED" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * bool matched = vmf.tryMatch(p);
+     * // prints out:
+     * // A MATCHED
+     *
+     * assert( matched );
+     * ~~~~~~~
+     */
+    template <
+        template <class> class StoragePolicy,
+        class... Args,
+        class F
+    >
+    static auto virtualMatch(F&& f)
+     -> VirtualMatch<
+         decltype(std::forward<F>(f)),
+         false,
+         StoragePolicy,
+         Args...
+     >
+    {
+        typedef VirtualMatch<
+            decltype(std::forward<F>(f)),
+            false,
+            StoragePolicy,
+            Args...
+        > TheMatch;
+        return TheMatch(std::forward<F>(f));
+    }
+
+    /**
+     * Create virtual transparent match with default
+     * strorage policy.
+     * This match returns false even if it matched,
+     * passing virtual pack to subsequent matches.
+     * @param[in] f Function to call when matched.
+     * @param[in] Args Virtual pack signature.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<int>(7);
+     *
+     * auto vmf = SF::virtualMatchFunctor(
+     *     SF::virtualTransparentMatch<int>(
+     *         [](int i) {
+     *             std::cout << "A MATCHED" << std::endl;
+     *         }
+     *     ),
+     *     SF::virtualTransparentMatch<int>(
+     *         [](int i) {
+     *             std::cout << "B MATCHED" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * bool matched = vmf.tryMatch(p);
+     * // prints out:
+     * // A MATCHED
+     * // B MATCHED
+     *
+     * assert( !matched );
+     * ~~~~~~~
+     */
+    template <
+        class... Args,
+        class F
+    >
+    static auto virtualTransparentMatch(F&& f)
+     -> VirtualMatch<
+         decltype(std::forward<F>(f)),
+         true,
+         templatious::util::DefaultStoragePolicy,
+         Args...
+     >
+    {
+        typedef VirtualMatch<
+            decltype(std::forward<F>(f)),
+            true,
+            templatious::util::DefaultStoragePolicy,
+            Args...
+        > TheMatch;
+        return TheMatch(std::forward<F>(f));
+    }
+
+    /**
+     * Create virtual transparent match with custom
+     * strorage policy.
+     * This match returns false even if it matched,
+     * passing virtual pack to subsequent matches.
+     * @param[in] f Function to call when matched.
+     * @param[in] StoragePolicy Storage policy to use
+     * for storing function.
+     * @param[in] Args Virtual pack signature.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<int>(7);
+     *
+     * auto vmf = SF::virtualMatchFunctor(
+     *     SF::virtualTransparentMatch<int>(
+     *         [](int i) {
+     *             std::cout << "A MATCHED" << std::endl;
+     *         }
+     *     ),
+     *     SF::virtualTransparentMatch<int>(
+     *         [](int i) {
+     *             std::cout << "B MATCHED" << std::endl;
+     *         }
+     *     )
+     * );
+     *
+     * bool matched = vmf.tryMatch(p);
+     * // prints out:
+     * // A MATCHED
+     * // B MATCHED
+     *
+     * assert( !matched );
+     * ~~~~~~~
+     */
+    template <
+        template <class> class StoragePolicy,
+        class... Args,
+        class F
+    >
+    static auto virtualTransparentMatch(F&& f)
+     -> VirtualMatch<
+         decltype(std::forward<F>(f)),
+         true,
+         StoragePolicy,
+         Args...
+     >
+    {
+        typedef VirtualMatch<
+            decltype(std::forward<F>(f)),
+            true,
+            StoragePolicy,
+            Args...
+        > TheMatch;
+        return TheMatch(std::forward<F>(f));
+    }
+
+    /**
+     * Create virtual pack which resides on the stack.
+     * @param[in] Signature Signature of the pack. Should
+     * only contain raw types without references. Const
+     * qualifiers allowed.
+     * @param[in] vars Variables to use to initialize
+     * pack.
+     * @note Signature and var count must be the same.
+     * @note Pointer to this function is a polymorphic
+     * pointer of base class templatious::VirtualPack.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<long,long>(1,2);
+     *
+     * bool aSucc = p.tryCallFunction<long,long>(
+     *     [](long a,long b) {
+     *         std::cout << a << " " << b << std::endl;
+     *     }
+     * );
+     *
+     * bool bSucc = p.tryCallFunction<int,long>(
+     *     [](long a,long b) {
+     *         std::cout << a << " " << b << std::endl;
+     *     }
+     * );
+     *
+     * assert( aSucc );
+     * assert( !bSucc );
+     * ~~~~~~~
+     */
+    template <
+        class... Signature,
+        class... Init
+    >
+    static auto vpack(Init&&... vars)
+     -> templatious::VirtualPackImpl<Signature...>
+    {
+        const bool sameSize =
+            sizeof...(Signature) == sizeof...(Init);
+        static_assert(sameSize,
+            "Type count in signature has to be the"
+            " same as the count of arguments passed.");
+        return templatious::VirtualPackImpl<Signature...>(
+            std::forward<Init>(vars)...
+        );
+    }
+
+    /**
+     * Create heap allocated virtual pack wrapped inside
+     * std::shared_ptr which could be shared among threads.
+     * @param[in] Signature Signature of the pack. Should
+     * only contain raw types without references. Const
+     * qualifiers allowed.
+     * @param[in] vars Variables to use to initialize
+     * pack.
+     * @note Signature and var count must be the same.
+     * @note This function returns a polymorphic
+     * pointer of base class templatious::VirtualPack.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::shared_Ptr< templatious::VirtualPack > p =
+     *     SF::vpackPtr<long,long>(1,2);
+     *
+     * bool aSucc = p->tryCallFunction<long,long>(
+     *     [](long a,long b) {
+     *         std::cout << a << " " << b << std::endl;
+     *     }
+     * );
+     *
+     * bool bSucc = p->tryCallFunction<int,long>(
+     *     [](long a,long b) {
+     *         std::cout << a << " " << b << std::endl;
+     *     }
+     * );
+     *
+     * assert( aSucc );
+     * assert( !bSucc );
+     * ~~~~~~~
+     */
+    template <
+        class... Signature,
+        class... Init
+    >
+    static auto vpackPtr(Init&&... vars)
+     -> std::shared_ptr< VirtualPackImpl<Signature...> >
+    {
+        const bool sameSize =
+            sizeof...(Signature) == sizeof...(Init);
+        static_assert(sameSize,
+            "Type count in signature has to be the"
+            " same as the count of arguments passed.");
+        return std::shared_ptr< VirtualPackImpl<Signature...> >(
+            new templatious::VirtualPackImpl<Signature...>(
+                std::forward<Init>(vars)...
+            )
+        );
     }
 
     /**

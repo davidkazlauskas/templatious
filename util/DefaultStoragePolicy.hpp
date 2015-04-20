@@ -24,11 +24,22 @@
 #define DEFAULTSTORAGEPOLICY_D0BU0G4Y
 
 #include <utility>
+#include <memory>
 
 #include <templatious/util/Container.hpp>
 
 namespace templatious {
 namespace util {
+
+template <class T>
+struct IsUniquePtr {
+    static const bool value = false;
+};
+
+template <class T>
+struct IsUniquePtr< std::unique_ptr< T > > {
+    static const bool value = true;
+};
 
 // default storage policy:
 // Ref when available
@@ -39,23 +50,33 @@ struct DefaultStoragePolicy {
     typedef typename std::remove_const<T>::type TNoConst;
     typedef typename std::decay<T>::type TDecay;
 
+    static const bool uniquePtr = IsUniquePtr< TDecay >::value;
+
+    typedef typename std::conditional<
+        std::is_rvalue_reference<T>::value,
+        typename templatious::util::RvalueCopyContainer<TDecay>,
+        templatious::util::CopyContainer<TNoConst>
+    >::type RValueRefCont;
+
+    typedef typename std::conditional<
+        std::is_function<T>::value,
+        templatious::util::StaticPointerContainer<T>,
+        RValueRefCont
+    >::type StaticPointerCont;
+
     typedef typename std::conditional<
         std::is_lvalue_reference<T>::value,
         templatious::util::RefContainer<T>,
-        typename std::conditional<
-            std::is_function<T>::value,
-            templatious::util::StaticPointerContainer<T>,
-            typename std::conditional<
-                std::is_rvalue_reference<T>::value,
-                typename templatious::util::RvalueCopyContainer<
-                    TDecay
-                >,
-                templatious::util::CopyContainer<
-                    TNoConst
-                >
-            >::type
-        >::type
-    >::type Container;
+        StaticPointerCont
+    >::type LvalueRefContainer;
+
+    typedef typename std::conditional<
+        uniquePtr,
+        typename templatious::util::RvalueCopyContainer<TDecay>,
+        LvalueRefContainer
+    >::type UniquePtrContainer;
+
+    typedef UniquePtrContainer Container;
 
     template <class U>
     static auto make(U&& u)

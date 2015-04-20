@@ -78,6 +78,12 @@ features:
 #76. docs for match special
 #77. min/max
 #78. threadsafe collection access
+#79. vmatchfunc - count pack calls
+80. vmatchfunc - expand vars
+81. vmatchfunc - custom handler
+82. virtual pack - after process func
+83. virtual pack - optional mutex serialization
+84. virtual pack - optional future
 
 remove:
 #68. logic functors - useless

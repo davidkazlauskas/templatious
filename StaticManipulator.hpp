@@ -65,6 +65,11 @@ namespace detail {
      * And this could be also interesting:
      * - templatious::StaticBuffer
      * - templatious::StaticVector
+     *
+     * Kinda nice too:
+     * - templatious::VirtualPack
+     * - templatious::VirtualMatchFunctor
+     * - templatious::DynamicVMatchFunctor
      */
 
 

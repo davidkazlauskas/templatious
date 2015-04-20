@@ -69,6 +69,15 @@ struct TypeList<A,T...> {
             || Tail::template Contains<U,Comparator>::value;
     };
 
+    template <
+        template <class> class Checker
+    >
+    struct ForAll {
+        static const bool value =
+            Checker< Head >::value &&
+            Tail::template ForAll< Checker >::value;
+    };
+
     template <int i>
     struct ByIndex {
         static_assert(i >= 0,"Index has to be non negative.");
@@ -92,6 +101,14 @@ struct TypeList<A> {
     struct Contains {
         static const bool thisEquals = Comparator<A,U>::value;
         static const bool value = thisEquals;
+    };
+
+    template <
+        template <class> class Checker
+    >
+    struct ForAll {
+        static const bool value =
+            Checker< Head >::value;
     };
 
     template <int i>
