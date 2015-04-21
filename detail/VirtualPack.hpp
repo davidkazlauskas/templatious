@@ -91,6 +91,12 @@ struct RecursiveCaller<0> {
     }
 };
 
+struct PackMetaInfo {
+    int _size;
+    std::bitset<32> _constness;
+    const std::type_index* _idxPtr;
+};
+
 /**
  * The main purpose of this class is
  * to encapsulate any kind of values
@@ -152,11 +158,14 @@ struct VirtualPack {
      */
     template <class... Args>
     bool matchesSignature() const {
-        if (size() != sizeof...(Args)) {
+        PackMetaInfo inf;
+        dumpMetaInfo(inf);
+
+        if (inf._size != sizeof...(Args)) {
             return false;
         }
 
-        return sigCheckInternal<Args...>();
+        return sigCheckInternal<Args...>(inf);
     }
 
     /**
@@ -188,14 +197,8 @@ struct VirtualPack {
      */
     template <class... Args,class F>
     void callFunction(F&& f) {
+        matchesSignatureThrow<Args...>();
         const int COUNT = sizeof...(Args);
-        if (size() != COUNT) {
-            throw VirtualPackBadNumberOfArgumentsException();
-        }
-
-        if (!matchesSignature<Args...>()) {
-            throw VirtualPackWrongTypeSignatureException();
-        }
 
         void* arr[COUNT];
         dumpAddresses(arr);
@@ -234,19 +237,13 @@ struct VirtualPack {
      */
     template <class... Args,class F>
     void callFunction(F&& f) const {
+        matchesSignatureThrow<Args...>();
         const int COUNT = sizeof...(Args);
-        if (size() != COUNT) {
-            throw VirtualPackBadNumberOfArgumentsException();
-        }
-
         typedef TypeList<Args...> TheList;
         const bool allConst = TheList::
             template ForAll< std::is_const >::value;
         static_assert( allConst, "Const version of this "
             "method has to pass all types in signature as const.");
-        if (!matchesSignature<Args...>()) {
-            throw VirtualPackWrongTypeSignatureException();
-        }
 
         void* arr[COUNT];
         dumpAddresses(arr);
@@ -289,10 +286,6 @@ struct VirtualPack {
     template <class... Args,class F>
     bool tryCallFunction(F&& f) {
         const int COUNT = sizeof...(Args);
-        if (size() != COUNT) {
-            return false;
-        }
-
         if (!matchesSignature<Args...>()) {
             return false;
         }
@@ -340,9 +333,6 @@ struct VirtualPack {
     template <class... Args,class F>
     bool tryCallFunction(F&& f) const {
         const int COUNT = sizeof...(Args);
-        if (size() != COUNT) {
-            return false;
-        }
 
         typedef TypeList< Args... > TheList;
         const bool allConst = TheList::
@@ -363,10 +353,25 @@ struct VirtualPack {
     }
 protected:
     virtual void dumpAddresses(void** arr) const = 0;
+    virtual void dumpMetaInfo(PackMetaInfo& out) const = 0;
 private:
+    template <class... Args>
+    void matchesSignatureThrow() const {
+        PackMetaInfo inf;
+        dumpMetaInfo(inf);
+
+        const int COUNT = sizeof...(Args);
+        if (inf._size != COUNT) {
+            throw VirtualPackBadNumberOfArgumentsException();
+        }
+
+        if (!sigCheckInternal<Args...>(inf)) {
+            throw VirtualPackWrongTypeSignatureException();
+        }
+    }
 
     template <class... Args>
-    bool sigCheckInternal() const {
+    bool sigCheckInternal(const PackMetaInfo& inf) const {
         const bool isLast = sizeof...(Args) == 1;
 
         typedef typename std::conditional<
@@ -375,14 +380,15 @@ private:
             void*
         >::type Disambiguator;
 
-        return sigCheck<0,Args...>(Disambiguator());
+        return sigCheck<0,Args...>(Disambiguator(),inf);
     }
 
     template <int cnt,class A,class... Tail>
-    bool sigCheck(void*) const {
+    bool sigCheck(void*,const PackMetaInfo& inf) const {
         const bool isLast = sizeof...(Tail) == 1;
         const bool isConst = std::is_const<A>::value;
-        if (!isConst && constAt(cnt)) {
+
+        if (!isConst && inf._constness[cnt]) {
             return false;
         }
 
@@ -392,20 +398,20 @@ private:
             void*
         >::type Disambiguator;
 
-        if (typeAt(cnt) == std::type_index(typeid(A))) {
-            return sigCheck<cnt+1,Tail...>(Disambiguator());
+        if (inf._idxPtr[cnt] == std::type_index(typeid(A))) {
+            return sigCheck<cnt+1,Tail...>(Disambiguator(),inf);
         }
         return false;
     }
 
     template <int cnt,class A>
-    bool sigCheck(bool) const {
+    bool sigCheck(bool,const PackMetaInfo& inf) const {
         const bool isConst = std::is_const<A>::value;
-        if (!isConst && constAt(cnt)) {
+        if (!isConst && inf._constness[cnt]) {
             return false;
         }
 
-        if (typeAt(cnt) == std::type_index(typeid(A))) {
+        if (inf._idxPtr[cnt] == std::type_index(typeid(A))) {
             return true;
         }
         return false;
@@ -534,16 +540,77 @@ struct VPackContainer<Tail> {
 };
 
 template <class... T>
-struct VirtualPackImpl : public VirtualPack {
+struct VirtualPackCore {
     static const int pack_size = sizeof...(T);
     typedef VPackContainer<T...> ContType;
+    typedef std::bitset<32> ConstBitset;
 
     template <class... V>
-    explicit VirtualPackImpl(V&&... v) :
-        _useCount(0),
+    explicit VirtualPackCore(V&&... v) :
         _cont(_constness,
             tArr(),0,
             std::forward<V>(v)...)
+    {}
+
+    /**
+     * Fast get function for the creators of this object.
+     * Get nth element of this pack.
+     * Call is resolved at compile time, so, it's as
+     * fast as it can get.
+     * @param[in] i Which element to get, starting at 0.
+     */
+    template <int i>
+    auto fGet()
+     -> decltype(
+         std::declval<ContType>().template fGet<i>()
+     )
+    {
+        return _cont.template fGet<i>();
+    }
+
+    void dumpMetaInfo(PackMetaInfo& out) const {
+        out._size = pack_size;
+        out._constness = _constness;
+        out._idxPtr = tArr();
+    }
+
+    bool constness(int i) const {
+        return _constness[i];
+    }
+
+    void dumpAddresses(void** arr) const {
+        _cont.dumpAddress(arr,0);
+    }
+
+    const std::type_index* tArr() const {
+        return reinterpret_cast<const std::type_index*>(_types);
+    }
+
+    std::type_index* tArr() {
+        return reinterpret_cast<std::type_index*>(_types);
+    }
+
+    ConstBitset& constBitSet() {
+        return _constness;
+    }
+private:
+    ConstBitset _constness;
+    std::aligned_storage<
+        sizeof(std::type_index),alignof(std::type_index)
+    >::type _types[pack_size];
+
+    ContType _cont;
+};
+
+template <class... T>
+struct VirtualPackImpl : public VirtualPack {
+    static const int pack_size = sizeof...(T);
+    typedef VirtualPackCore<T...> ContType;
+
+    template <class... V>
+    explicit VirtualPackImpl(V&&... v) :
+        _cont(std::forward<V>(v)...),
+        _useCount(0)
     {}
 
     ~VirtualPackImpl() {
@@ -584,34 +651,33 @@ struct VirtualPackImpl : public VirtualPack {
     }
 
     bool constAt(int i) const override {
-        assert( (i < pack_size || i > 0)
+        assert( (i < pack_size || i >= 0)
             && "Whoa cholo, going too far, don't ya think?" );
-        return _constness[i];
+        return _cont.constness(i);
     }
 
     // function should only be called when using
     // the pack.
     void dumpAddresses(void** arr) const override {
         ++_useCount;
-        _cont.dumpAddress(arr,0);
+        _cont.dumpAddresses(arr);
+    }
+
+    void dumpMetaInfo(PackMetaInfo& out) const override {
+        _cont.dumpMetaInfo(out);
     }
 
     const std::type_index* tArr() const {
-        return reinterpret_cast<const std::type_index*>(_types);
+        return _cont.tArr();
     }
 
     std::type_index* tArr() {
-        return reinterpret_cast<std::type_index*>(_types);
+        return _cont.tArr();
     }
 
 private:
-    mutable int _useCount;
-    std::bitset<pack_size> _constness;
-    std::aligned_storage<
-        sizeof(std::type_index),alignof(std::type_index)
-    >::type _types[pack_size];
-
     ContType _cont;
+    mutable int _useCount;
 };
 
 }
