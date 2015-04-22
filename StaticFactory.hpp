@@ -1084,6 +1084,34 @@ struct StaticFactory {
      * templatious::VCOL_SIZE
      * ~~~~~~~
      * @param[in] t Collection to get handle to.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     *
+     * // Allow addition and traversal of collection.
+     * // Any other action fails static assert.
+     * auto h = SF::allow<
+     *     templatious::VCOL_ADD | templatious::VCOL_TRAVERSE
+     * >(v);
+     *
+     * // ok
+     * SA::add(h,1,2,3);
+     *
+     * // ok
+     * TEMPLATIOUS_FOREACH(auto i,h) {
+     *
+     * }
+     *
+     * // WRONG, access disabled, compile time error
+     * //SA::getByIndex(h,0);
+     *
+     * // WRONG, clear disabled, compile time error
+     * //SA::clear(h);
+     *
+     * // WRONG, size info disabled, compile time error
+     * //long sz = SA::size(h);
+     * ~~~~~~~
      */
     template <
         int bitmask,
