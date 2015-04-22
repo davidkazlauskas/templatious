@@ -1024,19 +1024,54 @@ struct StaticFactory {
      * not compile. Useful to assert that
      * collection is operated only on
      * the ways intended.
+     * @param[in] bitmask Bitmask which specifies
+     * compile time permissions for collection.
+     * Possible values:
+     * ~~~~~~~
+     * // prevent addition to collection
+     * templatious::VCOL_ADD
+     *
+     * // prevent erase of elements in collection
+     * templatious::VCOL_CLEAR
+     *
+     * // prevent traversal of collection
+     * templatious::VCOL_TRAVERSE
+     *
+     * // prevent access of collection
+     * templatious::VCOL_ACCESS
+     *
+     * // prevent size info of collection
+     * templatious::VCOL_SIZE
+     * ~~~~~~~
      * @param[in] t Collection to get handle to.
-     * @param[in] add Pass true to prevent
-     * addition to collection. Defaults to false.
-     * @param[in] clear Pass true to prevent
-     * clearing of collection. Defaults to false.
-     * @param[in] traverse Pass true to prevent
-     * traversals in collection. Defaults to false.
-     * @param[in] access Pass true to prevent
-     * indexed element access in collection.
-     * Defaults to false.
-     * @param[in] size Pass true to prevent
-     * finding out size of this collection.
-     * Defaults to false.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     *
+     * // Prevent addition and traversal of collection.
+     * // Any other action succeeds.
+     * auto h = SF::prevent<
+     *     templatious::VCOL_ADD | templatious::VCOL_TRAVERSE
+     * >(v);
+     *
+     * // WRONG, addition prevented, compile time error
+     * //SA::add(h,1,2,3);
+     *
+     * // WRONG, traversal prevented, compile time error
+     * //TEMPLATIOUS_FOREACH(auto i,h) {
+     * //
+     * //}
+     *
+     * // ok
+     * SA::getByIndex(h,0);
+     *
+     * // ok
+     * SA::clear(h);
+     *
+     * // ok
+     * long sz = SA::size(h);
+     * ~~~~~~~
      */
     template <
         int bitmask,
