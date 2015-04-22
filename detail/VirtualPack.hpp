@@ -7,14 +7,17 @@
 #ifndef VIRTUALPACK_989GSW71
 #define VIRTUALPACK_989GSW71
 
-#include <templatious/util/Exceptions.hpp>
-#include <templatious/detail/TypeList.hpp>
-
 #include <cassert>
 #include <utility>
 #include <typeindex>
 #include <type_traits>
 #include <bitset>
+#include <future>
+
+#include <templatious/util/Exceptions.hpp>
+#include <templatious/util/Variadic.hpp>
+#include <templatious/util/DefaultStoragePolicy.hpp>
+#include <templatious/detail/TypeList.hpp>
 
 namespace templatious {
 
@@ -204,8 +207,8 @@ struct VirtualPack {
         dumpAddresses(arr);
 
         typedef TypeList<Args...> TheList;
-        RecursiveCaller<COUNT-1>::template
-            callRecursive<TheList>(arr,std::forward<F>(f));
+        callFunctionInternal<COUNT-1,TheList>(
+            arr,std::forward<F>(f));
     }
 
     /**
@@ -248,8 +251,8 @@ struct VirtualPack {
         void* arr[COUNT];
         dumpAddresses(arr);
 
-        RecursiveCaller<COUNT-1>::template
-            callRecursive<TheList>(arr,std::forward<F>(f));
+        callFunctionInternal<COUNT-1,TheList>(
+            arr,std::forward<F>(f));
     }
 
 
@@ -294,8 +297,8 @@ struct VirtualPack {
         dumpAddresses(arr);
 
         typedef TypeList<Args...> TheList;
-        RecursiveCaller<COUNT-1>::template
-            callRecursive<TheList>(arr,std::forward<F>(f));
+        callFunctionInternal<COUNT-1,TheList>(
+            arr,std::forward<F>(f));
 
         return true;
     }
@@ -346,15 +349,34 @@ struct VirtualPack {
         void* arr[COUNT];
         dumpAddresses(arr);
 
-        RecursiveCaller<COUNT-1>::template
-            callRecursive<TheList>(arr,std::forward<F>(f));
+        callFunctionInternal<COUNT-1,TheList>(
+            arr,std::forward<F>(f));
 
         return true;
     }
 protected:
     virtual void dumpAddresses(void** arr) const = 0;
     virtual void dumpMetaInfo(PackMetaInfo& out) const = 0;
+
+    virtual std::mutex* mutexPtr() const = 0;
+    virtual void invokeCallback() const = 0;
 private:
+    template <int count,class TypeList,class Func>
+    void callFunctionInternal(void** args,Func&& f) const {
+        std::mutex* mPtr = mutexPtr();
+        if (nullptr == mPtr) {
+            RecursiveCaller<count>::template
+                callRecursive<TypeList>(args,std::forward<Func>(f));
+            invokeCallback();
+            return;
+        }
+
+        std::lock_guard< std::mutex > lg(*mPtr);
+        RecursiveCaller<count>::template
+            callRecursive<TypeList>(args,std::forward<Func>(f));
+        invokeCallback();
+    }
+
     template <class... Args>
     void matchesSignatureThrow() const {
         PackMetaInfo inf;
@@ -449,13 +471,18 @@ struct VPackContainer<Head,Tail...> {
         static Head& get(ThisContainer& cont) {
             return cont._c;
         }
+
+        template <int i>
+        static const Head& get(const ThisContainer& cont) {
+            return cont._c;
+        }
     };
 
     struct TailValGetter {
-        template <int i>
-        static auto get(ThisContainer& cont)
+        template <int i,class Val>
+        static auto get(Val&& cont)
          -> decltype(
-             std::declval<ThisContainer&>()._t
+             cont._t
              .template fGet<i-1>()
          )
         {
@@ -471,10 +498,13 @@ struct VPackContainer<Head,Tail...> {
             TailValGetter
         >::type Getter;
 
-        static auto get(ThisContainer& c)
-         -> decltype(Getter::template get<i>(c))
+        template <class Val>
+        static auto get(Val&& c)
+         -> decltype(Getter::template get<i>(
+                     std::forward<Val>(c)))
         {
-            return Getter::template get<i>(c);
+            return Getter::template get<i>(
+                    std::forward<Val>(c));
         }
     };
 
@@ -482,6 +512,16 @@ struct VPackContainer<Head,Tail...> {
     auto fGet()
      -> decltype(GetVal<i>::get(
          std::declval<ThisContainer&>()))
+    {
+        static_assert( i >= 0,
+            "fGet index has to be non-negative." );
+        return GetVal<i>::get(*this);
+    }
+
+    template <int i>
+    auto fGet() const
+     -> decltype(GetVal<i>::get(
+         std::declval<const ThisContainer&>()))
     {
         static_assert( i >= 0,
             "fGet index has to be non-negative." );
@@ -520,6 +560,15 @@ struct VPackContainer<Tail> {
         return _c;
     }
 
+    template <int i>
+    auto fGet() const
+     -> const Tail&
+    {
+        static_assert( i == 0,
+            "Trying to get past end of virtual pack.");
+        return _c;
+    }
+
     template <size_t n,class Curr>
     VPackContainer(std::bitset<n>& constness,
             std::type_index* ptr,int i,Curr&& c) :
@@ -543,6 +592,7 @@ template <class... T>
 struct VirtualPackCore {
     static const int pack_size = sizeof...(T);
     typedef VPackContainer<T...> ContType;
+    typedef VirtualPackCore<T...> ThisCore;
     typedef std::bitset<32> ConstBitset;
 
     template <class... V>
@@ -566,6 +616,26 @@ struct VirtualPackCore {
      )
     {
         return _cont.template fGet<i>();
+    }
+
+    /**
+     * Fast get function for the creators of this object.
+     * Get nth element of this pack.
+     * Call is resolved at compile time, so, it's as
+     * fast as it can get.
+     * @param[in] i Which element to get, starting at 0.
+     */
+    template <int i>
+    auto fGet() const
+     -> decltype(
+         std::declval<const ContType>().template fGet<i>()
+     )
+    {
+        return _cont.template fGet<i>();
+    }
+
+    const ThisCore& getCore() const {
+        return *this;
     }
 
     void dumpMetaInfo(PackMetaInfo& out) const {
@@ -602,15 +672,234 @@ private:
     ContType _cont;
 };
 
-template <class... T>
+static const int VPACK_COUNT = 1;
+static const int VPACK_WAIT = 2;
+static const int VPACK_SYNCED = 4;
+static const int VPACK_WCALLBACK = 8;
+
+static const int VPACK_DEF_MASK = VPACK_COUNT;
+
+namespace vpacktraits {
+
+template <class Inherit>
+struct VirtualPackCountTrait : public Inherit {
+    template <class... V>
+    VirtualPackCountTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...),
+        _useCount(0) {}
+
+    void increment() const {
+        ++_useCount;
+    }
+
+    int getCount() const {
+        return _useCount;
+    }
+private:
+    mutable int _useCount;
+};
+
+template <class Inherit>
+struct VirtualPackNoCountTrait : public Inherit {
+    template <class... V>
+    VirtualPackNoCountTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...) {}
+
+    void increment() const { }
+
+    int getCount() const { return -1; }
+};
+
+template <class Inherit>
+struct VirtualPackWaitTrait : public Inherit {
+    template <class... V>
+    VirtualPackWaitTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...),
+        _f(_p.get_future()) {}
+
+    void setReady() const {
+        _p.set_value();
+    }
+
+    void wait() const {
+        _f.wait();
+    }
+
+    void waitMs(int milliseconds) const {
+        _f.wait_for(
+            std::chrono::milliseconds(milliseconds)
+        );
+    }
+
+    bool isReady() const {
+        return _f.valid();
+    }
+
+private:
+    mutable std::promise<void> _p;
+    std::future<void> _f;
+};
+
+template <class Inherit>
+struct VirtualPackNoWaitTrait : public Inherit {
+    template <class... V>
+    VirtualPackNoWaitTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...) {}
+
+    void setReady() const {}
+
+    void wait() const {}
+
+    void waitMs(int milliseconds) const {}
+
+    bool isReady() const { return true; }
+};
+
+template <class Inherit>
+struct VirtualPackSynchronizedTrait : public Inherit {
+    template <class... V>
+    VirtualPackSynchronizedTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...) {}
+
+    std::mutex* getMutex() const {
+        return &_mtx;
+    }
+private:
+    mutable std::mutex _mtx;
+};
+
+template <class Inherit>
+struct VirtualPackUnsynchronizedTrait : public Inherit {
+    template <class... V>
+    VirtualPackUnsynchronizedTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...) {}
+
+    std::mutex* getMutex() const {
+        return nullptr;
+    }
+};
+
+template <
+    class Inherit,class Function,
+    template <class> class StoragePolicy
+>
+struct VirtualPackOnReadyTrait : public Inherit {
+    typedef typename StoragePolicy<Function>::Container Cont;
+
+    template <class Func,class... V>
+    VirtualPackOnReadyTrait(Func&& f,V&&... v) :
+        Inherit(std::forward<V>(v)...),
+        _c(std::forward<Func>(f)) {}
+
+    void invokeCallback() const {
+        _c.cgetRef()(Inherit::getCore());
+    }
+
+private:
+    Cont _c;
+};
+
+template <
+    class Inherit,class Function,
+    template <class> class StoragePolicy
+>
+struct VirtualPackNoOnReadyTrait : public Inherit {
+    template <class... V>
+    VirtualPackNoOnReadyTrait(V&&... v) :
+        Inherit(std::forward<V>(v)...) {}
+
+    void invokeCallback() const {}
+};
+
+template <int mask>
+struct ConvertBitmaskToVPackCoreSettings {
+    static const bool is_counted = (mask & VPACK_COUNT) != 0;
+    static const bool is_waitable = (mask & VPACK_WAIT) != 0;
+    static const bool is_synced = (mask & VPACK_SYNCED) != 0;
+    static const bool has_callback = (mask & VPACK_WCALLBACK) != 0;
+};
+
+template <
+    class CoreSettings,
+    class... Args
+>
+struct VirtualPackCoreCreator {
+
+    struct CutFirst {
+        template <class A,class... Tail>
+        struct Func {
+            typedef VirtualPackCore<Tail...> type;
+        };
+    };
+
+    struct NoCutFirst {
+        template <class A,class... Tail>
+        struct Func {
+            typedef VirtualPackCore<A,Tail...> type;
+        };
+    };
+
+    typedef typename std::conditional<
+        CoreSettings::has_callback,
+        CutFirst,
+        NoCutFirst
+    >::type CoreCreator;
+
+    typedef typename CoreCreator::template Func<Args...>::type Core;
+
+    // for callback
+    typedef typename templatious::util::
+        GetFrist<Args...>::type First;
+
+    typedef typename std::conditional<
+        CoreSettings::is_counted,
+        VirtualPackCountTrait< Core >,
+        VirtualPackNoCountTrait< Core >
+    >::type Counted;
+
+    typedef typename std::conditional<
+        CoreSettings::is_waitable,
+        VirtualPackWaitTrait< Counted >,
+        VirtualPackNoWaitTrait< Counted >
+    >::type Waited;
+
+    typedef typename std::conditional<
+        CoreSettings::is_synced,
+        VirtualPackSynchronizedTrait< Waited >,
+        VirtualPackUnsynchronizedTrait< Waited >
+    >::type Synced;
+
+    // CopyOnlyStoragePolicy for
+    // keeping everyone's sanity
+    typedef typename std::conditional<
+        CoreSettings::has_callback,
+        VirtualPackOnReadyTrait<
+            Synced, First,
+            templatious::util::CopyOnlyStoragePolicy
+        >,
+        VirtualPackNoOnReadyTrait<
+            Synced, First,
+            templatious::util::CopyOnlyStoragePolicy
+        >
+    >::type Called;
+
+    typedef Called FinalCore;
+};
+
+}
+
+template <int coreBitmask,class... T>
 struct VirtualPackImpl : public VirtualPack {
     static const int pack_size = sizeof...(T);
-    typedef VirtualPackCore<T...> ContType;
+    typedef vpacktraits::ConvertBitmaskToVPackCoreSettings<
+        coreBitmask
+    > VPackSettings;
+    typedef typename vpacktraits::VirtualPackCoreCreator<
+        VPackSettings,T...>::FinalCore ContType;
 
     template <class... V>
     explicit VirtualPackImpl(V&&... v) :
-        _cont(std::forward<V>(v)...),
-        _useCount(0)
+        _cont(std::forward<V>(v)...)
     {}
 
     ~VirtualPackImpl() {
@@ -625,7 +914,7 @@ struct VirtualPackImpl : public VirtualPack {
     }
 
     int useCount() const override {
-        return _useCount;
+        return _cont.getCount();
     }
 
     /**
@@ -659,7 +948,7 @@ struct VirtualPackImpl : public VirtualPack {
     // function should only be called when using
     // the pack.
     void dumpAddresses(void** arr) const override {
-        ++_useCount;
+        _cont.increment();
         _cont.dumpAddresses(arr);
     }
 
@@ -675,9 +964,21 @@ struct VirtualPackImpl : public VirtualPack {
         return _cont.tArr();
     }
 
+    void wait() const {
+        _cont.wait();
+    }
+
+    std::mutex* mutexPtr() const override {
+        return _cont.getMutex();
+    }
+
+    void invokeCallback() const override {
+        _cont.setReady();
+        _cont.invokeCallback();
+    }
+
 private:
     ContType _cont;
-    mutable int _useCount;
 };
 
 }

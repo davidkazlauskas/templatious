@@ -48,6 +48,7 @@ namespace templatious {
  * mainly have to do with object creation.
  */
 struct StaticFactory {
+    static const int DefVpackSettings = VPACK_DEF_MASK;
 
     /**
      * Uniform function to make collection of any type.
@@ -2138,14 +2139,18 @@ struct StaticFactory {
         class... Init
     >
     static auto vpack(Init&&... vars)
-     -> templatious::VirtualPackImpl<Signature...>
+     -> templatious::VirtualPackImpl<
+         DefVpackSettings, Signature...
+     >
     {
         const bool sameSize =
             sizeof...(Signature) == sizeof...(Init);
         static_assert(sameSize,
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
-        return templatious::VirtualPackImpl<Signature...>(
+        return templatious::VirtualPackImpl<
+            DefVpackSettings,Signature...
+        >(
             std::forward<Init>(vars)...
         );
     }
@@ -2188,17 +2193,333 @@ struct StaticFactory {
         class... Init
     >
     static auto vpackPtr(Init&&... vars)
-     -> std::shared_ptr< VirtualPackImpl<Signature...> >
+     -> std::shared_ptr< VirtualPackImpl<
+         DefVpackSettings,Signature...
+         > >
     {
+        typedef VirtualPackImpl<DefVpackSettings,Signature...>
+            TheVal;
         const bool sameSize =
             sizeof...(Signature) == sizeof...(Init);
         static_assert(sameSize,
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
-        return std::shared_ptr< VirtualPackImpl<Signature...> >(
-            new templatious::VirtualPackImpl<Signature...>(
-                std::forward<Init>(vars)...
-            )
+        return std::make_shared< TheVal >(
+            std::forward<Init>(vars)...
+        );
+    }
+
+    /**
+     * Create heap allocated virtual pack with callback
+     * wrapped inside std::shared_ptr which could be
+     * shared among threads. Callback is called each
+     * time this pack is used (after the usage).
+     * @param[in] Signature Signature of the pack. Should
+     * only contain raw types without references. Const
+     * qualifiers allowed.
+     * @param[in] f Function to be used as callback. Should
+     * take in const lvalue reference to templatious::VirtualPackCore
+     * with it's signature. Always stored as a copy.
+     * @param[in] vars Variables to use to initialize
+     * pack.
+     * @note Signature and var count must be the same.
+     * @note This function returns a polymorphic
+     * pointer of base class templatious::VirtualPack.
+     *
+     * Example:
+     * ~~~~~~~
+     * volatile long sum = 0;
+     *
+     * auto p =
+     *     SF::vpackPtrWCallback<long,long>(
+     *     [&](const TEMPLATIOUS_VPCORE<long,long>& p) {
+     *         sum += p.fGet<0>();
+     *         sum += p.fGet<1>();
+     *     },
+     *     1,2);
+     *
+     * bool aSucc = p->tryCallFunction<long,long>(
+     *     [](long& a,long& b) {
+     *         a *= 2;
+     *         b *= 2;
+     *     }
+     * );
+     *
+     * assert( aSucc );
+     * assert( sum == 6 );
+     * ~~~~~~~
+     */
+    template <
+        class... Signature,
+        class Function,
+        class... Init
+    >
+    static auto vpackPtrWCallback(Function&& f,Init&&... vars)
+     -> std::shared_ptr< VirtualPackImpl<
+         DefVpackSettings | VPACK_WCALLBACK,
+         decltype(std::forward<Function>(f)), Signature...
+         > >
+    {
+        typedef VirtualPackImpl<
+            DefVpackSettings | VPACK_WCALLBACK,
+            decltype(std::forward<Function>(f)), Signature...
+        > TheVal;
+        const bool sameSize =
+            sizeof...(Signature) == sizeof...(Init);
+        static_assert(sameSize,
+            "Type count in signature has to be the"
+            " same as the count of arguments passed.");
+        return std::make_shared< TheVal >(
+            std::forward<Function>(f),std::forward<Init>(vars)...
+        );
+    }
+
+    /**
+     * Create heap allocated virtual pack with custom
+     * flags indicating the behaviour of the pack.
+     * @param[in] vpackFlags Bitmask of the configuration
+     * of the pack.
+     * Possible values
+     * ~~~~~~~
+     * // does pack count ivocations?
+     * templatious::VPACK_COUNT
+     *
+     * // is pack eligible for waiting
+     * // for the fisr invocation?
+     * templatious::VPACK_WAIT
+     *
+     * // is pack thread safe? (if yes, only
+     * // one thread can invoke pack at a time)
+     * templatious::VPACK_SYNCED
+     *
+     * // does pack have callback?
+     * // you never need to set this value,
+     * // as this is determined by the function
+     * // you call. If you call vpackPtrWCallback
+     * // or vpackPtrCustomWCallback this is always true,
+     * // if this flag is used on vpackPtrCustom
+     * // static assertion is triggered.
+     * templatious::VPACK_WCALLBACK
+     * ~~~~~~~
+     *
+     * @param[in] Signature Signature of the pack. Should
+     * only contain raw types without references. Const
+     * qualifiers allowed.
+     * @param[in] vars Variables to use to initialize
+     * pack.
+     * @note Signature and var count must be the same.
+     * @note This function returns a polymorphic
+     * pointer of base class templatious::VirtualPack.
+     *
+     * Example (synchronization):
+     * ~~~~~~~
+     * auto pack = SF::vpackPtrCustom<
+     *     templatious::VPACK_SYNCED,
+     *     int,int
+     * >(1,2);
+     *
+     * const int ROUNDS = 100000;
+     *
+     * auto handleA = std::async(std::launch::async,
+     *     [=]() {
+     *         TEMPLATIOUS_REPEAT( ROUNDS ) {
+     *             pack->tryCallFunction<int,int>(
+     *                 [](int& a,int& b) {
+     *                     ++a;
+     *                     ++b;
+     *                 }
+     *             );
+     *         }
+     *     });
+     *
+     * auto handleB = std::async(std::launch::async,
+     *     [=]() {
+     *         TEMPLATIOUS_REPEAT( ROUNDS ) {
+     *             pack->tryCallFunction<int,int>(
+     *                 [](int& a,int& b) {
+     *                     ++a;
+     *                     ++b;
+     *                 }
+     *             );
+     *         }
+     *     });
+     *
+     * handleA.wait();
+     * handleB.wait();
+     *
+     * int outA = pack->fGet<0>();
+     * int outB = pack->fGet<1>();
+     *
+     * int expA = 1 + ROUNDS * 2;
+     * int expB = 2 + ROUNDS * 2;
+     *
+     * assert( outA == expA );
+     * assert( outB == expB );
+     * ~~~~~~~
+     *
+     * Example (waiting):
+     * ~~~~~~~
+     * auto pack = SF::vpackPtrCustom<
+     *     tt::t::VPACK_WAIT,
+     *     int,int
+     * >(1,2);
+     *
+     * auto handle = std::async(std::launch::async,
+     *     [=]() {
+     *         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+     *         pack->tryCallFunction<int,int>(
+     *             [](int& a,int& b) {
+     *                 a *= 2;
+     *                 b *= 2;
+     *             }
+     *         );
+     *     });
+     *
+     * pack->wait();
+     * int outA = pack->fGet<0>();
+     * int outB = pack->fGet<1>();
+     *
+     * assert( outA == 2 );
+     * assert( outB == 4 );
+     * ~~~~~~~
+     */
+    template <
+        int vpackFlags,
+        class... Signature,
+        class... Init
+    >
+    static auto vpackPtrCustom(Init&&... vars)
+     -> std::shared_ptr< VirtualPackImpl<
+         vpackFlags, Signature...
+         > >
+    {
+        typedef VirtualPackImpl<
+            vpackFlags,
+            Signature...
+        > TheVal;
+        const bool hasCallback = (vpackFlags & VPACK_WCALLBACK) != 0;
+        static_assert( !hasCallback,
+            "Specified bitmask contains VPACK_WCALLBACK flag,"
+            " however, this is unappropriate method to create"
+            " a pack with a callback. Use vpackPtrWCallback or"
+            " vpackPtrCustomWCallback instead."
+        );
+
+        const bool sameSize =
+            sizeof...(Signature) == sizeof...(Init);
+        static_assert(sameSize,
+            "Type count in signature has to be the"
+            " same as the count of arguments passed.");
+        return std::make_shared< TheVal >(
+            std::forward<Init>(vars)...
+        );
+    }
+
+    /**
+     * Create heap allocated virtual pack with callback and
+     * with custom flags indicating the behaviour of the pack.
+     * @param[in] vpackFlags Bitmask of the configuration
+     * of the pack.
+     * Possible values
+     * ~~~~~~~
+     * // does pack count ivocations?
+     * templatious::VPACK_COUNT
+     *
+     * // is pack eligible for waiting
+     * // for the fisr invocation?
+     * templatious::VPACK_WAIT
+     *
+     * // is pack thread safe? (if yes, only
+     * // one thread can invoke pack at a time)
+     * templatious::VPACK_SYNCED
+     *
+     * // does pack have callback?
+     * // you never need to set this value,
+     * // as this is determined by the function
+     * // you call. If you call vpackPtrWCallback
+     * // or vpackPtrCustomWCallback this is always true,
+     * // if this flag is used on vpackPtrCustom
+     * // static assertion is triggered.
+     * templatious::VPACK_WCALLBACK
+     * ~~~~~~~
+     *
+     * @param[in] Signature Signature of the pack. Should
+     * only contain raw types without references. Const
+     * qualifiers allowed.
+     * @param[in] f Function to be used as callback. Should
+     * take in const lvalue reference to templatious::VirtualPackCore
+     * with it's signature. Always stored as a copy.
+     * @param[in] vars Variables to use to initialize
+     * pack.
+     * @note Signature and var count must be the same.
+     * @note This function returns a polymorphic
+     * pointer of base class templatious::VirtualPack.
+     *
+     * Example (synchronization with callback):
+     * ~~~~~~~
+     * // increment this from threads
+     * auto iPtr = std::make_shared< int >( 0 );
+     *
+     * auto pack = SF::vpackPtrCustomWCallback<
+     *     templatious::VPACK_SYNCED,
+     *     int,int
+     * >([=](const TEMPLATIOUS_VPCORE<int,int>& vp) {
+     *     *iPtr += vp.fGet<0>();
+     *     *iPtr += vp.fGet<1>();
+     * },1,2);
+     *
+     * const int ROUNDS = 100000;
+     *
+     * // callbacks must also be synchronized
+     * auto handleA = std::async(std::launch::async,
+     *     [=]() {
+     *         TEMPLATIOUS_REPEAT( ROUNDS ) {
+     *             pack->tryCallFunction<int,int>(
+     *                 [](int& a,int& b) {}
+     *             );
+     *         }
+     *     });
+     *
+     * auto handleB = std::async(std::launch::async,
+     *     [=]() {
+     *         TEMPLATIOUS_REPEAT( ROUNDS ) {
+     *             pack->tryCallFunction<int,int>(
+     *                 [](int& a,int& b) {}
+     *             );
+     *         }
+     *     });
+     *
+     * handleA.wait();
+     * handleB.wait();
+     *
+     * int outExpected = (ROUNDS * 2) * (1 + 2);
+     * assert( *iPtr == outExpected );
+     * ~~~~~~~
+     */
+    template <
+        int vpackFlags,
+        class... Signature,
+        class Function,
+        class... Init
+    >
+    static auto vpackPtrCustomWCallback(Function&& f,Init&&... vars)
+     -> std::shared_ptr< VirtualPackImpl<
+         vpackFlags | templatious::VPACK_WCALLBACK,
+         decltype(std::forward<Function>(f)), Signature...
+        > >
+    {
+        typedef VirtualPackImpl<
+            vpackFlags | templatious::VPACK_WCALLBACK,
+            decltype(std::forward<Function>(f)),
+            Signature...
+        > TheVal;
+        const bool sameSize =
+            sizeof...(Signature) == sizeof...(Init);
+        static_assert(sameSize,
+            "Type count in signature has to be the"
+            " same as the count of arguments passed.");
+        return std::make_shared< TheVal >(
+            std::forward<Function>(f), std::forward<Init>(vars)...
         );
     }
 

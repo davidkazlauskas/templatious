@@ -76,6 +76,8 @@ struct __ForeachCounter {
 
 #define TEMPLATIOUS_TRIPLET_STD TEMPLATIOUS_TRIPLET(SA,SF,SM)
 
+#define TEMPLATIOUS_VPCORE templatious::VirtualPackCore
+
 #define TEMPLATIOUS_CALLEACH_FCTOR(name, expr) \
     TEMPLATIOUS_TRIPLET_STD;\
     struct name {\
