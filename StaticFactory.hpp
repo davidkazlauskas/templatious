@@ -1039,34 +1039,19 @@ struct StaticFactory {
      * Defaults to false.
      */
     template <
-        bool add = false,
-        bool clear = false,
-        bool traverse = false,
-        bool access = false,
-        bool size = false,
+        int bitmask,
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
     static auto prevent(T&& t)
-     -> typename templatious::VCollectionFactory<
-         decltype(std::forward<T>(t)),StoragePolicy,
-         templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
-         templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
-         templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
-         templatious::util::IntSelector<clear,CP_PREVENT,CP_ENABLED>::val,
-         templatious::util::IntSelector<traverse,TP_PREVENT,TP_ENABLED>::val
-         >::Type
+     -> typename templatious::BitmaskVCollectionFactory<
+            bitmask,false,decltype(std::forward<T>(t)),StoragePolicy
+        >::Type
     {
-
-        typedef typename templatious::VCollectionFactory<
-             decltype(std::forward<T>(t)),StoragePolicy,
-             templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
-             templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
-             templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
-             templatious::util::IntSelector<clear,CP_PREVENT,CP_ENABLED>::val,
-             templatious::util::IntSelector<traverse,TP_PREVENT,TP_ENABLED>::val
-             > Maker;
+        typedef typename templatious::BitmaskVCollectionFactory<
+            bitmask,false,decltype(std::forward<T>(t)),StoragePolicy
+        >::Maker Maker;
 
         return Maker::make(std::forward<T>(t));
     }
@@ -1094,34 +1079,19 @@ struct StaticFactory {
      * Defaults to false.
      */
     template <
-        bool add = false,
-        bool clear = false,
-        bool traverse = false,
-        bool access = false,
-        bool size = false,
+        int bitmask,
         template <class> class StoragePolicy =
             templatious::util::DefaultStoragePolicy,
         class T
     >
     static auto allow(T&& t)
-     -> typename templatious::VCollectionFactory<
-         T,StoragePolicy,
-         templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
-         templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
-         templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,
-         templatious::util::IntSelector<clear,CP_ENABLED,CP_PREVENT>::val,
-         templatious::util::IntSelector<traverse,TP_ENABLED,TP_PREVENT>::val
-         >::Type
+     -> typename templatious::BitmaskVCollectionFactory<
+            bitmask,true,decltype(std::forward<T>(t)),StoragePolicy
+        >::Type
     {
-
-        typedef typename templatious::VCollectionFactory<
-             T,StoragePolicy,
-             templatious::util::IntSelector<size,SP_ENABLED,SP_PREVENT>::val,
-             templatious::util::IntSelector<access,ACP_ENABLED,ACP_PREVENT>::val,
-             templatious::util::IntSelector<add,AP_ENABLED,AP_PREVENT>::val,
-             templatious::util::IntSelector<clear,CP_ENABLED,CP_PREVENT>::val,
-             templatious::util::IntSelector<traverse,TP_ENABLED,TP_PREVENT>::val
-             > Maker;
+        typedef typename templatious::BitmaskVCollectionFactory<
+            bitmask,true,decltype(std::forward<T>(t)),StoragePolicy
+        >::Maker Maker;
 
         return Maker::make(std::forward<T>(t));
     }

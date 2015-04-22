@@ -145,6 +145,36 @@ struct VCollectionFactory {
     }
 };
 
+static const int VCOL_ADD = 1;
+static const int VCOL_CLEAR = 2;
+static const int VCOL_TRAVERSE = 4;
+static const int VCOL_ACCESS = 8;
+static const int VCOL_SIZE = 16;
+
+template <
+    int bitmask,
+    bool allow,
+    class T,
+    template <class> class StoragePolicy
+>
+struct BitmaskVCollectionFactory {
+    static const bool add = ((bitmask & VCOL_ADD) != 0) != allow;
+    static const bool clear = ((bitmask & VCOL_CLEAR) != 0) != allow;
+    static const bool traverse = ((bitmask & VCOL_TRAVERSE) != 0) != allow;
+    static const bool access = ((bitmask & VCOL_ACCESS) != 0) != allow;
+    static const bool size = ((bitmask & VCOL_SIZE) != 0) != allow;
+
+    typedef typename templatious::VCollectionFactory<
+        T,StoragePolicy,
+        templatious::util::IntSelector<size,SP_PREVENT,SP_ENABLED>::val,
+        templatious::util::IntSelector<access,ACP_PREVENT,ACP_ENABLED>::val,
+        templatious::util::IntSelector<add,AP_PREVENT,AP_ENABLED>::val,
+        templatious::util::IntSelector<clear,CP_PREVENT,CP_ENABLED>::val,
+        templatious::util::IntSelector<traverse,TP_PREVENT,TP_ENABLED>::val
+    > Maker;
+
+    typedef typename Maker::Type Type;
+};
 
 }
 
