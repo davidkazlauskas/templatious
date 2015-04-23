@@ -447,6 +447,9 @@ private:
         return false;
     }
 
+    // store this here rather down the
+    // virtual inheritance chain to allow
+    // aggressive inlining by the compiler
     size_t _hash;
 };
 
