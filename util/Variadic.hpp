@@ -23,7 +23,9 @@
 #ifndef VARIADIC_HXND7XSS
 #define VARIADIC_HXND7XSS
 
+#include <cstddef>
 #include <utility>
+#include <typeindex>
 
 namespace templatious {
 namespace util {
@@ -82,6 +84,37 @@ struct GetNth<0> {
         return std::forward<T>(first);
     }
 };
+
+template <int i,class Type>
+size_t hashType() {
+    size_t toShift = std::type_index(typeid(Type)).hash_code();
+    return (toShift >> i) | (toShift << (sizeof(toShift) - i));
+}
+
+
+template <int i,class... Args>
+struct HashCounter;
+
+template <int i,class A,class... Tail>
+struct HashCounter<i,A,Tail...> {
+    typedef HashCounter<i+1,Tail...> TailCounter;
+
+    static size_t hash() {
+        return hashType<i,A>() ^ TailCounter::hash();
+    }
+};
+
+template <int i,class A>
+struct HashCounter<i,A> {
+    static size_t hash() {
+        return hashType<i,A>();
+    }
+};
+
+template <class... Args>
+size_t hashTypes() {
+    return HashCounter<0,Args...>::hash();
+}
 
 }
 }

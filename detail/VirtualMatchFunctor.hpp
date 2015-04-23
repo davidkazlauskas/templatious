@@ -392,12 +392,15 @@ struct VirtualMatch {
 
     template <class Function>
     VirtualMatch(Function&& f) :
+        _hash(templatious::util::hashTypes<Args...>()),
         _cf(std::forward<Function>(f)) {}
 
     VirtualMatch(ThisMatch&& other) :
+        _hash(other._hash),
         _cf(other._cf.cpy()) {}
 
     VirtualMatch(const ThisMatch& other) :
+        _hash(other._hash),
         _cf(other._cf.constCpy()) {}
 
     template <bool consts = allConst>
@@ -444,7 +447,12 @@ struct VirtualMatch {
             && !isTransparent;
     }
 
+    size_t getHash() const {
+        return _hash;
+    }
+
 private:
+    size_t _hash;
     Cont _cf;
 };
 
@@ -498,6 +506,10 @@ struct IsVirtualMatch<
 struct SingleMatchCalls {
     template <class M,class V>
     static bool tryMatch(M&& m,V&& v) {
+        if (v.getHash() != m.getHash()) {
+            return false;
+        }
+
         return m(std::forward<V>(v));
     }
 };

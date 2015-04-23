@@ -354,7 +354,15 @@ struct VirtualPack {
 
         return true;
     }
+
+    /**
+     * Get hash of this pack.
+     */
+    size_t getHash() const {
+        return _hash;
+    }
 protected:
+    VirtualPack(size_t hash) : _hash(hash) {}
     virtual void dumpAddresses(void** arr) const = 0;
     virtual void dumpMetaInfo(PackMetaInfo& out) const = 0;
 
@@ -438,6 +446,8 @@ private:
         }
         return false;
     }
+
+    size_t _hash;
 };
 
 template <class... T>
@@ -662,6 +672,10 @@ struct VirtualPackCore {
 
     ConstBitset& constBitSet() {
         return _constness;
+    }
+
+    static size_t calcHash() {
+        return templatious::util::hashTypes<T...>();
     }
 private:
     ConstBitset _constness;
@@ -899,6 +913,7 @@ struct VirtualPackImpl : public VirtualPack {
 
     template <class... V>
     explicit VirtualPackImpl(V&&... v) :
+        VirtualPack(ContType::calcHash()),
         _cont(std::forward<V>(v)...)
     {}
 
