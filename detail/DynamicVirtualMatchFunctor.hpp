@@ -29,7 +29,8 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(
  * and match virtual packs.
  */
 struct DynamicVMatchFunctor : public VirtualMatchFunctor {
-    DynamicVMatchFunctor() : _idCount(0) {}
+    DynamicVMatchFunctor(bool isBroadcast = false) :
+        _isBroadcast(isBroadcast), _idCount(0) {}
 
     DynamicVMatchFunctor(const DynamicVMatchFunctor&) = delete;
 
@@ -210,6 +211,7 @@ private:
     typedef std::unique_ptr< VirtualMatchFunctor > ValueType;
     typedef std::lock_guard< std::mutex > LockGuard;
     mutable std::mutex _mtx;
+    bool _isBroadcast;
     int _idCount;
     std::vector< ValueType > _fctors;
     std::vector< QueueUnit > _queue;

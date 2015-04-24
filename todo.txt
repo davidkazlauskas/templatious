@@ -84,6 +84,7 @@ features:
 82. virtual pack - after process func
 83. virtual pack - optional mutex serialization
 84. virtual pack - optional future
+85. dyn match functor, BROADCAST
 
 remove:
 #68. logic functors - useless
