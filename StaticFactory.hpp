@@ -1837,7 +1837,7 @@ struct StaticFactory {
      */
     template <
         template <class> class StoragePolicy =
-            templatious::util::DefaultStoragePolicy,
+            templatious::util::CopyOnlyStoragePolicy,
         class... T
     >
     static auto virtualMatchFunctor(T&&... t)
@@ -1905,7 +1905,7 @@ struct StaticFactory {
      */
     template <
         template <class> class StoragePolicy =
-            templatious::util::DefaultStoragePolicy,
+            templatious::util::CopyOnlyStoragePolicy,
         class... T
     >
     static auto virtualMatchFunctorPtr(T&&... t)
@@ -1963,14 +1963,14 @@ struct StaticFactory {
      -> VirtualMatch<
          decltype(std::forward<F>(f)),
          false,
-         templatious::util::DefaultStoragePolicy,
+         templatious::util::CopyOnlyStoragePolicy,
          Args...
      >
     {
         typedef VirtualMatch<
             decltype(std::forward<F>(f)),
             false,
-            templatious::util::DefaultStoragePolicy,
+            templatious::util::CopyOnlyStoragePolicy,
             Args...
         > TheMatch;
         return TheMatch(std::forward<F>(f));
@@ -2073,14 +2073,14 @@ struct StaticFactory {
      -> VirtualMatch<
          decltype(std::forward<F>(f)),
          true,
-         templatious::util::DefaultStoragePolicy,
+         templatious::util::CopyOnlyStoragePolicy,
          Args...
      >
     {
         typedef VirtualMatch<
             decltype(std::forward<F>(f)),
             true,
-            templatious::util::DefaultStoragePolicy,
+            templatious::util::CopyOnlyStoragePolicy,
             Args...
         > TheMatch;
         return TheMatch(std::forward<F>(f));

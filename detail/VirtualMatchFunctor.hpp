@@ -526,6 +526,11 @@ struct VirtualMatchFunctorPtrCalls {
     static bool tryMatch(std::unique_ptr< VirtualMatchFunctor >& m,V&& v) {
         return m->tryMatch(std::forward<V>(v));
     }
+
+    template <class V>
+    static bool tryMatch(const std::unique_ptr< VirtualMatchFunctor >& m,V&& v) {
+        return m->tryMatch(std::forward<V>(v));
+    }
 };
 
 template <class T>
