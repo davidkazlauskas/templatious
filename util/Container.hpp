@@ -220,9 +220,12 @@ struct CopyContainer {
 
     friend struct CopyContainerAccess;
 private:
-    template <class V>
-    void mutate(V&& t) {
-        _r = std::forward<V>(t);
+    void mutate(const T& t) {
+        _r = t;
+    }
+
+    void mutate(T&& t) {
+        _r = std::move(t);
     }
 
     T&& move() {
