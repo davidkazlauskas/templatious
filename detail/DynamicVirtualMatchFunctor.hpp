@@ -127,13 +127,15 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         LockGuard l(_mtx);
 
         auto end = _queue.end();
+        bool matched = false;
         for (auto i = _queue.begin(); i != end; ++i) {
             auto& curr = _fctors[i->_offset];
-            if (curr->tryMatch(vp)) {
+            matched |= curr->tryMatch(vp);
+            if (matched && !_isBroadcast) {
                 return true;
             }
         }
-        return false;
+        return matched;
     }
 
     /**
@@ -146,13 +148,15 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         LockGuard l(_mtx);
 
         auto end = _queue.end();
+        bool matched = false;
         for (auto i = _queue.begin(); i != end; ++i) {
             auto& curr = _fctors[i->_offset];
-            if (curr->tryMatch(vp)) {
+            matched |= curr->tryMatch(vp);
+            if (matched && !_isBroadcast) {
                 return true;
             }
         }
-        return false;
+        return matched;
     }
 
     /**
@@ -165,13 +169,15 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         LockGuard l(_mtx);
 
         auto end = _queue.end();
+        bool matched = false;
         for (auto i = _queue.begin(); i != end; ++i) {
             auto& curr = _fctors[i->_offset];
-            if (curr->tryMatch(vp)) {
+            matched |= curr->tryMatch(vp);
+            if (matched && !_isBroadcast) {
                 return true;
             }
         }
-        return false;
+        return matched;
     }
 
     /**
@@ -184,13 +190,15 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         LockGuard l(_mtx);
 
         auto end = _queue.cend();
+        bool matched = false;
         for (auto i = _queue.cbegin(); i != end; ++i) {
             auto& curr = _fctors[i->_offset];
-            if (curr->tryMatch(vp)) {
+            matched |= curr->tryMatch(vp);
+            if (matched && !_isBroadcast) {
                 return true;
             }
         }
-        return false;
+        return matched;
     }
 private:
     struct QueueUnit {
