@@ -490,6 +490,8 @@ template <
 >
 struct VirtualMatchFunctorImpl;
 
+struct ExpVmfConInvoke {};
+
 template <
     template <class> class StoragePolicy,
     class... Args
@@ -585,7 +587,7 @@ struct VirtualMatchFunctorVImpl : public VirtualMatchFunctor {
 
     template <class... V>
     explicit VirtualMatchFunctorVImpl(V&&... v)
-        : _impl(std::forward<V>(v)...) {}
+        : _impl(ExpVmfConInvoke(),std::forward<V>(v)...) {}
 
     bool tryMatch(VirtualPack& p) override {
         return _impl.tryMatch(p);
@@ -614,6 +616,10 @@ struct VirtualMatchFunctorImpl< StoragePolicy, Head, Tail... > {
     typedef typename std::decay< Head >::type DecHead;
     typedef typename StoragePolicy<Head>::Container Container;
     typedef VirtualMatchFunctorImpl< StoragePolicy, Tail... > TailFunct;
+    typedef VirtualMatchFunctorImpl< StoragePolicy, Head, Tail... > ThisImpl;
+
+    static const bool can_copy =
+        std::is_copy_constructible< ThisImpl >::value;
 
     static const bool doesMatch = IsVirtualMatch< DecHead >::value;
     static_assert(doesMatch,
@@ -623,9 +629,18 @@ struct VirtualMatchFunctorImpl< StoragePolicy, Head, Tail... > {
         DecHead >::CallHandler Caller;
 
     template <class A,class... V>
-    explicit VirtualMatchFunctorImpl(A&& a,V&&... v) :
+    explicit VirtualMatchFunctorImpl(
+        const ExpVmfConInvoke& i,A&& a,V&&... v) :
         _c(std::forward<A>(a)),
-        _t(std::forward<V>(v)...) {}
+        _t(i,std::forward<V>(v)...) {}
+
+    template <bool canCpy = can_copy>
+    VirtualMatchFunctorImpl(
+        typename std::enable_if<canCpy,const ThisImpl&>::type impl)
+        : _c(impl._c), _t(impl._t) {}
+
+    VirtualMatchFunctorImpl(ThisImpl&& impl)
+        : _c(std::move(impl._c)), _t(std::move(impl._t)) {}
 
     bool tryMatch(VirtualPack& p) {
         if (Caller::tryMatch(_c.getRef(),p)) {
@@ -671,6 +686,10 @@ template <
 struct VirtualMatchFunctorImpl< StoragePolicy, Head > {
     typedef typename std::decay< Head >::type DecHead;
     typedef typename StoragePolicy<Head>::Container Container;
+    typedef VirtualMatchFunctorImpl< StoragePolicy, Head > ThisImpl;
+
+    static const bool can_copy =
+        std::is_copy_constructible< ThisImpl >::value;
 
     static const bool doesMatch = IsVirtualMatch< DecHead >::value;
     static_assert(doesMatch,
@@ -680,8 +699,17 @@ struct VirtualMatchFunctorImpl< StoragePolicy, Head > {
         DecHead >::CallHandler Caller;
 
     template <class A>
-    explicit VirtualMatchFunctorImpl(A&& a) :
+    explicit VirtualMatchFunctorImpl(
+        const ExpVmfConInvoke&,A&& a) :
         _c(std::forward<A>(a)) {}
+
+    VirtualMatchFunctorImpl(ThisImpl&& impl) :
+        _c(std::move(impl._c)) {}
+
+    template <bool canCpy = can_copy>
+    VirtualMatchFunctorImpl(
+        typename std::enable_if<canCpy,const ThisImpl&>::type impl) :
+        _c(impl._c) {}
 
     bool tryMatch(VirtualPack& p) {
         return Caller::tryMatch(_c.getRef(),p);

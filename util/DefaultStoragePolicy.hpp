@@ -48,6 +48,7 @@ struct IsUniquePtr< std::unique_ptr< T > > {
 template <class T>
 struct DefaultStoragePolicy {
     typedef typename std::remove_const<T>::type TNoConst;
+    typedef typename std::remove_reference<T>::type TNoRef;
     typedef typename std::decay<T>::type TDecay;
 
     static const bool uniquePtr = IsUniquePtr< TDecay >::value;
@@ -116,7 +117,7 @@ struct CopyOnlyStoragePolicy {
     typedef typename std::conditional<
         std::is_rvalue_reference<T>::value,
         typename templatious::util::RvalueCopyContainer<TDecay>,
-        templatious::util::CopyContainer<TNoConst>
+        templatious::util::CopyContainer<TDecay>
     >::type RValueRefCont;
 
     typedef typename std::conditional<

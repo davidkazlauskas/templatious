@@ -1841,10 +1841,12 @@ struct StaticFactory {
         class... T
     >
     static auto virtualMatchFunctor(T&&... t)
-     -> VirtualMatchFunctorImpl< StoragePolicy, T... >
+     -> VirtualMatchFunctorImpl< StoragePolicy,
+        decltype(std::forward<T>(t))... >
     {
-        typedef VirtualMatchFunctorImpl< StoragePolicy, T... > Fctor;
-        return Fctor(std::forward<T>(t)...);
+        typedef VirtualMatchFunctorImpl<
+            StoragePolicy, decltype(std::forward<T>(t))... > Fctor;
+        return Fctor(ExpVmfConInvoke(),std::forward<T>(t)...);
     }
 
 

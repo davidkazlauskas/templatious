@@ -237,6 +237,13 @@ private:
 
 template <class T>
 struct RvalueCopyContainer {
+    typedef RvalueCopyContainer<T> ThisCont;
+
+    RvalueCopyContainer(ThisCont&& c)
+        : _r(std::move(c._r)) {}
+
+    RvalueCopyContainer(const ThisCont&) = delete;
+
     RvalueCopyContainer(T&& t)
         : _r(std::move(t)) {}
 
