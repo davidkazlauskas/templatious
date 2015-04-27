@@ -31,6 +31,11 @@
 namespace templatious {
 namespace detail {
 
+/**
+ * The main purpose of this class is to encapsulate
+ * specific actions in the specified order
+ * (possibly with their undoable actions)
+ */
 template <
     bool statefulDefault = false,
     bool reversed = false,
@@ -40,6 +45,9 @@ template <
 >
 struct ChainFunctor;
 
+/**
+ * Encapsulates do and undo actions.
+ */
 template <
     template <class> class StoragePolicy,
     bool hasUndo,
@@ -641,6 +649,33 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
     ChainFunctor(T&& t,Args&&... args)
      : _c(t), _t(std::forward<Args>(args)...) {}
 
+    /**
+     * Call forward action.
+     * @param[in] args Arguments for function.
+     *
+     * Functional example:
+     * ~~~~~~~ C++
+     * auto mul2 = [](int i) { return 2*i; };
+     * auto add3 = [](int i) { return 3+i; };
+     *
+     * auto chain = SF::chainFunctor(mul2,add3);
+     *
+     * int res = chain(1);
+     * assert( res == 5 );
+     * ~~~~~~~
+     *
+     * Stateful example:
+     * ~~~~~~~ C++
+     * auto mul2 = [](int& i) { i*=2; };
+     * auto add3 = [](int& i) { i+=3; };
+     *
+     * auto chain = SF::chainFunctor<true>(mul2,add3);
+     *
+     * int res = 1;
+     * chain(res);
+     * assert( res == 5 );
+     * ~~~~~~~
+     */
     template <class... Args>
     auto doFwd(Args&&... args)
      -> decltype(
@@ -654,6 +689,49 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
             std::forward<Args>(args)...);
     }
 
+    /**
+     * Call backward action.
+     * @param[in] args Arguments for function.
+     *
+     * Functional example:
+     * ~~~~~~~ C++
+     * auto mul2 = [](int i) { return 2*i; };
+     * auto div2 = [](int i) { return 2/i; };
+     *
+     * auto add3 = [](int i) { return 3+i; };
+     * auto sub3 = [](int i) { return i-3; };
+     *
+     * auto chain = SF::chainFunctor(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * int res = chain(1);
+     * assert( res == 5 );
+     * int rev = chain.doBwd(res);
+     * assert( rev == 1 );
+     * ~~~~~~~
+     *
+     * Stateful example:
+     * ~~~~~~~ C++
+     * auto mul2 = [](int& i) { i*=2; };
+     * auto div2 = [](int& i) { i/=2; };
+     *
+     * auto add3 = [](int& i) { i+=3; };
+     * auto sub3 = [](int& i) { i-=3; };
+     *
+     * auto chain = SF::chainFunctor<true>(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * int res = 1;
+     * chain(res);
+     * assert( res == 5 );
+     * chain.doBwd(res);
+     * assert( res == 1 );
+     * ~~~~~~~
+     */
     template <class... Args>
     auto doBwd(Args&&... args)
      -> decltype(
@@ -685,6 +763,50 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
         DummyTransform
     >::type DoTr;
 
+    /**
+     * Reverse chain functor.
+     *
+     * Functional example:
+     * ~~~~~~~
+     * auto mul2 = [](int i) { return 2*i; };
+     * auto div2 = [](int i) { return 2/i; };
+     *
+     * auto add3 = [](int i) { return 3+i; };
+     * auto sub3 = [](int i) { return i-3; };
+     *
+     * auto chain = SF::chainFunctor(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * auto revChain = chain.reverse();
+     *
+     * int res = chain(1);
+     * int rev = revChain(res);
+     * assert( rev == 1 );
+     * ~~~~~~~
+     *
+     * Stateful example:
+     * ~~~~~~~~
+     * auto mul2 = [](int& i) { i*=2; };
+     * auto div2 = [](int& i) { i/=2; };
+     *
+     * auto add3 = [](int& i) { i+=3; };
+     * auto sub3 = [](int& i) { i-=3; };
+     *
+     * auto chain = SF::chainFunctor<true>(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * auto revChain = chain.reverse();
+     *
+     * int res = 1;
+     * chain(res);
+     * revChain(res);
+     * assert( res == 1 );
+     * ~~~~~~~~
+     */
     auto reverse() const
      -> decltype(
          std::declval<Tail>().template transform<
@@ -701,6 +823,50 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
         );
     }
 
+    /**
+     * Get duno functor
+     *
+     * Functional example:
+     * ~~~~~~~
+     * auto mul2 = [](int i) { return 2*i; };
+     * auto div2 = [](int i) { return 2/i; };
+     *
+     * auto add3 = [](int i) { return 3+i; };
+     * auto sub3 = [](int i) { return i-3; };
+     *
+     * auto chain = SF::chainFunctor(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * auto undo = chain.getUndo();
+     *
+     * int res = chain(1);
+     * int rev = undo(res);
+     * assert( rev == 1 );
+     * ~~~~~~~
+     *
+     * Stateful example:
+     * ~~~~~~~
+     * auto mul2 = [](int& i) { i*=2; };
+     * auto div2 = [](int& i) { i/=2; };
+     *
+     * auto add3 = [](int& i) { i+=3; };
+     * auto sub3 = [](int& i) { i-=3; };
+     *
+     * auto chain = SF::chainFunctor<true>(
+     *     SF::functorPair(mul2,div2),
+     *     SF::functorPair(add3,sub3)
+     * );
+     *
+     * auto undo = chain.getUndo();
+     *
+     * int res = 1;
+     * chain(res);
+     * undo(res);
+     * assert( res == 1 );
+     * ~~~~~~~
+     */
     auto getUndo() const
      -> decltype(
          std::declval<Tail>().template transform<
@@ -717,6 +883,11 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
         );
     }
 
+    /**
+     * Get do action.
+     * Functor returned does the same
+     * as () operator of this chain functor.
+     */
     auto getDo() const
      -> decltype(
          std::declval<Tail>().template transform<
@@ -733,6 +904,9 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
         );
     }
 
+    /**
+     * Same as doFwd method.
+     */
     template <class... Args>
     auto operator()(Args&&... args)
      -> decltype(

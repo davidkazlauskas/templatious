@@ -2193,6 +2193,7 @@ struct StaticFactory {
         return templatious::VirtualPackImpl<
             DefVpackSettings,Signature...
         >(
+            ExpVpackConInvoke(),
             std::forward<Init>(vars)...
         );
     }
@@ -2247,6 +2248,7 @@ struct StaticFactory {
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
+            ExpVpackConInvoke(),
             std::forward<Init>(vars)...
         );
     }
@@ -2312,6 +2314,7 @@ struct StaticFactory {
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
+            ExpVpackConInvoke(),
             std::forward<Function>(f),std::forward<Init>(vars)...
         );
     }
@@ -2453,6 +2456,7 @@ struct StaticFactory {
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
+            ExpVpackConInvoke(),
             std::forward<Init>(vars)...
         );
     }
@@ -2561,6 +2565,7 @@ struct StaticFactory {
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
+            ExpVpackConInvoke(),
             std::forward<Function>(f), std::forward<Init>(vars)...
         );
     }

@@ -453,6 +453,8 @@ private:
     size_t _hash;
 };
 
+struct ExpVpackConInvoke {};
+
 template <class... T>
 struct VPackContainer;
 
@@ -469,15 +471,26 @@ struct VPackContainer<Head,Tail...> {
 
     typedef typename std::remove_const<Head>::type NConstHead;
 
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisContainer >::value;
+
     template <size_t n,class Curr,class... V>
-    VPackContainer(std::bitset<n>& constness,
+    VPackContainer(ExpVpackConInvoke e,std::bitset<n>& constness,
             std::type_index* ptr,int i,Curr&& c,V&&... v) :
         _c(std::forward<Curr>(c)),
-        _t(constness,ptr,i+1,std::forward<V>(v)...)
+        _t(e,constness,ptr,i+1,std::forward<V>(v)...)
     {
         constness[i] = std::is_const<Head>::value;
         new(std::addressof(ptr[i])) std::type_index(typeid(Head));
     }
+
+    template <bool canCopy = copy_constructable>
+    VPackContainer(typename std::enable_if<
+        canCopy,const ThisContainer&>::type other)
+        : _c(other._c), _t(other._t) {}
+
+    VPackContainer(ThisContainer&& other)
+        : _c(std::move(other._c)), _t(std::move(other._t)) {}
 
     struct ThisValGetter {
         template <int i>
@@ -556,6 +569,7 @@ struct VPackContainer<Head,Tail...> {
 template <class Tail>
 struct VPackContainer<Tail> {
     typedef typename std::remove_reference<Tail>::type Decay;
+    typedef VPackContainer< Tail > ThisContainer;
     static const bool stripped_same =
         std::is_same<Decay,Tail>::value;
     static_assert(stripped_same,
@@ -563,6 +577,9 @@ struct VPackContainer<Tail> {
         " without references.");
 
     typedef typename std::remove_const<Tail>::type NConstTail;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisContainer >::value;
 
     template <int i>
     auto fGet()
@@ -583,13 +600,21 @@ struct VPackContainer<Tail> {
     }
 
     template <size_t n,class Curr>
-    VPackContainer(std::bitset<n>& constness,
+    VPackContainer(ExpVpackConInvoke e,std::bitset<n>& constness,
             std::type_index* ptr,int i,Curr&& c) :
         _c(std::forward<Curr>(c))
     {
         constness[i] = std::is_const<Tail>::value;
         new(std::addressof(ptr[i])) std::type_index(typeid(Tail));
     }
+
+    template <bool canCopy = copy_constructable>
+    VPackContainer(typename std::enable_if<
+        canCopy, const ThisContainer&>::type other)
+        : _c(other._c) {}
+
+    VPackContainer(ThisContainer&& other)
+        : _c(std::move(other._c)) {}
 
     void dumpAddress(void** ptr,int i) const {
         // cast away const as we trust our
@@ -608,12 +633,31 @@ struct VirtualPackCore {
     typedef VirtualPackCore<T...> ThisCore;
     typedef std::bitset<32> ConstBitset;
 
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisCore >::value;
+
     template <class... V>
-    explicit VirtualPackCore(V&&... v) :
-        _cont(_constness,
+    explicit VirtualPackCore(ExpVpackConInvoke e,V&&... v) :
+        _cont(e,_constness,
             tArr(),0,
             std::forward<V>(v)...)
     {}
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackCore(typename std::enable_if<
+        canCopy,const ThisCore&>::type other) :
+        _constness(other._constness),
+        _cont(other._cont)
+    {
+        initCopyTypes(pack_size,other.tArr());
+    }
+
+    VirtualPackCore(ThisCore&& other) :
+        _constness(other._constness),
+        _cont(std::move(other._cont))
+    {
+        initCopyTypes(pack_size,other.tArr());
+    }
 
     /**
      * Fast get function for the creators of this object.
@@ -681,6 +725,13 @@ struct VirtualPackCore {
         return templatious::util::hashTypes<T...>();
     }
 private:
+    void initCopyTypes(int size,const std::type_index* arr) {
+        std::type_index* thisArr = tArr();
+        for (int i = 0; i < size; ++i) {
+            new (&thisArr[i]) std::type_index(arr[i]);
+        }
+    }
+
     ConstBitset _constness;
     std::aligned_storage<
         sizeof(std::type_index),alignof(std::type_index)
@@ -700,9 +751,22 @@ namespace vpacktraits {
 
 template <class Inherit>
 struct VirtualPackCountTrait : public Inherit {
+    typedef VirtualPackCountTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackCountTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other), _useCount(other._useCount) {}
+
+    VirtualPackCountTrait(ThisTrait&& other)
+        : Inherit(std::move(other)), _useCount(other._useCount) {}
+
     template <class... V>
-    VirtualPackCountTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...),
+    VirtualPackCountTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...),
         _useCount(0) {}
 
     void increment() const {
@@ -718,9 +782,22 @@ private:
 
 template <class Inherit>
 struct VirtualPackNoCountTrait : public Inherit {
+    typedef VirtualPackNoCountTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackNoCountTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other) {}
+
+    VirtualPackNoCountTrait(ThisTrait&& other)
+        : Inherit(std::move(other)) {}
+
     template <class... V>
-    VirtualPackNoCountTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...) {}
+    VirtualPackNoCountTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...) {}
 
     void increment() const { }
 
@@ -729,9 +806,24 @@ struct VirtualPackNoCountTrait : public Inherit {
 
 template <class Inherit>
 struct VirtualPackWaitTrait : public Inherit {
+    typedef VirtualPackWaitTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackWaitTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other), _p(other._p), _f(other._f) {}
+
+    VirtualPackWaitTrait(ThisTrait&& other)
+        : Inherit(std::move(other)),
+        _p(std::move(other._p)),
+        _f(std::move(other._f)) {}
+
     template <class... V>
-    VirtualPackWaitTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...),
+    VirtualPackWaitTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...),
         _f(_p.get_future()) {}
 
     void setReady() const {
@@ -759,9 +851,22 @@ private:
 
 template <class Inherit>
 struct VirtualPackNoWaitTrait : public Inherit {
+    typedef VirtualPackNoWaitTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackNoWaitTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other) {}
+
+    VirtualPackNoWaitTrait(ThisTrait&& other)
+        : Inherit(std::move(other)) {}
+
     template <class... V>
-    VirtualPackNoWaitTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...) {}
+    VirtualPackNoWaitTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...) {}
 
     void setReady() const {}
 
@@ -774,9 +879,22 @@ struct VirtualPackNoWaitTrait : public Inherit {
 
 template <class Inherit>
 struct VirtualPackSynchronizedTrait : public Inherit {
+    typedef VirtualPackSynchronizedTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackSynchronizedTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other), _mtx(other._mtx) {}
+
+    VirtualPackSynchronizedTrait(ThisTrait&& other)
+        : Inherit(std::move(other)), _mtx(std::move(other._mtx)) {}
+
     template <class... V>
-    VirtualPackSynchronizedTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...) {}
+    VirtualPackSynchronizedTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...) {}
 
     std::mutex* getMutex() const {
         return &_mtx;
@@ -787,9 +905,22 @@ private:
 
 template <class Inherit>
 struct VirtualPackUnsynchronizedTrait : public Inherit {
+    typedef VirtualPackUnsynchronizedTrait< Inherit > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackUnsynchronizedTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other) {}
+
+    VirtualPackUnsynchronizedTrait(ThisTrait&& other)
+        : Inherit(std::move(other)) {}
+
     template <class... V>
-    VirtualPackUnsynchronizedTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...) {}
+    VirtualPackUnsynchronizedTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...) {}
 
     std::mutex* getMutex() const {
         return nullptr;
@@ -801,11 +932,25 @@ template <
     template <class> class StoragePolicy
 >
 struct VirtualPackOnReadyTrait : public Inherit {
+    typedef VirtualPackOnReadyTrait<
+        Inherit, Function, StoragePolicy > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackOnReadyTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other), _c(other._c) {}
+
+    VirtualPackOnReadyTrait(ThisTrait&& other)
+        : Inherit(std::move(other)), _c(std::move(other._c)) {}
+
     typedef typename StoragePolicy<Function>::Container Cont;
 
     template <class Func,class... V>
-    VirtualPackOnReadyTrait(Func&& f,V&&... v) :
-        Inherit(std::forward<V>(v)...),
+    VirtualPackOnReadyTrait(ExpVpackConInvoke e,Func&& f,V&&... v) :
+        Inherit(e,std::forward<V>(v)...),
         _c(std::forward<Func>(f)) {}
 
     void invokeCallback() const {
@@ -821,9 +966,23 @@ template <
     template <class> class StoragePolicy
 >
 struct VirtualPackNoOnReadyTrait : public Inherit {
+    typedef VirtualPackNoOnReadyTrait<
+        Inherit, Function, StoragePolicy > ThisTrait;
+
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisTrait >::value;
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackNoOnReadyTrait(typename std::enable_if<
+        canCopy,const ThisTrait&>::type other)
+        : Inherit(other) {}
+
+    VirtualPackNoOnReadyTrait(ThisTrait&& other)
+        : Inherit(std::move(other)) {}
+
     template <class... V>
-    VirtualPackNoOnReadyTrait(V&&... v) :
-        Inherit(std::forward<V>(v)...) {}
+    VirtualPackNoOnReadyTrait(ExpVpackConInvoke e,V&&... v) :
+        Inherit(e,std::forward<V>(v)...) {}
 
     void invokeCallback() const {}
 };
@@ -911,14 +1070,28 @@ struct VirtualPackImpl : public VirtualPack {
     typedef vpacktraits::ConvertBitmaskToVPackCoreSettings<
         coreBitmask
     > VPackSettings;
+    typedef VirtualPackImpl<coreBitmask,T...> ThisImpl;
     typedef typename vpacktraits::VirtualPackCoreCreator<
         VPackSettings,T...>::FinalCore ContType;
 
+    static const bool copy_constructable =
+        std::is_copy_constructible< ThisImpl >::value;
+
     template <class... V>
-    explicit VirtualPackImpl(V&&... v) :
+    explicit VirtualPackImpl(ExpVpackConInvoke e,V&&... v) :
         VirtualPack(ContType::calcHash()),
-        _cont(std::forward<V>(v)...)
+        _cont(e,std::forward<V>(v)...)
     {}
+
+    template <bool canCopy = copy_constructable>
+    VirtualPackImpl(typename std::enable_if<
+        canCopy,const ThisImpl&>::type impl) :
+        VirtualPack(ContType::calcHash()),
+        _cont(impl._cont) {}
+
+    VirtualPackImpl(ThisImpl&& impl) :
+        VirtualPack(ContType::calcHash()),
+        _cont(std::move(impl._cont)) {}
 
     ~VirtualPackImpl() {
         std::type_index* arr = tArr();
