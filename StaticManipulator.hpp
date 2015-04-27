@@ -70,6 +70,10 @@ namespace detail {
      * - templatious::VirtualPack
      * - templatious::VirtualMatchFunctor
      * - templatious::DynamicVMatchFunctor
+     *
+     *
+     * From time to time:
+     * - templatious::detail::ChainFunctor
      */
 
 
