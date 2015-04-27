@@ -73,7 +73,7 @@ namespace detail {
      *
      *
      * From time to time:
-     * - templatious::detail::ChainFunctor
+     * - templatious::ChainFunctor
      */
 
 
