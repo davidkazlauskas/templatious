@@ -29,7 +29,6 @@
 #include <templatious/util/DefaultStoragePolicy.hpp>
 
 namespace templatious {
-namespace detail {
 
 /**
  * The main purpose of this class is to encapsulate
@@ -44,6 +43,8 @@ template <
     class... Args
 >
 struct ChainFunctor;
+
+namespace detail {
 
 /**
  * Encapsulates do and undo actions.
@@ -277,19 +278,6 @@ auto unwrapFunctorPairReverse(T&& t)
     return t.reverse();
 }
 
-template <
-    bool statefulDefault = false,
-    bool reversed = false,
-    template <class> class StoragePolicy,
-    class... Args
->
-auto makeChainFunctor(Args&&... args)
- -> ChainFunctor< statefulDefault, reversed, StoragePolicy, Args... >
-{
-    return ChainFunctor< statefulDefault, reversed, StoragePolicy, Args... >(
-            std::forward<Args>(args)...);
-}
-
 struct DoCaller {
     template <class T,class... Args>
     static auto call(T&& f,Args&&... args)
@@ -485,6 +473,19 @@ struct StatefulReverseProcessor {
 };
 
 template <
+    bool statefulDefault = false,
+    bool reversed = false,
+    template <class> class StoragePolicy,
+    class... Args
+>
+auto makeChainFunctor(Args&&... args)
+ -> ChainFunctor< statefulDefault, reversed, StoragePolicy, Args... >
+{
+    return ChainFunctor< statefulDefault, reversed, StoragePolicy, Args... >(
+            std::forward<Args>(args)...);
+}
+
+template <
     bool statefulDefault,bool reversed,
     template <class> class StoragePolicy
 >
@@ -573,6 +574,8 @@ struct DummyTransform {
     }
 };
 
+}
+
 template <
     bool statefulDefault,
     bool reversed,
@@ -589,40 +592,40 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
     static const bool hasUndo = A::undo && Tail::hasUndo;
 
     template <class Caller>
-    friend struct FunctionalProcessor;
+    friend struct detail::FunctionalProcessor;
     template <class Caller>
-    friend struct FunctionalReverseProcessor;
+    friend struct detail::FunctionalReverseProcessor;
     template <class Caller>
-    friend struct StatefulProcessor;
+    friend struct detail::StatefulProcessor;
     template <class Caller>
-    friend struct StatefulReverseProcessor;
+    friend struct detail::StatefulReverseProcessor;
     template <class Caller>
-    friend struct TailDoProcessor;
+    friend struct detail::TailDoProcessor;
     template <class Caller>
-    friend struct TailDoStatefulProcessor;
+    friend struct detail::TailDoStatefulProcessor;
 
     typedef typename std::conditional<
         !reversed,
-        DoCaller,
-        UndoCaller
+        detail::DoCaller,
+        detail::UndoCaller
     >::type CurrDoCaller;
 
     typedef typename std::conditional<
         !reversed,
-        UndoCaller,
-        DoCaller
+        detail::UndoCaller,
+        detail::DoCaller
     >::type CurrUndoCaller;
 
     typedef typename std::conditional<
         statefulDefault,
-        StatefulProcessor<CurrDoCaller>,
-        FunctionalProcessor<CurrDoCaller>
+        detail::StatefulProcessor<CurrDoCaller>,
+        detail::FunctionalProcessor<CurrDoCaller>
     >::type Proc;
 
     typedef typename std::conditional<
         statefulDefault,
-        StatefulReverseProcessor<CurrUndoCaller>,
-        FunctionalReverseProcessor<CurrUndoCaller>
+        detail::StatefulReverseProcessor<CurrUndoCaller>,
+        detail::FunctionalReverseProcessor<CurrUndoCaller>
     >::type RevProc;
 
     typedef typename std::conditional<
@@ -640,7 +643,7 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
     typedef typename std::conditional<
         hasUndo,
         IntBwdProc,
-        UndoUnavailableProcessor
+        detail::UndoUnavailableProcessor
     >::type BwdProc;
 
     static const bool is_last = false;
@@ -747,20 +750,20 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A,Tl...> {
 
     typedef typename std::conditional<
         hasUndo,
-        ReverseTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::ReverseTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type RevTr;
 
     typedef typename std::conditional<
         hasUndo,
-        UndoTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::UndoTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type UndoTr;
 
     typedef typename std::conditional<
         hasUndo,
-        DoTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::DoTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type DoTr;
 
     /**
@@ -952,17 +955,17 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A> {
     static const bool hasUndo = A::undo;
 
     template <class Caller>
-    friend struct FunctionalProcessor;
+    friend struct detail::FunctionalProcessor;
     template <class Caller>
-    friend struct FunctionalReverseProcessor;
+    friend struct detail::FunctionalReverseProcessor;
     template <class Caller>
-    friend struct StatefulProcessor;
+    friend struct detail::StatefulProcessor;
     template <class Caller>
-    friend struct StatefulReverseProcessor;
+    friend struct detail::StatefulReverseProcessor;
     template <class Caller>
-    friend struct TailDoProcessor;
+    friend struct detail::TailDoProcessor;
     template <class Caller>
-    friend struct TailDoStatefulProcessor;
+    friend struct detail::TailDoStatefulProcessor;
 
     static const bool is_last = true;
 
@@ -994,20 +997,20 @@ struct ChainFunctor<statefulDefault,reversed,StoragePolicy,A> {
 
     typedef typename std::conditional<
         hasUndo,
-        ReverseTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::ReverseTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type RevTr;
 
     typedef typename std::conditional<
         hasUndo,
-        UndoTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::UndoTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type UndoTr;
 
     typedef typename std::conditional<
         hasUndo,
-        DoTransform<statefulDefault,reversed,StoragePolicy>,
-        DummyTransform
+        detail::DoTransform<statefulDefault,reversed,StoragePolicy>,
+        detail::DummyTransform
     >::type DoTr;
 
     auto reverse() const
@@ -1074,7 +1077,6 @@ private:
     Container _c;
 };
 
-}
 }
 
 #endif /* end of include guard: CHAINFUNCTOR_JQWE6P11 */
