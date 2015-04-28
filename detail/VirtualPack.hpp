@@ -1139,7 +1139,6 @@ struct VirtualPackImpl : public VirtualPack {
     // function should only be called when using
     // the pack.
     void dumpAddresses(void** arr) const override {
-        _cont.increment();
         _cont.dumpAddresses(arr);
     }
 
@@ -1164,6 +1163,7 @@ struct VirtualPackImpl : public VirtualPack {
     }
 
     void invokeCallback() const override {
+        _cont.increment();
         _cont.setReady();
         _cont.invokeCallback();
     }
