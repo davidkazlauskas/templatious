@@ -112,6 +112,10 @@ struct SeqBase {
 
 };
 
+/**
+ * Sequence class to encapsulate
+ * general primitive sequence types.
+ */
 template <class T,bool isReversed>
 struct SeqL : public SeqBase<T> {
     typedef T Unit;
@@ -175,6 +179,9 @@ struct SeqL : public SeqBase<T> {
         loopAssert();
     }
 
+    /**
+     * Begin iterator of this sequence.
+     */
     ThisIter begin() const {
         if (!Base::is_signed && isReversed) {
             return ThisIter(_end - _step,_step);
@@ -182,6 +189,9 @@ struct SeqL : public SeqBase<T> {
         return ThisIter(_beg,_step);
     }
 
+    /**
+     * End iterator of this sequence.
+     */
     ThisIter end() const {
         if (!Base::is_signed && isReversed) {
             return ThisIter(_beg - _step,_step);
@@ -190,6 +200,11 @@ struct SeqL : public SeqBase<T> {
         return standardEnd();
     }
 
+    /**
+     * Constant begin iterator of this sequence.
+     * Same as begin, because sequence is
+     * immutable and returns only constant iterators.
+     */
     ThisIter cbegin() const {
         if (!Base::is_signed && isReversed) {
             return ThisIter(_end - _step,_step);
@@ -197,6 +212,11 @@ struct SeqL : public SeqBase<T> {
         return ThisIter(_beg,_step);
     }
 
+    /**
+     * Constant end iterator of this sequence.
+     * Same as end, because sequence is
+     * immutable and returns only constant iterators.
+     */
     ThisIter cend() const {
         if (!Base::is_signed && isReversed) {
             return ThisIter(_beg - _step,_step);
@@ -205,6 +225,9 @@ struct SeqL : public SeqBase<T> {
         return standardEnd();
     }
 
+    /**
+     * Get reverse of this sequence.
+     */
     template <class U = int>
     RevType rev() const {
         if (!Base::is_signed) {
@@ -215,6 +238,9 @@ struct SeqL : public SeqBase<T> {
                 _step > 0 ? _step : -_step);
     }
 
+    /**
+     * Size of this sequence.
+     */
     Unit size() const {
         Unit res = _end - _beg;
         res = res / _step + (res % _step != 0 ? 1 : 0);
