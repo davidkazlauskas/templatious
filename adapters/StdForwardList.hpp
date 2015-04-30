@@ -347,7 +347,7 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
     }
 
     static ConstValueType& last(ConstCol& c) {
-        return c.back();
+        return *clastIterator(c);
     }
 
     template <class U = int>
