@@ -834,11 +834,11 @@ struct CollectionAdapter< StaticVector<T> > {
         return c.end();
     }
 
-    static Iterator begin(ConstCol& c) {
+    static ConstIterator begin(ConstCol& c) {
         return c.cbegin();
     }
 
-    static Iterator end(ConstCol& c) {
+    static ConstIterator end(ConstCol& c) {
         return c.cend();
     }
 
