@@ -291,7 +291,11 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
 	}
 
 	static long size(ConstCol& c) {
-		return c.size();
+        long sum = 0;
+        for (auto& i: c) {
+            ++sum;
+        }
+        return sum;
 	}
 
     static ConstValueType& getByIndex(ConstCol& c, long i) {
