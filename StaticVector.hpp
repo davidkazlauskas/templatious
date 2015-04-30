@@ -903,14 +903,16 @@ struct CollectionAdapter< const StaticVector<T> > {
     typedef const T ValueType;
     typedef const T ConstValueType;
 
-    template <class V>
+    template <class V,class U = void>
     static void add(ThisCol& c, V&& i) {
-        c.push(std::forward<V>(i));
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+            "Const version of a collection doesn't support this method");
     }
 
-    template <class V>
+    template <class V,class U = void>
     static void insertAt(ThisCol& c, Iterator at,V&& i) {
-        c.insert(at,std::forward<V>(i));
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+            "Const version of a collection doesn't support this method");
     }
 
     static ValueType& getByIndex(ThisCol& c, long i) {
@@ -921,12 +923,16 @@ struct CollectionAdapter< const StaticVector<T> > {
         return c.size();
     }
 
+    template <class U = void>
     static void erase(ThisCol& c, Iterator pos) {
-        c.erase(pos);
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+            "Const version of a collection doesn't support this method");
     }
 
+    template <class U = void>
     static void erase(ThisCol& c, Iterator beg, Iterator end) {
-        c.erase(beg,end);
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+            "Const version of a collection doesn't support this method");
     }
 
     static Iterator begin(ConstCol& c) {
@@ -961,12 +967,14 @@ struct CollectionAdapter< const StaticVector<T> > {
         return c.at(c.size() - 1);
     }
 
+    template <class U = void>
     static void clear(ThisCol& c) {
-        return c.clear();
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+            "Const version of a collection doesn't support this method");
     }
 
     static bool canAdd(ConstCol& c) {
-        return !(c.isFull());
+        return false;
     }
 };
 }

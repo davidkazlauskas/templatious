@@ -582,14 +582,16 @@ struct CollectionAdapter< const VCollection<T> > {
     typedef const T ValueType;
     typedef ValueType ConstValueType;
 
-    template <class V>
+    template <class V,class U = void>
     static void add(ThisCol& c, V&& i) {
-        c.add(std::forward<V>(i));
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
-    template <class V>
+    template <class V,class U = void>
     static void insertAt(ThisCol& c, const Iterator& at, V&& i) {
-        c.insert(at,std::forward<V>(i));
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
     static ConstValueType& getByIndex(ConstCol& c, long i) {
@@ -600,12 +602,16 @@ struct CollectionAdapter< const VCollection<T> > {
         return c.size();
     }
 
+    template <class U = void>
     static void erase(ThisCol& c, const Iterator& i) {
-        c.erase(i);
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
+    template <class U = void>
     static void erase(ThisCol& c, const Iterator& beg, const Iterator& end) {
-        c.erase(beg,end);
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
     static Iterator begin(ConstCol& c) {
@@ -640,12 +646,14 @@ struct CollectionAdapter< const VCollection<T> > {
         return c.clast();
     }
 
+    template <class U = void>
     static void clear(ThisCol& c) {
-        c.clear();
+        static_assert(templatious::util::DummyResolver<U,false>::val,
+                "Const version of a collection doesn't support this method");
     }
 
     static bool canAdd(ConstCol& c) {
-        return c.canAdd();
+        return false;
     }
 };
 
