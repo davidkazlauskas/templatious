@@ -345,7 +345,7 @@ struct StaticVector {
      */
     T& at(ulong pos) const {
         if (!(pos >= 0 && pos < _cnt && pos < _sz)) {
-            StaticVectorOutOfBoundsException();
+            throw StaticVectorOutOfBoundsException();
         }
         return _vct[pos];
     }
