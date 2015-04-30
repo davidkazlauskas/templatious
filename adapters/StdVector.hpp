@@ -208,7 +208,7 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
     }
 
     static Iterator citerAt(ConstCol& c,long pos) {
-        if (c.size() < pos || pos < 0) {
+        if (static_cast<long>(c.size()) < pos || pos < 0) {
             throw CollectionAdapterNoSuchIteratorException();
         }
         return c.cbegin() + pos;
