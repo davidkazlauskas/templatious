@@ -317,6 +317,10 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
     }
 
     static Iterator citerAt(ConstCol& c,long pos) {
+        if (pos < 0) {
+            throw CollectionAdapterNoSuchIteratorException();
+        }
+
         auto res = c.cbegin();
         auto end = c.cend();
         long cnt = 0;
