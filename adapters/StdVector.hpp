@@ -110,10 +110,16 @@ struct CollectionAdapter< std::vector<T,Alloc<T> > > {
 	}
 
     static ValueType& getByIndex(ThisCol& c, long i) {
+        if (i < 0 || static_cast<long>(c.size()) < i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
         return c[i];
     }
 
     static ConstValueType& getByIndex(ConstCol& c, long i) {
+        if (i < 0 || static_cast<long>(c.size()) < i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
         return c[i];
     }
 
@@ -197,6 +203,9 @@ struct CollectionAdapter< const std::vector<T,Alloc<T> > > {
 	}
 
     static ValueType& getByIndex(ThisCol& c, long i) {
+        if (i < 0 || static_cast<long>(c.size()) < i) {
+            throw CollectionAdapterNoSuchElementException();
+        }
         return c[i];
     }
 
