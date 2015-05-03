@@ -59,6 +59,13 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         _queue.push_back(QueueUnit(id,offset,priority));
         std::sort( _queue.begin(), _queue.end(),
             [](const QueueUnit& a,const QueueUnit& b) {
+                if (a._priority == b._priority) {
+                    // if priorities are equal
+                    // make sure later elements
+                    // with same priority are added
+                    // to the end.
+                    return a._id < b._id;
+                }
                 return a._priority > b._priority;
             });
 
