@@ -150,11 +150,19 @@ struct CollectionAdapter< std::forward_list<T,Alloc<T> > > {
 	}
 
     static ValueType& getByIndex(ThisCol& c, long i) {
-        return *iterAt(c,i);
+        auto res = iterAt(c,i);
+        if (res == c.end()) {
+            throw CollectionAdapterNoSuchElementException();
+        }
+        return *res;
     }
 
     static ConstValueType& getByIndex(ConstCol& c, long i) {
-        return *citerAt(c,i);
+        auto res = citerAt(c,i);
+        if (res == c.end()) {
+            throw CollectionAdapterNoSuchElementException();
+        }
+        return *res;
     }
 
     // this is probably
@@ -299,7 +307,11 @@ struct CollectionAdapter< const std::forward_list<T,Alloc<T> > > {
 	}
 
     static ConstValueType& getByIndex(ConstCol& c, long i) {
-        return *citerAt(c,i);
+        auto res = citerAt(c,i);
+        if (res == c.end()) {
+            throw CollectionAdapterNoSuchElementException();
+        }
+        return *res;
     }
 
     static Iterator iterAt(ConstCol& c,long pos) {
