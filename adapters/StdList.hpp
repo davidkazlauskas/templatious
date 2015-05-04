@@ -210,7 +210,7 @@ struct CollectionAdapter< const std::list<T,Alloc<T> > > {
 	}
 
     static ConstValueType& getByIndex(ThisCol& c, long i) {
-        if (size(c) < i) {
+        if (size(c) <= i) {
             throw CollectionAdapterNoSuchElementException();
         }
 
