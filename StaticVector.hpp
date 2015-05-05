@@ -183,7 +183,8 @@ struct StaticVector {
             }
             throw StaticVectorFullAddException();
         }
-        if (at > _cnt) {
+        if (at > _cnt || at < 0)
+        {
             throw StaticVectorOutOfBoundsException();
         }
 
