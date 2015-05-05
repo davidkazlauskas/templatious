@@ -585,17 +585,17 @@ struct StaticVector {
         }
 
         ValType& operator*() const {
-            if (_iter >= _size) {
-                StaticVectorOutOfBoundsException();
+            if (_iter >= _size || _iter < 0) {
+                throw StaticVectorOutOfBoundsException();
             }
             return _vct[_iter];
         }
 
         ValType* operator->() const {
             if (_iter >= _size) {
-                StaticVectorOutOfBoundsException();
+                throw StaticVectorOutOfBoundsException();
             }
-            return &_vct[_iter];
+            return std::addressof(_vct[_iter]);
         }
 
         friend Iterator operator+(const Iterator& i,ulong s) {
