@@ -592,7 +592,7 @@ struct StaticVector {
         }
 
         ValType* operator->() const {
-            if (_iter >= _size) {
+            if (_iter >= _size || _iter < 0) {
                 throw StaticVectorOutOfBoundsException();
             }
             return std::addressof(_vct[_iter]);
