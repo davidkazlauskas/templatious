@@ -1918,7 +1918,7 @@ struct StaticFactory {
             T...
         > TheImpl;
 
-        return std::unique_ptr< VirtualMatchFunctor >(
+        return std::unique_ptr< TheImpl >(
             new TheImpl( std::forward<T>(t)... )
         );
     }
