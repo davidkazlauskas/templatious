@@ -359,6 +359,7 @@ struct VCollection {
     ThisCol& operator=(const ThisCol& o) = delete;
 
     ThisCol& operator=(ThisCol&& o) {
+        delete _b;
         _b = o._b;
         o._b = nullptr;
         return *this;
