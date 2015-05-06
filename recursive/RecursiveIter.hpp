@@ -57,23 +57,7 @@ struct RecursiveIterator<A> {
                 from the collection this iterator should take");
     }
 
-    //void print() {
-        //std::cout << *_a << std::endl;
-    //}
-
-    //void print_enum() { std::cout << num << std::endl; }
-
     void inc() { ++_a; }
-
-    ThisIter& operator++() {
-        inc();
-        return *this;
-    }
-
-    template <int i = 0, class T>
-    void setTuple(T& c) const {
-        std::get<i>(c) = *_a;
-    }
 
     template <class F>
     auto callFunction(F&& f)
@@ -115,20 +99,9 @@ struct RecursiveIterator<A, Tail...> {
                 from the collection this iterator should take");
     }
 
-    template <int i = 0, class T>
-    void setTuple(T& c) const {
-        std::get<i>(c) = *_a;
-        _t.setTuple<i + 1>(c);
-    }
-
     void inc() {
         ++_a;
         _t.inc();
-    }
-
-    ThisIter& operator++() {
-        inc();
-        return *this;
     }
 
     template <class F>
