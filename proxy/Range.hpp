@@ -339,17 +339,20 @@ struct CollectionAdapter< Range<T, StoragePolicy> > {
 
     template <class C,class V>
     static void insertAt(C&& c,Iterator i,V&& v) {
-        c.insert(i,std::forward<V>(v));
+        static_assert(templatious::util::DummyResolver<C,false>::val,
+            "Range proxy class is uninsertable.");
     }
 
     template <class C>
     static void erase(C&& c, Iterator i) {
-        c.erase(i);
+        static_assert(templatious::util::DummyResolver<C,false>::val,
+            "Range proxy class is unerasable.");
     }
 
     template <class C>
     static void erase(C&& c, Iterator beg, Iterator end) {
-        c.erase(beg,end);
+        static_assert(templatious::util::DummyResolver<C,false>::val,
+            "Range proxy class is unerasable.");
     }
 
     template <class C>
