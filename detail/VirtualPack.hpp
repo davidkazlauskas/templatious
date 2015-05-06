@@ -33,6 +33,11 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(
     " than expected."
 );
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    VirtualPackTypeOutOfBoundsException,
+    "Asked type/constness info is out of bounds."
+);
+
 template <int i>
 struct RecursiveCaller {
     template <class TypeList,class F,class... Tail>
@@ -1125,14 +1130,16 @@ struct VirtualPackImpl : public VirtualPack {
     }
 
     const std::type_index& typeAt(int i) const override {
-        assert( (i < pack_size || i > 0)
-            && "Whoa cholo, going too far, don't ya think?" );
+        if (i >= pack_size || i < 0) {
+            throw VirtualPackTypeOutOfBoundsException();
+        }
         return tArr()[i];
     }
 
     bool constAt(int i) const override {
-        assert( (i < pack_size || i >= 0)
-            && "Whoa cholo, going too far, don't ya think?" );
+        if (i >= pack_size || i < 0) {
+            throw VirtualPackTypeOutOfBoundsException();
+        }
         return _cont.constness(i);
     }
 
