@@ -90,7 +90,7 @@ public:
     template <class V>
     Range(V&& v,const Iterator& b) :
         _c(std::forward<V>(v)), _b(b),
-        _e(_c.getRef()), _cleared(false) {}
+        _e(Ad::end(_c.getRef())), _cleared(false) {}
 
     Range(ThisRange&& r) :
         _c(r._c.cpy()),
