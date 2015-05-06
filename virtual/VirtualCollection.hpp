@@ -66,7 +66,6 @@ struct VCollectionBase {
     virtual bool canAdd() const = 0;
     virtual long size() const = 0;
 
-    virtual bool equals(ThisCol& c) const = 0;
     virtual bool equals(ThisCol* c) const = 0;
 protected:
 
@@ -304,10 +303,6 @@ struct VCollectionImpl:
 
     virtual long size() const {
         return Ad::size(cgetColRef());
-    }
-
-    virtual bool equals(Super& c) const {
-        return comp(c);
     }
 
     virtual bool equals(Super* c) const {
