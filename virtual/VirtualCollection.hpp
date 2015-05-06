@@ -311,6 +311,9 @@ struct VCollectionImpl:
     }
 
     virtual bool equals(Super* c) const {
+        if (nullptr == c) {
+            return false;
+        }
         return comp(*c);
     }
 
@@ -453,6 +456,7 @@ struct VCollection {
     }
 
     bool operator==(const VCollection& vc) const {
+        if (_b == nullptr) return false;
         return _b->equals(vc._b);
     }
 
