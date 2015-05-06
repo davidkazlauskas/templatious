@@ -363,6 +363,7 @@ struct VCollection {
     ThisCol& operator=(ThisCol&& o) {
         _b = o._b;
         o._b = nullptr;
+        return *this;
     }
 
     virtual ~VCollection() { delete _b; }
