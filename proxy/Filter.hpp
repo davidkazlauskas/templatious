@@ -174,6 +174,7 @@ public:
 
         typedef PIterator<I,Fun> ThisIter;
         typedef decltype(*_i) IVal;
+        static const bool is_rvalue = std::is_rvalue_reference<IVal>::value;
 
         template <class V>
         PIterator(const I& i,const I& e,V&& fn) :
@@ -216,10 +217,13 @@ public:
             return *(this->_i);
         }
 
+        template <bool Rval = is_rvalue>
         auto operator->()
-            -> decltype(&(this->_i))
+            -> typename std::enable_if<
+                !Rval,decltype(std::addressof(*(this->_i)))
+            >::type
         const {
-            return &(this->_i);
+            return std::addressof(*(this->_i));
         }
 
         auto getInternal()
