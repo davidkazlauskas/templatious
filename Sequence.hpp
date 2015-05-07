@@ -87,8 +87,13 @@ struct SeqIter {
     }
 
     bool operator>(const ThisIter& rhs) const {
-        return (_count > rhs._count && _step > 0)
-            || (_count < rhs._count && _step < 0);
+        if (addOnIncrement) {
+            return (_count > rhs._count && _step > 0)
+                || (_count < rhs._count && _step < 0);
+        } else {
+            return (_count > rhs._count && _step < 0)
+                || (_count < rhs._count && _step > 0);
+        }
     }
 
     bool operator==(const ThisIter& rhs) const {
@@ -231,19 +236,35 @@ struct SeqL : public SeqBase<T> {
     }
 
     ThisIter iterAt(Unit i) const {
-        ThisIter res(_beg + i * _step,_step);
-        if (res > end()) {
-            throw IteratorPastEndException();
+        if (!isReversed) {
+            ThisIter res(_beg + i * _step,_step);
+            if (res > end()) {
+                throw IteratorPastEndException();
+            }
+            return res;
+        } else {
+            ThisIter res(_end - i * _step,_step);
+            if (res > end()) {
+                throw IteratorPastEndException();
+            }
+            return res;
         }
-        return res;
     }
 
     ConstIter citerAt(Unit i) const {
-        ConstIter res(_beg + i * _step,_step);
-        if (res > end()) {
-            throw IteratorPastEndException();
+        if (!isReversed) {
+            ThisIter res(_beg + i * _step,_step);
+            if (res > end()) {
+                throw IteratorPastEndException();
+            }
+            return res;
+        } else {
+            ThisIter res(_end - i * _step,_step);
+            if (res > end()) {
+                throw IteratorPastEndException();
+            }
+            return res;
         }
-        return res;
     }
 
 private:
