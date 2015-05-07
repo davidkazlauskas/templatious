@@ -43,8 +43,8 @@ struct SeqL;
 typedef SeqL<int> Loop;
 
 // Sequence exceptions
-TEMPLATIOUS_BOILERPLATE_EXCEPTION(IllogicalSequenceException,
-    "Sequence is illogical.");
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(NullStepException,
+    "Step has to be non zero.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(NegativeStepException,
     "Sequence step has to be positive.");
 TEMPLATIOUS_BOILERPLATE_EXCEPTION(IncorrectBoundsException,
@@ -142,30 +142,12 @@ struct SeqL : public SeqBase<T> {
 
     typedef ThisIter ConstIter;
 
-    SeqL(Unit end) {
-        _beg = 0;
-        _step = 1;
-        _end = getPerfectEnd(end);
-
-        loopAssert();
-    }
-
-    SeqL(Unit beg,Unit end) {
-        if (Base::is_signed && beg > end) {
-            _step = -1;
-        } else {
-            _step = 1;
-        }
-
-        _beg = beg;
-        _end = getPerfectEnd(end);
-
-        loopAssert();
-    }
-
     SeqL(Unit beg,Unit end,Unit step) {
         _beg = beg;
         _step = step;
+        if (_step == 0) {
+            throw NullStepException();
+        }
         _end = getPerfectEnd(end);
 
         if (_step <= 0) {
@@ -244,9 +226,6 @@ struct SeqL : public SeqBase<T> {
     Unit size() const {
         Unit res = _end - _beg;
         res = res / _step + (res % _step != 0 ? 1 : 0);
-        if (res < 0) {
-            res = -res;
-        }
         return res;
     }
 
@@ -277,12 +256,6 @@ private:
         return ThisIter(_beg + res * _step);
     }
 
-    ConstIter cstandardEnd() const {
-        Unit res = _end - _beg;
-        res = (res / _step) + ( (res % _step) == 0 ? 0 : 1 );
-        return ConstIter(_beg + res * _step);
-    }
-
     Unit getModulus() const {
         Unit diff = (_end - _beg) % _step;
         if (0 == diff) {
@@ -296,14 +269,7 @@ private:
             if (_beg > _end) {
                 throw UnsignedSequenceException();
             }
-        } else {
-            bool cond = (_beg <= _end && _step > 0)
-                 || (_beg >= _end && _step < 0);
-            if (!cond) {
-                throw IllogicalSequenceException();
-            }
         }
-
     }
 
     T getPerfectEnd(const T& end) const {
@@ -312,8 +278,6 @@ private:
         if (diff % _step != 0) {
             if (diff > 0) {
                 ++total;
-            } else {
-                --total;
             }
         }
 
