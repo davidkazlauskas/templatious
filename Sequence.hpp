@@ -87,7 +87,8 @@ struct SeqIter {
     }
 
     bool operator>(const ThisIter& rhs) const {
-        return _count > rhs._count;
+        return (_count > rhs._count && _step > 0)
+            || (_count < rhs._count && _step < 0);
     }
 
     bool operator==(const ThisIter& rhs) const {
