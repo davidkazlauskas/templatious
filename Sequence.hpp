@@ -59,6 +59,7 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(UnsignedSequenceException,
 template <class T,bool addOnIncrement>
 struct SeqIter {
     typedef T Unit;
+    typedef typename std::remove_const<Unit>::type NConstUnit;
     typedef SeqIter<Unit,addOnIncrement> ThisIter;
 
     SeqIter(Unit count,Unit step) :
@@ -85,6 +86,10 @@ struct SeqIter {
         return *this;
     }
 
+    bool operator>(const ThisIter& rhs) const {
+        return _count > rhs._count;
+    }
+
     bool operator==(const ThisIter& rhs) const {
         return _count == rhs._count;
     }
@@ -98,7 +103,7 @@ struct SeqIter {
     }
 
 private:
-    mutable Unit _count;
+    mutable NConstUnit _count;
     Unit _step;
 };
 
@@ -135,12 +140,7 @@ struct SeqL : public SeqBase<T> {
                 >::type
         >::type ThisIter;
 
-    typedef typename std::conditional<
-        Base::is_signed,SeqIter<const T>,
-                typename std::conditional<
-                    !isReversed,SeqIter<const T>,SeqIter<const T,false>
-                >::type
-        >::type ConstIter;
+    typedef ThisIter ConstIter;
 
     SeqL(Unit end) {
         _beg = 0;
@@ -255,6 +255,7 @@ struct SeqL : public SeqBase<T> {
         if (res > end()) {
             throw IteratorPastEndException();
         }
+        return res;
     }
 
     ConstIter citerAt(Unit i) const {
@@ -262,6 +263,7 @@ struct SeqL : public SeqBase<T> {
         if (res > end()) {
             throw IteratorPastEndException();
         }
+        return res;
     }
 
 private:
@@ -370,12 +372,12 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
 
     template <class U = int>
     static Iterator iterAt(ThisCol& c,long i) {
-        return c.iterAt(c,i);
+        return c.iterAt(i);
     }
 
     template <class U = int>
     static ConstIterator citerAt(ThisCol& c,long i) {
-        return c.citerAt(c,i);
+        return c.citerAt(i);
     }
 
     // Invalid adapter method for loop class follow:
@@ -511,12 +513,12 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
 
     template <class U = int>
     static Iterator iterAt(ThisCol& c,long i) {
-        return c.iterAt(c,i);
+        return c.iterAt(i);
     }
 
     template <class U = int>
     static ConstIterator citerAt(ThisCol& c,long i) {
-        return c.citerAt(c,i);
+        return c.citerAt(i);
     }
 
     // Invalid adapter method for loop class follow:
