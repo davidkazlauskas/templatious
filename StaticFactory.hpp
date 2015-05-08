@@ -1915,7 +1915,7 @@ struct StaticFactory {
     {
         typedef VirtualMatchFunctorVImpl<
             StoragePolicy,
-            T...
+            decltype(std::forward<T>(t))...
         > TheImpl;
 
         return std::unique_ptr< TheImpl >(

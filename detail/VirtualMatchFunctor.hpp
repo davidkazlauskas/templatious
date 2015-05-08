@@ -367,6 +367,8 @@ struct VirtualMatchFunctor {
             throw VirtualPackMatcherNoMatchException();
         }
     }
+
+    virtual ~VirtualMatchFunctor() {}
 };
 
 template <
