@@ -351,6 +351,10 @@ struct StaticVector {
         return _vct[pos];
     }
 
+    T& operator[](ulong i) const {
+        return at(i);
+    }
+
     /**
      * Returns if vector is full.
      */
