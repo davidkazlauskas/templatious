@@ -485,6 +485,10 @@ struct StaticAdapter {
 
     /**
      * Get iterator from a collection by index.
+     * Requesting iterator at a position of size
+     * should return end iterator. However, anything
+     * more than that throws an exception. Requesting
+     * iterator at negative position throws an exception.
      * @param[in] c Collection to get iterator from.
      * @param[in] i Index of iterator to get.
      */
@@ -498,6 +502,10 @@ struct StaticAdapter {
 
     /**
      * Get constant iterator from a collection by index.
+     * Requesting iterator at a position of size
+     * should return end iterator. However, anything
+     * more than that throws an exception. Requesting
+     * iterator at negative position throws an exception.
      * @param[in] c Collection to get iterator from.
      * @param[in] i Index of iterator to get.
      */
