@@ -752,6 +752,33 @@ struct StaticBuffer {
     }
 
     /**
+     * Generate static vector with specified size
+     * with already preinitialized elements. Uses
+     * default constructor to initialize elements.
+     * If this exceeds the remaining memory in
+     * this buffer exception is thrown.
+     * @param[in] capacity Capacity of static
+     * vector.
+     */
+    auto getStaticVectorPre(int size)
+     -> StaticVector<T>
+    {
+        if (size <= 0) {
+            throw StaticBufferWrongSize();
+        }
+
+        if (remainingSize() < size) {
+            throw StaticBufferExceedException();
+        }
+
+        // being explicit never hurts
+        return std::move(
+            StaticVector<T>(
+                nextPtr(size),size,size)
+        );
+    }
+
+    /**
      * Generate static vector with a remaining
      * memory.
      */
@@ -761,6 +788,21 @@ struct StaticBuffer {
         // being explicit never hurts
         return std::move(
             getStaticVector(remainingSize())
+        );
+    }
+
+    /**
+     * Generate static vector with a remaining
+     * memory with preinitialized elements.
+     * Uses default constructor to construct
+     * elements.
+     */
+    auto getStaticVectorPre()
+     -> StaticVector<T>
+    {
+        // being explicit never hurts
+        return std::move(
+            getStaticVectorPre(remainingSize())
         );
     }
 
