@@ -35,7 +35,7 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
     DynamicVMatchFunctor(const DynamicVMatchFunctor&) = delete;
 
     DynamicVMatchFunctor(DynamicVMatchFunctor&& d) :
-        _idCount(d._idCount)
+        _isBroadcast(d._isBroadcast), _idCount(d._idCount)
     {
         d.swapTo(*this);
     }
