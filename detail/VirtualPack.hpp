@@ -832,7 +832,11 @@ struct VirtualPackWaitTrait : public Inherit {
         _f(_p.get_future()) {}
 
     void setReady() const {
-        _p.set_value();
+        if (_f.wait_for(std::chrono::seconds(0)) !=
+                std::future_status::ready)
+        {
+            _p.set_value();
+        }
     }
 
     void wait() const {
