@@ -673,6 +673,17 @@ struct StaticAdapter {
     /**
      * Clear collection.
      * @param[out] c Collection to clear.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     *
+     * // v contains {0,1,2,3,4,5,6}
+     * SA::clear(v);
+     *
+     * // v contains {} (nothing)
+     * ~~~~~~~
      */
     template <class T>
     static void clear(T&& c) {
