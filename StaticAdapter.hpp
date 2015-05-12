@@ -554,6 +554,7 @@ struct StaticAdapter {
      * SA::erase(v,SA::begin(v));
      *
      * // v contains {1,2,3,4,5,6}
+     * ~~~~~~~
      */
     template <class T>
     static void erase(T& c,
@@ -568,6 +569,17 @@ struct StaticAdapter {
      * position until end.
      * @param[in,out] c Collection to erase from.
      * @param[in] pos Iterator to start erasing from.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     *
+     * // v contains {0,1,2,3,4,5,6}
+     * SA::eraseTillEnd(v,SA::iterAt(v,3));
+     *
+     * // v contains {0,1,2}
+     * ~~~~~~~
      */
     template <class T>
     static void eraseTillEnd(T& c,
