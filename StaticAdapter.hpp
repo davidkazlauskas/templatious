@@ -348,6 +348,17 @@ struct StaticAdapter {
      * Individual elements in packs or collections
      * are added.
      * @param[in] args The rest of the values to be processed.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     *
+     * auto p = SF::pack(1,2,3);
+     *
+     * SA::add(v,p,4,5,SF::seqL(6,8));
+     *
+     * // v now contains {1,2,3,4,5,6,7}
+     * ~~~~~~~
      */
     template <class T, class U, class... Args>
     static void add(T& c, U&& o, Args&&... args) {
@@ -365,6 +376,24 @@ struct StaticAdapter {
      * Can be pack, collection or a simple variable.
      * Individual elements in packs or collections
      * are added.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * struct SomePod {
+     *     SomePod() : _num(7) {}
+     *
+     *     int _num;
+     * };
+     *
+     * SomePod p;
+     *
+     * std::vector<int> v;
+     * SA::addCustom(v,[](const SomePod& p) {
+     *     return p._num;
+     * },p,p,p);
+     *
+     * // v now contains {7,7,7}
+     * ~~~~~~~
      */
     template <class T, class F, class U>
     static void addCustom(T& c, F&& f, U&& o) {
