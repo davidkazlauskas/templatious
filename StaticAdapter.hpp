@@ -239,6 +239,7 @@ private:
  * a single collection.
  */
 struct StaticAdapter {
+
     /**
      * Returns begin iterator for any collection.
      * @param[in] c Collection
@@ -290,6 +291,12 @@ struct StaticAdapter {
      * Adds element to any collection with initializer list.
      * @param[in,out] c Collection to be added to.
      * @param[in] o Initializer list.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,{1,2,3,4});
+     * ~~~~~~~
      */
     template <class T, class U>
     static void add(T& c, const std::initializer_list<U>& o) {
@@ -303,12 +310,23 @@ struct StaticAdapter {
     }
 
     /**
-     * Adds elements to any collection.
+     * Adds packs/elements/collections to any collection.
      * @param[in,out] c Collection to be added to.
      * @param[in] o Value to be added.
      * Can be pack, collection or a simple variable.
      * Individual elements in packs or collections
      * are added.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     *
+     * auto p = SF::pack(1,2,3);
+     *
+     * SA::add(v,p,4,5,SF::seqL(6,8));
+     *
+     * // v now contains {1,2,3,4,5,6,7}
+     * ~~~~~~~
      */
     template <class T, class U>
     static void add(T& c, U&& o) {
