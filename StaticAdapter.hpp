@@ -416,6 +416,24 @@ struct StaticAdapter {
      * Individual elements in packs or collections
      * are added.
      * @param[in] args The rest of the values to be processed.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * struct SomePod {
+     *     SomePod() : _num(7) {}
+     *
+     *     int _num;
+     * };
+     *
+     * SomePod p;
+     *
+     * std::vector<int> v;
+     * SA::addCustom(v,[](const SomePod& p) {
+     *     return p._num;
+     * },p,p,p);
+     *
+     * // v now contains {7,7,7}
+     * ~~~~~~~
      */
     template <class T, class F, class U, class... Args>
     static void addCustom(T& c, F&& f, U&& o, Args&&... args) {
@@ -461,8 +479,8 @@ struct StaticAdapter {
     }
 
     /**
-     * Determines if collection is eligible for
-     * element addition.
+     * Determines if elements could be added
+     * to collection.
      * @param[in] c Collection to query.
      */
     template <class T>
@@ -473,9 +491,18 @@ struct StaticAdapter {
     }
 
     /**
-     * Get element from collection by index.
+     * Get element from collection by index. Throws
+     * if out of bounds.
      * @param[in,out] c Collection to get element from.
      * @param[in] i Element index to get.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,7);
+     *
+     * assert( SA::getByIndex(v,0) == 7 );
+     * ~~~~~~~
      */
     template <class T>
     static auto getByIndex(T& c,long i)
