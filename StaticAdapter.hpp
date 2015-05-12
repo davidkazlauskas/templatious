@@ -740,8 +740,8 @@ struct StaticAdapter {
      * SA::add(v,SF::seqL(7));
      * // v contains {0,1,2,3,4,5,6}
      *
-     * auto b = SF::vbegin(v);
-     * auto e = SF::vend(v);
+     * auto b = SA::vbegin(v);
+     * auto e = SA::vend(v);
      *
      * someFunc(b,e);
      * // prints out:
