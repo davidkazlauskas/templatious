@@ -765,8 +765,34 @@ struct StaticAdapter {
     /**
      * Virtual end iterator. Can be used
      * for exposing elements across
-     * translation units.
+     * translation units and hiding true type
+     * signature of the iterator.
      * @param[in,out] c Collection to expose.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * typedef templatious::VIterator<int> VIter;
+     * void someFunc(VIter& b,VIter& e) {
+     *     while (b != e) {
+     *         std::cout << *b << " ";
+     *         ++b;
+     *     }
+     *     std::cout << std::endl;
+     * }
+     *
+     * ...
+     *
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     * // v contains {0,1,2,3,4,5,6}
+     *
+     * auto b = SA::vbegin(v);
+     * auto e = SA::vend(v);
+     *
+     * someFunc(b,e);
+     * // prints out:
+     * // 0 1 2 3 4 5 6
+     * ~~~~~~~
      */
     template <class T>
     static auto vend(T& c)
