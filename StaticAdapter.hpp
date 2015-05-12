@@ -598,6 +598,15 @@ struct StaticAdapter {
      * iterator at negative position throws an exception.
      * @param[in] c Collection to get iterator from.
      * @param[in] i Index of iterator to get.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     * // v contains {0,1,2,3,4,5,6}
+     *
+     * assert( *SA::iterAt(v,3) == 3 );
+     * ~~~~~~~
      */
     template <class T>
     static auto iterAt(T& c,long i)
@@ -615,6 +624,15 @@ struct StaticAdapter {
      * iterator at negative position throws an exception.
      * @param[in] c Collection to get iterator from.
      * @param[in] i Index of iterator to get.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     * // v contains {0,1,2,3,4,5,6}
+     *
+     * assert( *SA::citerAt(v,3) == 3 );
+     * ~~~~~~~
      */
     template <class T>
     static auto citerAt(T& c,long i)
@@ -630,6 +648,17 @@ struct StaticAdapter {
      * @param[in] at Position iterator where to insert.
      * Inserted element replaces element pointed to this iterator.
      * @param[in] val Value to insert.
+     *
+     * Example:
+     * ~~~~~~~ C++
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(7));
+     *
+     * // v contains {0,1,2,3,4,5,6}
+     * SA::insert(v,SA::iterAt(v,3),10);
+     *
+     * // v contains {0,1,2,10,3,4,5,6}
+     * ~~~~~~~
      */
     template <class T,class V>
     static void insert(
