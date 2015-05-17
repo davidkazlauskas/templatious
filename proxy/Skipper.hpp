@@ -220,12 +220,14 @@ public:
             return !(*this == rhs);
         }
 
-        IVal& operator*()
+        auto operator*()
+            -> decltype(*std::declval<I&>())
         {
             return *(this->_i);
         }
 
-        const IVal& operator*() const
+        auto operator*() const
+            -> decltype(*std::declval<const I&>())
         {
             return *(this->_i);
         }

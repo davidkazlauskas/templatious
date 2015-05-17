@@ -86,6 +86,11 @@ struct SeqIter {
         return *this;
     }
 
+    ThisIter& operator+=(long s) {
+        _count += s * _step;
+        return *this;
+    }
+
     bool operator>(const ThisIter& rhs) const {
         if (addOnIncrement) {
             return (_count > rhs._count && _step > 0)
@@ -94,6 +99,18 @@ struct SeqIter {
             return (_count > rhs._count && _step < 0)
                 || (_count < rhs._count && _step > 0);
         }
+    }
+
+    bool operator<(const ThisIter& rhs) const {
+        return rhs > *this;
+    }
+
+    bool operator<=(const ThisIter& rhs) const {
+        return !(*this > rhs);
+    }
+
+    bool operator>=(const ThisIter& rhs) const {
+        return !(*this < rhs);
     }
 
     bool operator==(const ThisIter& rhs) const {
