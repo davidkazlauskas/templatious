@@ -17,7 +17,7 @@ Then, on your favorite C++ buildsystem add the include directory (for instance, 
 include_directories( /home/theuser/Templatious-Clone )
 ~~~~~~
 
-However, on most of the other repositories for the templatious library (like, test suite, is it fast, decoupled GUI examples) TEMPLATIOUS_DIR enviroment variable is use.
+However, on most of the other repositories for the templatious library (like, test suite, is it fast, decoupled GUI examples) TEMPLATIOUS_DIR enviroment variable is used.
 
 In bash shell:
 ~~~~~~~
