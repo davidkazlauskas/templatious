@@ -1,6 +1,7 @@
 # templatious
 
 This library was created to avoid many boilerplates in C++11 code. Examples and documentation is on  http://www.templatious.org/ .
+[![Build Status](https://travis-ci.org/davidkazlauskas/tests-templatious.svg?branch=master)](https://travis-ci.org/davidkazlauskas/tests-templatious)
 
 To use this library you can take these example steps:
 
