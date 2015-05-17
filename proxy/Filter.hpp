@@ -178,7 +178,7 @@ public:
             std::is_rvalue_reference<IVal>::value
             || !std::is_reference<IVal>::value;
         typedef typename std::conditional< !is_rvalue,
-            I,void*>::type PtrDerefType;
+            I,void**>::type PtrDerefType;
 
 
         template <class V>
