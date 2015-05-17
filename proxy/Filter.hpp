@@ -224,7 +224,7 @@ public:
         template <bool Rval = is_rvalue>
         auto operator->()
             -> typename std::enable_if<
-                !Rval,decltype(std::addressof(*std::declval<PtrDerefType>()))
+                !Rval,decltype(std::addressof(*std::declval<PtrDerefType&>()))
             >::type
         const {
             return std::addressof(*(this->_i));
