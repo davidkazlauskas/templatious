@@ -24,6 +24,7 @@
 #define FILTER_O8Y22ICC
 
 #include <utility>
+#include <memory> // std::addressof
 
 #include <templatious/util/Exceptions.hpp>
 #include <templatious/CollectionAdapter.hpp>
