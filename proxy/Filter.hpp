@@ -173,7 +173,7 @@ public:
     public:
 
         typedef PIterator<I,Fun> ThisIter;
-        typedef decltype(*_i) IVal;
+        typedef decltype(*_i)&& IVal;
         static const bool is_rvalue = std::is_rvalue_reference<IVal>::value;
 
         template <class V>
