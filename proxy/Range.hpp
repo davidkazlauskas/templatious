@@ -163,7 +163,11 @@ public:
 
         typedef PIterator<I> ThisIter;
         typedef decltype(*_i) IVal;
-        static const bool is_rvalue = std::is_rvalue_reference<IVal>::value;
+        static const bool is_rvalue =
+            std::is_rvalue_reference<IVal>::value
+            || !std::is_reference<IVal>::value;
+        typedef typename std::conditional< !is_rvalue,
+            I,void**>::type PtrDerefType;
 
         PIterator(const I& i) : _i(i) {}
 
@@ -205,7 +209,7 @@ public:
         template <bool Rval = is_rvalue>
         auto operator->()
             -> typename std::enable_if<
-                !Rval,decltype(std::addressof(*(this->_i)))
+                !Rval,decltype(std::addressof(*(std::declval<PtrDerefType>())))
             >::type
         const {
             return std::addressof(*(this->_i));
