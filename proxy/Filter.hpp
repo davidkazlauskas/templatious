@@ -24,7 +24,6 @@
 #define FILTER_O8Y22ICC
 
 #include <utility>
-#include <memory> // std::addressof
 
 #include <templatious/util/Exceptions.hpp>
 #include <templatious/CollectionAdapter.hpp>
@@ -221,7 +220,8 @@ public:
         template <bool Rval = is_rvalue>
         auto operator->()
             -> typename std::enable_if<
-                !Rval,decltype(std::addressof(*(this->_i)))
+                !Rval,decltype(std::addressof(
+                    *(std::declval<ThisIter>()._i)))
             >::type
         const {
             return std::addressof(*(this->_i));
