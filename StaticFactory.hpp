@@ -57,6 +57,12 @@ struct StaticFactory {
      * @param[in] Collection allocator template, defaults
      * to std::allocator (ignored if collection doesn't
      * use allocators).
+     *
+     * Example:
+     * ~~~~~~~
+     * // makes std::vector<int>
+     * auto v = SF::makeCollection<int,std::vector>();
+     * ~~~~~~~
      */
     template <
         class Val,
@@ -83,6 +89,12 @@ struct StaticFactory {
      * @param[in] Collection allocator template, defaults
      * to std::allocator (ignored if collection doesn't
      * use allocators).
+     *
+     * Example:
+     * ~~~~~~~
+     * // makes std::vector<int> with capacity 64
+     * auto v = SF::makeCollection<int,std::vector>(64);
+     * ~~~~~~~
      */
     template <
         class Val,
