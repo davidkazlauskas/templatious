@@ -1421,6 +1421,25 @@ struct StaticFactory {
      * @param[in] StoragePolicy storage policy
      * to store arguments. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * int a = 1;
+     * int b = 2;
+     *
+     * auto p = SF::pack(a,b);
+     * auto l = [](int& x,int& y) {
+     *     ++x;
+     *     ++y;
+     * };
+     *
+     * auto pf = SF::packFunctor(l,p);
+     *
+     * pf();
+     * assert( a == 2 && b == 3 );
+     * pf();
+     * assert( a == 3 && b == 4 );
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
