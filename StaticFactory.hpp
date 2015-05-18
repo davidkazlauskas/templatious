@@ -1178,6 +1178,25 @@ struct StaticFactory {
      * @param[in] StoragePolicy Pack storage
      * policy for saving elements. Defaults
      * to DefaultPackStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * a = 1;
+     * b = 2;
+     * c = 3;
+     *
+     * auto p = SF::pack(a,b,c);
+     * assert( p.get<0>() == 1 );
+     * assert( p.get<1>() == 2 );
+     * assert( p.get<2>() == 3 );
+     *
+     * // since lvalues were passed in
+     * // creation of the pack, original
+     * // values can be mutated
+     * p.get<0>() = 7;
+     * assert( a == 7 );
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
