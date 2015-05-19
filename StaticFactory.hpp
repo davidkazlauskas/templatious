@@ -116,6 +116,16 @@ struct StaticFactory {
      * 0 until end by step of 1.
      * @param[in] end Value to specify end
      * of collection.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s = SF::seqL(3);
+     * TEMPLATIOUS_FOREACH(int i,s) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out:
+     * // 0 1 2
+     * ~~~~~~~
      */
     template <class T>
     static auto seqL(const T& end)
@@ -132,6 +142,16 @@ struct StaticFactory {
      * of collection.
      * @param[in] end Value to specify end
      * of collection.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s = SF::seqL(2,5);
+     * TEMPLATIOUS_FOREACH(int i,s) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out:
+     * // 2 3 4
+     * ~~~~~~~
      */
     template <class T>
     static auto seqL(const T& start,const T& end)
@@ -151,6 +171,16 @@ struct StaticFactory {
      * @param[in] step Value to specify step
      * of collection. Has to be always positive,
      * even if start > end.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s = SF::seqL(2,7,2);
+     * TEMPLATIOUS_FOREACH(int i,s) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out:
+     * // 2 4 6
+     * ~~~~~~~
      */
     template <class T>
     static auto seqL(const T& start,const T& end,const T& step)
