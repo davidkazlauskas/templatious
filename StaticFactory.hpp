@@ -435,6 +435,20 @@ struct StaticFactory {
      * @param[in] StoragePolicy Storage policy
      * to specify how to store t. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::range(v,SA::iterAt(v,2),SA::iterAt(v,5));
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 3 4
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -461,6 +475,20 @@ struct StaticFactory {
      * @param[in] StoragePolicy Storage policy
      * to specify how to store t. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::range(v,SA::iterAt(v,2));
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 3 4 5 6 7 8 9
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -489,6 +517,20 @@ struct StaticFactory {
      * @param[in] StoragePolicy Storage policy
      * to specify how to store t. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::range(v,2,5);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 3 4
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -521,6 +563,20 @@ struct StaticFactory {
      * @param[in] StoragePolicy Storage policy
      * to specify how to store t. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::range(v,2);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 3 4 5 6 7 8 9
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
