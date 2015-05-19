@@ -965,6 +965,34 @@ struct StaticFactory {
      * freeing it. Handle assumes that collection
      * is always valid and not freed.
      * @param[in] t Collection to virtualize.
+     *
+     * Example:
+     * ~~~~~~~
+     * void printAnyCollection(templatious::VCollection<int>& vcol) {
+     *     auto b = SA::begin(vcol);
+     *     auto e = SA::end(vcol);
+     *     while ( b != e ) {
+     *         std::cout << *b << " ";
+     *         ++b;
+     *     }
+     * }
+     *
+     * ..
+     * auto s = SF::seqL(10);
+     * std::vector<int> v;
+     * SA::add(v,s);
+     *
+     * // v and s both contain {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto vs = SF::vcollection(s);
+     * auto vv = SF::vcollection(v);
+     *
+     * // function doesn't know any
+     * // difference if it's using
+     * // std::vector or templatious sequence.
+     * printAnyCollection(vs);
+     * printAnyCollection(vv);
+     * ~~~~~~~
      */
     template <
         class T,
