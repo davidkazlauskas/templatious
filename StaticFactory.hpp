@@ -980,11 +980,13 @@ struct StaticFactory {
      * ..
      * auto s = SF::seqL(10);
      * std::vector<int> v;
+     * std::list<int> l;
      * SA::add(v,s);
+     * SA::add(l,v);
      *
-     * // v and s both contain {0,1,2,3,4,5,6,7,8,9}
+     * // v and l both contain {0,1,2,3,4,5,6,7,8,9}
      *
-     * auto vs = SF::vcollection(s);
+     * auto vl = SF::vcollection(l);
      * auto vv = SF::vcollection(v);
      *
      * // function doesn't know any
