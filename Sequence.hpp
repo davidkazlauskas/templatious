@@ -379,7 +379,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
     }
 
     template <class U = int>
-    static ConstIterator citerAt(ThisCol& c,long i) {
+    static ConstIterator citerAt(ConstCol& c,long i) {
         return c.citerAt(i);
     }
 
@@ -409,7 +409,7 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
                 collection, therefore, doesn't support this method.");
     }
 
-    static long size(const ThisCol& c) {
+    static long size(ConstCol& c) {
         return c.size();
     }
 
