@@ -660,6 +660,20 @@ struct StaticFactory {
      * to specify how to store the t collection
      * in the filter. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::filter(v,[](int i) { return i >= 3 && i <= 7; });
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 3 4 5 6 7
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -686,6 +700,21 @@ struct StaticFactory {
      * @param[in] Allocator Collection allocator.
      * Defaults to std::allocator (is ignored
      * if collection doesn't use allocators).
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * // return type is std::vector<int>
+     * std::vector<int> r = SF::filterC(v,[](int i) { return i >= 3 && i <= 7; });
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 3 4 5 6 7
+     * ~~~~~~~
      */
     template <
         template <class...> class Collection = std::vector,
