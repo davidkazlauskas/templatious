@@ -603,6 +603,21 @@ struct StaticFactory {
      * @param[in] Allocator Collection allocator.
      * Defaults to std::allocator (is ignored
      * if collection doesn't use allocators).
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * // return value is std::vector
+     * std::vector<int> r = SF::rangeC(v,2);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 3 4 5 6 7 8 9
+     * ~~~~~~~
      */
     template <
         template <class...> class Collection = std::vector,
