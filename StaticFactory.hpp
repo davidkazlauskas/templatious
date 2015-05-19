@@ -300,6 +300,17 @@ struct StaticFactory {
      * store collection c in itself.
      * Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s = SF::seqL(3);
+     * auto r = SF::repA(5,s);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 0 1 2 0 1
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -335,6 +346,17 @@ struct StaticFactory {
      * store collection c in itself.
      * Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s = SF::seqL(3);
+     * auto r = SF::repM(5,s);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 0 1 2 0 1 2 0 1 2 0 1 2 0 1 2
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
@@ -370,6 +392,16 @@ struct StaticFactory {
      * store element t in itself.
      * Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto r = SF::repS(3,2);
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 2 2 2
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
