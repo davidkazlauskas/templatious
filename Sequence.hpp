@@ -479,6 +479,10 @@ struct CollectionAdapter< templatious::SeqL<T,isReversed> > {
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
     }
+
+    static bool canAdd(ConstCol& c) {
+        return false;
+    }
 };
 
 template <class T,bool isReversed>
@@ -595,6 +599,10 @@ struct CollectionAdapter< const templatious::SeqL<T,isReversed> > {
         static_assert(templatious::util::DummyResolver<U, false>::val,
                       "Loop class is not meant to be a full fledged \
                 collection, therefore, doesn't support this method.");
+    }
+
+    static bool canAdd(ConstCol& c) {
+        return false;
     }
 };
 
