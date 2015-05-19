@@ -843,6 +843,20 @@ struct StaticFactory {
      * @param[in] ColType Type of the resulting
      * collection. If void it is inferred from
      * predicate function passed. Defaults to void.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * auto r = SF::select(v,[](int i) { return 10 * i; });
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 0 10 20 30 40 50 60 70 80 90
+     * ~~~~~~~
      */
     template <
         class ColType = void, // infer from function if void
@@ -876,6 +890,21 @@ struct StaticFactory {
      * @param[in] ColType Type of the resulting
      * collection. If void it is inferred from
      * predicate function passed. Defaults to void.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,SF::seqL(10));
+     * // v contains {0,1,2,3,4,5,6,7,8,9}
+     *
+     * // return type is std::vector<int>
+     * std::vector<int> r = SF::selectC(v,[](int i) { return 10 * i; });
+     * TEMPLATIOUS_FOREACH(int i,r) {
+     *     std::cout << i << " ";
+     * }
+     * // prints out
+     * // 0 10 20 30 40 50 60 70 80 90
+     * ~~~~~~~
      */
     template <
         class ColType = void, // infer from function if void
