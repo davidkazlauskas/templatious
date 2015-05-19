@@ -1029,6 +1029,18 @@ struct StaticFactory {
      * @param[in] StoragePolicy storage policy for collection
      * as well as function. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * bool destroyed = false;
+     * {
+     *     auto vc = SF::vcollectionWDtor(v,[&]() {
+     *         destroyed = true;
+     *     });
+     * }
+     * assert( destroyed );
+     * ~~~~~~~
      */
     template <
         class T,
