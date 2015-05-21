@@ -1974,7 +1974,7 @@ struct StaticFactory {
      * @param[in] MatchAlgorithm User supplied
      * template function for matching.
      *
-     * Example:
+     * Synopsis:
      * ~~~~~~~
      * // TypeList - typelist which contains
      * // all the types current call has.
@@ -1990,6 +1990,44 @@ struct StaticFactory {
      * // be called like:
      * // if (UserMatcher< TypeList<A,B,C> >::does_match )
      * //     { MATCHED }
+     * ~~~~~~~
+     *
+     * Example:
+     * ~~~~~~~
+     * template <class TypeList>
+     * struct MatchSingleDouble {
+     *     typedef typename TypeList::template ByIndex<0>::type FirstType;
+     *     typedef typename std::decay<FirstType>::type DecType;
+     *     static const bool isDouble =
+     *         std::is_same<DecType,double>::value;
+     *
+     *     static const bool expectedNumOfArgs = TypeList::size == 1;
+     *
+     *     static const bool does_match = isDouble && expectedNumOfArgs;
+     * };
+     *
+     * struct AnyMatch {
+     *     template <class... T>
+     *     std::string operator()(T&&... args) {
+     *         return "no match";
+     *     }
+     * };
+     *
+     * ...
+     * auto mf = SF::matchFunctor(
+     *     SF::matchSpecialExt<MatchSingleDouble>(
+     *     [](double d) -> std::string {
+     *         return "caught double";
+     *     }),
+     *     SF::matchAny(AnyMatch())
+     * );
+     *
+     * assert( mf(7.7) == "caught double" );
+     * assert( mf(7.7f) == "no match" );
+     * assert( mf(7) == "no match" );
+     * assert( mf('7') == "no match" );
+     * assert( mf("string") == "no match" );
+     * assert( mf(std::string("string")) == "no match" );
      * ~~~~~~~
      */
     template <
