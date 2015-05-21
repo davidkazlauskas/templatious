@@ -1882,7 +1882,7 @@ struct StaticFactory {
      * @param[in] MatchAlgorithm User supplied
      * template function for matching.
      *
-     * Example:
+     * Synposis:
      * ~~~~~~~
      * // CurrentMatch - current argument type
      * // being matched.
@@ -1890,7 +1890,6 @@ struct StaticFactory {
      * // starting with 1
      * template <class CurrentMatch,int pos>
      * struct UserMatcher {
-     *
      *     // does_match - result of this function.
      *     // Must be true for all arguments to use
      *     // this match.
@@ -1907,6 +1906,42 @@ struct StaticFactory {
      * // if (UserMatcher<A,1>::does_match &&
      * // UserMatcher<B,2>::does_match &&
      * // UserMatcher<C,3>::does_match) { MATCHED }
+     * ~~~~~~~
+     *
+     * Example:
+     * ~~~~~~~
+     * template <class CurrentMatch,int pos>
+     * struct MatchSingleDouble {
+     *     typedef typename std::decay<CurrentMatch>::type DecType;
+     *     static const bool isDouble =
+     *         std::is_same<DecType,double>::value;
+     *
+     *     static const bool does_match = isDouble && pos == 1;
+     *     static const int num_args = 0;
+     * };
+     *
+     * struct AnyMatch {
+     *     template <class... T>
+     *     std::string operator()(T&&... args) {
+     *         return "no match";
+     *     }
+     * };
+     *
+     * ...
+     * auto mf = SF::matchFunctor(
+     *     SF::matchSpecial<MatchSingleDouble>(
+     *     [](double d) -> std::string {
+     *         return "caught double";
+     *     }),
+     *     SF::matchAny(AnyMatch())
+     * );
+     *
+     * assert( mf(7.7) == "caught double" );
+     * assert( mf(7.7f) == "no match" );
+     * assert( mf(7) == "no match" );
+     * assert( mf('7') == "no match" );
+     * assert( mf("string") == "no match" );
+     * assert( mf(std::string("string")) == "no match" );
      * ~~~~~~~
      */
     template <
