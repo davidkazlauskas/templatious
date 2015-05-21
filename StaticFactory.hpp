@@ -1959,6 +1959,29 @@ struct StaticFactory {
      * match templatious::AnyType.
      * @param[in] f Predicate function to hold.
      * @param[in] T... Type arguments to match.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto mf = SF::matchFunctor(
+     *     SF::matchLoose< int >(
+     *         [](int i) -> std::string { return "int"; }
+     *     ),
+     *     SF::matchLoose< char >(
+     *         [](char c) -> int { return 7; }
+     *     )
+     * );
+     *
+     * int a;
+     * char b;
+     *
+     * auto retA = mf(a);
+     * auto retB = mf(b);
+     *
+     * // retA -> std::string
+     * // retB -> int
+     * assert( retA == "int" );
+     * assert( retB == 7 );
+     * ~~~~~~~
      */
     template <class... T,class Func>
     static auto matchLoose(Func&& f)
