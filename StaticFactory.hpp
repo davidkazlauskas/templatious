@@ -2217,6 +2217,36 @@ struct StaticFactory {
      * Storage policy to store matches.
      * Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto toDoubleNum = SF::matchFunctor(
+     *     SF::matchLoose<int>([](int i) -> double {
+     *         return static_cast<double>(i);
+     *     }),
+     *     SF::matchLoose<char>([](char i) -> double {
+     *         return static_cast<double>(i);
+     *     })
+     * );
+     *
+     * auto toDoubleStr = SF::matchFunctor(
+     *     SF::matchLoose<const char*>([](const char* str) -> double {
+     *         return std::atof(str);
+     *     }),
+     *     SF::matchLoose<std::string>([](const std::string& str) -> double {
+     *         return std::atof(str.c_str());
+     *     })
+     * );
+     *
+     * auto toDouble = SF::matchFunctor(
+     *     toDoubleNum,toDoubleStr
+     * );
+     *
+     * assert( toDouble(7) == 7.0 );
+     * assert( toDouble('7') == 55.0 );
+     * assert( toDouble("7.7") == 7.7 );
+     * assert( toDouble(std::string("7.77")) == 7.77 );
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
