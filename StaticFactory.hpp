@@ -2172,6 +2172,20 @@ struct StaticFactory {
      * ~~~~~~~
      * return std::forward<T>(arg);
      * ~~~~~~~
+     *
+     * Example:
+     * ~~~~~~~
+     * auto mf = SF::matchFunctor(
+     *     SF::matchLoose<int>([](int i) -> std::string { return "this is int"; }),
+     *     SF::matchAnyForward()
+     * );
+     *
+     * int i;
+     * assert( mf(i) == "this is int" );
+     * assert( mf('7') == '7' );
+     * assert( mf("string") == std::string("string") );
+     * assert( mf(std::string("string")) == "string" );
+     * ~~~~~~~
      */
     template <class T = void>
     static auto matchAnyForward()
