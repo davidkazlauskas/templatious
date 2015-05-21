@@ -1977,6 +1977,9 @@ struct StaticFactory {
      * auto retA = mf(a);
      * auto retB = mf(b);
      *
+     * // Compile time error: nothing to catch the match
+     * // auto retC = mf(long(7));
+     *
      * // retA -> std::string
      * // retB -> int
      * assert( retA == "int" );
@@ -2029,6 +2032,9 @@ struct StaticFactory {
      * auto retA = mf(a);
      * auto retB = mf(b);
      *
+     * // Compile time error: nothing to catch the match
+     * // auto retC = mf(long(7));
+     *
      * // retA -> std::string
      * // retB -> int
      * assert( retA == "int" );
@@ -2068,6 +2074,30 @@ struct StaticFactory {
      * @param[in] StoragePolicy
      * Storage policy. Defaults to
      * templatious::util::DefaultStoragePolicy.
+     *
+     * Example:
+     * ~~~~~~~
+     * struct MatchStuff {
+     *     template <class... T>
+     *     std::string operator()(T&&... t) {
+     *         return "caught";
+     *     }
+     * };
+     *
+     * ...
+     *
+     * auto mf = SF::matchFunctor(
+     *     SF::matchAny(MatchStuff())
+     * );
+     *
+     * struct MyHipsterStruct {};
+     *
+     * assert( mf(1) == "caught" );
+     * assert( mf('1') == "caught" );
+     * assert( mf("const char") == "caught" );
+     * assert( mf(std::string("str")) == "caught" );
+     * assert( mf(MyHipsterStruct()) == "caught" );
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy =
