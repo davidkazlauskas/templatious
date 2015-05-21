@@ -2126,7 +2126,24 @@ struct StaticFactory {
     /**
      * Match anything and do nothing.
      * This is usually the last match
-     * in match functor.
+     * in match functor. Anything after this
+     * match will never be reached.
+     *
+     * Example:
+     * ~~~~~~~
+     * int sum = 0;
+     * auto wouldMatch = [&](int i) { sum += i; };
+     * auto mf = SF::matchFunctor(
+     *     SF::matchAnyDoNothing(),
+     *     SF::matchLoose<int>(wouldMatch)
+     * );
+     *
+     * int someInt = 10;
+     * mf(someInt);
+     * mf(someInt);
+     * mf(someInt);
+     * assert( sum == 0 );
+     * ~~~~~~~
      */
     static auto matchAnyDoNothing()
      -> detail::Match<
