@@ -1781,6 +1781,25 @@ struct StaticFactory {
      * match templatious::AnyType.
      * @param[in] f Predicate function to hold.
      * @param[in] T... Type arguments to match.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto mf = SF::matchFunctor(
+     *     SF::matchTight<int&>([](int& i) -> std::string {
+     *         return "tight";
+     *     }),
+     *     SF::matchLoose<int>([](const int& i) -> std::string {
+     *         return "loose";
+     *     })
+     * );
+     *
+     * int i;
+     * assert( mf(i) == "tight" );
+     * assert( mf(int(i)) == "loose" );
+     * assert( mf(static_cast<const int&>(i)) == "loose" );
+     * assert( mf(std::move(i)) == "loose" );
+     * assert( mf(7) == "loose" );
+     * ~~~~~~~
      */
     template <class... T,class Func>
     static auto matchTight(Func&& f)
@@ -1810,6 +1829,25 @@ struct StaticFactory {
      * @param[in] T... Typelist to match.
      * @param[in] StoragePolicy Storage
      * policy used for saving function.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto mf = SF::matchFunctor(
+     *     SF::matchTight<int&>([](int& i) -> std::string {
+     *         return "tight";
+     *     }),
+     *     SF::matchLoose<int>([](const int& i) -> std::string {
+     *         return "loose";
+     *     })
+     * );
+     *
+     * int i;
+     * assert( mf(i) == "tight" );
+     * assert( mf(int(i)) == "loose" );
+     * assert( mf(static_cast<const int&>(i)) == "loose" );
+     * assert( mf(std::move(i)) == "loose" );
+     * assert( mf(7) == "loose" );
+     * ~~~~~~~
      */
     template <
         template <class> class StoragePolicy,
