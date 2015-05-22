@@ -108,6 +108,18 @@ struct __ForeachCounter {
 #define TEMPLATIOUS_0_TO_N(var,to)                                                               \
     for (long var = 0; var < to; ++var)
 
+/**
+ * Repeat underlying block of code n times.
+ *
+ * Example:
+ * ~~~~~~~
+ * int count = 0;
+ * TEMPLATIOUS_REPEAT( 7 ) {
+ *     ++count;
+ * }
+ * assert( count == 7 );
+ * ~~~~~~~
+ */
 #define TEMPLATIOUS_REPEAT(n) \
     for (long __tmp_i = 0; __tmp_i < n; ++__tmp_i)
 
