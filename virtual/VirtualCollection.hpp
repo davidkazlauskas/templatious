@@ -178,10 +178,12 @@ struct VCollectionImpl:
         VCollectionContainerWDtor< T, Dtor, StoragePolicy >
     >::type Cont;
 
+    typedef typename std::remove_reference<T>::type Deref;
+
     typedef typename templatious::VIteratorImpl<
-        T > IterImpl;
+        Deref > IterImpl;
     typedef typename templatious::VIteratorImpl<
-        T > CIterImpl;
+        Deref > CIterImpl;
 
     template <class V, class Enabled = void*>
     VCollectionImpl(
