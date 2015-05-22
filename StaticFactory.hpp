@@ -641,7 +641,7 @@ struct StaticFactory {
             typename Ad::ValueType, Collection, Allocator > Mk;
         auto res = Mk::make();
         templatious::StaticAdapter::add(res,rTemp);
-        return std::move(res);
+        return res;
     }
 
     /**
@@ -738,7 +738,7 @@ struct StaticFactory {
             typename Ad::ValueType, Collection, Allocator > Mk;
         auto res = Mk::make();
         templatious::StaticAdapter::add(res,fTemp);
-        return std::move(res);
+        return res;
     }
 
     /**
@@ -829,7 +829,7 @@ struct StaticFactory {
             typename Ad::ValueType, Collection, Allocator > Mk;
         auto res = Mk::make();
         templatious::StaticAdapter::add(res,fTemp);
-        return std::move(res);
+        return res;
     }
 
 
@@ -945,11 +945,11 @@ struct StaticFactory {
         if (sz == -1) {
             auto res = Mk::make();
             templatious::StaticAdapter::add(res,sTemp);
-            return std::move(res);
+            return res;
         } else {
             auto res = Mk::make(sz);
             templatious::StaticAdapter::add(res,sTemp);
-            return std::move(res);
+            return res;
         }
     }
 

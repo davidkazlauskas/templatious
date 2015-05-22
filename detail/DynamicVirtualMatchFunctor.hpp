@@ -112,7 +112,7 @@ struct DynamicVMatchFunctor : public VirtualMatchFunctor {
         auto fIter = _fctors.begin() + qu._offset;
         ValueType result = std::move(*fIter);
         _fctors.erase(fIter);
-        return std::move(result);
+        return result;
     }
 
     /**

@@ -341,7 +341,7 @@ public:
             }
         }
 
-        return std::move(result);
+        return result;
     }
 
     /**

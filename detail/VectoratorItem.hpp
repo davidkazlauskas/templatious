@@ -350,7 +350,7 @@ struct CollectionIterDumper {
                 ++beg;
                 ++idx;
             }
-            return std::move(res);
+            return res;
         } else {
             auto res = Maker::make();
             auto beg = Ad::begin(std::forward<C>(c));
@@ -362,7 +362,7 @@ struct CollectionIterDumper {
                 ++beg;
                 ++idx;
             }
-            return std::move(res);
+            return res;
         }
     }
 };

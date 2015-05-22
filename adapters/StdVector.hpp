@@ -267,13 +267,13 @@ struct CollectionMaker<Val,std::vector,Alloc> {
     static const bool is_maker_valid = true;
 
     static Collection make() {
-        return std::move(Collection());
+        return Collection();
     }
 
     static Collection make(long size) {
         Collection res;
         res.reserve(size);
-        return std::move(res);
+        return res;
     }
 
     static Collection* makeHeap() {

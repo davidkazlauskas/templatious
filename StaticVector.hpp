@@ -245,7 +245,7 @@ struct StaticVector {
         auto v = std::move(_vct[_cnt-1]);
         _vct[_cnt-1].~T();
         --_cnt;
-        return std::move(v);
+        return v;
     }
 
     /**
@@ -264,7 +264,7 @@ struct StaticVector {
         for (long i = 0; i < _cnt; ++i) {
             _vct[i] = std::move(_vct[i + 1]);
         }
-        return std::move(res);
+        return res;
     }
 
     /**
@@ -744,11 +744,8 @@ struct StaticBuffer {
             throw StaticBufferExceedException();
         }
 
-        // being explicit never hurts
-        return std::move(
-            StaticVector<T>(
-                nextPtr(capacity),capacity)
-        );
+        return StaticVector<T>(
+            nextPtr(capacity),capacity);
     }
 
     /**
@@ -771,11 +768,8 @@ struct StaticBuffer {
             throw StaticBufferExceedException();
         }
 
-        // being explicit never hurts
-        return std::move(
-            StaticVector<T>(
-                nextPtr(size),size,size)
-        );
+        return StaticVector<T>(
+            nextPtr(size),size,size);
     }
 
     /**
@@ -785,10 +779,7 @@ struct StaticBuffer {
     auto getStaticVector()
      -> StaticVector<T>
     {
-        // being explicit never hurts
-        return std::move(
-            getStaticVector(remainingSize())
-        );
+        return getStaticVector(remainingSize());
     }
 
     /**
@@ -800,10 +791,7 @@ struct StaticBuffer {
     auto getStaticVectorPre()
      -> StaticVector<T>
     {
-        // being explicit never hurts
-        return std::move(
-            getStaticVectorPre(remainingSize())
-        );
+        return getStaticVectorPre(remainingSize());
     }
 
 private:
