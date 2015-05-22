@@ -145,6 +145,37 @@ struct __ForeachCounter {
 
 #define TEMPLATIOUS_VPCORE templatious::VirtualPackCore
 
+/**
+ * Define a functor class to be
+ * used with arbitrary type signature when passed into
+ * SM::callEach. Needed if packs contain
+ * different types of variables and C++11 lambda
+ * expression does not suffice.
+ * If you happen to be on C++14
+ * just use lambda expression with auto
+ * parameter type instead.
+ *
+ * @param name Name of the instantiated struct.
+ * @param expr Expression to perform when called,
+ * i is the loop variable.
+ *
+ * Example:
+ * ~~~~~~~
+ * TEMPLATIOUS_CALLEACH_FCTOR(PrintFctor,{
+ *     std::cout << i << " ";
+ * });
+ *
+ * ...
+ *
+ * auto pack = SF::pack(1,2.2,"3.3",std::string("4.4"));
+ *
+ * PrintFctor sf;
+ * SM::callEach(sf,pack);
+ *
+ * // prints out
+ * // 1 2.2 3.3 4.4
+ * ~~~~~~~
+ */
 #define TEMPLATIOUS_CALLEACH_FCTOR(name, expr) \
     TEMPLATIOUS_TRIPLET_STD;\
     struct name {\
@@ -156,7 +187,7 @@ struct __ForeachCounter {
 
 /**
  * Define a functor class with storage to be
- * and arbitrary signature to be passed into
+ * used with arbitrary type signature when passed into
  * SM::callEach. Needed if packs contain
  * different types of variables and C++11 lambda
  * expression does not suffice.
