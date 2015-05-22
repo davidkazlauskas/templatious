@@ -55,6 +55,27 @@ struct __ForeachCounter {
 
 };
 
+/**
+ * Templatious foreach macro.
+ * @param var Loop variable name.
+ * @param col Collection to traverse.
+ *
+ * Example:
+ * ~~~~~~~
+ * std::vector<int> v;
+ * SA::add(v,1,3,5);
+ * // v contains {1,3,5}
+ *
+ * TEMPLATIOUS_FOREACH(auto& i,v) {
+ *     std::cout << i << " ";
+ *     i *= 2;
+ * }
+ *
+ * // prints out
+ * // 1 3 5
+ * // v now contains {2,6,10}
+ * ~~~~~~~
+ */
 #define TEMPLATIOUS_FOREACH(var,col) \
     for (::templatious::__ForeachCounter<decltype(::templatious::StaticAdapter::begin(col))>     \
             __tmp_i(::templatious::StaticAdapter::begin(col));                                   \
