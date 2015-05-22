@@ -84,8 +84,29 @@ struct __ForeachCounter {
             ++__tmp_i)                                                                           \
         for (var = *__tmp_i._i; ; ({__tmp_i.flipGoing();break;}))
 
-#define TEMPLATIOUS_0_TO_N(var,to) TEMPLATIOUS_FOREACH(var,::templatious::StaticFactory          \
-        ::seqL(to))
+/**
+ * 0 to N traversal.
+ * @param var Loop variable name (type is long)
+ * @param to  Number to traverse to
+ *
+ * Example:
+ * ~~~~~~~
+ * int sumA = 0;
+ * int sumB = 0;
+ *
+ * for (int i = 0; i < 10; ++i) {
+ *     sumA += i;
+ * }
+ *
+ * TEMPLATIOUS_0_TO_N(i,10) {
+ *     sumB += i;
+ * }
+ *
+ * assert( sumA == sumB );
+ * ~~~~~~~
+ */
+#define TEMPLATIOUS_0_TO_N(var,to)                                                               \
+    for (long var = 0; var < to; ++var)
 
 #define TEMPLATIOUS_REPEAT(n) \
     for (long __tmp_i = 0; __tmp_i < n; ++__tmp_i)
