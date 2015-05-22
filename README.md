@@ -30,3 +30,5 @@ In cmake:
 ~~~~~~~
 include_directories( $ENV{TEMPLATIOUS_DIR} )
 ~~~~~~~
+
+This library is licensed under MIT license. See license.txt for details.
