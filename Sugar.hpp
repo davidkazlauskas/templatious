@@ -154,6 +154,36 @@ struct __ForeachCounter {
         }\
     };
 
+/**
+ * Define a functor class with storage to be
+ * and arbitrary signature to be passed into
+ * SM::callEach. Needed if packs contain
+ * different types of variables and C++11 lambda
+ * expression does not suffice.
+ * If you happen to be on C++14
+ * just use lambda expression with auto
+ * parameter type instead.
+ *
+ * @param name Name of the instantiated struct.
+ * @param expr Expression to perform when called.
+ * _c is the storage variable while i is the
+ * loop variable.
+ *
+ * Example:
+ * ~~~~~~~
+ * TEMPLATIOUS_CALLEACH_FCTOR_WSTOR(SumFctor, _c += i);
+ *
+ * ...
+ *
+ * auto pack = SF::pack(1,2,3,4);
+ *
+ * SumFctor<int> sf(0);
+ * SM::callEach(sf,pack);
+ *
+ * int expSum = 1 + 2 + 3 + 4;
+ * assert( sf._c == expSum );
+ * ~~~~~~~
+ */
 #define TEMPLATIOUS_CALLEACH_FCTOR_WSTOR(name, expr) \
     TEMPLATIOUS_TRIPLET_STD;\
     template <class StorType>\
