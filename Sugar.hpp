@@ -128,6 +128,19 @@ struct __ForeachCounter {
     typedef templatious::StaticFactory FactName;\
     typedef templatious::StaticManipulator ManipName;
 
+/**
+ * Macro to define main three templatious classes:
+ * templatious::StaticAdapter
+ * templatious::StaticFactory
+ * templatious::StaticManipulator
+ *
+ * Expands to:
+ * ~~~~~~~
+ * typedef templatious::StaticAdapter SA;
+ * typedef templatious::StaticFactory SF;
+ * typedef templatious::StaticManipulator SM;
+ * ~~~~~~~
+ */
 #define TEMPLATIOUS_TRIPLET_STD TEMPLATIOUS_TRIPLET(SA,SF,SM)
 
 #define TEMPLATIOUS_VPCORE templatious::VirtualPackCore
