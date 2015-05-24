@@ -1169,6 +1169,10 @@ struct VirtualPackImpl : public VirtualPack {
         _cont.wait();
     }
 
+    void waitMs(int milliseconds) const {
+        _cont.waitMs(milliseconds);
+    }
+
     std::mutex* mutexPtr() const override {
         return _cont.getMutex();
     }
