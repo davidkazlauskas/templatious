@@ -1105,6 +1105,24 @@ public:
      * @param[in] f Function to be used when comparing.
      * @param[in] a First collection to compare.
      * @param[in] b Second collection to compare.
+     *
+     * @note If collections are of different sizes
+     * they are always not equal, even if comparator
+     * always returns true.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,1,2,3);
+     *
+     * auto nrm = [](int a,int b) { return a == b; };
+     * auto alw = [](int a,int b) { return true; };
+     *
+     * assert(  SM::areCollectionsEqualS(nrm,v,SF::seqI(1,3)) );
+     * assert( !SM::areCollectionsEqualS(nrm,v,SF::seqI(1,4)) );
+     * assert(  SM::areCollectionsEqualS(alw,v,SF::seqI(2,4)) );
+     * assert( !SM::areCollectionsEqualS(alw,v,SF::seqI(2,5)) );
+     * ~~~~~~~
      */
     template <
         class F,class A,class B
