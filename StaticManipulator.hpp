@@ -636,6 +636,23 @@ public:
      * happens to be boolean) as a signal to stop traversal.
      * If set to true boolean return value is ignored and
      * traversal always iterates through every element.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> v;
+     * SA::add(v,1,2,3);
+     *
+     * std::stringstream ss;
+     * auto prnt = [&](int i) { ss << i; };
+     * SM::forEach(prnt,7,v,7);
+     *
+     * assert( ss.str() == "71237" );
+     *
+     * auto p = SF::pack(1,2,3);
+     * // ILLEGAL, packs are not
+     * // processed by forEach (see callEach)
+     * //SM::forEach(prnt,p);
+     * ~~~~~~~
      */
     template <
         bool ignoreBooleanReturn = false,
