@@ -823,7 +823,13 @@ public:
 
     /**
      * Minimum of values. Returns numeric minimum
-     * of elements passed. Example:
+     * of elements passed.
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     *
+     * Example:
      * ~~~~~~~
      * int a = 2;
      * int b = 3;
@@ -832,10 +838,6 @@ public:
      * int min = SM::min<int>(a,b,p,s,-1);
      * assert(min == -1);
      * ~~~~~~~
-     * @param[in] args Elements to traverse. Can process
-     * packs, collections and single values.
-     * @param[in] RetVal Return type. Defaults
-     * to double. May be specified to return references.
      */
     template <class RetVal = double,class... V>
     static RetVal min(V&&... args) {
@@ -845,7 +847,13 @@ public:
 
     /**
      * Maximum of values. Returns numeric maximum
-     * of elements passed. Example:
+     * of elements passed.
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     *
+     * Example:
      * ~~~~~~~
      * int a = 2;
      * int b = 3;
@@ -854,10 +862,6 @@ public:
      * int max = SM::max<int>(a,b,p,s,-1);
      * assert(max == 7);
      * ~~~~~~~
-     * @param[in] args Elements to traverse. Can process
-     * packs, collections and single values.
-     * @param[in] RetVal Return type. Defaults
-     * to double. May be specified to return references.
      */
     template <class RetVal = double,class... V>
     static RetVal max(V&&... args) {
@@ -868,7 +872,17 @@ public:
     /**
      * Maximum of values using a special function.
      * Returns numeric user specified maximum according
-     * to the user specified comparison of elements passed. Example:
+     * to the user specified comparison of elements passed.
+     * @param[in] cf Function to be used for comparison.
+     * Should take two parameters for comparison. For instance,
+     * if maximum is wanted the function is called like cf(a,b)
+     * and it should return true if a > b.
+     * @param[in] args Elements to traverse. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double. May be specified to return references.
+     *
+     * Example:
      * ~~~~~~~
      * struct MyPod {
      *     MyPod(int a,int b) :
@@ -890,14 +904,6 @@ public:
      *
      * assert(&a == &mp);
      * ~~~~~~~
-     * @param[in] cf Function to be used for comparison.
-     * Should take two parameters for comparison. For instance,
-     * if maximum is wanted the function is called like cf(a,b)
-     * and it should return true if a > b.
-     * @param[in] args Elements to traverse. Can process
-     * packs, collections and single values.
-     * @param[in] RetVal Return type. Defaults
-     * to double. May be specified to return references.
      */
     template <class RetVal = double,class CompFunc,class... V>
     static RetVal maxS(CompFunc&& cf,V&&... args) {
