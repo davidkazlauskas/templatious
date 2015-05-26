@@ -1067,6 +1067,22 @@ public:
      * whether function return value (if it happens to
      * be boolean) should stop traversal if it returns
      * false. Defaults to false.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto procFunc = [](int from,int& to)
+     *     { to = 2*from; };
+     *
+     * int a,b,c;
+     * int count = SM::distributeSpecial(
+     *     procFunc,SF::seqI(77,100),a,b,c);
+     *
+     * assert( count == 3 );
+     *
+     * assert( a == 2*77 );
+     * assert( b == 2*78 );
+     * assert( c == 2*79 );
+     * ~~~~~~~
      */
     template <
         bool ignoreBooleanReturn = false,
