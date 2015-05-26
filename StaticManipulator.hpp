@@ -972,6 +972,27 @@ public:
      * Can be pack or collection.
      * @param[out] args Arguments to distribute over.
      * Can be packs, collections or single variables.
+     *
+     * Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * int p1,p2,p3;
+     * auto p = SF::pack(p1,p2,p3);
+     * std::vector<int> v(3);
+     *
+     * auto s = SF::seqL(10);
+     * SM::distribute(s,a,b,c,p,v);
+     *
+     * assert( a == 0 );
+     * assert( b == 1 );
+     * assert( c == 2 );
+     * assert( p1 == 3 );
+     * assert( p2 == 4 );
+     * assert( p3 == 5 );
+     * assert( v[0] == 6 );
+     * assert( v[1] == 7 );
+     * assert( v[2] == 8 );
+     * ~~~~~~~
      */
     template <
         class T,class... Args
