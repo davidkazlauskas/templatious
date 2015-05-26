@@ -1335,6 +1335,17 @@ public:
      * @param[in] f Function that should return true
      * if element satisfies condition.
      * @param[in] args Argument collections/variables to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto pred = [](int i) { return i > 5; };
+     * auto p = SF::pack(4,5);
+     *
+     * assert( !SM::existsP(pred,p) );
+     * assert(  SM::existsP(pred,p,6) );
+     * auto p2 = SF::pack(4,5,6);
+     * assert(  SM::existsP(pred,p2) );
+     * ~~~~~~~
      */
     template <class F,class... Args>
     static bool existsP(F&& f,Args&&... args) {
