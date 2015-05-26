@@ -753,6 +753,18 @@ public:
      * packs, collections and single values.
      * @param[in] RetVal Return type. Defaults
      * to double.
+     *
+     * Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * a = 1; b = 2; c = 3;
+     * auto p = SF::pack(a,b,c);
+     * std::vector<int> v;
+     * SA::add(v,5,6,7);
+     *
+     * double avg = SM::avg(p,4,v);
+     * assert( avg == 4 );
+     * ~~~~~~~
      */
     template <class RetVal = double,class... V>
     static RetVal avg(V&&... args) {
