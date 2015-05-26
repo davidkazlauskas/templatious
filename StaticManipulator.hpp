@@ -1233,6 +1233,19 @@ public:
      * @param[in] f Function that should return true
      * if element satisfies condition.
      * @param[in] args Argument collections/variables to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto pred = [](int i) { return i > 5; };
+     * std::vector<int> v;
+     *
+     * SA::add(v,6,7);
+     *
+     * assert(  SM::forAll(pred,v) );
+     * assert( !SM::forAll(pred,v,5) );
+     * SA::add(v,5);
+     * assert( !SM::forAll(pred,v) );
+     * ~~~~~~~
      */
     template <class F,class... Args>
     static bool forAll(F&& f,Args&&... args) {
