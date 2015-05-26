@@ -286,6 +286,31 @@ public:
      * @param[out] Allocator Allocator to use for new collection
      * if applicable. Is ignored if collection is allocator
      * indifferent.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s1 = SF::seqL(10); // {0..9}
+     * auto s2 = SF::seqL(10,20); // {10..19}
+     *
+     * auto func = [](int a,int b) { return a * b; };
+     * auto out = SM::map<int>(func,s1,s2);
+     * // type of out: std::vector<int>
+     * // out contains:
+     * // {0,11,24,39,56,75,96,119,144,171}
+     * ~~~~~~~
+     *
+     * Example using prebuilt passIndex variable:
+     * ~~~~~~~
+     * auto s = SF::seqL(10,20); // {10..19}
+     *
+     * auto func = [](int i,int b) { return i * b; };
+     * // passing only one sequence, first lambda
+     * // argument is iteration number 0..n
+     * auto out = SM::map<int,true>(func,s);
+     * // type of out: std::vector<int>
+     * // out contains:
+     * // {0,11,24,39,56,75,96,119,144,171}
+     * ~~~~~~~
      */
     template <
         class T,bool passIndex = false,
