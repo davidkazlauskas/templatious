@@ -1268,6 +1268,17 @@ public:
      * @param[in] f Function that should return true
      * if element satisfies condition.
      * @param[in] args Argument collections/variables to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto pred = [](int i) { return i > 5; };
+     * auto p = SF::pack(6,7);
+     *
+     * assert(  SM::forAllP(pred,p) );
+     * assert( !SM::forAllP(pred,p,5) );
+     * auto p2 = SF::pack(6,7,5);
+     * assert( !SM::forAllP(pred,p2) );
+     * ~~~~~~~
      */
     template <class F,class... Args>
     static bool forAllP(F&& f,Args&&... args) {
