@@ -938,6 +938,15 @@ public:
      * Should return newly calculated value.
      * @param[in] args Arguments to traverse. Can process
      * packs, collections and single variables.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto mulFunc = [](int curr,int next)
+     *     { return curr * next; };
+     *
+     * int res = SM::fold(1,mulFunc,2,3,4,5,6,7);
+     * assert( res == 5040 );
+     * ~~~~~~~
      */
     template <class T,class F,class... Args>
     static T fold(T&& start,F&& f,Args&&... args) {
