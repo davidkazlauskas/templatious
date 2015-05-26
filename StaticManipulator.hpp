@@ -1301,6 +1301,18 @@ public:
      * @param[in] f Function that should return true
      * if element satisfies condition.
      * @param[in] args Argument collections/variables to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto pred = [](int i) { return i > 5; };
+     * std::vector<int> v;
+     * SA::add(v,4,5);
+     *
+     * assert( !SM::exists(pred,v) );
+     * assert(  SM::exists(pred,v,6) );
+     * SA::add(v,6);
+     * assert(  SM::exists(pred,v) );
+     * ~~~~~~~
      */
     template <class F,class... Args>
     static bool exists(F&& f,Args&&... args) {
