@@ -1206,6 +1206,19 @@ public:
      * Check if passed collections contain identical
      * elements using the default '==' operator.
      * @param[in] args Argument collections to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s1 = SF::seqL(3);   // {0,1,2}
+     * auto s2 = SF::seqI(1,3); // {1,2,3}
+     * std::vector<int> v;
+     * SA::add(v,1,2,3);
+     *
+     * assert( !SM::areCollectionsEqual(s1,s2) );
+     * assert( !SM::areCollectionsEqual(v ,s1) );
+     * assert(  SM::areCollectionsEqual(v ,s2) );
+     * assert(  SM::areCollectionsEqual(v ,s2,SF::seqI(1,3)) );
+     * ~~~~~~~
      */
     template <class... Args>
     static bool areCollectionsEqual(const Args&... args) {
