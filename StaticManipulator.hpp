@@ -980,8 +980,10 @@ public:
      * auto p = SF::pack(p1,p2,p3);
      * std::vector<int> v(3);
      *
-     * auto s = SF::seqL(10);
-     * SM::distribute(s,a,b,c,p,v);
+     * auto s = SF::seqL(12);
+     * int count = SM::distribute(s,a,b,c,p,v);
+     *
+     * assert( count == 9 );
      *
      * assert( a == 0 );
      * assert( b == 1 );
@@ -1013,6 +1015,30 @@ public:
      * Can be pack or collection.
      * @param[in] args Arguments to distribute from.
      * Can be packs, collections or single variables.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> out(9);
+     *
+     * int a,b,c;
+     * a = 0; b = 1; c = 2;
+     * auto p = SF::pack(3,4,5);
+     * auto s = SF::seqI(6,8);
+     *
+     * int count = SM::distributeR(out,a,b,c,p,s);
+     *
+     * assert( count == 9 );
+     *
+     * assert( out[0] == 0 );
+     * assert( out[1] == 1 );
+     * assert( out[2] == 2 );
+     * assert( out[3] == 3 );
+     * assert( out[4] == 4 );
+     * assert( out[5] == 5 );
+     * assert( out[6] == 6 );
+     * assert( out[7] == 7 );
+     * assert( out[8] == 8 );
+     * ~~~~~~~
      */
     template <
         class T,class... Args
