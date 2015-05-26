@@ -545,7 +545,12 @@ public:
     }
 
     /**
-     * Value set function. Example:
+     * Value set function.
+     * @param[in] t Value used for setting
+     * @param[in,out] v Entity to set. Can be collection,
+     * pack or a single variable.
+     *
+     * Example:
      * ~~~~~~~
      * int a,b,c;
      * std::vector<int> v(3);
@@ -555,9 +560,6 @@ public:
      * // v[0],v[1],v[2] = 7
      * // p.get<0>(),p.get<1>().p.get<2>() = 7
      * ~~~~~~~
-     * @param[in] t Value used for setting
-     * @param[in,out] v Entity to set. Can be collection,
-     * pack or a single variable.
      */
     template <class T,class V>
     static void set(T&& t,V& col) {
