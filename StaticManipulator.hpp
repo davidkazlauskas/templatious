@@ -378,6 +378,31 @@ public:
      * @param[in] passIndex Boolean value wether to pass index
      * of current traversal (from 0) to a function. If passed,
      * index is passed first. Defaults to false.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto s1 = SF::seqL(10); // {0..9}
+     * auto s2 = SF::seqL(10,20); // {10..19}
+     *
+     * int sum = 0;
+     * auto func = [&](int a,int b) { sum += a * b; };
+     * SM::traverse(func,s1,s2);
+     *
+     * assert( sum == 735 );
+     * ~~~~~~~
+     *
+     * Example using prebuilt passIndex variable:
+     * ~~~~~~~
+     * auto s = SF::seqL(10,20); // {10..19}
+     *
+     * int sum = 0;
+     * auto func = [&](int i,int b) { sum += i * b; };
+     * // passing only one sequence, first lambda
+     * // argument is iteration number 0..n
+     * SM::traverse<true>(func,s);
+     *
+     * assert( sum == 735 );
+     * ~~~~~~~
      */
     template <bool passIndex = false, class U, class... Args>
     static void traverse(U&& fn, Args&&... args) {
