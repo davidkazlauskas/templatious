@@ -707,7 +707,15 @@ public:
 
     /**
      * Sum using special function. Returns numeric sum of
-     * all elements. Example:
+     * all elements.
+     * @param[in] f Function to be used on every element
+     * before summing an element to the result.
+     * @param[in] args Elements to sum. Can process
+     * packs, collections and single values.
+     * @param[in] RetVal Return type. Defaults
+     * to double.
+     *
+     * Example:
      * ~~~~~~~
      * int a,b,c;
      * a = b = c = 7;
@@ -723,12 +731,6 @@ public:
      * // + 4*2 + 5*2 + 6*2 | p
      * // = 78
      * ~~~~~~~
-     * @param[in] f Function to be used on every element
-     * before summing an element to the result.
-     * @param[in] args Elements to sum. Can process
-     * packs, collections and single values.
-     * @param[in] RetVal Return type. Defaults
-     * to double.
      */
     template <class RetVal = double,class Fn,class... V>
     static RetVal sumS(Fn&& f,V&&... args) {
