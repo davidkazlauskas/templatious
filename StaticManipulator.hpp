@@ -517,6 +517,26 @@ public:
      * variable.
      * @param[in,out] args Rest of the entities
      * to use set function on.
+     *
+     * Example:
+     * ~~~~~~~
+     * int a,b,c;
+     * std::vector<int> v(3);
+     * int p1,p2,p3;
+     * auto p = SF::pack(p1,p2,p3);
+     *
+     * SM::set(7,a,b,c,v,p);
+     *
+     * assert( a == 7 );
+     * assert( b == 7 );
+     * assert( c == 7 );
+     * assert( v[0] == 7 );
+     * assert( v[1] == 7 );
+     * assert( v[2] == 7 );
+     * assert( p1 == 7 );
+     * assert( p2 == 7 );
+     * assert( p3 == 7 );
+     * ~~~~~~~
      */
     template <class T,class V,class... Col>
     static void set(T&& t,V& v,Col&... args) {
