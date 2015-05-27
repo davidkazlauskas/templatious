@@ -1497,6 +1497,19 @@ public:
      * @param[in] t Collection to check.
      * @param[in] c Comparator to use. Function
      * which returns true for f(a,b) if a < b.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto revComp = [](int a,int b) { return a > b; };
+     * std::vector<int> sortedRev;
+     * std::vector<int> notSorted;
+     *
+     * SA::add(sortedRev,3,2,1);
+     * SA::add(notSorted,1,3,2);
+     *
+     * assert(  SM::isSortedS(sortedRev,revComp) );
+     * assert( !SM::isSortedS(notSorted,revComp) );
+     * ~~~~~~~
      */
     template <class T,class Comparator>
     static bool isSortedS(T&& t,Comparator&& c) {
