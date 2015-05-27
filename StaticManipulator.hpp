@@ -1423,6 +1423,19 @@ public:
      * dumped to collection with random
      * access iterator tag and are sorted then.
      * @param[in] t Collection to be sorted.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::list<int> l;
+     * SA::add(l,7,6,5,4,3,2,1);
+     * SM::sort(l);
+     *
+     * std::vector<int> expected;
+     * SA::add(expected,1,2,3,4,5,6,7);
+     *
+     * assert( SM::areCollectionsEqual(l,expected) );
+     * assert( SM::isSorted(l) );
+     * ~~~~~~~
      */
     template <class T>
     static void sort(T&& t) {
