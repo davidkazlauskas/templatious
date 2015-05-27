@@ -1368,6 +1368,26 @@ public:
      * random access iterators, like std::list.
      * @param[in] t Collection to dump iterators
      * from.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::list<int> l;
+     * SA::add(l,1,2,3);
+     *
+     * auto d = SM::iterDump(l);
+     * // Type of d: std::vector<
+     * //     templatious::VectoratorItem<
+     * //         std::vector<int>::iterator, false
+     * //     >
+     * // >
+     *
+     * SM::set(7,d);
+     * // now all items of l have 3 for their value
+     *
+     * assert( SA::getByIndex(l,0) == 7 );
+     * assert( SA::getByIndex(l,1) == 7 );
+     * assert( SA::getByIndex(l,2) == 7 );
+     * ~~~~~~~
      */
     template <
         bool saveIdx = false,
