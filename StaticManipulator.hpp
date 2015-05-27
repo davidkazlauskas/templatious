@@ -1464,6 +1464,21 @@ public:
      * should take two parameters by default. If
      * returns true on f(a,b) when a < b collection
      * is sorted in ascending order.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::list<int> l;
+     * SA::add(l,1,2,3,4,5,6,7);
+     *
+     * auto revComp = [](int a,int b) { return a > b; };
+     * SM::sortS(l,revComp);
+     *
+     * std::vector<int> expected;
+     * SA::add(expected,7,6,5,4,3,2,1);
+     *
+     * assert( SM::areCollectionsEqual(l,expected) );
+     * assert( SM::isSortedS(l,revComp) );
+     * ~~~~~~~
      */
     template <class T,class Comparator>
     static void sortS(T&& t,Comparator&& c) {
