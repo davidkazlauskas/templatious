@@ -1534,6 +1534,18 @@ public:
      * Check if collection is sorted using
      * default comparator.
      * @param[in] t Collection to check.
+     *
+     * Example:
+     * ~~~~~~~
+     * std::vector<int> sorted;
+     * std::vector<int> notSorted;
+     *
+     * SA::add(sorted,1,2,3);
+     * SA::add(notSorted,1,3,2);
+     *
+     * assert( SM::isSorted(sorted) );
+     * assert( !SM::isSorted(notSorted) );
+     * ~~~~~~~
      */
     template <class T>
     static bool isSorted(T&& t) {
