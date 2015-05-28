@@ -73,7 +73,7 @@ namespace detail {
      *
      *
      * From time to time:
-     * - templatious::ChainFunctor
+     * - @link templatious::ChainFunctor< statefulDefault, reversed, StoragePolicy, A, Tl...> templatious::ChainFunctor @endlink
      */
 
 
