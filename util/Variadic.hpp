@@ -85,12 +85,27 @@ struct GetNth<0> {
     }
 };
 
+// no warning about shift overflow
+template <int i>
+struct RightShiftSide {
+    static size_t leftShift(size_t hash) {
+        return (hash << (sizeof(hash)*CHAR_BIT - i));
+    }
+};
+
+template <>
+struct RightShiftSide<0> {
+    static size_t leftShift(size_t) {
+        return 0;
+    }
+};
+
 template <int i,class Type>
 size_t hashType() {
     size_t toShift = std::type_index(typeid(Type)).hash_code();
-    return (toShift >> i) | (toShift << (sizeof(toShift) - i));
+    typedef RightShiftSide<i> Shifter;
+    return (toShift >> i) | Shifter::leftShift(toShift);
 }
-
 
 template <int i,class... Args>
 struct HashCounter;
