@@ -23,6 +23,7 @@
 #ifndef VARIADIC_HXND7XSS
 #define VARIADIC_HXND7XSS
 
+#include <climits>
 #include <cstddef>
 #include <utility>
 #include <typeindex>
