@@ -59,94 +59,51 @@ struct NodeFuncUtil {
     static_assert(destEmpty,"Destruction function has to have no members.");
     static_assert(formEmpty,"Format function has to have no members.");
 
-    static const bool cons = !std::is_same<NodeFuncNull,Construct>::value;
-    static const bool dest = !std::is_same<NodeFuncNull,Destroy>::value;
-    static const bool form = !std::is_same<NodeFuncNull,Format>::value;
+    typedef typename std::remove_reference<
+        Construct>::type NoRefConstruct;
+    typedef typename std::remove_reference<
+        Destroy>::type NoRefDestroy;
+    typedef typename std::remove_reference<
+        Format>::type NoRefFormat;
 
-    typedef typename std::conditional<
-        cons, Construct, NodeFuncNull >::type ConstructRes;
-    typedef typename std::conditional<
-        dest, Destroy, NodeFuncNull >::type DestroyRes;
-    typedef typename std::conditional<
-        form, Format, NodeFuncNull >::type FormatRes;
+    typedef NodeFuncUtil<NoRefConstruct,NoRefDestroy,NoRefFormat> ThisUtil;
 
     template <class C,class D,class F>
-    static void inst(C&& c,D&& d,F&& f) {
-        static volatile bool isSet = false;
-        static std::mutex mtx;
-        typedef std::lock_guard<std::mutex> Guard;
-
-        if (isSet) return;
-        Guard g(mtx);
-        if (isSet) return;
-
-        new (_consBuf) C(std::forward<C>(c));
-        new (_destBuf) D(std::forward<D>(d));
-        new (_formBuf) F(std::forward<F>(f));
-
-        _cons = reinterpret_cast<ConstructRes*>(_consBuf);
-        _dest = reinterpret_cast<DestroyRes*>(_destBuf);
-        _form = reinterpret_cast<FormatRes*>(_formBuf);
-
-        isSet = true;
+    static ThisUtil& inst(C&& c,D&& d,F&& f) {
+        static ThisUtil util(
+            std::forward<C>(c),
+            std::forward<D>(d),
+            std::forward<F>(f)
+        );
+        return util;
     }
 
     template <class... T>
-    static void construct(T&&... t) {
-        _cons->operator()(std::forward<T>(t)...);
+    void construct(T&&... t) {
+        _cons(std::forward<T>(t)...);
     }
 
     template <class... T>
-    static void destroy(T&&... t) {
-        _dest->operator()(std::forward<T>(t)...);
+    void destroy(T&&... t) {
+        _dest(std::forward<T>(t)...);
     }
 
     template <class... T>
-    static void format(T&&... t) {
-        _form->operator()(std::forward<T>(t)...);
+    void format(T&&... t) {
+        _form(std::forward<T>(t)...);
     }
 
 private:
-    typedef typename std::aligned_storage<
-        sizeof(ConstructRes),alignof(ConstructRes)>::type StorCons;
-    typedef typename std::aligned_storage<
-        sizeof(DestroyRes),alignof(DestroyRes)>::type StorDest;
-    typedef typename std::aligned_storage<
-        sizeof(FormatRes),alignof(FormatRes)>::type StorForm;
-    static StorCons _consBuf[1];
-    static StorDest _destBuf[1];
-    static StorForm _formBuf[1];
+    template <class C,class D,class F>
+    NodeFuncUtil(C&& c,D&& d,F&& f) :
+        _cons(std::forward<C>(c)),
+        _dest(std::forward<D>(d)),
+        _form(std::forward<F>(f)) {}
 
-    static const ConstructRes* _cons;
-    static const DestroyRes* _dest;
-    static const FormatRes* _form;
+    NoRefConstruct _cons;
+    NoRefDestroy _dest;
+    NoRefFormat _form;
 };
-
-// .. so, all this work just so llvm
-// undefined behaviour sanitizer wouldn't
-// complain when you call () operator on
-// null pointer empty lambda?
-template <class Construct,class Destroy,class Format>
-const typename NodeFuncUtil<Construct,Destroy,Format>::ConstructRes*
-    NodeFuncUtil<Construct,Destroy,Format>::_cons = nullptr;
-template <class Construct,class Destroy,class Format>
-const typename NodeFuncUtil<Construct,Destroy,Format>::DestroyRes*
-    NodeFuncUtil<Construct,Destroy,Format>::_dest = nullptr;
-template <class Construct,class Destroy,class Format>
-const typename NodeFuncUtil<Construct,Destroy,Format>::FormatRes*
-    NodeFuncUtil<Construct,Destroy,Format>::_form = nullptr;
-
-template <class Construct,class Destroy,class Format>
-typename NodeFuncUtil<Construct,Destroy,Format>::StorCons
-    NodeFuncUtil<Construct,Destroy,Format>::_consBuf[1] = {};
-
-template <class Construct,class Destroy,class Format>
-typename NodeFuncUtil<Construct,Destroy,Format>::StorDest
-    NodeFuncUtil<Construct,Destroy,Format>::_destBuf[1] = {};
-
-template <class Construct,class Destroy,class Format>
-typename NodeFuncUtil<Construct,Destroy,Format>::StorForm
-    NodeFuncUtil<Construct,Destroy,Format>::_formBuf[1] = {};
 
 template <class T,class Func>
 struct PodType : public TypeNode {
@@ -162,22 +119,26 @@ struct PodType : public TypeNode {
 
     template <class C,class F>
     static TNodePtr sInst(C&& c,F&& f) {
-        Func::inst(
-            std::forward<C>(c),
-            NodeFuncNull(),
-            std::forward<F>(f)
+        static ThisFact thisFact(
+            Func::inst(
+                std::forward<C>(c),
+                NodeFuncNull(),
+                std::forward<F>(f)
+            )
         );
-        return &_inst;
+        return &thisFact;
     };
 
     template <class C,class D,class F>
     static TNodePtr sInst(C&& c,D&& d,F&& f) {
-        Func::inst(
-            std::forward<C>(c),
-            std::forward<D>(d),
-            std::forward<F>(f)
+        static ThisFact thisFact(
+            Func::inst(
+                std::forward<C>(c),
+                std::forward<D>(d),
+                std::forward<F>(f)
+            )
         );
-        return &_inst;
+        return &thisFact;
     };
 
     long size() const override {
@@ -197,25 +158,25 @@ struct PodType : public TypeNode {
         align = alignof(T);
     }
 
-    std::type_index type() const {
+    std::type_index type() const override {
         return std::type_index(typeid(T));
     }
 
     void construct(void* ptr,const char* param) const override {
-        Func::construct(ptr,param);
+        _funcInst.construct(ptr,param);
     }
 
     void destroy(void* ptr) const override {
-        Func::destroy(ptr);
+        _funcInst.destroy(ptr);
     }
 
     void toString(const void* ptr,std::string& str) const override {
-        Func::format(ptr,str);
+        _funcInst.format(ptr,str);
     }
 private:
-    static const ThisFact _inst;
-    // function uniquely identified and inlined by type
-    // lambda should not capture anything
+    Func& _funcInst;
+
+    PodType(Func& ref) : _funcInst(ref) {}
 };
 
 template <class T,class Func>
@@ -232,12 +193,14 @@ struct PlainObject : public TypeNode {
 
     template <class C,class D,class F>
     static TNodePtr sInst(C&& c,D&& d,F&& f) {
-        Func::inst(
-            std::forward<C>(c),
-            std::forward<D>(d),
-            std::forward<F>(f)
+        static ThisFact thisFact(
+            Func::inst(
+                std::forward<C>(c),
+                std::forward<D>(d),
+                std::forward<F>(f)
+            )
         );
-        return &_inst;
+        return &thisFact;
     };
 
     long size() const override {
@@ -257,32 +220,26 @@ struct PlainObject : public TypeNode {
         align = alignof(T);
     }
 
-    std::type_index type() const {
+    std::type_index type() const override {
         return std::type_index(typeid(T));
     }
 
     void construct(void* ptr,const char* param) const override {
-        Func::construct(ptr,param);
+        _funcInst.construct(ptr,param);
     }
 
     void destroy(void* ptr) const override {
-        Func::destroy(ptr);
+        _funcInst.destroy(ptr);
     }
 
     void toString(const void* ptr,std::string& str) const override {
-        Func::format(ptr,str);
+        _funcInst.format(ptr,str);
     }
 private:
-    static const ThisFact _inst;
-    // function uniquely identified and inlined by type
-    // lambda should not capture anything
+    Func& _funcInst;
+
+    PlainObject(Func& ref) : _funcInst(ref) {}
 };
-
-template <class T,class Func>
-const PodType<T,Func> PodType<T,Func>::_inst = ThisFact();
-
-template <class T,class Func>
-const PlainObject<T,Func> PlainObject<T,Func>::_inst = ThisFact();
 
 // Dynamic virtual pack traits
 struct DynPackCountTrait : public VirtualPack {
