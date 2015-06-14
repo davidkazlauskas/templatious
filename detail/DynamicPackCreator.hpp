@@ -109,11 +109,11 @@ struct PodType : public TypeNode {
     static_assert(isRaw,"Only raw types, without reference"
             " qualifiers can be used as template argument.");
 
-    template <class F>
-    static TNodePtr sInst(F&& f) {
+    template <class C,class F>
+    static TNodePtr sInst(C&& c,F&& f) {
         static ThisFact thisFact(
             Func::inst(
-                NodeFuncNull(),
+                std::forward<C>(c),
                 NodeFuncNull(),
                 std::forward<F>(f)
             )
