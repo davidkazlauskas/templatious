@@ -98,14 +98,11 @@ private:
 };
 
 template <class T,class Func>
-struct PodType : public TypeNode {
-    typedef PodType<T,Func> ThisFact;
+struct TypeNodeImpl : public TypeNode {
+    typedef TypeNodeImpl<T,Func> ThisFact;
     typedef typename std::remove_reference<T>::type DecType;
 
-    static const bool isPod = std::is_pod<T>::value;
     static const bool isRaw = std::is_same<DecType,T>::value;
-    static_assert(isPod,"Only plain old datatypes (POD's) can"
-            " be template parameters for this factory.");
     static_assert(isRaw,"Only raw types, without reference"
             " qualifiers can be used as template argument.");
 
@@ -168,69 +165,7 @@ struct PodType : public TypeNode {
 private:
     Func& _funcInst;
 
-    PodType(Func& ref) : _funcInst(ref) {}
-};
-
-template <class T,class Func>
-struct PlainObject : public TypeNode {
-    typedef PlainObject<T,Func> ThisFact;
-    typedef typename std::remove_reference<T>::type DecType;
-
-    static const bool isPolymorphic = std::is_polymorphic<T>::value;
-    static const bool isRaw = std::is_same<DecType,T>::value;
-    static_assert(!isPolymorphic,"Class used with this factory"
-            " cannot be polymorphic.");
-    static_assert(isRaw,"Only raw types, without reference"
-            " qualifiers can be used as template argument.");
-
-    template <class C,class D,class F>
-    static TNodePtr sInst(C&& c,D&& d,F&& f) {
-        static ThisFact thisFact(
-            Func::inst(
-                std::forward<C>(c),
-                std::forward<D>(d),
-                std::forward<F>(f)
-            )
-        );
-        return &thisFact;
-    };
-
-    long size() const override {
-        return sizeof(T);
-    }
-
-    long align() const override {
-        return alignof(T);
-    }
-
-    bool isConst() const override {
-        return std::is_const<T>::value;
-    }
-
-    void sizeAndAlign(long& size,long& align) const override {
-        size = sizeof(T);
-        align = alignof(T);
-    }
-
-    std::type_index type() const override {
-        return std::type_index(typeid(T));
-    }
-
-    void construct(void* ptr,const char* param) const override {
-        _funcInst.construct(ptr,param);
-    }
-
-    void destroy(void* ptr) const override {
-        _funcInst.destroy(ptr);
-    }
-
-    void toString(const void* ptr,std::string& str) const override {
-        _funcInst.format(ptr,str);
-    }
-private:
-    Func& _funcInst;
-
-    PlainObject(Func& ref) : _funcInst(ref) {}
+    TypeNodeImpl(Func& ref) : _funcInst(ref) {}
 };
 
 struct DynamicVirtualPackCore {
@@ -799,7 +734,7 @@ struct TypeNodeFactory {
         typedef typename std::decay<Construct>::type CDec;
         typedef typename std::decay<Format>::type FDec;
         typedef detail::NodeFuncUtil<CDec,detail::NodeFuncNull,FDec> FUtil;
-        return detail::PodType<T,FUtil>::sInst(
+        return detail::TypeNodeImpl<T,FUtil>::sInst(
             std::forward<Construct>(c),
             std::forward<Format>(f));
     }
@@ -810,7 +745,7 @@ struct TypeNodeFactory {
         typedef typename std::decay<Destroy>::type DDec;
         typedef typename std::decay<Format>::type FDec;
         typedef detail::NodeFuncUtil<CDec,DDec,FDec> FUtil;
-        return detail::PlainObject<T,FUtil>::sInst(
+        return detail::TypeNodeImpl<T,FUtil>::sInst(
             std::forward<Construct>(c),
             std::forward<Destroy>(d),
             std::forward<Format>(f));
@@ -833,7 +768,7 @@ struct TypeNodeFactory {
             detail::NodeFuncNull,
             Fmt
         > FUtil;
-        return detail::PodType<T,FUtil>::sInst(con,fmt);
+        return detail::TypeNodeImpl<T,FUtil>::sInst(con,fmt);
     }
 
     template <class T>
@@ -854,7 +789,7 @@ struct TypeNodeFactory {
             detail::NodeFuncNull,
             Fmt
         > FUtil;
-        return detail::PodType<T,FUtil>::sInst(con,fmt);
+        return detail::TypeNodeImpl<T,FUtil>::sInst(con,fmt);
     }
 };
 
