@@ -206,7 +206,7 @@ private:
             _used(0) {}
 
         ~PartialConstructionGuard() {
-            for (int i = 0; i < _used; ++i) {
+            for (int i = _used - 1; i >= 0; --i) {
                 _node[i]->destroy(_mem[i]);
             }
         }
