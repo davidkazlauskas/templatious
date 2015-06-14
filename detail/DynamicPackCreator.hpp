@@ -121,18 +121,6 @@ struct PodType : public TypeNode {
         return &thisFact;
     }
 
-    template <class C,class F>
-    static TNodePtr sInst(C&& c,F&& f) {
-        static ThisFact thisFact(
-            Func::inst(
-                std::forward<C>(c),
-                NodeFuncNull(),
-                std::forward<F>(f)
-            )
-        );
-        return &thisFact;
-    };
-
     template <class C,class D,class F>
     static TNodePtr sInst(C&& c,D&& d,F&& f) {
         static ThisFact thisFact(
@@ -815,13 +803,18 @@ struct TypeNodeFactory {
             [](const void*,std::string& str) {
                 str = typeid(T).name();
             };
+        static auto con =
+            [](void* mem,const char*) {
+                new (mem) T();
+            };
+        typedef decltype(con) Con;
         typedef decltype(fmt) Fmt;
         typedef detail::NodeFuncUtil<
-            detail::NodeFuncNull,
+            Con,
             detail::NodeFuncNull,
             Fmt
         > FUtil;
-        return detail::PodType<T,FUtil>::sInst(fmt);
+        return detail::PodType<T,FUtil>::sInst(con,fmt);
     }
 
     template <class T>
@@ -831,13 +824,18 @@ struct TypeNodeFactory {
             [&](const void*,std::string& str) {
                 str = sName;
             };
+        static auto con =
+            [](void* mem,const char*) {
+                new (mem) T();
+            };
+        typedef decltype(con) Con;
         typedef decltype(fmt) Fmt;
         typedef detail::NodeFuncUtil<
-            detail::NodeFuncNull,
+            Con,
             detail::NodeFuncNull,
             Fmt
         > FUtil;
-        return detail::PodType<T,FUtil>::sInst(fmt);
+        return detail::PodType<T,FUtil>::sInst(con,fmt);
     }
 };
 
