@@ -637,6 +637,9 @@ struct DynamicVirtualPackTraitCreator {
 
 }
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynamicVirtualPackArrayTooSmall,
+    "String array size is too low to fit formatted values.");
+
 template <int packBitmask,class CallbackType>
 struct DynamicVirtualPack : public VirtualPack {
 
@@ -666,6 +669,22 @@ struct DynamicVirtualPack : public VirtualPack {
 
     void waitMs(int ms) const {
         getTraits().waitMs(ms);
+    }
+
+    int formatAll(int size,std::string* arr) const {
+        int thisSize = getCore().size();
+        if (size < thisSize) {
+            throw DynamicVirtualPackArrayTooSmall();
+        }
+
+        void* addr[32];
+        getCore().dumpAddresses(addr);
+        TNodePtr* nodeArr = getCore().nodeArr();
+        for (int i = 0; i < thisSize; ++i) {
+            nodeArr[i]->toString(addr[i],arr[i]);
+        }
+
+        return thisSize;
     }
 
     static int requiredSize(int size,TNodePtr* types) {
