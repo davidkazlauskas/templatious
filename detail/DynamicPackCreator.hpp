@@ -1020,6 +1020,7 @@ struct DynVPackFactoryBuilder {
 
     void attachNode(const char* key,TNodePtr value) {
         Guard g(_mtx);
+        assertUnused();
 
         auto search = _map.find(key);
         if (search != _map.end()) {
@@ -1030,6 +1031,9 @@ struct DynVPackFactoryBuilder {
     }
 
     DynVPackFactory getFactory() {
+        Guard g(_mtx);
+        assertUnused();
+        _isUsed = true;
         return DynVPackFactory(std::move(_map));
     }
 private:
