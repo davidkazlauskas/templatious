@@ -51,14 +51,6 @@ struct NodeFuncNull {
 
 template <class Construct,class Destroy,class Format>
 struct NodeFuncUtil {
-    static const bool consEmpty = std::is_empty<Construct>::value;
-    static const bool destEmpty = std::is_empty<Destroy>::value;
-    static const bool formEmpty = std::is_empty<Format>::value;
-
-    static_assert(consEmpty,"Construction function has to have no members.");
-    static_assert(destEmpty,"Destruction function has to have no members.");
-    static_assert(formEmpty,"Format function has to have no members.");
-
     typedef typename std::remove_reference<
         Construct>::type NoRefConstruct;
     typedef typename std::remove_reference<
@@ -239,16 +231,6 @@ private:
     Func& _funcInst;
 
     PlainObject(Func& ref) : _funcInst(ref) {}
-};
-
-// Dynamic virtual pack traits
-struct DynPackCountTrait : public VirtualPack {
-
-    void incCount() const {
-        ++_count;
-    }
-private:
-    mutable int _count;
 };
 
 struct DynamicVirtualPackCore {
