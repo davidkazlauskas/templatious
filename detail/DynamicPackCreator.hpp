@@ -109,6 +109,18 @@ struct PodType : public TypeNode {
     static_assert(isRaw,"Only raw types, without reference"
             " qualifiers can be used as template argument.");
 
+    template <class F>
+    static TNodePtr sInst(F&& f) {
+        static ThisFact thisFact(
+            Func::inst(
+                NodeFuncNull(),
+                NodeFuncNull(),
+                std::forward<F>(f)
+            )
+        );
+        return &thisFact;
+    }
+
     template <class C,class F>
     static TNodePtr sInst(C&& c,F&& f) {
         static ThisFact thisFact(
@@ -795,6 +807,37 @@ struct TypeNodeFactory {
             std::forward<Construct>(c),
             std::forward<Destroy>(d),
             std::forward<Format>(f));
+    }
+
+    template <class T>
+    static TNodePtr makeDummyNode() {
+        static auto fmt =
+            [](const void*,std::string& str) {
+                str = typeid(T).name();
+            };
+        typedef decltype(fmt) Fmt;
+        typedef detail::NodeFuncUtil<
+            detail::NodeFuncNull,
+            detail::NodeFuncNull,
+            Fmt
+        > FUtil;
+        return detail::PodType<T,FUtil>::sInst(fmt);
+    }
+
+    template <class T>
+    static TNodePtr makeDummyNode(const char* name) {
+        static std::string sName(name);
+        static auto fmt =
+            [&](const void*,std::string& str) {
+                str = sName;
+            };
+        typedef decltype(fmt) Fmt;
+        typedef detail::NodeFuncUtil<
+            detail::NodeFuncNull,
+            detail::NodeFuncNull,
+            Fmt
+        > FUtil;
+        return detail::PodType<T,FUtil>::sInst(fmt);
     }
 };
 
