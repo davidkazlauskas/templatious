@@ -906,7 +906,7 @@ struct DynVPackFactory {
             TNodePtr arr[TYPE_LIMIT];
 
             if (size <= 0) {
-                throw DynVPackFactoryTypeLimitException();
+                throw DynVPackFactoryIncorrectSizeException();
             }
 
             if (size > TYPE_LIMIT) {
