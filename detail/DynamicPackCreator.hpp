@@ -12,15 +12,9 @@
 #include <templatious/detail/VirtualPack.hpp>
 
 namespace templatious {
-namespace detail {
 
-// std::align would be used but g++ 4.8 doesn't have it...
-void* ptrAlign(size_t align,size_t size,void* ptr) {
-    char* p1 = static_cast<char*>(ptr);
-    char* p2 = reinterpret_cast<char*>(
-        reinterpret_cast<size_t>(p1 + (align - 1)) & -align);
-    return p2;
-}
+template <int packBitmask,class CallbackType>
+struct DynamicVirtualPack;
 
 struct TypeNode {
     virtual long size() const = 0;
@@ -38,6 +32,16 @@ struct TypeNode {
 };
 
 typedef const TypeNode* TNodePtr;
+
+namespace detail {
+
+// std::align would be used but g++ 4.8 doesn't have it...
+void* ptrAlign(size_t align,size_t size,void* ptr) {
+    char* p1 = static_cast<char*>(ptr);
+    char* p2 = reinterpret_cast<char*>(
+        reinterpret_cast<size_t>(p1 + (align - 1)) & -align);
+    return p2;
+}
 
 struct NodeFuncNull {
     // do nothing
@@ -395,7 +399,7 @@ private:
     }
 
     template <int packBitmask,class CallbackType>
-    friend struct DynamicVirtualPack;
+    friend struct templatious::DynamicVirtualPack;
 
     DynamicVirtualPackCore(int size,TNodePtr* types,const char* values[])
         : _size(size)
@@ -470,7 +474,6 @@ private:
     void dumpOffsets(void** buf) const {
         void* iterator = valueStart();
         TNodePtr* nodes = nodeArr();
-        size_t space = 1024;
         for (int i = 0; i < _size; ++i) {
             long size,align;
             nodes[i]->sizeAndAlign(size,align);
@@ -830,13 +833,15 @@ private:
     Container _cont;
 };
 
+}
+
 struct TypeNodeFactory {
     template <class T,class Construct,class Format>
     static TNodePtr makePodNode(Construct&& c,Format&& f) {
         typedef typename std::decay<Construct>::type CDec;
         typedef typename std::decay<Format>::type FDec;
-        typedef NodeFuncUtil<CDec,NodeFuncNull,FDec> FUtil;
-        return PodType<T,FUtil>::sInst(
+        typedef detail::NodeFuncUtil<CDec,detail::NodeFuncNull,FDec> FUtil;
+        return detail::PodType<T,FUtil>::sInst(
             std::forward<Construct>(c),
             std::forward<Format>(f));
     }
@@ -846,8 +851,8 @@ struct TypeNodeFactory {
         typedef typename std::decay<Construct>::type CDec;
         typedef typename std::decay<Destroy>::type DDec;
         typedef typename std::decay<Format>::type FDec;
-        typedef NodeFuncUtil<CDec,DDec,FDec> FUtil;
-        return PlainObject<T,FUtil>::sInst(
+        typedef detail::NodeFuncUtil<CDec,DDec,FDec> FUtil;
+        return detail::PlainObject<T,FUtil>::sInst(
             std::forward<Construct>(c),
             std::forward<Destroy>(d),
             std::forward<Format>(f));
@@ -883,7 +888,7 @@ struct DynVPackFactory {
             !isVoidPtr,Callback,void
         >::type Fwd;
 
-        typedef DynamicVirtualPack<FLAGS,Fwd> Signature;
+        typedef detail::DynamicVirtualPack<FLAGS,Fwd> Signature;
 
         template <class CustCallback>
         static auto make(
@@ -892,7 +897,7 @@ struct DynVPackFactory {
             CustCallback&& c
         )
          -> std::shared_ptr<
-                DynamicVirtualPack<
+                detail::DynamicVirtualPack<
                     FLAGS,
                     Fwd
                 >
@@ -1050,7 +1055,6 @@ private:
     }
 };
 
-}
 }
 
 #endif /* end of include guard: DYNAMICPACKCREATOR_A8GJJ2Z6 */
