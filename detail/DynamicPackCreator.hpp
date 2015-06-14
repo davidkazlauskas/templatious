@@ -714,7 +714,7 @@ struct DynamicVirtualPack : public VirtualPack {
         return getCore().constAt(i);
     }
 
-    int useCount() const override {
+    int useCount() const {
         return getTraits().getCount();
     }
 

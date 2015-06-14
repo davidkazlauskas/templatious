@@ -135,12 +135,6 @@ struct VirtualPack {
     virtual bool constAt(int i) const = 0;
 
     /**
-     * Check how many times this pack was used
-     * when expanding into function.
-     */
-    virtual int useCount() const = 0;
-
-    /**
      * Check if the specified signature matches
      * this pack.
      * @param[in] Args signature to check. Has
@@ -1113,7 +1107,7 @@ struct VirtualPackImpl : public VirtualPack {
         return pack_size;
     }
 
-    int useCount() const override {
+    int useCount() const {
         return _cont.getCount();
     }
 
