@@ -2772,7 +2772,7 @@ struct StaticFactory {
     >
     static auto vpack(Init&&... vars)
      -> templatious::VirtualPackImpl<
-         DefVpackSettings, Signature...
+         DefVpackSettings, void*, Signature...
      >
     {
         const bool sameSize =
@@ -2781,9 +2781,10 @@ struct StaticFactory {
             "Type count in signature has to be the"
             " same as the count of arguments passed.");
         return templatious::VirtualPackImpl<
-            DefVpackSettings,Signature...
+            DefVpackSettings,void*,Signature...
         >(
             ExpVpackConInvoke(),
+            nullptr,
             std::forward<Init>(vars)...
         );
     }
@@ -2827,10 +2828,10 @@ struct StaticFactory {
     >
     static auto vpackPtr(Init&&... vars)
      -> std::shared_ptr< VirtualPackImpl<
-         DefVpackSettings,Signature...
+         DefVpackSettings,void*,Signature...
          > >
     {
-        typedef VirtualPackImpl<DefVpackSettings,Signature...>
+        typedef VirtualPackImpl<DefVpackSettings,void*,Signature...>
             TheVal;
         const bool sameSize =
             sizeof...(Signature) == sizeof...(Init);
@@ -2839,6 +2840,7 @@ struct StaticFactory {
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
             ExpVpackConInvoke(),
+            nullptr,
             std::forward<Init>(vars)...
         );
     }
@@ -3025,11 +3027,12 @@ struct StaticFactory {
     >
     static auto vpackPtrCustom(Init&&... vars)
      -> std::shared_ptr< VirtualPackImpl<
-         vpackFlags, Signature...
+         vpackFlags, void*, Signature...
          > >
     {
         typedef VirtualPackImpl<
             vpackFlags,
+            void*,
             Signature...
         > TheVal;
         const bool hasCallback = (vpackFlags & VPACK_WCALLBACK) != 0;
@@ -3047,6 +3050,7 @@ struct StaticFactory {
             " same as the count of arguments passed.");
         return std::make_shared< TheVal >(
             ExpVpackConInvoke(),
+            nullptr,
             std::forward<Init>(vars)...
         );
     }

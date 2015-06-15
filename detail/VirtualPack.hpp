@@ -690,10 +690,6 @@ struct VirtualPackCore {
         return _cont.template fGet<i>();
     }
 
-    const ThisCore& getCore() const {
-        return *this;
-    }
-
     void dumpMetaInfo(PackMetaInfo& out) const {
         out._size = pack_size;
         out._constness = _constness;
@@ -956,8 +952,9 @@ struct VirtualPackOnReadyTrait : public Inherit {
         Inherit(e,std::forward<V>(v)...),
         _c(std::forward<Func>(f)) {}
 
-    void invokeCallback() const {
-        _c.cgetRef()(Inherit::getCore());
+    template <class TheCore>
+    void invokeCallback(TheCore&& core) const {
+        _c.cgetRef()(std::forward<TheCore>(core));
     }
 
 private:
@@ -983,11 +980,12 @@ struct VirtualPackNoOnReadyTrait : public Inherit {
     VirtualPackNoOnReadyTrait(ThisTrait&& other)
         : Inherit(std::move(other)) {}
 
-    template <class... V>
-    VirtualPackNoOnReadyTrait(ExpVpackConInvoke e,V&&... v) :
+    template <class Func,class... V>
+    VirtualPackNoOnReadyTrait(ExpVpackConInvoke e,Func&& f,V&&... v) :
         Inherit(e,std::forward<V>(v)...) {}
 
-    void invokeCallback() const {}
+    template <class TheCore>
+    void invokeCallback(TheCore&& core) const {}
 };
 
 template <int mask>
@@ -996,13 +994,14 @@ struct ConvertBitmaskToVPackCoreSettings {
     static const bool is_waitable = (mask & VPACK_WAIT) != 0;
     static const bool is_synced = (mask & VPACK_SYNCED) != 0;
     static const bool has_callback = (mask & VPACK_WCALLBACK) != 0;
+    static const bool empty = mask == 0;
 };
 
 template <
     class CoreSettings,
     class... Args
 >
-struct VirtualPackCoreCreator {
+struct VirtualPackContainerCreator {
 
     struct CutFirst {
         template <class A,class... Tail>
@@ -1011,29 +1010,21 @@ struct VirtualPackCoreCreator {
         };
     };
 
-    struct NoCutFirst {
-        template <class A,class... Tail>
-        struct Func {
-            typedef VirtualPackCore<A,Tail...> type;
-        };
-    };
-
-    typedef typename std::conditional<
-        CoreSettings::has_callback,
-        CutFirst,
-        NoCutFirst
-    >::type CoreCreator;
-
-    typedef typename CoreCreator::template Func<Args...>::type Core;
+    typedef typename CutFirst::template Func<Args...>::type Core;
 
     // for callback
     typedef typename templatious::util::
         GetFrist<Args...>::type First;
 
+    struct TraitBase {
+        template <class... InnerArgs>
+        TraitBase(InnerArgs&&... args) {}
+    };
+
     typedef typename std::conditional<
         CoreSettings::is_counted,
-        VirtualPackCountTrait< Core >,
-        VirtualPackNoCountTrait< Core >
+        VirtualPackCountTrait< TraitBase >,
+        VirtualPackNoCountTrait< TraitBase >
     >::type Counted;
 
     typedef typename std::conditional<
@@ -1062,38 +1053,131 @@ struct VirtualPackCoreCreator {
         >
     >::type Called;
 
-    typedef Called FinalCore;
+    typedef Called CalcTraits;
+
+    struct CoreWTraits {
+        typedef CalcTraits Traits;
+
+        template <class Any,class... InnerArgs>
+        CoreWTraits(ExpVpackConInvoke e,Any&& functor,InnerArgs&&... args) :
+            _traits(e,std::forward<Any>(functor)),
+            _core(e,std::forward<InnerArgs>(args)...) {}
+
+        CoreWTraits(CoreWTraits&& wtraits) :
+            _traits(std::move(wtraits._traits)),
+            _core(std::move(wtraits._core)) {}
+
+        CoreWTraits(const CoreWTraits& wtraits) :
+            _traits(wtraits._traits),
+            _core(wtraits._core) {}
+
+        Core& getCore() {
+            return _core;
+        }
+
+        const Core& getCore() const {
+            return _core;
+        }
+
+        Traits& getTraits() {
+            return _traits;
+        }
+
+        const Traits& getTraits() const {
+            return _traits;
+        }
+
+        Traits _traits;
+        Core _core;
+    };
+
+    struct CoreNoTraits {
+        typedef CoreNoTraits Traits;
+
+        template <class Any,class... InnerArgs>
+        CoreNoTraits(ExpVpackConInvoke e,Any&&,InnerArgs&&... args)
+            : _core(e,std::forward<InnerArgs>(args)...) {}
+
+        CoreNoTraits(CoreNoTraits&& wtraits) :
+            _core(std::move(wtraits._core)) {}
+
+        CoreNoTraits(const CoreNoTraits& wtraits) :
+            _core(wtraits._core) {}
+
+        Core& getCore() {
+            return _core;
+        }
+
+        const Core& getCore() const {
+            return _core;
+        }
+
+        CoreNoTraits& getTraits() {
+            return *this;
+        }
+
+        const CoreNoTraits& getTraits() const {
+            return *this;
+        }
+
+        std::mutex* getMutex() const {
+            return nullptr;
+        }
+
+        void increment() const {}
+
+        void setReady() const {}
+
+        template <class AnyArg>
+        void invokeCallback(AnyArg&&) const {}
+
+        int getCount() const { return -1; }
+
+        Core _core;
+    };
+
+    typedef typename std::conditional<
+        CoreSettings::empty,
+        CoreNoTraits,
+        CoreWTraits
+    >::type FinalContainer;
+
+    typedef typename FinalContainer::Traits Traits;
 };
 
 }
 
 template <int coreBitmask,class... T>
 struct VirtualPackImpl : public VirtualPack {
-    static const int pack_size = sizeof...(T);
+    static const int pack_size = sizeof...(T) - 1; // first is for potential callback
     typedef vpacktraits::ConvertBitmaskToVPackCoreSettings<
         coreBitmask
     > VPackSettings;
     typedef VirtualPackImpl<coreBitmask,T...> ThisImpl;
-    typedef typename vpacktraits::VirtualPackCoreCreator<
-        VPackSettings,T...>::FinalCore ContType;
+    typedef typename vpacktraits::VirtualPackContainerCreator<
+        VPackSettings,T...> CoreCreator;
+
+    typedef typename CoreCreator::FinalContainer ContType;
+    typedef typename CoreCreator::Core CoreType;
+    typedef typename CoreCreator::Traits TraitType;
 
     static const bool copy_constructable =
         std::is_copy_constructible< ThisImpl >::value;
 
     template <class... V>
     explicit VirtualPackImpl(ExpVpackConInvoke e,V&&... v) :
-        VirtualPack(ContType::calcHash()),
+        VirtualPack(CoreType::calcHash()),
         _cont(e,std::forward<V>(v)...)
     {}
 
     template <bool canCopy = copy_constructable>
     VirtualPackImpl(typename std::enable_if<
         canCopy,const ThisImpl&>::type impl) :
-        VirtualPack(ContType::calcHash()),
+        VirtualPack(CoreType::calcHash()),
         _cont(impl._cont) {}
 
     VirtualPackImpl(ThisImpl&& impl) :
-        VirtualPack(ContType::calcHash()),
+        VirtualPack(CoreType::calcHash()),
         _cont(std::move(impl._cont)) {}
 
     ~VirtualPackImpl() {
@@ -1103,12 +1187,28 @@ struct VirtualPackImpl : public VirtualPack {
         }
     }
 
+    CoreType& getCore() {
+        return _cont.getCore();
+    }
+
+    const CoreType& getCore() const {
+        return _cont.getCore();
+    }
+
+    TraitType& getTraits() {
+        return _cont.getTraits();
+    }
+
+    const TraitType& getTraits() const {
+        return _cont.getTraits();
+    }
+
     int size() const override {
         return pack_size;
     }
 
     int useCount() const {
-        return _cont.getCount();
+        return getTraits().getCount();
     }
 
     /**
@@ -1121,10 +1221,10 @@ struct VirtualPackImpl : public VirtualPack {
     template <int i>
     auto fGet()
      -> decltype(
-         std::declval<ContType>().template fGet<i>()
+         std::declval<ContType>().getCore().template fGet<i>()
      )
     {
-        return _cont.template fGet<i>();
+        return getCore().template fGet<i>();
     }
 
     const std::type_index& typeAt(int i) const override {
@@ -1138,43 +1238,43 @@ struct VirtualPackImpl : public VirtualPack {
         if (i >= pack_size || i < 0) {
             throw VirtualPackTypeOutOfBoundsException();
         }
-        return _cont.constness(i);
+        return getCore().constness(i);
     }
 
     // function should only be called when using
     // the pack.
     void dumpAddresses(void** arr) const override {
-        _cont.dumpAddresses(arr);
+        getCore().dumpAddresses(arr);
     }
 
     void dumpMetaInfo(PackMetaInfo& out) const override {
-        _cont.dumpMetaInfo(out);
+        getCore().dumpMetaInfo(out);
     }
 
     const std::type_index* tArr() const {
-        return _cont.tArr();
+        return getCore().tArr();
     }
 
     std::type_index* tArr() {
-        return _cont.tArr();
+        return getCore().tArr();
     }
 
     void wait() const {
-        _cont.wait();
+        getTraits().wait();
     }
 
     void waitMs(int milliseconds) const {
-        _cont.waitMs(milliseconds);
+        getTraits().waitMs(milliseconds);
     }
 
     std::mutex* mutexPtr() const override {
-        return _cont.getMutex();
+        return getTraits().getMutex();
     }
 
     void invokeCallback() const override {
-        _cont.increment();
-        _cont.setReady();
-        _cont.invokeCallback();
+        getTraits().increment();
+        getTraits().setReady();
+        getTraits().invokeCallback(_cont.getCore());
     }
 
 private:
