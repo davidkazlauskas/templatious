@@ -361,6 +361,8 @@ struct VirtualPack {
         return _hash;
     }
 protected:
+    friend struct DynVPackFactory;
+
     VirtualPack(size_t hash) : _hash(hash) {}
     virtual void dumpAddresses(void** arr) const = 0;
     virtual void dumpMetaInfo(PackMetaInfo& out) const = 0;

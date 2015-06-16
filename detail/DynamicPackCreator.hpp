@@ -799,6 +799,10 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVPackFactoryTypeLimitException,
     "Maximum type limit is 32." );
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVPackFactoryIncorrectSizeException,
     "Minimum size of a pack is 1." );
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVPackFactorySerializeArrayTooSmallException,
+    "String array for serialization is too small." );
+TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVPackFactorySerializeUnknownTypeException,
+    "Type to be serialized is not present in the dictionary." );
 
 struct DynVPackFactory {
 
@@ -882,8 +886,9 @@ struct DynVPackFactory {
 
     static const int TYPE_LIMIT = 32;
 
-    DynVPackFactory(std::unordered_map<const char*,TNodePtr>&& map)
-        : _map(std::move(map)) {}
+    DynVPackFactory(std::unordered_map<const char*,TNodePtr>&& map,
+                    std::unordered_map<std::type_index,TNodePtr>&& rmap)
+        : _map(std::move(map)), _reverseMap(std::move(rmap)) {}
 
     auto makePack(int size,const char** keys,const char** values) const
      -> decltype(
@@ -944,9 +949,36 @@ struct DynVPackFactory {
         >::make(*this,size,keys,values,std::forward<Callback>(c));
     }
 
+    int serializePack(const VirtualPack& p,int arrSize,std::string* arr) const {
+        PackMetaInfo inf;
+        p.dumpMetaInfo(inf);
+        if (inf._size > arrSize) {
+            throw DynVPackFactorySerializeArrayTooSmallException();
+        }
+
+        TNodePtr arrNode[32];
+        for (int i = 0; i < inf._size; ++i) {
+            auto fnd = _reverseMap.find(inf._idxPtr[i]);
+            if (_reverseMap.end() != fnd) {
+                arrNode[i] = fnd->second;
+            } else {
+                throw DynVPackFactorySerializeUnknownTypeException();
+            }
+        }
+
+        void* addr[32];
+        p.dumpAddresses(addr);
+        for (int i = 0; i < inf._size; ++i) {
+            arrNode[i]->toString(addr[i],arr[i]);
+        }
+
+        return inf._size;
+    }
+
 private:
     // this should be immutable and set in stone.
     std::unordered_map<const char*,TNodePtr> _map;
+    std::unordered_map<std::type_index,TNodePtr> _reverseMap;
 };
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVpackFactoryBuilderKeyExistsException,
@@ -973,7 +1005,13 @@ struct DynVPackFactoryBuilder {
         Guard g(_mtx);
         assertUnused();
         _isUsed = true;
-        return DynVPackFactory(std::move(_map));
+        std::unordered_map<std::type_index,TNodePtr> revMap;
+        revMap.reserve(_map.size());
+        for (auto& i : _map) {
+            std::type_index idx = i.second->type();
+            revMap.insert(std::make_pair(idx,i.second));
+        }
+        return DynVPackFactory(std::move(_map),std::move(revMap));
     }
 private:
     bool _isUsed;
