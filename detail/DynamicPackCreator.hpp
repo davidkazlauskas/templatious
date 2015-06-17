@@ -8,6 +8,7 @@
 #define DYNAMICPACKCREATOR_A8GJJ2Z6
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <templatious/detail/VirtualPack.hpp>
 
@@ -973,6 +974,13 @@ struct DynVPackFactory {
         }
 
         return inf._size;
+    }
+
+    std::vector< std::string > serializePack(const VirtualPack& p) const {
+        int size = p.size();
+        std::vector< std::string > result(size);
+        serializePack(p,size,result.data());
+        return result;
     }
 
 private:
