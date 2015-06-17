@@ -735,6 +735,10 @@ struct TypeNodeFactory {
         typedef typename std::decay<Construct>::type CDec;
         typedef typename std::decay<Format>::type FDec;
         typedef detail::NodeFuncUtil<CDec,detail::NodeFuncNull,FDec> FUtil;
+        const bool isPod = std::is_pod<T>::value;
+        static_assert(isPod,
+            "Destructor may not be provided only"
+            " for POD (Plain-old-data) types.");
         return detail::TypeNodeImpl<T,FUtil>::sInst(
             std::forward<Construct>(c),
             std::forward<Format>(f));
