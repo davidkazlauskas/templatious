@@ -14,8 +14,18 @@
 
 namespace templatious {
 
+struct DynVPackFactory;
+
+namespace detail {
 template <int packBitmask,class CallbackType>
 struct DynamicVirtualPack;
+    namespace dynvpacktraits {
+        template <int packBitmask,class CallbackType>
+        struct SingleCoreContainer;
+        template <int packBitmask,class CallbackType>
+        struct TraitedContainer;
+    }
+}
 
 struct TypeNode {
     virtual long size() const = 0;
@@ -175,6 +185,23 @@ struct DynamicVirtualPackCore {
     DynamicVirtualPackCore(const DynamicVirtualPackCore&) = delete;
     DynamicVirtualPackCore(DynamicVirtualPackCore&&) = delete;
 
+    ~DynamicVirtualPackCore() {
+        void* buf[32];
+        dumpOffsets(buf);
+        TNodePtr* nodes = nodeArr();
+        for (int i = 0; i < _size; ++i) {
+            nodes[i]->destroy(buf[i]);
+        }
+    }
+
+    template <int packBitmask,class CallbackType>
+    friend struct ::templatious::detail::DynamicVirtualPack;
+    friend struct ::templatious::DynVPackFactory;
+    template <int packBitmask,class CallbackType>
+    friend struct ::templatious::detail::dynvpacktraits::SingleCoreContainer;
+    template <int packBitmask,class CallbackType>
+    friend struct ::templatious::detail::dynvpacktraits::TraitedContainer;
+
     template <class Expected>
     const Expected* get(int pos) const {
         if (pos < 0 || pos >= _size) {
@@ -273,9 +300,6 @@ private:
         out._idxPtr = idxArr();
     }
 
-    template <int packBitmask,class CallbackType>
-    friend struct templatious::DynamicVirtualPack;
-
     DynamicVirtualPackCore(int size,TNodePtr* types,const char* values[])
         : _size(size)
     {
@@ -296,15 +320,6 @@ private:
         }
 
         guard.dismiss();
-    }
-
-    ~DynamicVirtualPackCore() {
-        void* buf[32];
-        dumpOffsets(buf);
-        TNodePtr* nodes = nodeArr();
-        for (int i = 0; i < _size; ++i) {
-            nodes[i]->destroy(buf[i]);
-        }
     }
 
     static size_t calcHash(int size,TNodePtr* types) {
@@ -571,6 +586,54 @@ struct DynamicVirtualPackTraitCreator {
     typedef Called FinalTraits;
 };
 
+template <int packBitmask,class CallbackType>
+struct SingleCoreContainer {
+    typedef typename dynvpacktraits::DynamicVirtualPackTraitCreator<
+        packBitmask,CallbackType>::FinalTraits FinalTraits;
+
+    template <class Func>
+    SingleCoreContainer(int size,TNodePtr* types,const char* values[],Func&& f)
+        : _core(size,types,values) {}
+
+    const SingleCoreContainer& getTraits() const {
+        return *this;
+    }
+
+    int getCount() const {
+        return -1;
+    }
+
+    std::mutex* getMutex() const {
+        return nullptr;
+    }
+
+    void increment() const {}
+
+    void setReady() const {}
+
+    template <class Anything>
+    void invokeCallback(Anything&& a) const {}
+
+    DynamicVirtualPackCore _core;
+};
+
+template <int packBitmask,class CallbackType>
+struct TraitedContainer {
+    typedef typename dynvpacktraits::DynamicVirtualPackTraitCreator<
+        packBitmask,CallbackType>::FinalTraits FinalTraits;
+
+    template <class Func>
+    TraitedContainer(int size,TNodePtr* types,const char* values[],Func&& f)
+        : _traits(std::forward<Func>(f)), _core(size,types,values) {}
+
+    const FinalTraits& getTraits() const {
+        return _traits;
+    }
+
+    FinalTraits _traits;
+    DynamicVirtualPackCore _core;
+};
+
 }
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynamicVirtualPackArrayTooSmall,
@@ -635,51 +698,11 @@ protected:
     typedef typename dynvpacktraits::DynamicVirtualPackTraitCreator<
         packBitmask,CallbackType>::FinalTraits FinalTraits;
 
-    struct SingleCoreContainer {
-        template <class Func>
-        SingleCoreContainer(int size,TNodePtr* types,const char* values[],Func&& f)
-            : _core(size,types,values) {}
-
-        const SingleCoreContainer& getTraits() const {
-            return *this;
-        }
-
-        int getCount() const {
-            return -1;
-        }
-
-        std::mutex* getMutex() const {
-            return nullptr;
-        }
-
-        void increment() const {}
-
-        void setReady() const {}
-
-        template <class Anything>
-        void invokeCallback(Anything&& a) const {}
-
-        DynamicVirtualPackCore _core;
-    };
-
-    struct TraitedContainer {
-        template <class Func>
-        TraitedContainer(int size,TNodePtr* types,const char* values[],Func&& f)
-            : _traits(std::forward<Func>(f)), _core(size,types,values) {}
-
-        const FinalTraits& getTraits() const {
-            return _traits;
-        }
-
-        FinalTraits _traits;
-        DynamicVirtualPackCore _core;
-    };
-
     static const bool isEmpty = std::is_empty<FinalTraits>::value;
     typedef typename std::conditional<
         isEmpty,
-        SingleCoreContainer,
-        TraitedContainer
+        dynvpacktraits::SingleCoreContainer<packBitmask,CallbackType>,
+        dynvpacktraits::TraitedContainer<packBitmask,CallbackType>
     >::type Container;
 
     const DynamicVirtualPackCore& getCore() const {
@@ -710,13 +733,15 @@ protected:
         getTraits().invokeCallback(getCore());
     }
 
-#ifndef TEMPLATIOUS_TESTING
-private:
-#endif
     static size_t getHash(int size,TNodePtr* types) {
         return DynamicVirtualPackCore::calcHash(size,types);
     }
 
+    friend struct ::templatious::DynVPackFactory;
+
+#ifndef TEMPLATIOUS_TESTING
+private:
+#endif
     // the true type signature expected is
     // [possible callback],int size,TNodePtr* types,const char* values
     template <class Func>
