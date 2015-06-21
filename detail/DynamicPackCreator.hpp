@@ -7,6 +7,7 @@
 #ifndef DYNAMICPACKCREATOR_A8GJJ2Z6
 #define DYNAMICPACKCREATOR_A8GJJ2Z6
 
+#include <cstring>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -45,6 +46,30 @@ struct TypeNode {
 typedef const TypeNode* TNodePtr;
 
 namespace detail {
+
+size_t templatiousHashCString(const char* word)
+{
+    std::int64_t hash = 0;
+    std::int32_t max = std::numeric_limits<std::int32_t>::max();
+    for (int i = 0; word[i] != '\0'; i++)
+    {
+        hash = 31*hash + word[i];
+        hash %= max;
+    }
+    return hash % max;
+}
+
+struct CStringHasher {
+    size_t operator()(const char* const& str) const {
+        return templatiousHashCString(str);
+    }
+
+    bool operator()(const char* const a,const char* const b) const {
+        return 0 == std::strcmp(a,b);
+    }
+};
+
+typedef std::unordered_map< const char*, TNodePtr, CStringHasher, CStringHasher > TNodeMapType;
 
 // std::align would be used but g++ 4.8 doesn't have it...
 void* ptrAlign(size_t align,size_t size,void* ptr) {
@@ -916,7 +941,7 @@ struct DynVPackFactory {
 
     static const int TYPE_LIMIT = 32;
 
-    DynVPackFactory(std::unordered_map<const char*,TNodePtr>&& map,
+    DynVPackFactory(detail::TNodeMapType&& map,
                     std::unordered_map<std::type_index,TNodePtr>&& rmap)
         : _map(std::move(map)), _reverseMap(std::move(rmap)) {}
 
@@ -1014,7 +1039,7 @@ struct DynVPackFactory {
 
 private:
     // this should be immutable and set in stone.
-    std::unordered_map<const char*,TNodePtr> _map;
+    detail::TNodeMapType _map;
     std::unordered_map<std::type_index,TNodePtr> _reverseMap;
 };
 
@@ -1053,7 +1078,7 @@ struct DynVPackFactoryBuilder {
 private:
     bool _isUsed;
     std::mutex _mtx;
-    std::unordered_map<const char*,TNodePtr> _map;
+    detail::TNodeMapType _map;
 
     typedef std::lock_guard<std::mutex> Guard;
 
