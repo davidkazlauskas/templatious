@@ -214,7 +214,7 @@ struct DynamicVirtualPackCore {
         void* buf[32];
         dumpOffsets(buf);
         TNodePtr* nodes = nodeArr();
-        for (int i = 0; i < _size; ++i) {
+        for (int i = _size - 1; i >= 0; --i) {
             nodes[i]->destroy(buf[i]);
         }
     }
@@ -1005,8 +1005,38 @@ struct DynVPackFactory {
     }
 
     int serializePack(const VirtualPack& p,int arrSize,std::string* arr) const {
+        return serializeGeneric(p,arrSize,arr);
+    }
+
+    std::vector< std::string > serializePack(const VirtualPack& p) const {
+        int size = p.size();
+        std::vector< std::string > result(size);
+        serializeGeneric(p,size,result.data());
+        return result;
+    }
+
+    int serializeDynamicCore(
+        const detail::DynamicVirtualPackCore& core,
+        int arrSize,std::string* arr) const
+    {
+        return serializeGeneric(core,arrSize,arr);
+    }
+
+    std::vector< std::string > serializeDynamicCore(
+        const detail::DynamicVirtualPackCore& core
+        ) const
+    {
+        int size = core.size();
+        std::vector< std::string > result(size);
+        serializeGeneric(core,size,result.data());
+        return result;
+    }
+
+private:
+    template <class Pack>
+    int serializeGeneric(const Pack& arg,int arrSize,std::string* arr) const {
         PackMetaInfo inf;
-        p.dumpMetaInfo(inf);
+        arg.dumpMetaInfo(inf);
         if (inf._size > arrSize) {
             throw DynVPackFactorySerializeArrayTooSmallException();
         }
@@ -1022,7 +1052,7 @@ struct DynVPackFactory {
         }
 
         void* addr[32];
-        p.dumpAddresses(addr);
+        arg.dumpAddresses(addr);
         for (int i = 0; i < inf._size; ++i) {
             arrNode[i]->toString(addr[i],arr[i]);
         }
@@ -1030,14 +1060,6 @@ struct DynVPackFactory {
         return inf._size;
     }
 
-    std::vector< std::string > serializePack(const VirtualPack& p) const {
-        int size = p.size();
-        std::vector< std::string > result(size);
-        serializePack(p,size,result.data());
-        return result;
-    }
-
-private:
     // this should be immutable and set in stone.
     detail::TNodeMapType _map;
     std::unordered_map<std::type_index,TNodePtr> _reverseMap;
