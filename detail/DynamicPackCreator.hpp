@@ -41,6 +41,12 @@ struct TypeNode {
     virtual void toString(const void* ptr,std::string& str) const = 0;
 
     virtual ~TypeNode() {}
+
+    TypeNode(const TypeNode&) = delete;
+    TypeNode(TypeNode&&) = delete;
+
+protected:
+    TypeNode() {}
 };
 
 typedef const TypeNode* TNodePtr;
@@ -941,8 +947,24 @@ struct DynVPackFactory {
 
     static const int TYPE_LIMIT = 32;
 
+    typedef std::pair<bool,std::type_index> ReverseMapKey;
+    struct ReverseMapKeyHasher {
+        size_t operator()(const ReverseMapKey& key) const {
+            return key.first + key.second.hash_code();
+        }
+
+        size_t operator()(
+                const ReverseMapKey& lhs,
+                const ReverseMapKey& rhs) const
+        {
+            return lhs.first == rhs.first && lhs.second == rhs.second;
+        }
+    };
+    typedef std::unordered_map<ReverseMapKey,TNodePtr,
+        ReverseMapKeyHasher,ReverseMapKeyHasher> ReverseMapType;
+
     DynVPackFactory(detail::TNodeMapType&& map,
-                    std::unordered_map<std::type_index,TNodePtr>&& rmap)
+                    ReverseMapType&& rmap)
         : _map(std::move(map)), _reverseMap(std::move(rmap)) {}
 
     auto makePack(int size,const char** keys,const char** values) const
@@ -1053,7 +1075,8 @@ private:
 
         TNodePtr arrNode[32];
         for (int i = 0; i < inf._size; ++i) {
-            auto fnd = _reverseMap.find(inf._idxPtr[i]);
+            auto key = ReverseMapKey(inf._constness[i],inf._idxPtr[i]);
+            auto fnd = _reverseMap.find(key);
             if (_reverseMap.end() != fnd) {
                 arrNode[i] = fnd->second;
                 if (nullptr != outTypes) {
@@ -1075,7 +1098,7 @@ private:
 
     // this should be immutable and set in stone.
     detail::TNodeMapType _map;
-    std::unordered_map<std::type_index,TNodePtr> _reverseMap;
+    ReverseMapType _reverseMap;
 };
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVpackFactoryBuilderKeyExistsException,
@@ -1102,11 +1125,12 @@ struct DynVPackFactoryBuilder {
         Guard g(_mtx);
         assertUnused();
         _isUsed = true;
-        std::unordered_map<std::type_index,TNodePtr> revMap;
+        DynVPackFactory::ReverseMapType revMap;
         revMap.reserve(_map.size());
         for (auto& i : _map) {
-            std::type_index idx = i.second->type();
-            revMap.insert(std::make_pair(idx,i.second));
+            auto key = std::pair<bool,std::type_index>(
+                i.second->isConst(),i.second->type());
+            revMap.insert(std::make_pair(std::move(key),i.second));
         }
         return DynVPackFactory(std::move(_map),std::move(revMap));
     }
