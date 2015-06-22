@@ -1004,37 +1004,47 @@ struct DynVPackFactory {
         >::make(*this,size,keys,values,std::forward<Callback>(c));
     }
 
-    int serializePack(const VirtualPack& p,int arrSize,std::string* arr) const {
-        return serializeGeneric(p,arrSize,arr);
+    int serializePack(const VirtualPack& p,int arrSize,
+        std::string* arr,
+        TNodePtr* outTypes = nullptr) const
+    {
+        return serializeGeneric(p,arrSize,arr,outTypes);
     }
 
-    std::vector< std::string > serializePack(const VirtualPack& p) const {
+    std::vector< std::string > serializePack(
+        const VirtualPack& p,
+        TNodePtr* outTypes = nullptr) const
+    {
         int size = p.size();
         std::vector< std::string > result(size);
-        serializeGeneric(p,size,result.data());
+        serializeGeneric(p,size,result.data(),outTypes);
         return result;
     }
 
     int serializeDynamicCore(
         const detail::DynamicVirtualPackCore& core,
-        int arrSize,std::string* arr) const
+        int arrSize,std::string* arr,
+        TNodePtr* outTypes = nullptr) const
     {
-        return serializeGeneric(core,arrSize,arr);
+        return serializeGeneric(core,arrSize,arr,outTypes);
     }
 
     std::vector< std::string > serializeDynamicCore(
-        const detail::DynamicVirtualPackCore& core
-        ) const
+        const detail::DynamicVirtualPackCore& core,
+        TNodePtr* outTypes = nullptr) const
     {
         int size = core.size();
         std::vector< std::string > result(size);
-        serializeGeneric(core,size,result.data());
+        serializeGeneric(core,size,result.data(),outTypes);
         return result;
     }
 
 private:
     template <class Pack>
-    int serializeGeneric(const Pack& arg,int arrSize,std::string* arr) const {
+    int serializeGeneric(
+            const Pack& arg,int arrSize,
+            std::string* arr, TNodePtr* outTypes) const
+    {
         PackMetaInfo inf;
         arg.dumpMetaInfo(inf);
         if (inf._size > arrSize) {
@@ -1046,6 +1056,9 @@ private:
             auto fnd = _reverseMap.find(inf._idxPtr[i]);
             if (_reverseMap.end() != fnd) {
                 arrNode[i] = fnd->second;
+                if (nullptr != outTypes) {
+                    outTypes[i] = fnd->second;
+                }
             } else {
                 throw DynVPackFactorySerializeUnknownTypeException();
             }
