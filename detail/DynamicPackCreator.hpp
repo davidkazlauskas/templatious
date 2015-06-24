@@ -953,19 +953,34 @@ struct DynVPackFactory {
             return key.first + key.second.hash_code();
         }
 
-        size_t operator()(
+        bool operator()(
                 const ReverseMapKey& lhs,
                 const ReverseMapKey& rhs) const
         {
             return lhs.first == rhs.first && lhs.second == rhs.second;
         }
     };
+
+    struct TNodePtrHasher {
+        size_t operator()(TNodePtr ptr) const {
+            return ptr->isConst() + ptr->type().hash_code();
+        }
+
+        bool operator()(TNodePtr lhs,TNodePtr rhs) const {
+            return lhs == rhs;
+        }
+    };
+
     typedef std::unordered_map<ReverseMapKey,TNodePtr,
-        ReverseMapKeyHasher,ReverseMapKeyHasher> ReverseMapType;
+        ReverseMapKeyHasher,ReverseMapKeyHasher> ReverseIndexMapType;
+    typedef std::unordered_map<TNodePtr,const char*,
+        TNodePtrHasher,TNodePtrHasher> ReverseStringMapType;
 
     DynVPackFactory(detail::TNodeMapType&& map,
-                    ReverseMapType&& rmap)
-        : _map(std::move(map)), _reverseMap(std::move(rmap)) {}
+                    ReverseIndexMapType&& rmap,
+                    ReverseStringMapType&& rstringMap)
+        : _map(std::move(map)), _reverseIndexMap(std::move(rmap)),
+          _reverseNameMap(std::move(rstringMap)) {}
 
     auto makePack(int size,const char** keys,const char** values) const
      -> decltype(
@@ -1061,6 +1076,13 @@ struct DynVPackFactory {
         return result;
     }
 
+    const char* associatedName(TNodePtr ptr) const {
+        auto fnd = _reverseNameMap.find(ptr);
+        if (_reverseNameMap.end() == fnd) {
+            return nullptr;
+        };
+        return fnd->second;
+    }
 private:
     template <class Pack>
     int serializeGeneric(
@@ -1076,8 +1098,8 @@ private:
         TNodePtr arrNode[32];
         for (int i = 0; i < inf._size; ++i) {
             auto key = ReverseMapKey(inf._constness[i],inf._idxPtr[i]);
-            auto fnd = _reverseMap.find(key);
-            if (_reverseMap.end() != fnd) {
+            auto fnd = _reverseIndexMap.find(key);
+            if (_reverseIndexMap.end() != fnd) {
                 arrNode[i] = fnd->second;
                 if (nullptr != outTypes) {
                     outTypes[i] = fnd->second;
@@ -1098,7 +1120,8 @@ private:
 
     // this should be immutable and set in stone.
     detail::TNodeMapType _map;
-    ReverseMapType _reverseMap;
+    ReverseIndexMapType _reverseIndexMap;
+    ReverseStringMapType _reverseNameMap;
 };
 
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVpackFactoryBuilderKeyExistsException,
@@ -1125,14 +1148,22 @@ struct DynVPackFactoryBuilder {
         Guard g(_mtx);
         assertUnused();
         _isUsed = true;
-        DynVPackFactory::ReverseMapType revMap;
-        revMap.reserve(_map.size());
+        DynVPackFactory::ReverseIndexMapType revIdxMap;
+        revIdxMap.reserve(_map.size());
+        DynVPackFactory::ReverseStringMapType revStringMap;
+        revStringMap.reserve(_map.size());
         for (auto& i : _map) {
             auto key = std::pair<bool,std::type_index>(
                 i.second->isConst(),i.second->type());
-            revMap.insert(std::make_pair(std::move(key),i.second));
+            revIdxMap.insert(std::make_pair(std::move(key),i.second));
+            auto strKey = std::pair<TNodePtr,const char*>(
+                i.second,i.first);
+            revStringMap.insert(strKey);
         }
-        return DynVPackFactory(std::move(_map),std::move(revMap));
+        return DynVPackFactory(
+            std::move(_map),std::move(revIdxMap),
+            std::move(revStringMap)
+        );
     }
 private:
     bool _isUsed;
