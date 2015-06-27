@@ -1045,6 +1045,11 @@ struct DynVPackFactory {
         std::string* arr,
         TNodePtr* outTypes = nullptr) const
     {
+        std::mutex* mPtr = p.mutexPtr();
+        if (nullptr != mPtr) {
+            std::lock_guard< std::mutex > guard(*mPtr);
+            return serializeGeneric(p,arrSize,arr,outTypes);
+        }
         return serializeGeneric(p,arrSize,arr,outTypes);
     }
 
@@ -1054,6 +1059,12 @@ struct DynVPackFactory {
     {
         int size = p.size();
         std::vector< std::string > result(size);
+        std::mutex* mPtr = p.mutexPtr();
+        if (nullptr != mPtr) {
+            std::lock_guard< std::mutex > guard(*mPtr);
+            serializeGeneric(p,size,result.data(),outTypes);
+            return result;
+        }
         serializeGeneric(p,size,result.data(),outTypes);
         return result;
     }
