@@ -1012,14 +1012,14 @@ struct DynVPackFactory {
     }
 
     template <class Callback>
-    auto makePackWCallback(int size,const char** keys,const char** values,Callback&& c)
+    auto makePackWCallback(int size,const char** keys,const char** values,Callback&& c) const
      -> decltype(
             DynPackMakerGeneric<
                 templatious::VPACK_COUNT,
                 decltype(std::forward<Callback>(c))
             >::make(*this,size,keys,values,std::forward<Callback>(c))
         )
-    const {
+    {
         return DynPackMakerGeneric<
             templatious::VPACK_COUNT,
             decltype(std::forward<Callback>(c))
@@ -1027,14 +1027,14 @@ struct DynVPackFactory {
     }
 
     template <int flags,class Callback>
-    auto makePackCustomWCallback(int size,const char** keys,const char** values,Callback&& c)
+    auto makePackCustomWCallback(int size,const char** keys,const char** values,Callback&& c) const
      -> decltype(
             DynPackMakerGeneric<
                 flags,
                 decltype(std::forward<Callback>(c))
             >::make(*this,size,keys,values,std::forward<Callback>(c))
         )
-    const {
+    {
         return DynPackMakerGeneric<
             flags,
             decltype(std::forward<Callback>(c))
