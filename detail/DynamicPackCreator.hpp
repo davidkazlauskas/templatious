@@ -53,7 +53,7 @@ typedef const TypeNode* TNodePtr;
 
 namespace detail {
 
-size_t templatiousHashCString(const char* word)
+static size_t templatiousHashCString(const char* word)
 {
     std::int64_t hash = 0;
     std::int32_t max = std::numeric_limits<std::int32_t>::max();
@@ -78,7 +78,7 @@ struct CStringHasher {
 typedef std::unordered_map< const char*, TNodePtr, CStringHasher, CStringHasher > TNodeMapType;
 
 // std::align would be used but g++ 4.8 doesn't have it...
-void* ptrAlign(size_t align,size_t size,void* ptr) {
+static void* ptrAlign(size_t align,size_t size,void* ptr) {
     char* p1 = static_cast<char*>(ptr);
     char* p2 = reinterpret_cast<char*>(
         reinterpret_cast<size_t>(p1 + (align - 1)) & -align);
