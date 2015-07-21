@@ -1055,6 +1055,17 @@ struct DynVPackFactory {
         >::make(*this,size,keys,values,nullptr);
     }
 
+
+    /**
+     * Make custom pack with callback to be
+     * executed immediately upon usage of this pack.
+     *
+     * @param[in] size Size of the pack.
+     * @param[in] keys Keys for types in this factory.
+     * @param[in] values Values to be used
+     * by type nodes to make the pack.
+     * @param[in] c Callback to be executed.
+     */
     template <class Callback>
     auto makePackWCallback(int size,const char** keys,const char** values,Callback&& c) const
      -> decltype(
