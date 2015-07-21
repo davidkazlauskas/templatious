@@ -1152,6 +1152,15 @@ struct DynVPackFactory {
         return serializeGeneric(p,arrSize,arr,outTypes);
     }
 
+    /**
+     * Serialize pack into vector of strings.
+     * Threadsafe if pack has VPACK_SYNCED flag.
+     * Returns the serialized vector.
+     *
+     * @param[in] p Virtual pack to be serialized.
+     * @param[in] Array to type node buffer to
+     * output tht results (can be null if ignored.)
+     */
     std::vector< std::string > serializePack(
         const VirtualPack& p,
         TNodePtr* outTypes = nullptr) const
