@@ -405,7 +405,7 @@ public:
      * ~~~~~~~
      */
     template <bool passIndex = false, class U, class... Args>
-    static void traverse(U&& fn, Args&&... args) {
+    static long traverse(U&& fn, Args&&... args) {
         if (!templatious::util::SizeVerifier<Args...>(
             args...).areAllEqual())
         {
@@ -422,10 +422,7 @@ public:
         ICall call;
 
         auto e = SA::end(ut::getFirst(std::forward<Args>(args)...));
-        long idx;
-        if (passIndex) {
-            idx = 0;
-        }
+        long idx = 0;
 
         for (; it._a != e; it.inc()) {
             typedef typename ut::RetValSelector<
@@ -438,12 +435,15 @@ public:
                 call,
                 std::forward<U>(fn),
                 idx,it))
-            { return; }
+            { return idx; }
 
             if (passIndex) {
                 ++idx;
             }
+
         }
+
+        return idx;
     }
 
     /**
@@ -1725,8 +1725,6 @@ namespace detail {
         }
 
     };
-
-
 
 }
 }
