@@ -1140,9 +1140,20 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVpackFactoryBuilderKeyExistsException,
 TEMPLATIOUS_BOILERPLATE_EXCEPTION( DynVpackFactoryBuilderUsedException,
     "Builder was already used." );
 
+/**
+ * Dynamic virtual pack factory builder.
+ * The purpose of this class is to add all the type nodes
+ * that will be used and produce the immutable
+ * dynamic virtual pack factory in the end.
+ */
 struct DynVPackFactoryBuilder {
     DynVPackFactoryBuilder() : _isUsed(false) {}
 
+    /**
+     * Attach type node with specified key.
+     * @param key Name of the node (C string).
+     * @param value Pointer to type node.
+     */
     void attachNode(const char* key,TNodePtr value) {
         Guard g(_mtx);
         assertUnused();
@@ -1155,6 +1166,13 @@ struct DynVPackFactoryBuilder {
         _map.insert(std::make_pair(key,value));
     }
 
+    /**
+     * Build the factory from the current state.
+     * After this method is used this builder
+     * object is no longer usable.
+     * Produced factory is immutable and
+     * cannot be changed.
+     */
     DynVPackFactory getFactory() {
         Guard g(_mtx);
         assertUnused();
