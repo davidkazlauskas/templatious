@@ -1008,6 +1008,38 @@ struct DynVPackFactory {
         >::make(*this,size,keys,values,nullptr);
     }
 
+    /**
+     * Make custom pack with flags (is waitable/synced/counted)
+     *
+     * @param[in] flags
+     * Possible values
+     * ~~~~~~~
+     * // does pack count ivocations?
+     * templatious::VPACK_COUNT
+     *
+     * // is pack eligible for waiting
+     * // for the fisr invocation?
+     * templatious::VPACK_WAIT
+     *
+     * // is pack thread safe? (if yes, only
+     * // one thread can invoke pack at a time)
+     * templatious::VPACK_SYNCED
+     *
+     * // does pack have callback?
+     * // you never need to set this value,
+     * // as this is determined by the function
+     * // you call. If you call vpackPtrWCallback
+     * // or vpackPtrCustomWCallback this is always true,
+     * // if this flag is used on vpackPtrCustom
+     * // static assertion is triggered.
+     * templatious::VPACK_WCALLBACK
+     * ~~~~~~~
+     *
+     * @param[in] size Size of the pack.
+     * @param[in] keys Keys for types in this factory.
+     * @param[in] values Values to be used
+     * by type nodes to make the pack.
+     */
     template <int flags>
     auto makePackCustom(int size,const char** keys,const char** values) const
      -> decltype(
