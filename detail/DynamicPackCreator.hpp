@@ -943,7 +943,9 @@ struct DynVPackFactory {
     DynVPackFactory() = delete;
     DynVPackFactory(const DynVPackFactory&) = delete;
     DynVPackFactory(DynVPackFactory&& other)
-        : _map(std::move(other._map)) {}
+        : _map(std::move(other._map)),
+          _reverseIndexMap(std::move(other._reverseIndexMap)),
+          _reverseNameMap(std::move(other._reverseNameMap)) {}
 
     static const int TYPE_LIMIT = 32;
 
