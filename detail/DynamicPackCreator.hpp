@@ -984,6 +984,16 @@ struct DynVPackFactory {
         : _map(std::move(map)), _reverseIndexMap(std::move(rmap)),
           _reverseNameMap(std::move(rstringMap)) {}
 
+    /**
+     * Make dynamic virtual pack with specified size,
+     * specified types according to the key array
+     * and with specified arguments according to the
+     * values array.
+     * @param[in] size Size of the pack.
+     * @param[in] keys Keys for types in this factory.
+     * @param[in] values Values to be used
+     * by type nodes to make the pack.
+     */
     auto makePack(int size,const char** keys,const char** values) const
      -> decltype(
             DynPackMakerGeneric<
@@ -1153,8 +1163,8 @@ struct DynVPackFactoryBuilder {
 
     /**
      * Attach type node with specified key.
-     * @param key Name of the node (C string).
-     * @param value Pointer to type node.
+     * @param[in] key Name of the node (C string).
+     * @param[in] value Pointer to type node.
      */
     void attachNode(const char* key,TNodePtr value) {
         Guard g(_mtx);
