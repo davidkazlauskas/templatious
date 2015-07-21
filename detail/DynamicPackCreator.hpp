@@ -1177,6 +1177,18 @@ struct DynVPackFactory {
         return result;
     }
 
+    /**
+     * Serialize dynamic pack core into array of strings.
+     * Can be used in callback of the pack, because
+     * in callback only core is received by the user.
+     * Threadsafe if pack has VPACK_SYNCED flag.
+     * Returns the size of serialized pack in elements.
+     *
+     * @param[in] p Virtual pack to be serialized.
+     * @param[in] arrSize Size of string array.
+     * @param[in] Array to type node buffer to
+     * output tht results (can be null if ignored.)
+     */
     int serializeDynamicCore(
         const detail::DynamicVirtualPackCore& core,
         int arrSize,std::string* arr,
@@ -1185,6 +1197,17 @@ struct DynVPackFactory {
         return serializeGeneric(core,arrSize,arr,outTypes);
     }
 
+    /**
+     * Serialize pack into vector of strings.
+     * Can be used in callback of the pack, because
+     * in callback only core is received by the user.
+     * Threadsafe if pack has VPACK_SYNCED flag.
+     * Returns the serialized vector.
+     *
+     * @param[in] p Virtual pack to be serialized.
+     * @param[in] Array to type node buffer to
+     * output tht results (can be null if ignored.)
+     */
     std::vector< std::string > serializeDynamicCore(
         const detail::DynamicVirtualPackCore& core,
         TNodePtr* outTypes = nullptr) const
@@ -1195,6 +1218,13 @@ struct DynVPackFactory {
         return result;
     }
 
+    /**
+     * Get associated name in C string with a type node
+     * pointer. Returns null if type node is not
+     * found.
+     *
+     * @param[in] ptr Type node to lookup name for.
+     */
     const char* associatedName(TNodePtr ptr) const {
         auto fnd = _reverseNameMap.find(ptr);
         if (_reverseNameMap.end() == fnd) {
