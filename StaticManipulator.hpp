@@ -437,10 +437,7 @@ public:
                 idx,it))
             { return idx; }
 
-            if (passIndex) {
-                ++idx;
-            }
-
+            ++idx;
         }
 
         return idx;
