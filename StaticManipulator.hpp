@@ -370,7 +370,10 @@ public:
     }
 
     /**
-     * Linear traversal function
+     * Linear traversal function. Returns at which
+     * element traversal stopped. If traversal
+     * was not stopped by user predicate function,
+     * returns one more than the number of traversals.
      * @param[in] fn Function to be used on traversal.
      * Should take arguments from args collection value types.
      * @param[in] args Collection arguments to be traversed
