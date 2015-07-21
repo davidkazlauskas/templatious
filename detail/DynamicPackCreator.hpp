@@ -1130,6 +1130,16 @@ struct DynVPackFactory {
         >::make(*this,size,keys,values,std::forward<Callback>(c));
     }
 
+    /**
+     * Serialize pack into array of strings.
+     * Threadsafe if pack has VPACK_SYNCED flag.
+     * Returns the size of serialized pack in elements.
+     *
+     * @param[in] p Virtual pack to be serialized.
+     * @param[in] arrSize Size of string array.
+     * @param[in] Array to type node buffer to
+     * output tht results (can be null if ignored.)
+     */
     int serializePack(const VirtualPack& p,int arrSize,
         std::string* arr,
         TNodePtr* outTypes = nullptr) const
