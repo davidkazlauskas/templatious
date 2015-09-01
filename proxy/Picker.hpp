@@ -283,7 +283,7 @@ void clearRoutine(C&& c) {
 
         while (i != SA::end(ic)) {
             if (i != j) {
-                *j = *i;
+                *j = std::move(*i);
             }
             if (ProxUtil::iter_unwrap(next) != i
                 || endReached)
