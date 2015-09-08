@@ -363,6 +363,23 @@ struct VirtualPack {
      * @param[in] Arg Argument type. Must be raw
      * type without reference. Const qualifier allowed.
      * @param[in] which Which pack value to use.
+     * @param[in] f Function to call on the value.
+     * may take lvalue reference of the Arg to
+     * mutate value in the pack.
+     *
+     * Example:
+     * ~~~~~~~
+     * auto p = SF::vpack<int>(7);
+     *
+     * bool res = p.callSingle<int>(
+     *     0,[](int& i) {
+     *         i *= 7;
+     *     }
+     * );
+     *
+     * assert( res );
+     * assert( p.fGet<0>() == 49 );
+     * ~~~~~~~
      */
     template <class Arg,class F>
     bool callSingle(int which,F&& f) {
