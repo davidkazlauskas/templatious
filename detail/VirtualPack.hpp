@@ -362,6 +362,8 @@ struct VirtualPack {
             "Type has to be bare type with no reference."
             " Const qualifier allowed.");
 
+        const bool isConst = std::is_const<Arg>::value;
+
         PackMetaInfo inf;
         this->dumpMetaInfo(inf);
         if (which >= inf._size || which < 0) {
@@ -372,7 +374,9 @@ struct VirtualPack {
             return false;
         }
 
-        if (std::type_index(typeid(Arg)) != inf._idxPtr[which]) {
+        if (std::type_index(typeid(Arg)) != inf._idxPtr[which] ||
+            (inf._constness[which] && !isConst))
+        {
             return false;
         } else {
             void* arr[32];
