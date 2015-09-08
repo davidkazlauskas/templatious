@@ -355,17 +355,12 @@ struct VirtualPack {
     }
 
     template <class Arg,class F>
-    bool callSingle(int which,F&& f) const {
+    bool callSingle(int which,F&& f) {
         typedef typename std::remove_reference<Arg>::type
             Derefed;
         static_assert( std::is_same< Derefed, Arg >::value,
             "Type has to be bare type with no reference."
             " Const qualifier allowed.");
-
-        // clear from the start...
-        if (!std::is_const<Arg>::value) {
-            return false;
-        }
 
         PackMetaInfo inf;
         this->dumpMetaInfo(inf);
@@ -397,6 +392,17 @@ struct VirtualPack {
         }
 
         return true;
+    }
+
+    template <class Arg,class F>
+    bool callSingle(int which,F&& f) const {
+        // clear from the start...
+        if (!std::is_const<Arg>::value) {
+            return false;
+        }
+
+        auto castAway = const_cast<templatious::VirtualPack*>(this);
+        return castAway->callSingle(which,std::forward<F>(f));
     }
 
     /**
