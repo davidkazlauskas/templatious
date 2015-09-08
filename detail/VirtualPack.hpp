@@ -354,6 +354,16 @@ struct VirtualPack {
         return true;
     }
 
+    /**
+     * Try to call function on single value of a pack,
+     * specified with which argument (zero based).
+     * Returns if call happened. Call usually fails
+     * because of type mismatches. Throws exception
+     * if which is out of range.
+     * @param[in] Arg Argument type. Must be raw
+     * type without reference. Const qualifier allowed.
+     * @param[in] which Which pack value to use.
+     */
     template <class Arg,class F>
     bool callSingle(int which,F&& f) {
         typedef typename std::remove_reference<Arg>::type
