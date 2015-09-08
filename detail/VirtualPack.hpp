@@ -354,6 +354,23 @@ struct VirtualPack {
         return true;
     }
 
+    template <class Arg,class F>
+    bool callSingle(F&& f) const {
+        typedef typename std::remove_reference<Arg>::type
+            Derefed;
+
+        // clear from the start...
+        if (!std::is_const<Arg>::value) {
+            return false;
+        }
+
+        static_assert( std::is_same< Derefed, Arg >::value,
+            "Type has to be bare type with no reference."
+            " Const qualifier allowed.");
+
+        return true;
+    }
+
     /**
      * Get hash of this pack.
      */
