@@ -355,18 +355,33 @@ struct VirtualPack {
     }
 
     template <class Arg,class F>
-    bool callSingle(F&& f) const {
+    bool callSingle(int which,F&& f) const {
         typedef typename std::remove_reference<Arg>::type
             Derefed;
+        static_assert( std::is_same< Derefed, Arg >::value,
+            "Type has to be bare type with no reference."
+            " Const qualifier allowed.");
 
         // clear from the start...
         if (!std::is_const<Arg>::value) {
             return false;
         }
 
-        static_assert( std::is_same< Derefed, Arg >::value,
-            "Type has to be bare type with no reference."
-            " Const qualifier allowed.");
+        PackMetaInfo inf;
+        this->dumpMetaInfo(inf);
+        if (inf._size <= which) {
+            return false;
+        }
+
+        if (std::type_index(typeid(Arg)) != inf._idxPtr[which]) {
+            return false;
+        } else {
+            void* arr[32];
+            // could be optimized, we only
+            // need one address...
+            dumpAddresses(arr);
+            auto reint = reinterpret_cast< Arg* >(arr[which]);
+        }
 
         return true;
     }
