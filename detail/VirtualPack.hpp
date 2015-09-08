@@ -381,6 +381,15 @@ struct VirtualPack {
             // need one address...
             dumpAddresses(arr);
             auto reint = reinterpret_cast< Arg* >(arr[which]);
+            std::mutex* mtxPtr = mutexPtr();
+            if (nullptr == mtxPtr) {
+                f(*reint);
+                invokeCallback();
+            } else {
+                std::lock_guard< std::mutex > lg(*mtxPtr);
+                f(*reint);
+                invokeCallback();
+            }
         }
 
         return true;
