@@ -369,6 +369,10 @@ struct VirtualPack {
 
         PackMetaInfo inf;
         this->dumpMetaInfo(inf);
+        if (which >= inf._size || which < 0) {
+            throw VirtualPackTypeOutOfBoundsException();
+        }
+
         if (inf._size <= which) {
             return false;
         }
