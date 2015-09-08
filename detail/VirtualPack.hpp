@@ -425,6 +425,17 @@ struct VirtualPack {
         return true;
     }
 
+    /**
+     * Same as callSingle non-const version,
+     * but is const correct. Arg must be const
+     * type.
+     * @param[in] Arg Argument type. Must be raw
+     * type without reference. Must be const.
+     * @param[in] which Which pack value to use.
+     * @param[in] f Function to call on the value.
+     * May only bind as const lvalue reference
+     * or copy.
+     */
     template <class Arg,class F>
     bool callSingle(int which,F&& f) const {
         static_assert(
