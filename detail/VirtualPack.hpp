@@ -396,13 +396,13 @@ struct VirtualPack {
 
     template <class Arg,class F>
     bool callSingle(int which,F&& f) const {
-        // clear from the start...
-        if (!std::is_const<Arg>::value) {
-            return false;
-        }
-
+        static_assert(
+            std::is_const<Arg>::value,
+            "Const version of callSingle may"
+            " only be called with const type argument."
+        );
         auto castAway = const_cast<templatious::VirtualPack*>(this);
-        return castAway->callSingle(which,std::forward<F>(f));
+        return castAway->callSingle<Arg>(which,std::forward<F>(f));
     }
 
     /**
